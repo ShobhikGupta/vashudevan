@@ -1,0 +1,715 @@
+{
+  "products": [
+    {
+      "slug": "copper",
+      "name": "Copper",
+      "icon": "https://vashuda-fjbp.vercel.app/images/copper.jpg",
+      "summary": "Grades and forms to suit different applications and specifications.",
+      "subproducts": [
+        {
+          "slug": "barley",
+          "name": "Bare Bright Wire (BARLEY)",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdZ7UHygRM3Xas5h6FtRtEvw1wI_-sfEURJCC4QSMUdVbNRnRpOm0yD71qAKBnjR0u17cBmQjws9nBJy0Dxh8BDGosT3a_65UJdFeBpWNNraKw2PTq8wIggVJ87of22AwewINeaG4ICZ6jpvxxfl-ED-5QOt4b8gEXNT5mGFfEvCsHnO5SbPjg81bOOaX4hC81Y9WqG5uAyYy7OTlB0c4g1teA0a6ls17P22dLY=w1280"
+        },
+        {
+          "slug": "berry-candy",
+          "name": "#1 Copper (BERRY / CANDY)",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdYfMIpWxi0nIeyddWgcrG-jFkDErh9r5JJlooTwKiZNOCQJWeBvEtn0d-Wq5E6rMeV4MKuD7IGp4hLyRIjl83rYCebiC1KahhZMGaonnn2uctUINIcWJLHhjqNIt_xXfw9GBYvTiJ8YRj3enBiWr4412PBh3p76OngaQR6cfZumr8scb_7YdmeJ1CFEA4m7ywfDKlzF5ZXtvSyIEaLtpFx8uDK5nd2NPglchvA=w1280"
+        },
+        {
+          "slug": "birch-cliff",
+          "name": "#2 Copper (BIRCH / CLIFF)",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdZDG-go6C_L10HYcRZjoCywzLrI-H6q234Nmqyl8DGsxlzPQA_Z5PVjYn-5QfLy57EYtnVqtA0hWCRBUkDtJls9NlxsPgI0l4yO_4GkK8oB9QWzHbBUeokL8uDVdNg6APM-RATbndRi79QNiTAZHQn-R77_567rK9GMXeRjbxsiQ2GSuAwuJJ1nBmn7HlLvDXYlZa5-YHQ8yxOwlQpz1fO8Ad8pmkqf0blp5Yg=w1280"
+        },
+        {
+          "slug": "cloves",
+          "name": "#1 Copper Chops (CLOVES)",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdZcKRqL8icXFceP_MMIc9ksXRfpdnt-W-88bU47RI313RhJBXS99Fr20_NRI5kddBhWybjxSzZ7SxYWadx2zo9QhGVMNxC6RvP3VwiwJd2XubO-4hdBal7w_eEh8XueWz7GdiG7ItK5iD4xLT5m2JHT0ftvYUi400ehSWTY-mJHhe5Fp9dEvgEMaRUkJc_Li4aHKiCgjTlac6EfpOh4zFc3cm4H4ScBg0j0Ook=w1280"
+        },
+        {
+          "slug": "cobra",
+          "name": "#2 Copper Chops (COBRA)",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdZo-pzFb5-f8ctDiogsWZFQeJrhL7OUbEsVFGLp79l_taX2I_UWTyUHOZjcdmHPr0viQJeBl4L4HWCYBo_MoA3Ek9rRkjciR2saZFESbyDyvg8IOuD1-zdzWTeINhnQ2YN_WjH3p-pUvC-AWcbqHdbdI0C5hk_KXTH8G8BXHx6P3YUPM3vhStUHhMll5yv_gdTDS1WJRmH8EBn3NhEu-ODeiJrJPzYU7tiWoZM=w1280"
+        },
+        {
+          "slug": "ingots",
+          "name": "Copper Ingots",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdZBPI2CPuborgGwQAoUQrA3rlFoB-d88ZgXWC8bmcl7fLFUr_KLDY-iBDvPDDNSAqngY1TJLxtRZ9ZKZKz_vQQLclEe0WBsBD-tjYEiHQvWjWfBrb1Slem7o7r0jU5GiT-A2WOCAiNt_lKPk52ZVF6OVCHM3Cl-l6hP1lwreseUL1b0oE69sLYtxZiW8ZhfSXF7SkI0yLXQW4Zi6_kTSndyw7bRLqTL8gjP=w1280"
+        }
+      ]
+    },
+    {
+      "slug": "brass",
+      "name": "Brass",
+      "icon": "https://vashuda-fjbp.vercel.app/images/brass.jpg",
+      "summary": "Yellow brass, red brass, radiators, turnings, tubes, and ingots.",
+      "subproducts": [
+        {
+          "slug": "honey",
+          "name": "Yellow Brass (HONEY)",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdZXlksuGoDjmWREwq31k0fdNpGusTNlKaNJfzhIsT750vpgQOQQSCagyt78v5yHCgCGXrfktCUGdebKNeHENlR6dhH98tBkCrGWMbMJD2wOucRXS7-BlMh6WiqkK_ePff4koKdPpsDAZ4Q6YUYmd7rOPWDd84pLLZfEE9HeUzN9dYGbKtLHI-ndoNEOJ-1SmYNdG_3oK3K_D0DzEMfYSeI3wS-yexnn81j-=w1280"
+        },
+        {
+          "slug": "ebony",
+          "name": "Red Brass (EBONY)",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdamDRHA4MMEDIBfad3PvS7VZTo30csMdaieAEbHpVkkzcZtvLnsYuP7cDaJBqeigEyxbhe8u0gHBj9sV2Aswd4gZaHm5xOAAMrsZiEu_-PbmN7FlD6Ngub5F0EfV8Vo6QunzAKGnNQ4HFL_9Z4mTPzqJxmTGXdGqHt4JBpZjaumakce8wOqvhAOQ5_Mo1OC8K0k8-nXy5fhmZ-JEpb_HmUAxjEXiIgwBfn0XEk=w1280"
+        },
+        {
+          "slug": "water-meter",
+          "name": "Clean Water Meter Shells",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdaB17aKUH_cwmR-cOS4_Y1fVOGcq9sv6iGY6GpTKnlNGcPJehzmF-bLh32kwsuqrIFRk61dksjSb8phQ_9ZUwc36C3jJRlxPMd-p4xz1mZd_oWR-4dY-5n-Br81QBHZk3vPdmTYlyWPM7smaDlfLe_ADaULlBmCD3hf_1QC-piZwarmZzLa2OkW_-_l7bEsxqkrzX-QxnYm5dXvBQtA70QpOE3TCfcZGm7mZ6w=w1280"
+        },
+        {
+          "slug": "ocean",
+          "name": "Brass Auto Radiators (OCEAN)",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdarNFzY00u7lXtHOBIKXVZzZ4YURQrzjbOsXHtaj3X_9dq7ok8G3r2vdUrUJye6QRLrDL3xcaPtXtd5JJE8rtW9vWLdpxGVcglY2i6XxNYUJPQgp7L9CyJOA7oRiWVsTa6uVqu_Q5MxG_tx5XTyVYqObmbUjckD7IGWQX-M6ePCGM5tv3G5edwfoxz_tGbz2gpA5PlAZniRa2-pJd8bS9OHvIkP0jNFjOH8=w1280"
+        },
+        {
+          "slug": "nomad",
+          "name": "Mixed Brass Turnings (NOMAD)",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdZx6O9AhiTjp3b7ajXO8MuXqe6i-KJzIK9KNTJ6h10Eh2X2obfOEJOvjYscqjo3Rmu1oablLTwR_PwBM8r7UZJR7fhV1yHQdXtFSv9Sa7rcW3oWzrS9ctAr0x211IIHipircYQI4t-PPvrLdR-GzvZN0Pet4TXnN2bh4BMquMUc5cFMFq-N2ZwHnB-jkhIHVdGKSkY5GDtDnBT44rc97z7CF4fa2hg0yZ5brh0=w1280"
+        },
+        {
+          "slug": "pales",
+          "name": "Admiralty Brass Tubes (PALES)",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdZJv-pSE7HIVajVHGJTcCFAR-psFox7yezSaA3pYKMLcukweyf3r58ccLSpqlcVD3AbvRa3ACm_9Lmm8UCX_hFHZlEKpkFWUWgRCQDReGufOXpVg1E5lE6Z0NX7-syR8DaqaNVofWvIZmpu3fVqxUy8CVpF2HKJnMm9J5UW1xoWSlC4gQiAiFOvbpgLJPlwRfIByOF4S3cKRzHmZYK1UXbaYZmgWtgFOHal=w1280"
+        },
+        {
+          "slug": "pallu",
+          "name": "PALLU",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdaKnABzGaTcXmqsg8ao4A9MP1CM1b3kjYMW4B3SyF9LCH42wtVMrYyW-woU64xmmJAr-pQGL-OJN32uDPwxj2_ztl_9yAh_G4nMIsw6EjOrN-8isSf7Loyp_kHuIOUsIPoH7--OvJ6WORJHGFq9DvjWhEeUmLBaxXEj1KkVHChBaXGzt24Xtmf6iAX6h8H5nIkVToVTYiNkp4awlqRBcVzb2ZFZ9WvuhNvFCOU=w1280"
+        },
+        {
+          "slug": "pump-barrel",
+          "name": "Pump Barrel Brass",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdYe8vukYkm3_MQ-1Mi8mP3gSmmRT5YTAFWEir-19JzpCuYE8aPY7StF8p46uylodR92iL9JPpW9chXlfuUJwhxToPev8UlMhcvdqEbFCaIO1r0bZPAF7ut2APs8FjW_-LwsxRauq3hjs1Wko3IWYEaWW1x6n9urmBoUtOYsD990Bq3SW6bYLfi963uUI0iV5NH6x88GqohkOysJgR1WTJPYwnTEqAkUi40V=w1280"
+        },
+        {
+          "slug": "propeller",
+          "name": "Propeller Scrap",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYda6PWih5IRUsW5qQh8URAZR7g6zjuTN0QxFL-K9nyvb3fhQ1C445VJ6qUo_xx0gLt7eXlprN4ThFiQoLOf45DUCI_qrm9VcJK0U7x2G3UU_GKJvwoG3R-tW79qFKOJYa1WaNPi_Ed95Vxn0-3MdoocOuq-tE3z7xdfkQiCxQatKauMCOJlJowSgCWr5Ai3RpxNQNq9S1iQParKpUhrCRiNTNXZfIvTNQABWLFE=w1280"
+        },
+        {
+          "slug": "70-30-shells",
+          "name": "70-30 Brass Shells",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdZVClXbbcZW3JVJ8YmgPmn9HAgjJvDoQyH80RRV9wz5NgXam1iWtaSg0txFBTfzS1b8daZRAZsCgZHrL0LMklTuDn4E1K_H43ywHj0IqOHrTrdLouQbHD3PA68svSFwxXmbnkrOeiRkfT5lr02Go2dHSCt30QTwU76VY2z93Lk1teUUqWga4OP6jD9NZ3-_5L3fDxrAl7-OD4MpieNKVFOt6kSwUHClaOhayO8=w1280"
+        },
+        {
+          "slug": "70-30-labels",
+          "name": "70-30 Brass Labels",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdYmJoPfWoWuKJmZ_3kp8dGNFJgbKiQfVgUiJ9WBE96UexneWpqZu9ZE_y009VgE-CS9H8kxz0toR_gXXDriRHsAvL0domfTBz2zNeHB-02iE3aZVvcX2Rd-LQTyMk4bvtDrWNq7978fTpZ3P7UO8_G5c5drsvuXrp7i8hBI96KBQ49kbA2whWq8rnsDteKmpd8CtebThcq6Q49PZk-7zqQ6ab-mpogrPdok=w1280"
+        },
+        {
+          "slug": "edm",
+          "name": "EDM Wire",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdb9CKw03MZq0CqnZF7c_I2Fnt4ydrwkXkDQUpSz685CcXo5AfB2eeI00Qy_ufoiO8ew4JVu07kgZm6yx67PiL32tvKxx9fatx_Vrj3dmc5aXuz3O1XDYZz678rQDHAYlgN2Kme4Hw9FVfJfOgoTZ7CVqZW1nc_IedHeJVP-CDxtG55Js_f_NkiJ3OCAv54u0oCaml1-x6hZdV4s_KJ4RAV6bhlTHCJP3QYV-fw=w1280"
+        },
+        {
+          "slug": "alum-bronze-solids",
+          "name": "Alum Bronze Solids",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdbmhhflwAaXuvc5bfqEygrdBFPWCmt_GQ3IEZOUe8K34XqsOZQc8cu4pKOa0idyzdNU972jiaanSAEj_SQwJjQMMz74GJj5fEa8qklvrO62kp9WO082srl6WlJLbpRDnGQkcr2j6Kst2N7NMdNXQU65wvAg7rfYhzIOn5M22eJR61BcDAp7rVC4S468z65a4yG0Bt4Uw-4UbIrVvbtMMEu6DiliD-TvHyQBI3s=w1280"
+        },
+        {
+          "slug": "alum-bronze-turnings",
+          "name": "Alum Bronze Turnings",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdaJxp2JmNdYroTtQMu89G6YE3XnOA-mguImjapvEZqsp_o8kg8zIl_U8o7xdhCPk45E9vRTAB5HwPvAeJHggndIKHI-28VG5DouSpr5yaVd1Y9qt-Do9liqTWzxSmUDO_CtbsON1yMG5HrcTcPbFqZ2ihWpHiEWV5Q9rcJVlHcwNRjNwWg8dMqZuxsyY5PxUDDdZal1Ydsex24zPRSEJ0Sb8c5EGt7w3Rc-=w1280"
+        },
+        {
+          "slug": "mn-bronze-solids",
+          "name": "Mn Bronze Solids",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdZEguIkbncG2eZpcUKxAz15QGPbF7slhgWP75eml4sryxoRKIjTWJE_HiVEg-gQDwQVCocgaJFdFLsOjExGl62VHUULvV0DHXNvRG_rHmlFsKY5LoXSjbTj1GmOhLkC5aTy5BfgPvIs8bnef5eHKLhXlA1L4PftiHikVF6HrITUvT7PbrHiV3dodLhbXBMvhs_LyHxX0O4PMDho8Js0CuyEqqlPtn4JZqmCAb4=w1280"
+        },
+        {
+          "slug": "mn-bronze-turnings",
+          "name": "Mn Bronze Turnings",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdbpFKsMLaVi5yvfktvY1xIDgYtytntjGlkomHE-1qD40VLQ5dsH62F_L46Z9vBUWgYjTX0r10NlavAgFgfIVsB3eWnlbJBirTRa2RlTrmvjgqLiSFUvAzfnne8D0333jkcypInf51KZ2z-jqG0HCgWAvzwATRUFcQEjJNOc0bMR5RbY9keXOmY4tK-tJkAZVFHIKINpe9GnixZUelt-mAv4OQPwNB5xIy43HgQ=w1280"
+        },
+        {
+          "slug": "ingots",
+          "name": "Brass Ingots",
+          "image": "https://lh3.googleusercontent.com/sitesv/AICyYdbXrB2cQFkyCwS09DLnmvViX9EQ_BNH6jISf8Il5abSYekbieSEGf5NvS1RUGcVhZZgKE7F1NIZCtEHUQNuWExEAIqsdRGT7sb14PlFVIbvBNYFRWT2L9Z5G2zfOxZGNrlrq43Mc5cRXW6aONoiPMRkF_2oIHiNnDrRT-a6oGxs4w_Y4YsMqR0GFWblCYOZbZJFrHqdqWVeyGk_AmH1B5kn2fQH7Yq5bLYYVLE=w1280"
+        }
+      ]
+    },
+    {
+      "slug": "aluminum",
+      "name": "Aluminum",
+      "icon": "https://vashuda-fjbp.vercel.app/images/allu.jpg",
+      "summary": "Sheets, cans, castings, extrusions, turnings, wires, and ingots.",
+      "subproducts": [
+        {
+          "slug": "taint-tabor",
+          "name": "Old Sheet (TAINT / TABOR)",
+          "image": "assets/img/products/aluminum/taint-tabor.svg"
+        },
+        {
+          "slug": "tale",
+          "name": "Painted Sidings (TALE)",
+          "image": "assets/img/products/aluminum/tale.svg"
+        },
+        {
+          "slug": "tough-taboo",
+          "name": "New Pro MLC (TOUGH TABOO)",
+          "image": "assets/img/products/aluminum/tough-taboo.svg"
+        },
+        {
+          "slug": "tablet",
+          "name": "Litho Sheets (TABLET)",
+          "image": "assets/img/products/aluminum/tablet.svg"
+        },
+        {
+          "slug": "coffee-pods",
+          "name": "Coffee Pods",
+          "image": "assets/img/products/aluminum/coffee-pods.svg"
+        },
+        {
+          "slug": "license-plates",
+          "name": "License Plates",
+          "image": "assets/img/products/aluminum/license-plates.svg"
+        },
+        {
+          "slug": "alucobond",
+          "name": "Alucobond",
+          "image": "assets/img/products/aluminum/alucobond.svg"
+        },
+        {
+          "slug": "taldon",
+          "name": "Used Beverage Cans (TALDON)",
+          "image": "assets/img/products/aluminum/taldon.svg"
+        },
+        {
+          "slug": "talk",
+          "name": "Al-Cu Radiators (TALK)",
+          "image": "assets/img/products/aluminum/talk.svg"
+        },
+        {
+          "slug": "tally-clean",
+          "name": "Clean Al Radiators (TALLY - CLEAN)",
+          "image": "assets/img/products/aluminum/tally-clean.svg"
+        },
+        {
+          "slug": "tally-dirty",
+          "name": "Dirty Al Radiators (TALLY - DIRTY)",
+          "image": "assets/img/products/aluminum/tally-dirty.svg"
+        },
+        {
+          "slug": "tense",
+          "name": "Cast Aluminum (TENSE)",
+          "image": "assets/img/products/aluminum/tense.svg"
+        },
+        {
+          "slug": "trump",
+          "name": "Auto Castings (TRUMP)",
+          "image": "assets/img/products/aluminum/trump.svg"
+        },
+        {
+          "slug": "tarry",
+          "name": "Aluminum Pistons (TARRY)",
+          "image": "assets/img/products/aluminum/tarry.svg"
+        },
+        {
+          "slug": "ingots",
+          "name": "Aluminum Ingots",
+          "image": "assets/img/products/aluminum/ingots.svg"
+        },
+        {
+          "slug": "tutu",
+          "name": "Irony Ext 6063 (95-5) (TUTU)",
+          "image": "assets/img/products/aluminum/tutu.svg"
+        },
+        {
+          "slug": "toto",
+          "name": "6063 Extrusions (TOTO)",
+          "image": "assets/img/products/aluminum/toto.svg"
+        },
+        {
+          "slug": "tata",
+          "name": "Aluminum Extrusions (TATA)",
+          "image": "assets/img/products/aluminum/tata.svg"
+        },
+        {
+          "slug": "6061-spc",
+          "name": "Sheets - Plates - Clips (6061 SPC)",
+          "image": "assets/img/products/aluminum/6061-spc.svg"
+        },
+        {
+          "slug": "troma",
+          "name": "Bare/Chrome/Truck Wheels (TROMA)",
+          "image": "assets/img/products/aluminum/troma.svg"
+        },
+        {
+          "slug": "telic",
+          "name": "Al Turnings & Pucks (TELIC)",
+          "image": "assets/img/products/aluminum/telic.svg"
+        },
+        {
+          "slug": "talon",
+          "name": "EC Wire (TALON)",
+          "image": "assets/img/products/aluminum/talon.svg"
+        },
+        {
+          "slug": "tall",
+          "name": "EC Chops & Straws (TALL)",
+          "image": "assets/img/products/aluminum/tall.svg"
+        },
+        {
+          "slug": "twang",
+          "name": "Insulated Al Wires (TWANG)",
+          "image": "assets/img/products/aluminum/twang.svg"
+        },
+        {
+          "slug": "trill",
+          "name": "ACSR Wire (TRILL)",
+          "image": "assets/img/products/aluminum/trill.svg"
+        }
+      ]
+    },
+    {
+      "slug": "lead",
+      "name": "Lead",
+      "icon": "https://vashuda-fjbp.vercel.app/images/lead.jpg",
+      "summary": "Soft lead, wheel weights, battery plates, and other forms.",
+      "subproducts": [
+        {
+          "slug": "radio",
+          "name": "Clean Lead Scrap (RADIO)",
+          "image": "assets/img/products/lead/radio.svg"
+        },
+        {
+          "slug": "indoor-range",
+          "name": "Clean Indoor Range Lead",
+          "image": "assets/img/products/lead/indoor-range.svg"
+        },
+        {
+          "slug": "keel-weights",
+          "name": "Lead Keel Weights",
+          "image": "assets/img/products/lead/keel-weights.svg"
+        },
+        {
+          "slug": "shots",
+          "name": "Lead Shots",
+          "image": "assets/img/products/lead/shots.svg"
+        },
+        {
+          "slug": "ropes",
+          "name": "Lead Wheel Weights (ROPES)",
+          "image": "assets/img/products/lead/ropes.svg"
+        },
+        {
+          "slug": "rains",
+          "name": "Drained Lead Acid Batteries (RAINS)",
+          "image": "assets/img/products/lead/rains.svg"
+        }
+      ]
+    },
+    {
+      "slug": "stainless-steel",
+      "name": "Stainless Steel",
+      "icon": "https://vashuda-fjbp.vercel.app/images/stainless.jpg",
+      "summary": "304/316 solids and turnings, and other stainless grades.",
+      "subproducts": [
+        {
+          "slug": "sabot",
+          "name": "304 Solids (SABOT)",
+          "image": "assets/img/products/stainless-steel/sabot.svg"
+        },
+        {
+          "slug": "ultra",
+          "name": "304 Turnings (ULTRA)",
+          "image": "assets/img/products/stainless-steel/ultra.svg"
+        },
+        {
+          "slug": "316-solids",
+          "name": "316 Solids",
+          "image": "assets/img/products/stainless-steel/316-solids.svg"
+        },
+        {
+          "slug": "316-turnings",
+          "name": "316 Turnings",
+          "image": "assets/img/products/stainless-steel/316-turnings.svg"
+        },
+        {
+          "slug": "15-5-solids",
+          "name": "15-5 Solids",
+          "image": "assets/img/products/stainless-steel/15-5-solids.svg"
+        },
+        {
+          "slug": "15-5-turnings",
+          "name": "15-5 Turnings",
+          "image": "assets/img/products/stainless-steel/15-5-turnings.svg"
+        },
+        {
+          "slug": "409-shells",
+          "name": "409 Catalytic Converter Shells",
+          "image": "assets/img/products/stainless-steel/409-shells.svg"
+        },
+        {
+          "slug": "430-solids",
+          "name": "430 Solids",
+          "image": "assets/img/products/stainless-steel/430-solids.svg"
+        }
+      ]
+    },
+    {
+      "slug": "zinc",
+      "name": "Zinc",
+      "icon": "https://vashuda-fjbp.vercel.app/images/zinc.jpg",
+      "summary": "Common zinc forms for foundry and industrial applications.",
+      "subproducts": [
+        {
+          "slug": "saves",
+          "name": "Zinc Die Cast (SAVES)",
+          "image": "assets/img/products/zinc/saves.svg"
+        },
+        {
+          "slug": "shredded",
+          "name": "Shredded Zinc",
+          "image": "assets/img/products/zinc/shredded.svg"
+        },
+        {
+          "slug": "kirksite",
+          "name": "Kirksite",
+          "image": "assets/img/products/zinc/kirksite.svg"
+        },
+        {
+          "slug": "anodes",
+          "name": "Zinc Anodes",
+          "image": "assets/img/products/zinc/anodes.svg"
+        }
+      ]
+    },
+    {
+      "slug": "auto-scrap",
+      "name": "Auto Scrap",
+      "icon": "https://vashuda-fjbp.vercel.app/images/scrap.jpg",
+      "summary": "End-of-life vehicles, auto parts, and components.",
+      "subproducts": [
+        {
+          "slug": "alternators",
+          "name": "Alternators",
+          "image": "assets/img/products/auto-scrap/alternators.svg"
+        },
+        {
+          "slug": "starters-al",
+          "name": "Starters Al Nose",
+          "image": "assets/img/products/auto-scrap/starters-al.svg"
+        },
+        {
+          "slug": "starters-fe",
+          "name": "Starters Fe Nose",
+          "image": "assets/img/products/auto-scrap/starters-fe.svg"
+        },
+        {
+          "slug": "compressors",
+          "name": "AC Compressors",
+          "image": "assets/img/products/auto-scrap/compressors.svg"
+        },
+        {
+          "slug": "stators",
+          "name": "Stators from Alternators",
+          "image": "assets/img/products/auto-scrap/stators.svg"
+        },
+        {
+          "slug": "rotors",
+          "name": "Rotors from Alternators",
+          "image": "assets/img/products/auto-scrap/rotors.svg"
+        },
+        {
+          "slug": "field-coils",
+          "name": "Field Coils from Starters",
+          "image": "assets/img/products/auto-scrap/field-coils.svg"
+        },
+        {
+          "slug": "armatures",
+          "name": "Armatures from Starters",
+          "image": "assets/img/products/auto-scrap/armatures.svg"
+        },
+        {
+          "slug": "solenoids",
+          "name": "Solenoids from Starters",
+          "image": "assets/img/products/auto-scrap/solenoids.svg"
+        },
+        {
+          "slug": "ecm",
+          "name": "Electronic Control Modules (ECM)",
+          "image": "assets/img/products/auto-scrap/ecm.svg"
+        },
+        {
+          "slug": "al-engines",
+          "name": "Aluminum Body Engines",
+          "image": "assets/img/products/auto-scrap/al-engines.svg"
+        },
+        {
+          "slug": "steel-engines",
+          "name": "Steel Body Engines",
+          "image": "assets/img/products/auto-scrap/steel-engines.svg"
+        },
+        {
+          "slug": "transmissions",
+          "name": "Transmissions",
+          "image": "assets/img/products/auto-scrap/transmissions.svg"
+        }
+      ]
+    },
+    {
+      "slug": "copper-bearing",
+      "name": "Copper Bearing",
+      "icon": "https://vashuda-fjbp.vercel.app/images/bearing.jpg",
+      "summary": "Motors, alternators, compressors, and copper-bearing scrap.",
+      "subproducts": [
+        {
+          "slug": "small-motors",
+          "name": "Small Motors (ELMO)",
+          "image": "assets/img/products/copper-bearing/small-motors.svg"
+        },
+        {
+          "slug": "mixed-motors",
+          "name": "Mixed Motors (ELMO)",
+          "image": "assets/img/products/copper-bearing/mixed-motors.svg"
+        },
+        {
+          "slug": "large-motors",
+          "name": "Large Motors (ELMO)",
+          "image": "assets/img/products/copper-bearing/large-motors.svg"
+        },
+        {
+          "slug": "sealed-units",
+          "name": "Sealed Units (VADER)",
+          "image": "assets/img/products/copper-bearing/sealed-units.svg"
+        },
+        {
+          "slug": "copper-ballasts",
+          "name": "Copper Ballasts (DARTH)",
+          "image": "assets/img/products/copper-bearing/copper-ballasts.svg"
+        },
+        {
+          "slug": "electronic-ballasts",
+          "name": "Electronic Ballasts (DARTH)",
+          "image": "assets/img/products/copper-bearing/electronic-ballasts.svg"
+        },
+        {
+          "slug": "transformers-small",
+          "name": "Cu Transformers - Small",
+          "image": "assets/img/products/copper-bearing/transformers-small.svg"
+        },
+        {
+          "slug": "transformers-medium",
+          "name": "Cu Transformers - Medium",
+          "image": "assets/img/products/copper-bearing/transformers-medium.svg"
+        },
+        {
+          "slug": "transformers-large",
+          "name": "Cu Transformers - Large",
+          "image": "assets/img/products/copper-bearing/transformers-large.svg"
+        },
+        {
+          "slug": "talk-ends",
+          "name": "Talk Ends",
+          "image": "assets/img/products/copper-bearing/talk-ends.svg"
+        },
+        {
+          "slug": "digital-meters",
+          "name": "Digital Electric Meters",
+          "image": "assets/img/products/copper-bearing/digital-meters.svg"
+        },
+        {
+          "slug": "analogue-meters",
+          "name": "Analogue Electric Meters",
+          "image": "assets/img/products/copper-bearing/analogue-meters.svg"
+        },
+        {
+          "slug": "ac-units",
+          "name": "Whole AC Units",
+          "image": "assets/img/products/copper-bearing/ac-units.svg"
+        }
+      ]
+    },
+    {
+      "slug": "shredder-scrap",
+      "name": "Shredder Scrap",
+      "icon": "https://vashuda-fjbp.vercel.app/images/shredder.jpg",
+      "summary": "Zorba, zurik, twitch, and other post-shredder metallic fractions.",
+      "subproducts": [
+        {
+          "slug": "zorba",
+          "name": "ZORBA",
+          "image": "assets/img/products/shredder-scrap/zorba.svg"
+        },
+        {
+          "slug": "zurik",
+          "name": "ZURIK",
+          "image": "assets/img/products/shredder-scrap/zurik.svg"
+        },
+        {
+          "slug": "zebra",
+          "name": "Heavies (ZEBRA)",
+          "image": "assets/img/products/shredder-scrap/zebra.svg"
+        },
+        {
+          "slug": "shelmo",
+          "name": "Shredder Pickings / Meatballs (SHELMO)",
+          "image": "assets/img/products/shredder-scrap/shelmo.svg"
+        },
+        {
+          "slug": "zeyda",
+          "name": "Shredded Wire (ZEYDA)",
+          "image": "assets/img/products/shredder-scrap/zeyda.svg"
+        },
+        {
+          "slug": "shredded-aluminum",
+          "name": "Shredded Aluminum",
+          "image": "assets/img/products/shredder-scrap/shredded-aluminum.svg"
+        },
+        {
+          "slug": "twitch",
+          "name": "TWITCH",
+          "image": "assets/img/products/shredder-scrap/twitch.svg"
+        },
+        {
+          "slug": "shredded-wheels",
+          "name": "Shredded Wheels",
+          "image": "assets/img/products/shredder-scrap/shredded-wheels.svg"
+        },
+        {
+          "slug": "shredded-stainless",
+          "name": "Shredded Stainless",
+          "image": "assets/img/products/shredder-scrap/shredded-stainless.svg"
+        }
+      ]
+    },
+    {
+      "slug": "insulated-wires",
+      "name": "Insulated Wires & Cables",
+      "icon": "https://vashuda-fjbp.vercel.app/images/wires.jpg",
+      "summary": "ICW grades, telecom cables, power cables, and harnesses.",
+      "subproducts": [
+        {
+          "slug": "harness",
+          "name": "Harness Wire",
+          "image": "assets/img/products/insulated-wires/harness.svg"
+        },
+        {
+          "slug": "cat5",
+          "name": "CAT 5",
+          "image": "assets/img/products/insulated-wires/cat5.svg"
+        },
+        {
+          "slug": "icw1",
+          "name": "#1 ICW (DRUID)",
+          "image": "assets/img/products/insulated-wires/icw1.svg"
+        },
+        {
+          "slug": "icw2",
+          "name": "#2 ICW (DRUID)",
+          "image": "assets/img/products/insulated-wires/icw2.svg"
+        },
+        {
+          "slug": "relay",
+          "name": "Lead Cu Cable (RELAY)",
+          "image": "assets/img/products/insulated-wires/relay.svg"
+        },
+        {
+          "slug": "heliax",
+          "name": "Heliax",
+          "image": "assets/img/products/insulated-wires/heliax.svg"
+        },
+        {
+          "slug": "xmas",
+          "name": "X\u2019mas Lights",
+          "image": "assets/img/products/insulated-wires/xmas.svg"
+        },
+        {
+          "slug": "urd",
+          "name": "URD Cable",
+          "image": "assets/img/products/insulated-wires/urd.svg"
+        },
+        {
+          "slug": "al-bx",
+          "name": "Aluminum BX",
+          "image": "assets/img/products/insulated-wires/al-bx.svg"
+        },
+        {
+          "slug": "steel-bx",
+          "name": "Steel BX",
+          "image": "assets/img/products/insulated-wires/steel-bx.svg"
+        }
+      ]
+    },
+    {
+      "slug": "ferrous",
+      "name": "Ferrous",
+      "icon": "https://vashuda-fjbp.vercel.app/images/ferrous.jpg",
+      "summary": "HMS, shredded, plate & structural, bundles, and prime industrial scrap.",
+      "subproducts": [
+        {
+          "slug": "h13-solids",
+          "name": "H13 Solids",
+          "image": "assets/img/products/ferrous/h13-solids.svg"
+        },
+        {
+          "slug": "h13-turnings",
+          "name": "H13 Turnings",
+          "image": "assets/img/products/ferrous/h13-turnings.svg"
+        },
+        {
+          "slug": "d2-solids",
+          "name": "D2 Solids",
+          "image": "assets/img/products/ferrous/d2-solids.svg"
+        },
+        {
+          "slug": "manganese",
+          "name": "Manganese Steel",
+          "image": "assets/img/products/ferrous/manganese.svg"
+        },
+        {
+          "slug": "rotors-drums",
+          "name": "Cast Rotors & Drums",
+          "image": "assets/img/products/ferrous/rotors-drums.svg"
+        },
+        {
+          "slug": "shredded",
+          "name": "Shredded Steel",
+          "image": "assets/img/products/ferrous/shredded.svg"
+        },
+        {
+          "slug": "hms",
+          "name": "HMS 1 & 2",
+          "image": "assets/img/products/ferrous/hms.svg"
+        },
+        {
+          "slug": "turnings",
+          "name": "Steel Turnings",
+          "image": "assets/img/products/ferrous/turnings.svg"
+        },
+        {
+          "slug": "pns",
+          "name": "PNS",
+          "image": "assets/img/products/ferrous/pns.svg"
+        },
+        {
+          "slug": "lms",
+          "name": "LMS Bales",
+          "image": "assets/img/products/ferrous/lms.svg"
+        },
+        {
+          "slug": "moon-pipes",
+          "name": "Moon Cut Pipes",
+          "image": "assets/img/products/ferrous/moon-pipes.svg"
+        },
+        {
+          "slug": "rail",
+          "name": "Rail Scrap",
+          "image": "assets/img/products/ferrous/rail.svg"
+        },
+        {
+          "slug": "rerolling",
+          "name": "Re-Rolling Scrap",
+          "image": "assets/img/products/ferrous/rerolling.svg"
+        }
+      ]
+    }
+  ]
+}
+
+
+
