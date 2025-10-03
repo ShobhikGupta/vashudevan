@@ -26,13 +26,16 @@
     });
   });
 
-  // Contact form basic validation and fake submit
+  // Contact form validation and submit via configured endpoint
   const form = document.getElementById('contact-form');
   if (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
+      const company = document.getElementById('company');
       const name = document.getElementById('name');
       const email = document.getElementById('email');
+      const phone = document.getElementById('phone');
+      const country = document.getElementById('country');
       const message = document.getElementById('message');
       const result = document.getElementById('form-result');
 
@@ -42,17 +45,59 @@
         if (error) error.textContent = msg || '';
       }
 
-      [name, email, message].forEach(function (input) { setError(input, ''); });
+      [company, name, email, phone, country, message].forEach(function (input) { input && setError(input, ''); });
 
       if (!name.value.trim()) { setError(name, 'Please enter your name'); valid = false; }
-      if (!email.value.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) { setError(email, 'Enter a valid email'); valid = false; }
+      if (!email.value.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) { setError(email, 'Enter a valid company email'); valid = false; }
+      if (!phone.value.trim()) { setError(phone, 'Please enter your mobile number'); valid = false; }
+      else if (!phone.value.match(/^\+?[0-9\-()\s]{7,20}$/)) { setError(phone, 'Enter a valid mobile number'); valid = false; }
       if (!message.value.trim()) { setError(message, 'Please enter a message'); valid = false; }
 
       if (!valid) return;
 
-      result.textContent = 'Thanks! Your message has been captured locally.';
-      form.reset();
-      setTimeout(function () { result.textContent = ''; }, 4000);
+      var endpoint = (window.AppConfig && window.AppConfig.contactEndpoint) || '';
+      if (!endpoint) {
+        result.textContent = 'Submission endpoint is not configured.';
+        return;
+      }
+
+      const submitBtn = form.querySelector('button[type="submit"]');
+      submitBtn && submitBtn.setAttribute('disabled', 'true');
+      submitBtn && submitBtn.classList.add('is-loading');
+      result.textContent = 'Sending...';
+
+      var payload = {
+        company: company && company.value.trim() || '',
+        name: name.value.trim(),
+        email: email.value.trim(),
+        phone: phone.value.trim(),
+        country: country && country.value.trim() || '',
+        message: message.value.trim(),
+        page: window.location.href,
+        submittedAt: new Date().toISOString()
+      };
+
+      fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      }).then(function (res) {
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.json().catch(function(){ return {}; });
+      }).then(function () {
+        result.textContent = 'Thanks! Your message has been sent.';
+        form.reset();
+        setTimeout(function () { result.textContent = ''; }, 5000);
+      }).catch(function (err) {
+        console.error(err);
+        result.textContent = 'Sorry, there was a problem sending your message. Please try again later.';
+      }).finally(function(){
+        submitBtn && submitBtn.removeAttribute('disabled');
+        submitBtn && submitBtn.classList.remove('is-loading');
+      });
     });
   }
 

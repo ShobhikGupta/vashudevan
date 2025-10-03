@@ -1,34 +1,58 @@
-(function () {
+(function(){
+  function loadCatalog() {
+    try {
+      if (window.__CATALOG__ && Array.isArray(window.__CATALOG__.products) && window.__CATALOG__.products.length) {
+        return Promise.resolve(window.__CATALOG__);
+      }
+    } catch (_) {}
+
+    var url = 'assets/data/products.json?v=' + Date.now();
+    return fetch(url, { cache: 'no-cache' })
+      .then(function (r) { if (!r.ok) throw new Error('Failed to load catalog: ' + r.status); return r.json(); })
+      .then(function (data) {
+        window.__CATALOG__ = data || { products: [] };
+        return window.__CATALOG__;
+      })
+      .catch(function () { return { products: [] }; });
+  }
+
+  function renderCategoryCards(gridEl, categories) {
+    if (!gridEl) return;
+    gridEl.innerHTML = '';
+
+    (categories || []).forEach(function (cat) {
+      var displayImg = cat.icon || (cat.subproducts && cat.subproducts[0] && cat.subproducts[0].image) || '';
+      if (!displayImg) return;
+
+      var article = document.createElement('article');
+      article.className = 'card product';
+
+      var link = document.createElement('a');
+      link.href = 'product.html?slug=' + encodeURIComponent(cat.slug);
+      link.setAttribute('aria-label', cat.name);
+
+      var figure = document.createElement('figure');
+      figure.className = 'product-figure';
+
+      var img = document.createElement('img');
+      img.src = displayImg;
+      img.alt = cat.name;
+
+      var caption = document.createElement('figcaption');
+      caption.textContent = cat.name;
+
+      figure.appendChild(img);
+      figure.appendChild(caption);
+      link.appendChild(figure);
+      article.appendChild(link);
+      gridEl.appendChild(article);
+    });
+  }
+
+  // Helpers for product/subproduct pages (merged from catalog.js)
   function getQueryParam(name) {
     var params = new URLSearchParams(window.location.search);
     return params.get(name) || '';
-  }
-
-  function fetchCatalog() {
-    var url = 'assets/data/products.json?v=' + Date.now();
-    return fetch(url, { cache: 'no-cache' })
-      .then(function (r) {
-        if (!r.ok) throw new Error('Failed to load catalog: ' + r.status);
-        return r.json();
-      })
-      .catch(function (err) {
-        try { console.error(err); } catch (_) {}
-        var notice = document.getElementById('catalog-error');
-        if (!notice) {
-          notice = document.createElement('div');
-          notice.id = 'catalog-error';
-          notice.style.margin = '12px 0';
-          notice.style.padding = '12px';
-          notice.style.border = '1px solid #e5e7eb';
-          notice.style.borderRadius = '8px';
-          notice.style.background = '#fff';
-          notice.style.color = '#111827';
-        }
-        notice.textContent = 'Unable to load product catalog. Please run this site via a local server (e.g., Python: py -3 -m http.server).';
-        var root = document.getElementById('product-page-root') || document.getElementById('subproduct-page-root') || document.body;
-        try { root.insertBefore(notice, root.firstChild); } catch (_) { document.body.appendChild(notice); }
-        return { products: [] };
-      });
   }
 
   function findProduct(catalog, slug) {
@@ -43,14 +67,6 @@
   function setText(id, text) {
     var el = document.getElementById(id);
     if (el) el.textContent = text || '';
-  }
-
-  function setImage(id, src, alt) {
-    var el = document.getElementById(id);
-    if (el) {
-      if (src) el.setAttribute('src', src);
-      if (alt) el.setAttribute('alt', alt);
-    }
   }
 
   function renderSubproductsGrid(containerId, product) {
@@ -122,25 +138,38 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    var isProductPage = !!document.getElementById('product-page-root');
-    var isSubproductPage = !!document.getElementById('subproduct-page-root');
+    loadCatalog().then(function (catalog) {
+      var products = (catalog && catalog.products) || [];
 
-    if (!isProductPage && !isSubproductPage) return;
+      // Home page grid: keep heading and container, replace only grid items
+      var homeGrid = document.querySelector('section.products-preview .products-grid');
+      if (homeGrid) {
+        renderCategoryCards(homeGrid, products);
+      }
 
-    fetchCatalog().then(function (catalog) {
+      // Products page grid: replace items inside existing grid container
+      var productsGrid = document.querySelector('main.page .products-grid') || document.querySelector('.section .products-grid');
+      if (productsGrid) {
+        renderCategoryCards(productsGrid, products);
+      }
+
+      // Product page
+      var isProductPage = !!document.getElementById('product-page-root');
       if (isProductPage) {
         var slug = getQueryParam('slug');
         var product = findProduct(catalog, slug);
         if (!product) {
           setText('product-name', 'Product Not Found');
           setText('product-summary', 'The requested product does not exist.');
-          return;
+        } else {
+          setText('product-name', product.name);
+          setText('product-summary', product.summary || '');
+          renderSubproductsGrid('subproducts-grid', product);
         }
-        setText('product-name', product.name);
-        setText('product-summary', product.summary || '');
-        renderSubproductsGrid('subproducts-grid', product);
       }
 
+      // Subproduct page
+      var isSubproductPage = !!document.getElementById('subproduct-page-root');
       if (isSubproductPage) {
         var pSlug = getQueryParam('product');
         var sSlug = getQueryParam('slug');
@@ -149,17 +178,17 @@
         if (!prod || !sub) {
           setText('subproduct-name', 'Item Not Found');
           setText('subproduct-desc', 'The requested subproduct does not exist.');
-          return;
+        } else {
+          setText('subproduct-name', sub.name);
+          var imgEl = document.getElementById('subproduct-image');
+          if (imgEl) {
+            imgEl.setAttribute('src', sub.image || (prod && prod.icon) || '');
+            imgEl.setAttribute('alt', sub.name || '');
+            try { imgEl.referrerPolicy = 'no-referrer'; } catch (e) {}
+          }
+          setText('subproduct-desc', sub.description || (prod && prod.summary) || '');
+          renderBreadcrumb('breadcrumb', prod, sub);
         }
-        setText('subproduct-name', sub.name);
-        var imgEl = document.getElementById('subproduct-image');
-        if (imgEl) {
-          imgEl.setAttribute('src', sub.image || (prod && prod.icon) || '');
-          imgEl.setAttribute('alt', sub.name || '');
-          try { imgEl.referrerPolicy = 'no-referrer'; } catch (e) {}
-        }
-        setText('subproduct-desc', sub.description || (prod && prod.summary) || '');
-        renderBreadcrumb('breadcrumb', prod, sub);
       }
     });
   });
