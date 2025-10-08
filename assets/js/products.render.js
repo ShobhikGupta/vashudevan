@@ -89,8 +89,8 @@
       var article = document.createElement('article');
       article.className = 'card product';
 
-      var link = document.createElement('a');
-      link.href = 'subproduct.html?product=' + encodeURIComponent(product.slug) + '&slug=' + encodeURIComponent(sp.slug);
+      var link = document.createElement('div');
+      link.className = 'subproduct-item';
       link.setAttribute('aria-label', sp.name);
 
       var figure = document.createElement('figure');
