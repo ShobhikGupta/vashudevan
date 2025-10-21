@@ -3,7 +3,7 @@
     {
       "slug": "aluminum",
       "name": "ALUMINUM",
-      "icon": "assets/img/products/aluminum/Old Sheet (TAINT_ TABOR).jpg",
+      "icon": "assets/img/products/aluminum/Old Sheet (TAINT : TABOR).jpg",
       "subproducts": [
         { "slug": "6061-truck-wheels-troma", "name": "6061 Truck Wheels (TROMA)", "image": "assets/img/products/aluminum/6061 Truck Wheels (TROMA).jpg" },
         { "slug": "6063-extrusions-toto", "name": "6063 Extrusions (TOTO)", "image": "assets/img/products/aluminum/6063 Extrusions (TOTO).jpg" },
@@ -24,7 +24,7 @@
         { "slug": "litho-sheets-tablet", "name": "Litho Sheets (TABLET)", "image": "assets/img/products/aluminum/Litho Sheets (TABLET).jpg" },
         { "slug": "new-pro-mlc-tough-taboo", "name": "New Pro MLC (TOUGH TABOO)", "image": "assets/img/products/aluminum/New Pro MLC (TOUGH TABOO).png" },
         { "slug": "new-pro-thermal-ext", "name": "New Pro Thermal Ext", "image": "assets/img/products/aluminum/New Pro Thermal Ext.jpg" },
-        { "slug": "old-sheet-taint-tabor", "name": "Old Sheet (TAINT_ TABOR)", "image": "assets/img/products/aluminum/Old Sheet (TAINT_ TABOR).jpg" },
+        { "slug": "old-sheet-taint-tabor", "name": "Old Sheet (TAINT / TABOR)", "image": "assets/img/products/copper/old-sheet-taint-tabor.jpg" },
         { "slug": "sheets-plates-clips-6061-spc", "name": "Sheets - Plates - Clips (6061 SPC)", "image": "assets/img/products/aluminum/Sheets - Plates - Clips (6061 SPC).jpg" },
         { "slug": "shredded-auto-castings-trump", "name": "Shredded Auto Castings (TRUMP)", "image": "assets/img/products/aluminum/Shredded Auto Castings (TRUMP).jpg" },
         { "slug": "used-beverage-cans-taldon-ubc", "name": "Used Beverage Cans (TALDON) (UBC)", "image": "assets/img/products/aluminum/Used Beverage Cans (TALDON) (UBC).jpg" }
@@ -32,7 +32,7 @@
     },
     {
       "slug": "auto-scrap",
-      "name": "Auto Scrap",
+      "name": "AUTO SCRAP",
       "icon": "assets/img/products/auto_scrap/Alternators.jpg",
       "subproducts": [
         { "slug": "ac-compressors", "name": "AC Compressors", "image": "assets/img/products/auto_scrap/AC Compressors.jpg" },
@@ -70,17 +70,17 @@
     },
     {
       "slug": "copper",
-      "name": "Copper",
-      "icon": "assets/img/products/copper/Bare Bright Wire (BARLEY).jpg",
+      "name": "COPPER",
+      "icon": "assets/img/products/copper/copper-bare-bright-wire.jpg",
       "subproducts": [
-        { "slug": "1-copper-berry-candy", "name": "#1 Copper (BERRY/CANDY)", "image": "assets/img/products/copper/#1 Copper (BERRY_CANDY).jpg" },
-        { "slug": "2-copper-birch-cliff", "name": "#2 Copper (BIRCH/CLIFF)", "image": "assets/img/products/copper/#2 Copper (BIRCH_CLIFF).jpg" },
-        { "slug": "bare-bright-wire-barley", "name": "Bare Bright Wire (BARLEY)", "image": "assets/img/products/copper/Bare Bright Wire (BARLEY).jpg" }
+        { "slug": "1-copper-berry-candy", "name": "#1 Copper (BERRY/CANDY)", "image": "assets/img/products/copper/copper-berry-candy.jpg" },
+        { "slug": "2-copper-birch-cliff", "name": "#2 Copper (BIRCH/CLIFF)", "image": "assets/img/products/copper/copper-birch-cliff.jpg" },
+        { "slug": "bare-bright-wire-barley", "name": "Bare Bright Wire (BARLEY)", "image": "assets/img/products/copper/copper-bare-bright-wire.jpg" }
       ]
     },
     {
       "slug": "copper-bearing",
-      "name": "Copper Bearing",
+      "name": "COPPER BEARING",
       "icon": "assets/img/products/copper_bearing/Small Motors (ELMO).jpg",
       "subproducts": [
         { "slug": "copper-ballasts-darth", "name": "Copper Ballasts (DARTH)", "image": "assets/img/products/copper_bearing/Copper Ballasts (DARTH).jpg" },
@@ -95,7 +95,7 @@
     },
     {
       "slug": "ferrous",
-      "name": "Ferrous",
+      "name": "FERROUS",
       "icon": "assets/img/products/ferrous/Cast Rotors & Drums.jpg",
       "subproducts": [
         { "slug": "cast-rotors-drums", "name": "Cast Rotors & Drums", "image": "assets/img/products/ferrous/Cast Rotors & Drums.jpg" },
@@ -121,20 +121,20 @@
     },
     {
       "slug": "shredder-scrap",
-      "name": "Shredder Scrap",
+      "name": "SHREDDER SCRAP",
       "icon": "assets/img/products/shredder_scrap/ZORBA.jpg",
       "subproducts": [
         { "slug": "heavies-zebra", "name": "Heavies (ZEBRA)", "image": "assets/img/products/shredder_scrap/Heavies (ZEBRA).jpg" },
         { "slug": "shredded-aluminum", "name": "Shredded Aluminum", "image": "assets/img/products/shredder_scrap/Shredded Aluminum.jpg" },
         { "slug": "shredded-wheels", "name": "Shredded Wheels", "image": "assets/img/products/shredder_scrap/Shredded Wheels.jpg" },
-        { "slug": "shredder-pickings-meatballs-shelmo", "name": "Shredder Pickings - Meatballs (SHELMO)", "image": "assets/img/products/shredder_scrap/Shredder Pickings - Meatballs (SHELMO).jpg" },
+        { "slug": "shredder-pickings-meatballs-shelmo", "name": "Shredder Pickings / Meatballs (SHELMO)", "image": "assets/img/products/shredder_scrap/Shredder-Pickings-Meatballs-SHELMO.jpg" },
         { "slug": "zorba", "name": "ZORBA", "image": "assets/img/products/shredder_scrap/ZORBA.jpg" },
         { "slug": "zurik", "name": "ZURIK", "image": "assets/img/products/shredder_scrap/ZURIK.jpg" }
       ]
     },
     {
       "slug": "stainless-steel",
-      "name": "Stainless Steel",
+      "name": "STAINLESS STEEL",
       "icon": "assets/img/products/stainless_steel/304 Solids (SABOT).jpg",
       "subproducts": [
         { "slug": "304-solids-sabot", "name": "304 Solids (SABOT)", "image": "assets/img/products/stainless_steel/304 Solids (SABOT).jpg" },
@@ -145,7 +145,7 @@
     },
     {
       "slug": "zinc",
-      "name": "Zinc",
+      "name": "ZINC",
       "icon": "assets/img/products/zinc/Zinc Die Cast (SAVES).jpg",
       "subproducts": [
         { "slug": "kirksite", "name": "Kirksite", "image": "assets/img/products/zinc/Kirksite.jpg" },
@@ -156,5 +156,3 @@
     }
   ]
 }
-
-

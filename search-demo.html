@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Functionality Demo - Vashudevan Met Global LLP</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .demo-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .demo-section h2 {
+            color: #2c5530;
+            margin-top: 0;
+        }
+        .search-example {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #22c55e;
+        }
+        .code {
+            background: #f1f3f4;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        .highlight {
+            background-color: #22c55e;
+            color: white;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .step {
+            margin: 15px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #e0e0e0;
+        }
+        .step-number {
+            background: #22c55e;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Search Functionality Demo</h1>
+    <p>This demo shows how the enhanced search functionality works on the Vashudevan Met Global LLP website.</p>
+
+    <div class="demo-section">
+        <h2>✨ Features Implemented</h2>
+        <ul>
+            <li><strong>Deep-linking Search Results:</strong> When you search for subproducts, the results show individual subproduct cards that link directly to the specific subproduct on the parent product page.</li>
+            <li><strong>Visual Highlighting:</strong> Search terms are highlighted in the results with green highlighting for better visibility.</li>
+            <li><strong>Smooth Navigation:</strong> Clicking on a search result takes you directly to the subproduct with smooth scrolling and highlighting.</li>
+            <li><strong>Parent Product Context:</strong> Each search result shows which parent product it belongs to with a badge.</li>
+            <li><strong>Interactive Feedback:</strong> Hover effects and loading states provide clear user feedback.</li>
+        </ul>
+    </div>
+
+    <div class="demo-section">
+        <h2>🚀 How It Works</h2>
+        
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Search for Products:</strong> Type in the search box on the products page (e.g., "copper", "aluminum", "316", "wheels")
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>View Filtered Results:</strong> The search shows both main products and individual subproducts that match your search term
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Click on Subproduct:</strong> When you click on a subproduct search result, it takes you directly to that specific subproduct on the parent product page
+        </div>
+
+        <div class="step">
+            <span class="step-number">4</span>
+            <strong>Automatic Highlighting:</strong> The target subproduct is automatically highlighted and scrolled into view with a smooth animation
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>🔧 Technical Implementation</h2>
+        
+        <div class="search-example">
+            <h3>Search Result Card Structure:</h3>
+            <div class="code">
+&lt;div class="card product subproduct-search-result highlighted"&gt;
+  &lt;a href="product.html?slug=aluminum#6061-truck-wheels-troma"&gt;
+    &lt;figure class="product-figure"&gt;
+      &lt;img src="..." alt="6061 Truck Wheels"&gt;
+      &lt;figcaption&gt;6061 Truck Wheels &lt;span class="highlight"&gt;(TROMA)&lt;/span&gt;&lt;/figcaption&gt;
+    &lt;/figure&gt;
+    &lt;div class="search-result-indicator"&gt;
+      &lt;span class="search-icon"&gt;🔍&lt;/span&gt;
+      &lt;span class="search-text"&gt;Click to view&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+  &lt;div class="product-info"&gt;
+    &lt;div class="parent-product-badge"&gt;ALUMINUM&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+            </div>
+        </div>
+
+        <div class="search-example">
+            <h3>Deep-linking Navigation:</h3>
+            <div class="code">
+// When user clicks on search result:
+function navigateToSubproduct(parentSlug, subproductSlug) {
+  // Store subproduct to highlight when page loads
+  sessionStorage.setItem('highlightSubproduct', subproductSlug);
+  
+  // Navigate to parent product page with subproduct anchor
+  window.location.href = `product.html?slug=${parentSlug}#${subproductSlug}`;
+}
+            </div>
+        </div>
+
+        <div class="search-example">
+            <h3>Automatic Highlighting:</h3>
+            <div class="code">
+// On product page load, check for subproduct to highlight
+const highlightSubproduct = sessionStorage.getItem('highlightSubproduct');
+if (highlightSubproduct) {
+  // Find the subproduct element and highlight it
+  const element = document.querySelector(`[data-subproduct-slug="${highlightSubproduct}"]`);
+  element.classList.add('highlighted-subproduct');
+  
+  // Smooth scroll to the element
+  element.scrollIntoView({ behavior: 'smooth' });
+}
+            </div>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>🎨 Visual Enhancements</h2>
+        <ul>
+            <li><strong>Search Result Cards:</strong> Distinct styling with hover effects and visual indicators</li>
+            <li><strong>Highlighting Animation:</strong> Smooth 3-second highlight animation when navigating to subproducts</li>
+            <li><strong>Loading States:</strong> Visual feedback during search operations</li>
+            <li><strong>Parent Product Badges:</strong> Clear indication of which parent product each subproduct belongs to</li>
+            <li><strong>Search Term Highlighting:</strong> Matching text is highlighted in both main products and subproducts</li>
+        </ul>
+    </div>
+
+    <div class="demo-section">
+        <h2>📱 Try It Out</h2>
+        <p>To test the functionality:</p>
+        <ol>
+            <li>Go to the <a href="products.html">Products page</a></li>
+            <li>Use the search box to search for terms like:
+                <ul>
+                    <li>"copper" - will show copper products and subproducts</li>
+                    <li>"wheels" - will show wheel-related subproducts</li>
+                    <li>"316" - will show 316 stainless steel subproducts</li>
+                    <li>"motors" - will show motor-related subproducts</li>
+                </ul>
+            </li>
+            <li>Click on any subproduct search result to navigate directly to that subproduct</li>
+            <li>Notice the smooth scrolling and highlighting animation</li>
+        </ol>
+    </div>
+
+    <div class="demo-section">
+        <h2>✅ Benefits</h2>
+        <ul>
+            <li><strong>Improved User Experience:</strong> Users can quickly find and navigate to specific subproducts</li>
+            <li><strong>Better Search Results:</strong> Search shows both main products and individual subproducts</li>
+            <li><strong>Direct Navigation:</strong> No need to browse through parent products to find specific subproducts</li>
+            <li><strong>Visual Feedback:</strong> Clear indication of search results and navigation actions</li>
+            <li><strong>Mobile Friendly:</strong> Works seamlessly on all device sizes</li>
+        </ul>
+    </div>
+
+    <p style="text-align: center; margin-top: 40px; color: #666;">
+        <a href="products.html" style="background: #22c55e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">🚀 Test the Search Functionality</a>
+    </p>
+</body>
+</html>
+

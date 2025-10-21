@@ -18,18 +18,69 @@
 
   function renderCategoryCards(gridEl, categories) {
     if (!gridEl) return;
+    
+    // Only replace if we have categories and they're different from existing content
+    if (!categories || categories.length === 0) {
+      console.log('No categories to render, keeping existing products');
+      return;
+    }
+
+    // Check if grid already has products (static HTML) - only for home page
+    var isHomePage = gridEl.closest('section.products-preview');
+    var isProductsPage = gridEl.closest('main.page');
+    
+    console.log('Is home page:', !!isHomePage);
+    console.log('Is products page:', !!isProductsPage);
+    
+    if (isHomePage) {
+      var existingProducts = gridEl.querySelectorAll('.card.product');
+      if (existingProducts.length > 0) {
+        console.log('Products already exist on home page, keeping static HTML products');
+        return;
+      }
+    }
+    
+    // Always replace on products page
+    if (isProductsPage) {
+      console.log('Products page detected, clearing existing content');
+      gridEl.innerHTML = '';
+    }
+
+    console.log('Rendering dynamic products:', categories.length);
     gridEl.innerHTML = '';
 
-    (categories || []).forEach(function (cat) {
+    // Sort categories alphabetically
+    var sortedCategories = categories.slice().sort(function(a, b) {
+      return a.name.localeCompare(b.name);
+    });
+
+    sortedCategories.forEach(function (cat) {
       var displayImg = cat.icon || (cat.subproducts && cat.subproducts[0] && cat.subproducts[0].image) || '';
-      if (!displayImg) return;
+      if (!displayImg) {
+        console.log('No image for category:', cat.name);
+        return;
+      }
 
       var article = document.createElement('article');
       article.className = 'card product';
 
-      var link = document.createElement('a');
-      link.href = 'product.html?slug=' + encodeURIComponent(cat.slug);
-      link.setAttribute('aria-label', cat.name);
+      var link = document.createElement('div');
+      link.style.cursor = 'pointer';
+      link.style.pointerEvents = 'auto';
+      link.style.userSelect = 'text';
+      link.style.webkitUserSelect = 'text';
+      link.style.mozUserSelect = 'text';
+      link.style.msUserSelect = 'text';
+      
+      // Store the href for navigation
+      link.setAttribute('data-href', 'product.html?slug=' + encodeURIComponent(cat.slug));
+      
+      // Add click handler for navigation
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.location.href = this.getAttribute('data-href');
+      });
 
       var figure = document.createElement('figure');
       figure.className = 'product-figure';
@@ -45,6 +96,47 @@
       figure.appendChild(caption);
       link.appendChild(figure);
       article.appendChild(link);
+      
+      // Add subproducts section for products page
+      var isProductsPage = gridEl.closest('main.page');
+      console.log('Is products page:', !!isProductsPage);
+      console.log('Product:', cat.name, 'has subproducts:', cat.subproducts ? cat.subproducts.length : 0);
+      
+      if (isProductsPage && cat.subproducts && cat.subproducts.length > 0) {
+        console.log('Adding subproducts for:', cat.name);
+        var subproductsDiv = document.createElement('div');
+        subproductsDiv.className = 'subproducts-preview';
+        
+        var subproductsTitle = document.createElement('h4');
+        subproductsTitle.textContent = 'Subproducts:';
+        subproductsTitle.className = 'subproducts-title';
+        subproductsDiv.appendChild(subproductsTitle);
+        
+        var subproductsList = document.createElement('div');
+        subproductsList.className = 'subproducts-list';
+        
+        // Sort subproducts alphabetically
+        var sortedSubproducts = cat.subproducts.slice().sort(function(a, b) {
+          return a.name.localeCompare(b.name);
+        });
+        
+        sortedSubproducts.forEach(function(subproduct) {
+          var subproductItem = document.createElement('div');
+          subproductItem.className = 'subproduct-item';
+          
+          var subproductLink = document.createElement('a');
+          subproductLink.href = 'product.html?slug=' + encodeURIComponent(cat.slug) + '#' + encodeURIComponent(subproduct.slug);
+          subproductLink.textContent = subproduct.name;
+          subproductLink.className = 'subproduct-link';
+          
+          subproductItem.appendChild(subproductLink);
+          subproductsList.appendChild(subproductItem);
+        });
+        
+        subproductsDiv.appendChild(subproductsList);
+        article.appendChild(subproductsDiv);
+      }
+      
       gridEl.appendChild(article);
     });
   }
@@ -88,10 +180,11 @@
     items.forEach(function (sp) {
       var article = document.createElement('article');
       article.className = 'card product';
+      article.setAttribute('data-subproduct-slug', sp.slug);
 
       var link = document.createElement('div');
       link.className = 'subproduct-item';
-      link.setAttribute('aria-label', sp.name);
+      // link.setAttribute('aria-label', sp.name);
 
       var figure = document.createElement('figure');
       figure.className = 'product-figure';
@@ -138,19 +231,79 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
+    console.log('Products render script loaded');
+    
     loadCatalog().then(function (catalog) {
       var products = (catalog && catalog.products) || [];
+      console.log('Loaded catalog with', products.length, 'products');
+      
+      // Debug: Log first product with subproducts
+      if (products.length > 0) {
+        console.log('First product:', products[0]);
+        console.log('First product subproducts:', products[0].subproducts);
+      }
 
       // Home page grid: keep heading and container, replace only grid items
       var homeGrid = document.querySelector('section.products-preview .products-grid');
       if (homeGrid) {
+        console.log('Found home grid, rendering products');
         renderCategoryCards(homeGrid, products);
+      } else {
+        console.log('Home grid not found');
       }
 
       // Products page grid: replace items inside existing grid container
-      var productsGrid = document.querySelector('main.page .products-grid') || document.querySelector('.section .products-grid');
+      var productsGrid = document.querySelector('.products-grid');
+      console.log('Looking for products grid, found:', !!productsGrid);
+      
       if (productsGrid) {
-        renderCategoryCards(productsGrid, products);
+        console.log('Found products page grid, rendering products with subproducts');
+        // Always replace products on products page to show subproducts
+        productsGrid.innerHTML = '';
+        
+        // Simple implementation for products page
+        products.forEach(function (product) {
+          
+          var article = document.createElement('article');
+          article.className = 'card product';
+          
+          var link = document.createElement('div');
+          link.style.cursor = 'pointer';
+          link.style.pointerEvents = 'auto';
+          link.style.userSelect = 'text';
+          link.style.webkitUserSelect = 'text';
+          link.style.mozUserSelect = 'text';
+          link.style.msUserSelect = 'text';
+          
+          // Store the href for navigation
+          link.setAttribute('data-href', 'product.html?slug=' + encodeURIComponent(product.slug));
+          
+          // Add click handler for navigation
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.location.href = this.getAttribute('data-href');
+          });
+          
+          var figure = document.createElement('figure');
+          figure.className = 'product-figure';
+          
+          var img = document.createElement('img');
+          img.src = product.icon || '';
+          img.alt = product.name;
+          
+          var caption = document.createElement('figcaption');
+          caption.textContent = product.name;
+          
+          figure.appendChild(img);
+          figure.appendChild(caption);
+          link.appendChild(figure);
+          article.appendChild(link);
+          
+          productsGrid.appendChild(article);
+        });
+      } else {
+        console.log('Products grid not found!');
       }
 
       // Product page
@@ -190,6 +343,9 @@
           renderBreadcrumb('breadcrumb', prod, sub);
         }
       }
+    }).catch(function(error) {
+      console.error('Error loading catalog:', error);
+      // Keep existing static products if dynamic loading fails
     });
   });
 })();
