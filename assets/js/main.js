@@ -11,19 +11,74 @@
   if (toggle && nav) {
     toggle.addEventListener('click', function () {
       const isOpen = nav.classList.toggle('open');
+      toggle.classList.toggle('open');
       toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
   }
 
-  // Mobile submenu toggle
-  submenuParents.forEach(function (parent) {
-    const link = parent.querySelector(':scope > a');
-    link && link.addEventListener('click', function (e) {
-      if (window.matchMedia('(max-width: 720px)').matches) {
-        e.preventDefault();
-        parent.classList.toggle('open');
+  // Close menu when clicking on overlay
+  if (nav) {
+    nav.addEventListener('click', function (e) {
+      if (e.target === nav) {
+        nav.classList.remove('open');
+        toggle.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
       }
     });
+  }
+
+  // Mobile submenu toggle with smooth accordion animation
+  submenuParents.forEach(function (parent) {
+    const link = parent.querySelector(':scope > a');
+    const submenu = parent.querySelector('.submenu');
+    
+    if (link && submenu) {
+      link.addEventListener('click', function (e) {
+        if (window.matchMedia('(max-width: 768px)').matches) {
+          e.preventDefault();
+          
+          // Toggle the open class
+          const isOpening = !parent.classList.contains('open');
+          parent.classList.toggle('open');
+          
+          // Remove any active state from parent link when submenu opens
+          if (isOpening) {
+            link.classList.remove('active');
+            link.removeAttribute('aria-current');
+          }
+          
+          // Calculate the actual height needed for smooth animation
+          if (isOpening) {
+            // Opening: measure the content height
+            submenu.style.maxHeight = 'none';
+            const contentHeight = submenu.scrollHeight;
+            submenu.style.maxHeight = '0';
+            
+            // Force reflow
+            submenu.offsetHeight;
+            
+            // Animate to the calculated height
+            submenu.style.maxHeight = contentHeight + 'px';
+            
+            // Clean up after animation
+            setTimeout(() => {
+              if (parent.classList.contains('open')) {
+                submenu.style.maxHeight = 'none';
+              }
+            }, 300);
+          } else {
+            // Closing: animate to 0 height
+            submenu.style.maxHeight = submenu.scrollHeight + 'px';
+            
+            // Force reflow
+            submenu.offsetHeight;
+            
+            // Animate to 0
+            submenu.style.maxHeight = '0px';
+          }
+        }
+      });
+    }
   });
 
   // Enhanced smooth scrolling for navigation links and anchor links
@@ -169,11 +224,25 @@
       // Add active class to current slide and indicator
       if (slides[index]) {
         slides[index].classList.add('active');
+        
+        // Trigger hero button animation if present
+        const heroBtns = slides[index].querySelectorAll('.hero-btn');
+        heroBtns.forEach((btn, btnIndex) => {
+          // Remove animation class first to reset
+          btn.classList.remove('animate');
+          // Force reflow
+          btn.offsetHeight;
+          // Add animation class with a staggered delay
+          setTimeout(() => {
+            btn.classList.add('animate');
+          }, 300 + (btnIndex * 200));
+        });
       }
       if (indicators[index]) {
         indicators[index].classList.add('active');
-        // Start the progress bar animation
-        indicators[index].style.animation = 'progressBar 5s linear forwards';
+        // Start the progress bar animation with appropriate timing
+        const progressTiming = index === 0 ? '5s' : '4s';
+        indicators[index].style.animation = `progressBar ${progressTiming} linear forwards`;
       }
 
       // Update counter
@@ -202,11 +271,15 @@
       if (autoPlayInterval) {
         clearInterval(autoPlayInterval);
       }
+      
+      // Determine timing based on current slide
+      const timing = currentSlide === 0 ? 5000 : 4000; // 5 seconds for slide 1, 4 seconds for others
+      
       autoPlayInterval = setInterval(() => {
         console.log('Hero carousel auto-advancing from slide', currentSlide + 1);
         nextSlide();
-      }, 5000); // Change slide every 5 seconds
-      console.log('Hero carousel auto-play started');
+      }, timing);
+      console.log('Hero carousel auto-play started with', timing, 'ms timing for slide', currentSlide + 1);
     }
 
     // Function to stop auto-play
@@ -469,24 +542,57 @@
   }
 
   // Global function to highlight search terms with smart color detection
-  function highlightSearchTerm(text, searchTerm, isGreenText = false) {
+  function highlightSearchTerm(text, searchTerm, highlightType = false) {
     if (!searchTerm || searchTerm.trim() === '') {
       return text;
     }
     
     const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-    const highlightClass = isGreenText ? 'search-highlight-black' : 'search-highlight-green';
+    let highlightClass;
+    
+    if (highlightType === 'yellow-text') {
+      highlightClass = 'search-highlight-yellow-text';
+    } else if (highlightType === true || highlightType === 'green') {
+      highlightClass = 'search-highlight-black';
+    } else {
+      highlightClass = 'search-highlight-yellow';
+    }
+    
     return text.replace(regex, `<span class="${highlightClass}">$1</span>`);
   }
 
-  // Smart highlighting function that detects text color context
+  // Smart highlighting function that detects text color context and applies appropriate contrast
   function smartHighlightSearchTerm(text, searchTerm, contextElement = null) {
     if (!searchTerm || searchTerm.trim() === '') {
       return text;
     }
     
-    // For subproduct search, always use green highlighting for black text
-    // since subproduct names are typically black text
+    // If contextElement is provided, detect the text color
+    if (contextElement) {
+      const computedStyle = window.getComputedStyle(contextElement);
+      const textColor = computedStyle.color;
+      
+      // Parse RGB values to determine if text is light or dark
+      const rgbMatch = textColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+      if (rgbMatch) {
+        const r = parseInt(rgbMatch[1]);
+        const g = parseInt(rgbMatch[2]);
+        const b = parseInt(rgbMatch[3]);
+        
+        // Calculate luminance to determine if text is light or dark
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        
+        // If text is light (yellow/light colored), use black background
+        // If text is dark (black/dark colored), use yellow background
+        if (luminance > 0.5) {
+          return highlightSearchTerm(text, searchTerm, 'yellow-text');
+        } else {
+          return highlightSearchTerm(text, searchTerm, false);
+        }
+      }
+    }
+    
+    // Fallback: assume black text and use yellow highlighting
     return highlightSearchTerm(text, searchTerm, false);
   }
 
@@ -557,6 +663,8 @@
             // Restore original text content
             figcaption.textContent = figcaption.dataset.originalText;
           }
+          
+          // Parent product badges are not highlighted, so no need to clear them
           
           visibleCount++;
         });
@@ -647,8 +755,9 @@
       // Create deep link to parent product page with subproduct anchor
       const deepLink = `product.html?slug=${parentProduct.slug}#${subproduct.slug}`;
       
-      // Highlight matching characters in subproduct name (black text, so use green highlight)
-      const highlightedSubproductName = highlightSearchTerm(subproduct.name, searchTerm, false);
+      // Highlight matching characters in subproduct name with smart color detection
+      // We'll apply the highlighting after the card is created and added to DOM
+      const highlightedSubproductName = subproduct.name;
       // Don't highlight parent name in badge - it's just for reference
       const highlightedParentName = parentProduct.name;
       
@@ -671,6 +780,15 @@
       // Store ID as data attribute for reference but don't display it
       card.setAttribute('data-subproduct-id', subproduct.slug);
       
+      // Apply smart highlighting after the card is created
+      const figcaption = card.querySelector('.product-figure figcaption');
+      if (figcaption) {
+        const highlightedText = smartHighlightSearchTerm(subproduct.name, searchTerm, figcaption);
+        figcaption.innerHTML = highlightedText;
+      }
+      
+      // Parent product badges should not be highlighted - they serve categorization purposes
+      
       // Add click handler for deep-linking with scroll behavior
       const link = card.querySelector('.subproduct-deep-link');
       link.addEventListener('click', function(e) {
@@ -691,8 +809,8 @@
           figcaption.dataset.originalText = figcaption.textContent;
         }
         const originalText = figcaption.dataset.originalText;
-        // Use green highlight for black text
-        const highlightedText = highlightSearchTerm(originalText, searchTerm, false);
+        // Use smart highlighting with color detection
+        const highlightedText = smartHighlightSearchTerm(originalText, searchTerm, figcaption);
         figcaption.innerHTML = highlightedText;
       }
     }
@@ -757,6 +875,8 @@
 
     // Initialize
     storeOriginalText();
+    // Clear any previous search value from browser autocomplete
+    searchInput.value = '';
     searchProducts('');
   }
 
@@ -816,6 +936,8 @@
             figcaption.textContent = figcaption.dataset.originalText;
           }
           
+          // Parent product badges are not highlighted, so no need to clear them
+          
           visibleCount++;
         });
         if (resultsCount) resultsCount.textContent = 'Showing all subproducts';
@@ -838,9 +960,11 @@
               }
               const originalText = figcaption.dataset.originalText;
               // Apply smart highlighting to subproduct names
-              const highlightedText = smartHighlightSearchTerm(originalText, searchTerm);
+              const highlightedText = smartHighlightSearchTerm(originalText, searchTerm, figcaption);
               figcaption.innerHTML = highlightedText;
             }
+            
+            // Parent product badges should not be highlighted - they serve categorization purposes
             
             visibleCount++;
           } else {
@@ -1391,21 +1515,10 @@
       rootMargin: '0px 0px -50px 0px'
     });
 
-    // Function to add random animation based on image context
+    // Function to add regular animation to all images
     function addRandomAnimation(img) {
-      const animations = ['image-fade-in', 'image-bounce-in', 'image-slide-left', 'image-slide-right'];
-      const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
-      
-      // Special animations for specific image types
-      if (img.closest('.card.product')) {
-        img.classList.add('image-bounce-in');
-      } else if (img.closest('.impact-row')) {
-        img.classList.add('image-slide-left');
-      } else if (img.closest('.carousel-slide')) {
-        img.classList.add('image-fade-in');
-      } else {
-        img.classList.add(randomAnimation);
-      }
+      // All images use the same elegant zoom animation
+      img.classList.add('image-elegant-zoom');
     }
 
     // Observe all images
@@ -1442,8 +1555,8 @@
     document.addEventListener('click', function(e) {
       const img = e.target.closest('img');
       if (img && img.closest('.card.product')) {
-        img.classList.add('image-pulse');
-        setTimeout(() => img.classList.remove('image-pulse'), 300);
+        img.classList.add('image-modern-pulse');
+        setTimeout(() => img.classList.remove('image-modern-pulse'), 400);
       }
     });
   }

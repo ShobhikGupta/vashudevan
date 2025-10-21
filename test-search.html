@@ -20,7 +20,7 @@
             margin-bottom: 20px;
         }
         .test-button {
-            background: #22c55e;
+            background: #FFA500;
             color: white;
             padding: 12px 24px;
             border: none;
@@ -33,7 +33,7 @@
             display: inline-block;
         }
         .test-button:hover {
-            background: #16a34a;
+            background: #E69500;
             transform: translateY(-2px);
         }
         .test-description {
@@ -41,7 +41,7 @@
             padding: 15px;
             border-radius: 6px;
             margin: 15px 0;
-            border-left: 4px solid #22c55e;
+            border-left: 4px solid #FFA500;
         }
         .search-examples {
             display: grid;
@@ -60,7 +60,7 @@
             margin-top: 0;
         }
         .search-term {
-            background: #22c55e;
+            background: #FFA500;
             color: white;
             padding: 4px 8px;
             border-radius: 4px;
@@ -79,10 +79,10 @@
             padding: 10px;
             background: white;
             border-radius: 4px;
-            border-left: 3px solid #22c55e;
+            border-left: 3px solid #FFA500;
         }
         .step-number {
-            background: #22c55e;
+            background: #FFA500;
             color: white;
             width: 25px;
             height: 25px;
@@ -179,6 +179,44 @@
             </ul>
         </div>
 
+        <div class="test-container">
+            <h2>🎨 Smart Highlighting Test</h2>
+            <p>Test the new smart highlighting functionality that automatically detects text color and applies appropriate contrast.</p>
+            
+            <div style="margin: 20px 0;">
+                <label for="highlight-test-input" style="display: block; margin-bottom: 10px; font-weight: bold;">Enter search term to test highlighting:</label>
+                <input type="text" id="highlight-test-input" placeholder="Try: 'test', 'highlight', 'color'" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 16px;">
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0;">
+                    <h3 style="color: #111827; margin-top: 0;">Black Text (Product Names)</h3>
+                    <p style="color: #111827; margin: 10px 0;">This is normal black text that should get yellow highlighting when searched.</p>
+                    <div id="black-text-test" style="color: #111827; font-weight: 600; padding: 10px; background: white; border-radius: 4px; border: 1px solid #ddd;">
+                        Sample Product Name
+                    </div>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0;">
+                    <h3 style="color: #111827; margin-top: 0;">Yellow Text (Orange Badges)</h3>
+                    <p style="color: #111827; margin: 10px 0;">This simulates the orange badges with yellow text that should NOT be highlighted (categorization purposes).</p>
+                    <div id="yellow-text-test" style="color: #FFA500; font-weight: 600; padding: 10px; background: linear-gradient(135deg, #FFA500 0%, #E69500 100%); border-radius: 4px; border: 1px solid #ddd; color: white;">
+                        ALUMINUM
+                    </div>
+                    <p style="color: #666; font-size: 12px; margin: 5px 0 0 0; font-style: italic;">Note: Badges are not highlighted as they serve categorization purposes</p>
+                </div>
+            </div>
+            
+            <div style="background: #e7f3ff; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #FFA500;">
+                <h4>Expected Behavior:</h4>
+                <ul style="margin: 10px 0;">
+                    <li><strong>Product Names (Black text):</strong> Search terms should be highlighted with <span style="background: #FFA500; color: white; padding: 2px 4px; border-radius: 3px;">yellow background</span></li>
+                    <li><strong>Parent Product Badges:</strong> Should NOT be highlighted - they serve categorization purposes and remain static</li>
+                    <li><strong>All Filtered Results:</strong> Both main products and subproducts get consistent highlighting</li>
+                </ul>
+            </div>
+        </div>
+
         <div style="text-align: center; margin: 30px 0;">
             <a href="products.html" class="test-button">🚀 Start Testing Now</a>
             <a href="search-demo.html" class="test-button">📖 View Demo Documentation</a>
@@ -186,7 +224,90 @@
     </div>
 
     <script>
-        // Add some interactive feedback
+        // Include the highlighting functions from main.js
+        function highlightSearchTerm(text, searchTerm, highlightType = false) {
+            if (!searchTerm || searchTerm.trim() === '') {
+                return text;
+            }
+            
+            const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            let highlightClass;
+            
+            if (highlightType === 'yellow-text') {
+                highlightClass = 'search-highlight-yellow-text';
+            } else if (highlightType === true || highlightType === 'green') {
+                highlightClass = 'search-highlight-black';
+            } else {
+                highlightClass = 'search-highlight-yellow';
+            }
+            
+            return text.replace(regex, `<span class="${highlightClass}">$1</span>`);
+        }
+
+        function smartHighlightSearchTerm(text, searchTerm, contextElement = null) {
+            if (!searchTerm || searchTerm.trim() === '') {
+                return text;
+            }
+            
+            // If contextElement is provided, detect the text color
+            if (contextElement) {
+                const computedStyle = window.getComputedStyle(contextElement);
+                const textColor = computedStyle.color;
+                
+                // Parse RGB values to determine if text is light or dark
+                const rgbMatch = textColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+                if (rgbMatch) {
+                    const r = parseInt(rgbMatch[1]);
+                    const g = parseInt(rgbMatch[2]);
+                    const b = parseInt(rgbMatch[3]);
+                    
+                    // Calculate luminance to determine if text is light or dark
+                    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+                    
+                    // If text is light (yellow/light colored), use black background
+                    // If text is dark (black/dark colored), use yellow background
+                    if (luminance > 0.5) {
+                        return highlightSearchTerm(text, searchTerm, 'yellow-text');
+                    } else {
+                        return highlightSearchTerm(text, searchTerm, false);
+                    }
+                }
+            }
+            
+            // Fallback: assume black text and use yellow highlighting
+            return highlightSearchTerm(text, searchTerm, false);
+        }
+
+        // Add CSS for highlighting classes
+        const style = document.createElement('style');
+        style.textContent = `
+            .search-highlight-yellow {
+                background: linear-gradient(135deg, #FFA500 0%, #E69500 100%);
+                color: #ffffff;
+                font-weight: 600;
+                padding: 3px 6px;
+                border-radius: 4px;
+                box-shadow: 0 2px 6px rgba(255, 165, 0, 0.4);
+                text-shadow: none;
+                letter-spacing: 0.3px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            
+            .search-highlight-yellow-text {
+                background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+                color: #ffffff;
+                font-weight: 600;
+                padding: 3px 6px;
+                border-radius: 4px;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+                text-shadow: none;
+                letter-spacing: 0.3px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Add interactive feedback and highlighting test
         document.addEventListener('DOMContentLoaded', function() {
             const buttons = document.querySelectorAll('.test-button');
             buttons.forEach(button => {
@@ -194,6 +315,33 @@
                     console.log('Navigating to:', this.href);
                 });
             });
+
+            // Highlighting test functionality
+            const testInput = document.getElementById('highlight-test-input');
+            const blackTextTest = document.getElementById('black-text-test');
+            const yellowTextTest = document.getElementById('yellow-text-test');
+
+            function updateHighlighting() {
+                const searchTerm = testInput.value.trim();
+                
+                if (searchTerm === '') {
+                    // Clear highlighting
+                    blackTextTest.innerHTML = 'Sample Product Name';
+                    yellowTextTest.innerHTML = 'ALUMINUM';
+                } else {
+                    // Apply smart highlighting only to product names (black text)
+                    const blackHighlighted = smartHighlightSearchTerm('Sample Product Name', searchTerm, blackTextTest);
+                    
+                    blackTextTest.innerHTML = blackHighlighted;
+                    // Badges are not highlighted - they serve categorization purposes
+                    yellowTextTest.innerHTML = 'ALUMINUM';
+                }
+            }
+
+            testInput.addEventListener('input', updateHighlighting);
+            
+            // Initialize with empty highlighting
+            updateHighlighting();
         });
     </script>
 </body>
