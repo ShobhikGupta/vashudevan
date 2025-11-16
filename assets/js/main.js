@@ -1991,12 +1991,34 @@ document.addEventListener('DOMContentLoaded', function() {
   var STORAGE_KEY = 'openingPopupCompleted';
   var SHOW_DELAY_MS = 2000;
 
+  function isHomePage() {
+    try {
+      var path = (window.location && window.location.pathname) ? window.location.pathname : '/';
+      if (path === '/' || path === '') return true;
+      // Handle common index paths both on server and local file URLs
+      if (path === '/index.html' || path === 'index.html') return true;
+      if (path.slice(-11) === '/index.html') return true;
+    } catch(e) {}
+    return false;
+  }
+
+  function hasCompleted() {
+    // Single source of truth: localStorage only
+    try {
+      return localStorage.getItem(STORAGE_KEY) === '1';
+    } catch(e) {}
+    return false;
+  }
+
   function shouldShowPopup() {
-    // Always show the popup on each refresh/load
+    // Only show on home page and if user has not already completed the popup
+    if (!isHomePage()) return false;
+    if (hasCompleted()) return false;
     return true;
   }
 
   function markCompleted() {
+    // Persist completion once; localStorage is enough for this static site
     try { localStorage.setItem(STORAGE_KEY, '1'); } catch(e) {}
   }
 
@@ -2633,7 +2655,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateSubmitState();
 
     function onClose() {
-      markCompleted();
+      // Just close the popup; completion is only recorded on successful submit
       removePopup();
     }
 
