@@ -127,7 +127,7 @@
         { "slug": "heavies-zebra", "name": "Heavies (ZEBRA)", "image": "assets/img/products/shredder_scrap/heavies_zebra.jpg" },
         { "slug": "shredded-aluminum", "name": "Shredded Aluminum", "image": "assets/img/products/shredder_scrap/shredded_aluminum.jpg" },
         { "slug": "shredded-wheels", "name": "Shredded Wheels", "image": "assets/img/products/shredder_scrap/shredded_wheels.jpg" },
-        { "slug": "shredder-pickings-meatballs-shelmo", "name": "Shredder Pickings / Meatballs (SHELMO)", "image": "assets/img/products/shredder_scrap/Shredder-Pickings-Meatballs-SHELMO.jpg" },
+        { "slug": "shredder-pickings-meatballs-shelmo", "name": "Shredder Pickings / Meatballs (SHELMO)", "image": "assets/img/products/shredder_scrap/shredder_pickings_meatballs_shelmo.jpg" },
         { "slug": "zorba", "name": "ZORBA", "image": "assets/img/products/shredder_scrap/zorba.jpg" },
         { "slug": "zurik", "name": "ZURIK", "image": "assets/img/products/shredder_scrap/zurik.jpg" }
       ]
