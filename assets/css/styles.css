@@ -1614,15 +1614,6 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 .bsj { border-top: 1px solid #e5e7eb; }
 .products-preview { border-top: 1px solid #e5e7eb; padding: 40px 0 80px; box-shadow: var(--shadow); }
 .products-preview .products-grid { margin-top: 40px; }
-
-/* Center last row items (Stainless Steel, Zinc) under Ferrous and LEAD on desktop */
-@media (min-width: 901px) {
-  .products-preview .products-grid .card.product:nth-child(9) { grid-column: 2; }
-  .products-preview .products-grid .card.product:nth-child(10) { grid-column: 3; }
-  /* Products page grid alignment (same ordering) */
-  .page .products-grid .card.product:nth-child(9) { grid-column: 2; }
-  .page .products-grid .card.product:nth-child(10) { grid-column: 3; }
-}
 .locations { border-top: 1px solid #e5e7eb; padding-top: 20px; }
 
 /* Ensure other section headings mirror the Greenland style */
@@ -4637,7 +4628,12 @@ img {
   background: linear-gradient(135deg, #E69500 0%, #CC8400 100%);
   filter: brightness(1);
 }
-.opening-popup-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+.opening-popup-submit:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  box-shadow: none;
+  cursor: not-allowed;
+}
 
 .opening-popup-success {
   text-align: center;

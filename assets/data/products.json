@@ -3,69 +3,69 @@
     {
       "slug": "aluminum",
       "name": "ALUMINUM",
-      "icon": "assets/img/products/aluminum/Old Sheet (TAINT : TABOR).jpg",
+      "icon": "assets/img/products/aluminum/old_sheet_taint_tabor.jpg",
       "subproducts": [
-        { "slug": "6061-truck-wheels-troma", "name": "6061 Truck Wheels (TROMA)", "image": "assets/img/products/aluminum/6061 Truck Wheels (TROMA).jpg" },
-        { "slug": "6063-extrusions-toto", "name": "6063 Extrusions (TOTO)", "image": "assets/img/products/aluminum/6063 Extrusions (TOTO).jpg" },
-        { "slug": "acsr-wire-trill", "name": "ACSR Wire (TRILL)", "image": "assets/img/products/aluminum/ACSR Wire (TRILL).jpg" },
-        { "slug": "al-cu-radiators-talk", "name": "Al - Cu Radiators (TALK)", "image": "assets/img/products/aluminum/Al - Cu Radiators (TALK).jpg" },
-        { "slug": "aluminum-extrusions-tata", "name": "Aluminum Extrusions (TATA)", "image": "assets/img/products/aluminum/Aluminum Extrusions (TATA).jpg" },
-        { "slug": "aluminum-pistons-tarry", "name": "Aluminum Pistons (TARRY)", "image": "assets/img/products/aluminum/Aluminum Pistons (TARRY).jpg" },
-        { "slug": "auto-castings-trump", "name": "Auto Castings (TRUMP)", "image": "assets/img/products/aluminum/Auto Castings (TRUMP).jpg" },
-        { "slug": "bare-wheels-troma", "name": "Bare Wheels (TROMA)", "image": "assets/img/products/aluminum/Bare Wheels (TROMA).jpg" },
-        { "slug": "cast-aluminum-tense", "name": "Cast Aluminum (TENSE)", "image": "assets/img/products/aluminum/Cast Aluminum (TENSE).jpg" },
-        { "slug": "chrome-wheels-troma", "name": "Chrome Wheels (TROMA)", "image": "assets/img/products/aluminum/Chrome Wheels (TROMA).jpg" },
-        { "slug": "clean-al-radiators-tally-clean", "name": "Clean Al Radiators (TALLY - CLEAN)", "image": "assets/img/products/aluminum/Clean Al Radiators (TALLY - CLEAN).jpg" },
-        { "slug": "coffee-pods", "name": "Coffee Pods", "image": "assets/img/products/aluminum/Coffee Pods.jpg" },
-        { "slug": "dirty-al-radiators-tally-dirty", "name": "Dirty Al Radiators (TALLY - DIRTY)", "image": "assets/img/products/aluminum/Dirty Al Radiators (TALLY - DIRTY).jpg" },
-        { "slug": "ec-wire-talon", "name": "EC Wire (TALON)", "image": "assets/img/products/aluminum/EC Wire (TALON).jpg" },
-        { "slug": "irony-ext-6063-95-5-tutu", "name": "Irony Ext 6063 (95-5) (TUTU)", "image": "assets/img/products/aluminum/Irony Ext 6063 (95-5) (TUTU).jpg" },
-        { "slug": "license-plates", "name": "License Plates", "image": "assets/img/products/aluminum/License Plates.jpg" },
-        { "slug": "litho-sheets-tablet", "name": "Litho Sheets (TABLET)", "image": "assets/img/products/aluminum/Litho Sheets (TABLET).jpg" },
-        { "slug": "new-pro-mlc-tough-taboo", "name": "New Pro MLC (TOUGH TABOO)", "image": "assets/img/products/aluminum/New Pro MLC (TOUGH TABOO).png" },
-        { "slug": "new-pro-thermal-ext", "name": "New Pro Thermal Ext", "image": "assets/img/products/aluminum/New Pro Thermal Ext.jpg" },
-        { "slug": "old-sheet-taint-tabor", "name": "Old Sheet (TAINT / TABOR)", "image": "assets/img/products/copper/old-sheet-taint-tabor.jpg" },
-        { "slug": "sheets-plates-clips-6061-spc", "name": "Sheets - Plates - Clips (6061 SPC)", "image": "assets/img/products/aluminum/Sheets - Plates - Clips (6061 SPC).jpg" },
-        { "slug": "shredded-auto-castings-trump", "name": "Shredded Auto Castings (TRUMP)", "image": "assets/img/products/aluminum/Shredded Auto Castings (TRUMP).jpg" },
-        { "slug": "used-beverage-cans-taldon-ubc", "name": "Used Beverage Cans (TALDON) (UBC)", "image": "assets/img/products/aluminum/Used Beverage Cans (TALDON) (UBC).jpg" }
+        { "slug": "6061-truck-wheels-troma", "name": "6061 Truck Wheels (TROMA)", "image": "assets/img/products/aluminum/6061_truck_wheels_troma.jpg" },
+        { "slug": "6063-extrusions-toto", "name": "6063 Extrusions (TOTO)", "image": "assets/img/products/aluminum/6063_extrusions_toto.jpg" },
+        { "slug": "acsr-wire-trill", "name": "ACSR Wire (TRILL)", "image": "assets/img/products/aluminum/acsr_wire_trill.jpg" },
+        { "slug": "al-cu-radiators-talk", "name": "Al - Cu Radiators (TALK)", "image": "assets/img/products/aluminum/al_cu_radiators_talk.jpg" },
+        { "slug": "aluminum-extrusions-tata", "name": "Aluminum Extrusions (TATA)", "image": "assets/img/products/aluminum/aluminum_extrusions_tata.jpg" },
+        { "slug": "aluminum-pistons-tarry", "name": "Aluminum Pistons (TARRY)", "image": "assets/img/products/aluminum/aluminum_pistons_tarry.jpg" },
+        { "slug": "auto-castings-trump", "name": "Auto Castings (TRUMP)", "image": "assets/img/products/aluminum/auto_castings_trump.jpg" },
+        { "slug": "bare-wheels-troma", "name": "Bare Wheels (TROMA)", "image": "assets/img/products/aluminum/bare_wheels_troma.jpg" },
+        { "slug": "cast-aluminum-tense", "name": "Cast Aluminum (TENSE)", "image": "assets/img/products/aluminum/cast_aluminum_tense.jpg" },
+        { "slug": "chrome-wheels-troma", "name": "Chrome Wheels (TROMA)", "image": "assets/img/products/aluminum/chrome_wheels_troma.jpg" },
+        { "slug": "clean-al-radiators-tally-clean", "name": "Clean Al Radiators (TALLY - CLEAN)", "image": "assets/img/products/aluminum/clean_al_radiators_tally_clean.jpg" },
+        { "slug": "coffee-pods", "name": "Coffee Pods", "image": "assets/img/products/aluminum/coffee_pods.jpg" },
+        { "slug": "dirty-al-radiators-tally-dirty", "name": "Dirty Al Radiators (TALLY - DIRTY)", "image": "assets/img/products/aluminum/dirty_al_radiators_tally_dirty.jpg" },
+        { "slug": "ec-wire-talon", "name": "EC Wire (TALON)", "image": "assets/img/products/aluminum/ec_wire_talon.jpg" },
+        { "slug": "irony-ext-6063-95-5-tutu", "name": "Irony Ext 6063 (95-5) (TUTU)", "image": "assets/img/products/aluminum/irony_ext_6063_95_5_tutu.jpg" },
+        { "slug": "license-plates", "name": "License Plates", "image": "assets/img/products/aluminum/license_plates.jpg" },
+        { "slug": "litho-sheets-tablet", "name": "Litho Sheets (TABLET)", "image": "assets/img/products/aluminum/litho_sheets_tablet.jpg" },
+        { "slug": "new-pro-mlc-tough-taboo", "name": "New Pro MLC (TOUGH TABOO)", "image": "assets/img/products/aluminum/new_pro_mlc_tough_taboo.png" },
+        { "slug": "new-pro-thermal-ext", "name": "New Pro Thermal Ext", "image": "assets/img/products/aluminum/new_pro_thermal_ext.jpg" },
+        { "slug": "old-sheet-taint-tabor", "name": "Old Sheet (TAINT / TABOR)", "image": "assets/img/products/aluminum/old_sheet_taint_tabor.jpg" },
+        { "slug": "sheets-plates-clips-6061-spc", "name": "Sheets - Plates - Clips (6061 SPC)", "image": "assets/img/products/aluminum/sheets_plates_clips_6061_spc.jpg" },
+        { "slug": "shredded-auto-castings-trump", "name": "Shredded Auto Castings (TRUMP)", "image": "assets/img/products/aluminum/shredded_auto_castings_trump.jpg" },
+        { "slug": "used-beverage-cans-taldon-ubc", "name": "Used Beverage Cans (TALDON) (UBC)", "image": "assets/img/products/aluminum/used_beverage_cans_taldon_ubc.jpg" }
       ]
     },
     {
       "slug": "auto-scrap",
       "name": "AUTO SCRAP",
-      "icon": "assets/img/products/auto_scrap/Alternators.jpg",
+      "icon": "assets/img/products/auto_scrap/alternators.jpg",
       "subproducts": [
-        { "slug": "ac-compressors", "name": "AC Compressors", "image": "assets/img/products/auto_scrap/AC Compressors.jpg" },
-        { "slug": "alternators", "name": "Alternators", "image": "assets/img/products/auto_scrap/Alternators.jpg" },
-        { "slug": "aluminum-body-engines", "name": "Aluminum Body Engines", "image": "assets/img/products/auto_scrap/Aluminum Body Engines.jpg" },
-        { "slug": "armatures-from-starters", "name": "Armatures from Starters", "image": "assets/img/products/auto_scrap/Armatures from Starters.jpg" },
-        { "slug": "electronic-control-modules-ecm", "name": "Electronic Control Modules (ECM)", "image": "assets/img/products/auto_scrap/Electronic Control Modules (ECM).jpg" },
-        { "slug": "field-coils-from-starters", "name": "Field Coils from Starters", "image": "assets/img/products/auto_scrap/Field Coils from Starters.jpg" },
-        { "slug": "rotors-from-alternators", "name": "Rotors from  Alternators", "image": "assets/img/products/auto_scrap/Rotors from  Alternators.jpg" },
-        { "slug": "solenoids-from-starters", "name": "Solenoids from Starters", "image": "assets/img/products/auto_scrap/Solenoids from Starters.jpg" },
-        { "slug": "starters-al-nose", "name": "Starters Al Nose", "image": "assets/img/products/auto_scrap/Starters Al Nose.jpg" },
-        { "slug": "starters-fe-nose", "name": "Starters Fe Nose", "image": "assets/img/products/auto_scrap/Starters Fe Nose.jpg" },
-        { "slug": "stators-from-alternators", "name": "Stators from Alternators", "image": "assets/img/products/auto_scrap/Stators from Alternators.jpg" },
-        { "slug": "steel-body-engines", "name": "Steel Body Engines", "image": "assets/img/products/auto_scrap/Steel Body Engines.jpg" },
-        { "slug": "transmissions", "name": "Transmissions", "image": "assets/img/products/auto_scrap/Transmissions.jpg" }
+        { "slug": "ac-compressors", "name": "AC Compressors", "image": "assets/img/products/auto_scrap/ac_compressors.jpg" },
+        { "slug": "alternators", "name": "Alternators", "image": "assets/img/products/auto_scrap/alternators.jpg" },
+        { "slug": "aluminum-body-engines", "name": "Aluminum Body Engines", "image": "assets/img/products/auto_scrap/aluminum_body_engines.jpg" },
+        { "slug": "armatures-from-starters", "name": "Armatures from Starters", "image": "assets/img/products/auto_scrap/armatures_from_starters.jpg" },
+        { "slug": "electronic-control-modules-ecm", "name": "Electronic Control Modules (ECM)", "image": "assets/img/products/auto_scrap/electronic_control_modules_ecm.jpg" },
+        { "slug": "field-coils-from-starters", "name": "Field Coils from Starters", "image": "assets/img/products/auto_scrap/field_coils_from_starters.jpg" },
+        { "slug": "rotors-from-alternators", "name": "Rotors from  Alternators", "image": "assets/img/products/auto_scrap/rotors_from_alternators.jpg" },
+        { "slug": "solenoids-from-starters", "name": "Solenoids from Starters", "image": "assets/img/products/auto_scrap/solenoids_from_starters.jpg" },
+        { "slug": "starters-al-nose", "name": "Starters Al Nose", "image": "assets/img/products/auto_scrap/starters_al_nose.jpg" },
+        { "slug": "starters-fe-nose", "name": "Starters Fe Nose", "image": "assets/img/products/auto_scrap/starters_fe_nose.jpg" },
+        { "slug": "stators-from-alternators", "name": "Stators from Alternators", "image": "assets/img/products/auto_scrap/stators_from_alternators.jpg" },
+        { "slug": "steel-body-engines", "name": "Steel Body Engines", "image": "assets/img/products/auto_scrap/steel_body_engines.jpg" },
+        { "slug": "transmissions", "name": "Transmissions", "image": "assets/img/products/auto_scrap/transmissions.jpg" }
       ]
     },
     {
       "slug": "brass",
       "name": "BRASS",
-      "icon": "assets/img/products/brass/Yellow Brass (HONEY).jpg",
+      "icon": "assets/img/products/brass/yellow_brass_honey.jpg",
       "subproducts": [
-        { "slug": "pallu", "name": "(PALLU)", "image": "assets/img/products/brass/(PALLU).jpg" },
-        { "slug": "admiralty-brass-tubes-pales", "name": "Admiralty Brass Tubes (PALES)", "image": "assets/img/products/brass/Admiralty Brass Tubes (PALES).jpg" },
-        { "slug": "alum-bronze-solids", "name": "Alum  Bronze Solids", "image": "assets/img/products/brass/Alum  Bronze Solids.jpg" },
-        { "slug": "alum-bronze-turnings", "name": "Alum Bronze Turnings", "image": "assets/img/products/brass/Alum Bronze Turnings.jpg" },
-        { "slug": "brass-auto-radiators-ocean", "name": "Brass Auto Radiators (OCEAN)", "image": "assets/img/products/brass/Brass Auto Radiators (OCEAN).jpg" },
-        { "slug": "clean-water-meter-shells", "name": "Clean Water Meter Shells", "image": "assets/img/products/brass/Clean Water Meter Shells.jpg" },
-        { "slug": "mn-bronze-solids", "name": "Mn Bronze Solids", "image": "assets/img/products/brass/Mn Bronze Solids.jpg" },
-        { "slug": "propeller-scrap", "name": "Propeller Scrap", "image": "assets/img/products/brass/Propeller Scrap.jpg" },
-        { "slug": "pump-barrel-brass", "name": "Pump Barrel Brass", "image": "assets/img/products/brass/Pump Barrel Brass.jpg" },
-        { "slug": "red-brass-ebony", "name": "Red Brass (EBONY)", "image": "assets/img/products/brass/Red Brass (EBONY).jpg" },
-        { "slug": "yellow-brass-honey", "name": "Yellow Brass (HONEY)", "image": "assets/img/products/brass/Yellow Brass (HONEY).jpg" }
+        { "slug": "pallu", "name": "(PALLU)", "image": "assets/img/products/brass/pallu.jpg" },
+        { "slug": "admiralty-brass-tubes-pales", "name": "Admiralty Brass Tubes (PALES)", "image": "assets/img/products/brass/admiralty_brass_tubes_pales.jpg" },
+        { "slug": "alum-bronze-solids", "name": "Alum  Bronze Solids", "image": "assets/img/products/brass/alum_bronze_solids.jpg" },
+        { "slug": "alum-bronze-turnings", "name": "Alum Bronze Turnings", "image": "assets/img/products/brass/alum_bronze_turnings.jpg" },
+        { "slug": "brass-auto-radiators-ocean", "name": "Brass Auto Radiators (OCEAN)", "image": "assets/img/products/brass/brass_auto_radiators_ocean.jpg" },
+        { "slug": "clean-water-meter-shells", "name": "Clean Water Meter Shells", "image": "assets/img/products/brass/clean_water_meter_shells.jpg" },
+        { "slug": "mn-bronze-solids", "name": "Mn Bronze Solids", "image": "assets/img/products/brass/mn_bronze_solids.jpg" },
+        { "slug": "propeller-scrap", "name": "Propeller Scrap", "image": "assets/img/products/brass/propeller_scrap.jpg" },
+        { "slug": "pump-barrel-brass", "name": "Pump Barrel Brass", "image": "assets/img/products/brass/pump_barrel_brass.jpg" },
+        { "slug": "red-brass-ebony", "name": "Red Brass (EBONY)", "image": "assets/img/products/brass/red_brass_ebony.jpg" },
+        { "slug": "yellow-brass-honey", "name": "Yellow Brass (HONEY)", "image": "assets/img/products/brass/yellow_brass_honey.jpg" }
       ]
     },
     {
@@ -81,77 +81,77 @@
     {
       "slug": "copper-bearing",
       "name": "COPPER BEARING",
-      "icon": "assets/img/products/copper_bearing/Small Motors (ELMO).jpg",
+      "icon": "assets/img/products/copper_bearing/small_motors_elmo.jpg",
       "subproducts": [
-        { "slug": "copper-ballasts-darth", "name": "Copper Ballasts (DARTH)", "image": "assets/img/products/copper_bearing/Copper Ballasts (DARTH).jpg" },
-        { "slug": "cu-transformers-large", "name": "Cu Transformers - Large", "image": "assets/img/products/copper_bearing/Cu Transformers - Large.jpg" },
-        { "slug": "cu-transformers-medium", "name": "Cu Transformers - Medium", "image": "assets/img/products/copper_bearing/Cu Transformers - Medium.jpg" },
-        { "slug": "cu-transformers-small", "name": "Cu Transformers - Small", "image": "assets/img/products/copper_bearing/Cu Transformers - Small.jpg" },
-        { "slug": "large-motors-elmo", "name": "Large Motors (ELMO)", "image": "assets/img/products/copper_bearing/Large Motors (ELMO).jpg" },
-        { "slug": "mixed-motors-elmo", "name": "Mixed Motors (ELMO)", "image": "assets/img/products/copper_bearing/Mixed Motors (ELMO).jpg" },
-        { "slug": "sealed-units-vader", "name": "Sealed Units (VADER)", "image": "assets/img/products/copper_bearing/Sealed Units (VADER).jpg" },
-        { "slug": "small-motors-elmo", "name": "Small Motors (ELMO)", "image": "assets/img/products/copper_bearing/Small Motors (ELMO).jpg" }
+        { "slug": "copper-ballasts-darth", "name": "Copper Ballasts (DARTH)", "image": "assets/img/products/copper_bearing/copper_ballasts_darth.jpg" },
+        { "slug": "cu-transformers-large", "name": "Cu Transformers - Large", "image": "assets/img/products/copper_bearing/cu_transformers_large.jpg" },
+        { "slug": "cu-transformers-medium", "name": "Cu Transformers - Medium", "image": "assets/img/products/copper_bearing/cu_transformers_medium.jpg" },
+        { "slug": "cu-transformers-small", "name": "Cu Transformers - Small", "image": "assets/img/products/copper_bearing/cu_transformers_small.jpg" },
+        { "slug": "large-motors-elmo", "name": "Large Motors (ELMO)", "image": "assets/img/products/copper_bearing/large_motors_elmo.jpg" },
+        { "slug": "mixed-motors-elmo", "name": "Mixed Motors (ELMO)", "image": "assets/img/products/copper_bearing/mixed_motors_elmo.jpg" },
+        { "slug": "sealed-units-vader", "name": "Sealed Units (VADER)", "image": "assets/img/products/copper_bearing/sealed_units_vader.jpg" },
+        { "slug": "small-motors-elmo", "name": "Small Motors (ELMO)", "image": "assets/img/products/copper_bearing/small_motors_elmo.jpg" }
       ]
     },
     {
       "slug": "ferrous",
       "name": "FERROUS",
-      "icon": "assets/img/products/ferrous/Cast Rotors & Drums.jpg",
+      "icon": "assets/img/products/ferrous/cast_rotors_drums.jpg",
       "subproducts": [
-        { "slug": "cast-rotors-drums", "name": "Cast Rotors & Drums", "image": "assets/img/products/ferrous/Cast Rotors & Drums.jpg" },
-        { "slug": "h13-solids", "name": "H13 Solids", "image": "assets/img/products/ferrous/H13 Solids.jpg" },
-        { "slug": "hms-1-2", "name": "HMS 1 & 2", "image": "assets/img/products/ferrous/HMS 1 & 2.jpg" },
-        { "slug": "lms-bales", "name": "LMS Bales", "image": "assets/img/products/ferrous/LMS Bales.jpg" },
-        { "slug": "moon-cut-pipes", "name": "Moon Cut Pipes", "image": "assets/img/products/ferrous/Moon Cut Pipes.jpg" },
-        { "slug": "pns", "name": "PNS", "image": "assets/img/products/ferrous/PNS.jpg" },
-        { "slug": "rail-scrap", "name": "Rail Scrap", "image": "assets/img/products/ferrous/Rail Scrap.jpg" },
-        { "slug": "re-rolling-scrap", "name": "Re-Rolling Scrap", "image": "assets/img/products/ferrous/Re-Rolling Scrap.jpg" },
-        { "slug": "steel-turnings", "name": "Steel Turnings", "image": "assets/img/products/ferrous/Steel Turnings.jpg" }
+        { "slug": "cast-rotors-drums", "name": "Cast Rotors & Drums", "image": "assets/img/products/ferrous/cast_rotors_drums.jpg" },
+        { "slug": "h13-solids", "name": "H13 Solids", "image": "assets/img/products/ferrous/h13_solids.jpg" },
+        { "slug": "hms-1-2", "name": "HMS 1 & 2", "image": "assets/img/products/ferrous/hms_1_2.jpg" },
+        { "slug": "lms-bales", "name": "LMS Bales", "image": "assets/img/products/ferrous/lms_bales.jpg" },
+        { "slug": "moon-cut-pipes", "name": "Moon Cut Pipes", "image": "assets/img/products/ferrous/moon_cut_pipes.jpg" },
+        { "slug": "pns", "name": "PNS", "image": "assets/img/products/ferrous/pns.jpg" },
+        { "slug": "rail-scrap", "name": "Rail Scrap", "image": "assets/img/products/ferrous/rail_scrap.jpg" },
+        { "slug": "re-rolling-scrap", "name": "Re-Rolling Scrap", "image": "assets/img/products/ferrous/re_rolling_scrap.jpg" },
+        { "slug": "steel-turnings", "name": "Steel Turnings", "image": "assets/img/products/ferrous/steel_turnings.jpg" }
       ]
     },
     {
       "slug": "lead",
       "name": "LEAD",
-      "icon": "assets/img/products/lead/Clean Lead Scrap (RADIO).jpg",
+      "icon": "assets/img/products/lead/clean_lead_scrap_radio.jpg",
       "subproducts": [
-        { "slug": "clean-lead-scrap-radio", "name": "Clean Lead Scrap (RADIO)", "image": "assets/img/products/lead/Clean Lead Scrap (RADIO).jpg" },
-        { "slug": "drained-lead-acid-batteries-rains", "name": "Drained Lead Acid Batteries (RAINS)", "image": "assets/img/products/lead/Drained Lead Acid Batteries (RAINS).jpg" },
-        { "slug": "lead-wheel-weights-ropes", "name": "Lead Wheel Weights (ROPES)", "image": "assets/img/products/lead/Lead Wheel Weights (ROPES).jpg" }
+        { "slug": "clean-lead-scrap-radio", "name": "Clean Lead Scrap (RADIO)", "image": "assets/img/products/lead/clean_lead_scrap_radio.jpg" },
+        { "slug": "drained-lead-acid-batteries-rains", "name": "Drained Lead Acid Batteries (RAINS)", "image": "assets/img/products/lead/drained_lead_acid_batteries_rains.jpg" },
+        { "slug": "lead-wheel-weights-ropes", "name": "Lead Wheel Weights (ROPES)", "image": "assets/img/products/lead/lead_wheel_weights_ropes.jpg" }
       ]
     },
     {
       "slug": "shredder-scrap",
       "name": "SHREDDER SCRAP",
-      "icon": "assets/img/products/shredder_scrap/ZORBA.jpg",
+      "icon": "assets/img/products/shredder_scrap/zorba.jpg",
       "subproducts": [
-        { "slug": "heavies-zebra", "name": "Heavies (ZEBRA)", "image": "assets/img/products/shredder_scrap/Heavies (ZEBRA).jpg" },
-        { "slug": "shredded-aluminum", "name": "Shredded Aluminum", "image": "assets/img/products/shredder_scrap/Shredded Aluminum.jpg" },
-        { "slug": "shredded-wheels", "name": "Shredded Wheels", "image": "assets/img/products/shredder_scrap/Shredded Wheels.jpg" },
-        { "slug": "shredder-pickings-meatballs-shelmo", "name": "Shredder Pickings / Meatballs (SHELMO)", "image": "assets/img/products/shredder_scrap/Shredder-Pickings-Meatballs-SHELMO.jpg" },
-        { "slug": "zorba", "name": "ZORBA", "image": "assets/img/products/shredder_scrap/ZORBA.jpg" },
-        { "slug": "zurik", "name": "ZURIK", "image": "assets/img/products/shredder_scrap/ZURIK.jpg" }
+        { "slug": "heavies-zebra", "name": "Heavies (ZEBRA)", "image": "assets/img/products/shredder_scrap/heavies_zebra.jpg" },
+        { "slug": "shredded-aluminum", "name": "Shredded Aluminum", "image": "assets/img/products/shredder_scrap/shredded_aluminum.jpg" },
+        { "slug": "shredded-wheels", "name": "Shredded Wheels", "image": "assets/img/products/shredder_scrap/shredded_wheels.jpg" },
+        { "slug": "shredder-pickings-meatballs-shelmo", "name": "Shredder Pickings / Meatballs (SHELMO)", "image": "assets/img/products/shredder_scrap/shredder_pickings_meatballs_shelmo.jpg" },
+        { "slug": "zorba", "name": "ZORBA", "image": "assets/img/products/shredder_scrap/zorba.jpg" },
+        { "slug": "zurik", "name": "ZURIK", "image": "assets/img/products/shredder_scrap/zurik.jpg" }
       ]
     },
     {
       "slug": "stainless-steel",
       "name": "STAINLESS STEEL",
-      "icon": "assets/img/products/stainless_steel/304 Solids (SABOT).jpg",
+      "icon": "assets/img/products/stainless_steel/304_solids_sabot.jpg",
       "subproducts": [
-        { "slug": "304-solids-sabot", "name": "304 Solids (SABOT)", "image": "assets/img/products/stainless_steel/304 Solids (SABOT).jpg" },
-        { "slug": "304-turnings-ultra", "name": "304 Turnings (ULTRA)", "image": "assets/img/products/stainless_steel/304 Turnings (ULTRA).jpg" },
-        { "slug": "316-solids", "name": "316 Solids", "image": "assets/img/products/stainless_steel/316 Solids.jpg" },
-        { "slug": "316-turnings", "name": "316 Turnings", "image": "assets/img/products/stainless_steel/316 Turnings.jpg" }
+        { "slug": "304-solids-sabot", "name": "304 Solids (SABOT)", "image": "assets/img/products/stainless_steel/304_solids_sabot.jpg" },
+        { "slug": "304-turnings-ultra", "name": "304 Turnings (ULTRA)", "image": "assets/img/products/stainless_steel/304_turnings_ultra.jpg" },
+        { "slug": "316-solids", "name": "316 Solids", "image": "assets/img/products/stainless_steel/316_solids.jpg" },
+        { "slug": "316-turnings", "name": "316 Turnings", "image": "assets/img/products/stainless_steel/316_turnings.jpg" }
       ]
     },
     {
       "slug": "zinc",
       "name": "ZINC",
-      "icon": "assets/img/products/zinc/Zinc Die Cast (SAVES).jpg",
+      "icon": "assets/img/products/zinc/zinc_die_cast_saves.jpg",
       "subproducts": [
-        { "slug": "kirksite", "name": "Kirksite", "image": "assets/img/products/zinc/Kirksite.jpg" },
-        { "slug": "shredded-zinc", "name": "Shredded Zinc", "image": "assets/img/products/zinc/Shredded Zinc.jpg" },
-        { "slug": "zinc-anodes", "name": "Zinc Anodes", "image": "assets/img/products/zinc/Zinc Anodes.jpg" },
-        { "slug": "zinc-die-cast-saves", "name": "Zinc Die Cast (SAVES)", "image": "assets/img/products/zinc/Zinc Die Cast (SAVES).jpg" }
+        { "slug": "kirksite", "name": "Kirksite", "image": "assets/img/products/zinc/kirksite.jpg" },
+        { "slug": "shredded-zinc", "name": "Shredded Zinc", "image": "assets/img/products/zinc/shredded_zinc.jpg" },
+        { "slug": "zinc-anodes", "name": "Zinc Anodes", "image": "assets/img/products/zinc/zinc_anodes.jpg" },
+        { "slug": "zinc-die-cast-saves", "name": "Zinc Die Cast (SAVES)", "image": "assets/img/products/zinc/zinc_die_cast_saves.jpg" }
       ]
     }
   ]

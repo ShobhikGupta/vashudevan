@@ -1198,8 +1198,10 @@
   };
 
   // Contact form validation and submit via configured endpoint
+  // DISABLED: Contact form now uses inline Google Apps Script handler in contact.html
+  // to avoid duplicate submissions. This handler is kept for reference only.
   const form = document.getElementById('contact-form');
-  if (form) {
+  if (false && form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       // If no custom endpoint is configured, skip this default handler entirely
@@ -1991,12 +1993,34 @@ document.addEventListener('DOMContentLoaded', function() {
   var STORAGE_KEY = 'openingPopupCompleted';
   var SHOW_DELAY_MS = 2000;
 
+  function isHomePage() {
+    try {
+      var path = (window.location && window.location.pathname) ? window.location.pathname : '/';
+      if (path === '/' || path === '') return true;
+      // Handle common index paths both on server and local file URLs
+      if (path === '/index.html' || path === 'index.html') return true;
+      if (path.slice(-11) === '/index.html') return true;
+    } catch(e) {}
+    return false;
+  }
+
+  function hasCompleted() {
+    // Single source of truth: localStorage only
+    // try {
+    //   return localStorage.getItem(STORAGE_KEY) === '1';
+    // } catch(e) {}
+    return false;
+  }
+
   function shouldShowPopup() {
-    // Always show the popup on each refresh/load
+    // Only show on home page and if user has not already completed the popup
+    if (!isHomePage()) return false;
+    if (hasCompleted()) return false;
     return true;
   }
 
   function markCompleted() {
+    // Persist completion once; localStorage is enough for this static site
     try { localStorage.setItem(STORAGE_KEY, '1'); } catch(e) {}
   }
 
@@ -2616,13 +2640,30 @@ document.addEventListener('DOMContentLoaded', function() {
       return ok;
     }
 
-    // Disable submit until all required fields are filled
+    // Disable submit until all required fields look valid (basic regex checks)
     function updateSubmitState() {
       try {
         var hasCountry = !!(popupCountry && popupCountry.value);
-        var hasPhone = !!(popupPhone && popupPhone.value.trim());
-        var hasEmail = !!(popupEmail && popupEmail.value.trim());
-        if (submitBtn) submitBtn.disabled = !(hasCountry && hasPhone && hasEmail);
+        var phoneVal = popupPhone && popupPhone.value.trim();
+        var emailVal = popupEmail && popupEmail.value.trim();
+
+        var phoneOk = !!phoneVal && /^\+?[0-9\-()\s]{7,20}$/.test(phoneVal);
+        var emailOk = !!emailVal && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal);
+
+        // Live inline errors for text fields: only show when user has typed something
+        if (phoneVal && !phoneOk) {
+          showError('phone', 'Not a valid phone number.');
+        } else {
+          showError('phone', '');
+        }
+
+        if (emailVal && !emailOk) {
+          showError('email', 'Please enter a valid email.');
+        } else {
+          showError('email', '');
+        }
+
+        if (submitBtn) submitBtn.disabled = !(hasCountry && phoneOk && emailOk);
       } catch(_) {}
     }
     if (submitBtn) submitBtn.disabled = true;
@@ -2633,7 +2674,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateSubmitState();
 
     function onClose() {
-      markCompleted();
+      // Just close the popup; completion is only recorded on successful submit
       removePopup();
     }
 
@@ -2674,8 +2715,26 @@ document.addEventListener('DOMContentLoaded', function() {
         hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
       });
 
-      // Get full phone number with country code from intl-tel-input
+      // Get full phone number with country code - always use country dropdown
       var fullPhone = (function(){
+        var rawPhone = (phone || '').trim();
+        var digits = rawPhone.replace(/\D/g, '');
+        
+        // If user already typed a number starting with +, use it as-is
+        if (rawPhone.charAt(0) === '+') {
+          return rawPhone.replace(/\s+/g, '');
+        }
+        
+        // Otherwise, always prepend the dial code from the selected country
+        try {
+          var selectedVal = popupCountry && popupCountry.value;
+          var dc = __dialCodeByValue && __dialCodeByValue[selectedVal];
+          if (dc && digits) {
+            return '+' + dc + digits;
+          }
+        } catch(_) {}
+        
+        // Final fallback: try intl-tel-input if available
         try {
           if (popupPhone && popupPhone._iti && typeof popupPhone._iti.getNumber === 'function') {
             var utils = (window.intlTelInputUtils || {}).numberFormat ? window.intlTelInputUtils : null;
@@ -2683,14 +2742,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (number) return String(number).replace(/\s+/g, '');
           }
         } catch(_) {}
-        // Fallback: prefix with selected country's dial code, force E.164 like +<code><digits>
-        try {
-          var selectedVal = popupCountry && popupCountry.value;
-          var dc = (selectedVal && (window.__dialCodeByValue || {}).hasOwnProperty ? (window.__dialCodeByValue[selectedVal]) : null) || (__dialCodeByValue && __dialCodeByValue[selectedVal]);
-          var digits = (phone || '').replace(/\D/g, '');
-          if (dc && digits) return '+' + dc + digits;
-        } catch(_) {}
-        return phone;
+        
+        return rawPhone;
       })();
 
       // Normalize country text once to reuse across payload variants
