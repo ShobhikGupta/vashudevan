@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Immediate Country Code Fix</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .test-container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-button { background: #007bff; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; margin: 10px 5px; font-size: 16px; }
+        .test-button:hover { background: #0056b3; }
+        .country-test { display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0; }
+        .country-test button { background: #28a745; font-size: 14px; padding: 8px 16px; }
+        .country-test button:hover { background: #1e7e34; }
+        .instructions { background: #e9ecef; padding: 15px; border-radius: 6px; margin: 15px 0; }
+        .console-info { background: #d1ecf1; padding: 10px; border-radius: 4px; margin: 10px 0; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🚀 Immediate Country Code Fix Test</h1>
+        <p>This test verifies that the country code updates <strong>immediately</strong> when you change the country selection.</p>
+        
+        <div class="console-info">
+            <strong>💡 Tip:</strong> Open your browser's Developer Console (F12) to see detailed debug logs of the sync process.
+        </div>
+        
+        <div class="instructions">
+            <h3>📋 Test Instructions:</h3>
+            <ol>
+                <li>Click "Open Popup" below</li>
+                <li>Change the country dropdown and watch the country code update instantly</li>
+                <li>Or click any country button to test specific countries</li>
+                <li>Check the console for debug logs</li>
+            </ol>
+        </div>
+        
+        <div style="text-align: center; margin: 20px 0;">
+            <button class="test-button" onclick="testPopup()">🎯 Open Popup</button>
+        </div>
+        
+        <h3>🌍 Quick Country Tests:</h3>
+        <div class="country-test">
+            <button onclick="testCountry('united-states')">🇺🇸 USA (+1)</button>
+            <button onclick="testCountry('pakistan')">🇵🇰 Pakistan (+92)</button>
+            <button onclick="testCountry('united-kingdom')">🇬🇧 UK (+44)</button>
+            <button onclick="testCountry('germany')">🇩🇪 Germany (+49)</button>
+            <button onclick="testCountry('india')">🇮🇳 India (+91)</button>
+            <button onclick="testCountry('japan')">🇯🇵 Japan (+81)</button>
+            <button onclick="testCountry('australia')">🇦🇺 Australia (+61)</button>
+            <button onclick="testCountry('france')">🇫🇷 France (+33)</button>
+            <button onclick="testCountry('brazil')">🇧🇷 Brazil (+55)</button>
+            <button onclick="testCountry('canada')">🇨🇦 Canada (+1)</button>
+        </div>
+        
+        <div class="instructions">
+            <h3>🔍 What to Look For:</h3>
+            <ul>
+                <li>✅ Country code should change <strong>immediately</strong> when you select a different country</li>
+                <li>✅ USA should show <strong>+1</strong>, Pakistan should show <strong>+92</strong>, etc.</li>
+                <li>✅ No delay or lag in the country code update</li>
+                <li>✅ Console should show debug logs confirming the sync</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script src="assets/js/main.js"></script>
+    <script>
+        function testPopup() {
+            console.log('🎯 Opening popup for testing...');
+            if (window.initOpeningPopup) {
+                window.initOpeningPopup();
+            } else {
+                console.error('❌ initOpeningPopup function not found!');
+            }
+        }
+        
+        function testCountry(countryValue) {
+            console.log('🌍 Testing country:', countryValue);
+            testPopup();
+            
+            // Wait for popup to be created, then set country
+            setTimeout(function() {
+                const countrySelect = document.querySelector('#op-country');
+                const dialCodeDisplay = document.querySelector('#op-dial-code');
+                
+                if (countrySelect) {
+                    console.log('📍 Setting country to:', countryValue);
+                    countrySelect.value = countryValue;
+                    
+                    // Trigger multiple events to ensure sync
+                    countrySelect.dispatchEvent(new Event('change'));
+                    countrySelect.dispatchEvent(new Event('input'));
+                    
+                    // Check if dial code updated
+                    setTimeout(function() {
+                        if (dialCodeDisplay) {
+                            console.log('📞 Current dial code display:', dialCodeDisplay.textContent);
+                        } else {
+                            console.error('❌ Dial code display element not found!');
+                        }
+                    }, 100);
+                } else {
+                    console.error('❌ Country select not found!');
+                }
+            }, 1000);
+        }
+        
+        // Add some helpful console messages
+        console.log('🚀 Country Code Fix Test Page Loaded');
+        console.log('💡 Open the popup and try changing countries to test the fix!');
+    </script>
+</body>
+</html>

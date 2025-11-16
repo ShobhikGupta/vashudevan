@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Popup Phone Fix</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .test-button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .test-button:hover { background: #0056b3; }
+        .country-test { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
+        .country-test button { background: #28a745; }
+        .country-test button:hover { background: #1e7e34; }
+    </style>
+</head>
+<body>
+    <h1>Test Popup Phone Input Fix</h1>
+    <p>This page tests the popup phone input with dynamic country code display.</p>
+    
+    <div class="test-section">
+        <h3>Basic Test</h3>
+        <button class="test-button" onclick="testPopup()">Open Popup</button>
+    </div>
+    
+    <div class="test-section">
+        <h3>Country Code Tests</h3>
+        <p>Test specific countries to verify their dial codes display correctly:</p>
+        <div class="country-test">
+            <button onclick="testCountry('india')">India (+91)</button>
+            <button onclick="testCountry('pakistan')">Pakistan (+92)</button>
+            <button onclick="testCountry('united-states')">USA (+1)</button>
+            <button onclick="testCountry('united-kingdom')">UK (+44)</button>
+            <button onclick="testCountry('germany')">Germany (+49)</button>
+            <button onclick="testCountry('japan')">Japan (+81)</button>
+            <button onclick="testCountry('australia')">Australia (+61)</button>
+            <button onclick="testCountry('canada')">Canada (+1)</button>
+            <button onclick="testCountry('france')">France (+33)</button>
+            <button onclick="testCountry('brazil')">Brazil (+55)</button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Instructions</h3>
+        <ol>
+            <li>Click "Open Popup" to open the popup form</li>
+            <li>Change the country dropdown and verify the country code updates</li>
+            <li>Or click any country button above to test specific countries</li>
+            <li>Check the browser console for debug logs</li>
+        </ol>
+    </div>
+    
+    <script src="assets/js/main.js"></script>
+    <script>
+        function testPopup() {
+            // Trigger the popup
+            if (window.initOpeningPopup) {
+                window.initOpeningPopup();
+            }
+        }
+        
+        function testCountry(countryValue) {
+            // Open popup and set specific country
+            testPopup();
+            
+            // Wait for popup to be created, then set country
+            setTimeout(function() {
+                const countrySelect = document.querySelector('#op-country');
+                if (countrySelect) {
+                    countrySelect.value = countryValue;
+                    countrySelect.dispatchEvent(new Event('change'));
+                    console.log('Testing country:', countryValue);
+                } else {
+                    console.error('Country select not found');
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

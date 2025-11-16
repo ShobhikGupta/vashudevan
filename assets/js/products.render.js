@@ -258,11 +258,13 @@
       
       if (productsGrid) {
         console.log('Found products page grid, rendering products with subproducts');
-        // Always replace products on products page to show subproducts
-        productsGrid.innerHTML = '';
         
-        // Simple implementation for products page
-        products.forEach(function (product) {
+        // Only replace if we have products to show
+        if (products && products.length > 0) {
+          productsGrid.innerHTML = '';
+          
+          // Simple implementation for products page
+          products.forEach(function (product) {
           
           var article = document.createElement('article');
           article.className = 'card product';
@@ -302,6 +304,9 @@
           
           productsGrid.appendChild(article);
         });
+        } else {
+          console.log('No products to render, keeping existing static content');
+        }
       } else {
         console.log('Products grid not found!');
       }
@@ -346,6 +351,7 @@
     }).catch(function(error) {
       console.error('Error loading catalog:', error);
       // Keep existing static products if dynamic loading fails
+      console.log('Keeping existing static products due to error');
     });
   });
 })();

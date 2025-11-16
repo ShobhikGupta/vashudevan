@@ -252,13 +252,11 @@ img {
 
 /* Image loading states */
 img[loading="lazy"] {
-  opacity: 0;
+  opacity: 1; /* ensure images are visible even if 'loaded' class isn't added */
   transition: opacity 0.4s ease;
 }
 
-img[loading="lazy"].loaded {
-  opacity: 1;
-}
+img[loading="lazy"].loaded { opacity: 1; }
 
 /* Smooth image loading animation */
 @keyframes imageLoad {
@@ -462,9 +460,7 @@ img[loading="lazy"].loaded {
 }
 
 /* Animation Classes */
-.image-elegant-zoom {
-  animation: elegantZoomIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-}
+.image-elegant-zoom { /* disabled */ }
 
 .image-smooth-slide {
   animation: smoothSlideRotate 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -499,16 +495,9 @@ img[loading="lazy"].loaded {
 }
 
 /* Intersection observer triggered animations */
-.image-observe {
-  opacity: 0;
-  transform: translateY(30px) scale(0.95);
-  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
+.image-observe { opacity: 1; transform: none; transition: none; }
 
-.image-observe.in-view {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
+.image-observe.in-view { opacity: 1; transform: none; }
 a { color: inherit; text-decoration: none; }
 
 /* Ensure text selection is enabled for all text content */
@@ -668,6 +657,27 @@ img, button, input, textarea, select {
   transform: scale(1.08) translateY(-4px) rotate(1deg);
   filter: saturate(1.15) contrast(1.08) brightness(1.05) drop-shadow(0 8px 20px rgba(255, 165, 0, 0.2));
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Specific zoom for hero slide 4 */
+.carousel-slide[data-slide="4"] img {
+  /* Center recycling symbol behind text */
+  object-position: 50% 50%;
+  transform: scale(1.5);
+}
+.carousel-slide.active[data-slide="4"] img {
+  object-position: 50% 50%;
+  transform: scale(1.5);
+}
+
+/* Stronger specificity + important to ensure override on slide 4 */
+.hero-carousel .carousel-container .carousel-slide[data-slide="4"] > img {
+  object-position: 50% 50% !important;
+  transform: scale(1.5) !important;
+}
+.hero-carousel .carousel-container .carousel-slide.active[data-slide="4"] > img {
+  object-position: 50% 50% !important;
+  transform: scale(1.5) !important;
 }
 
 /* Ensure the first slide image is visible */
@@ -940,6 +950,7 @@ img, button, input, textarea, select {
   position: relative;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   color: #ffffff;
   padding: 14px 28px;
   border-radius: 50px;
@@ -1603,6 +1614,15 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 .bsj { border-top: 1px solid #e5e7eb; }
 .products-preview { border-top: 1px solid #e5e7eb; padding: 40px 0 80px; box-shadow: var(--shadow); }
 .products-preview .products-grid { margin-top: 40px; }
+
+/* Center last row items (Stainless Steel, Zinc) under Ferrous and LEAD on desktop */
+@media (min-width: 901px) {
+  .products-preview .products-grid .card.product:nth-child(9) { grid-column: 2; }
+  .products-preview .products-grid .card.product:nth-child(10) { grid-column: 3; }
+  /* Products page grid alignment (same ordering) */
+  .page .products-grid .card.product:nth-child(9) { grid-column: 2; }
+  .page .products-grid .card.product:nth-child(10) { grid-column: 3; }
+}
 .locations { border-top: 1px solid #e5e7eb; padding-top: 20px; }
 
 /* Ensure other section headings mirror the Greenland style */
@@ -1995,15 +2015,60 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 
 /* Follow Us section in footer */
 .follow-us-section {
-  text-align: center;
+  text-align: right;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
   gap: 8px;
 }
 
+/* Desktop footer layout - ensure proper three-column layout - UPDATED */
+@media (min-width: 769px) {
+  .site-footer.pro-footer .footer-bottom {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 1fr !important;
+    gap: 10px !important;
+    align-items: center !important;
+    text-align: left !important;
+    padding: 16px 0 !important;
+  }
+  
+  .site-footer.pro-footer .footer-left {
+    text-align: left !important;
+    justify-self: start !important;
+    font-weight: 800 !important;
+    color: var(--text) !important;
+  }
+  
+  .site-footer.pro-footer .footer-center {
+    text-align: center !important;
+    justify-self: center !important;
+    color: var(--text) !important;
+  }
+  
+  .site-footer.pro-footer .footer-right {
+    text-align: right !important;
+    justify-self: end !important;
+  }
+  
+  .site-footer.pro-footer .follow-us-section {
+    text-align: center !important;
+    align-items: center !important;
+    transition: transform 0.6s ease, margin-right 0.6s ease !important;
+    transform: translateX(0) !important;
+    margin-right: 0 !important;
+  }
+  
+  /* Animation when scroll-to-top button is visible */
+  body.scroll-top-visible .site-footer .follow-us-section {
+    transform: translateX(-80px) !important;
+    margin-right: 80px !important;
+    transition: transform 0.6s ease, margin-right 0.6s ease !important;
+  }
+}
+
 .follow-us-title {
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 700;
   color: #000;
   margin: 0;
@@ -2021,7 +2086,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 /* Social media icons in footer */
 .social-icons { 
   display: flex; 
-  gap: 16px; 
+  gap: 24px; 
   align-items: center; 
   justify-content: center;
 }
@@ -2975,11 +3040,20 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 .contact-layout {
   display: grid;
   grid-template-columns: 0.35fr 0.65fr;
-  gap: 24px;
+  gap: 16px;
   align-items: stretch; /* Make both columns equal height */
   max-width: 1200px;
   margin: 0 auto;
   align-content: start; /* Ensure both sections start at the same level */
+}
+
+/* Ensure equal-height cards on desktop */
+@media (min-width: 769px) {
+  .contact-layout > .contact-info-left,
+  .contact-layout > .contact-form-container {
+    height: 100%;
+  }
+  .contact-form-new { height: 100%; }
 }
 
 /* Mobile contact layout optimization */
@@ -3301,26 +3375,38 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
     max-width: 300px;
   }
   
-  /* Mobile footer optimization */
+  /* Mobile footer optimization - only for mobile devices */
   .pro-footer .footer-bottom {
-    grid-template-columns: 1fr;
-    gap: 16px;
-    text-align: center;
-    padding: 20px 16px;
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    text-align: center !important;
+    padding: 20px 16px !important;
   }
   
   .footer-left,
   .footer-center,
   .footer-right {
-    justify-self: center;
+    justify-self: center !important;
+    text-align: center !important;
   }
   
   .follow-us-section {
-    margin-top: 16px;
+    text-align: center !important;
+    align-items: center !important;
+    margin-top: 16px !important;
+    transition: none;
+    transform: translateX(0);
+    margin-right: 0;
+  }
+  
+  /* Disable animation on mobile when scroll-to-top is visible */
+  body.scroll-top-visible .site-footer .follow-us-section {
+    transform: none;
+    margin-right: 0;
   }
   
   .social-icons {
-    gap: 20px;
+    gap: 28px;
   }
   
   .social-icon {
@@ -3580,12 +3666,12 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 /* Left side contact info - no card styling */
 .contact-info-left {
   text-align: left; /* Left-align all content for desktop */
-  padding: 0;
+  padding: 5px 10px 10px 10px; /* match form card inner padding */
   display: flex;
   flex-direction: column;
   justify-content: flex-start; /* Start from top to match form */
   align-items: flex-start; /* Left-align items for desktop */
-  min-height: 100%; /* Fill the full height of the grid cell */
+  min-height: auto; /* Height determined by content or JS equalizer */
 }
 
 /* Contact info h2 styling is now handled by the shared rule above */
@@ -3652,7 +3738,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   display: flex;
   justify-content: stretch;
   width: 100%;
-  align-items: flex-start; /* Start from top to match contact info */
+  align-items: stretch; /* Stretch inner form to match container height */
   min-height: 100%; /* Fill the full height of the grid cell */
 }
 
@@ -3662,14 +3748,16 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  padding: 5px 10px 20px 10px; /* Reduced top padding and added bottom padding */
+  padding: 5px 10px 10px 10px; /* equal side/bottom spacing for balanced card */
   width: 100%;
   max-width: none;
   min-width: auto;
-  flex: 1;
+  /* prevent stretching to match left column height */
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  min-height: 100%; /* Fill the full height of the container */
+  /* allow height to be based solely on content */
+  min-height: auto;
 }
 
 .form-header {
@@ -3737,6 +3825,11 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   min-height: 44px; /* Minimum height for better touch targets */
 }
 
+/* Allow room for separate dial code flag area */
+.form-field input[type="tel"] {
+  padding-left: 88px; /* prevents flag/dial code from overlapping text */
+}
+
 /* Mobile form field optimization */
 @media (max-width: 768px) {
   .form-field input,
@@ -3744,9 +3837,13 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   .form-field textarea {
     padding: 16px 20px; /* Larger padding for mobile touch targets */
     font-size: 16px; /* Prevent zoom on iOS */
-    min-height: 48px; /* Larger touch targets for mobile */
+    height: 56px; /* Fixed height for all fields */
+    min-height: 56px; /* Larger touch targets for mobile */
     border-radius: 8px; /* Slightly rounded corners for mobile */
     border: 2px solid #e5e7eb; /* Slightly thicker border for mobile */
+    width: 100%; /* Full width */
+    box-sizing: border-box; /* Include padding in width calculation */
+    line-height: 1.4; /* Better line height for text visibility */
   }
   
   .form-field input:focus,
@@ -3758,7 +3855,16 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   }
   
   .form-field textarea {
-    min-height: 100px; /* Larger textarea for mobile */
+    height: 56px; /* Same height as other fields */
+    min-height: 56px; /* Same minimum height */
+    resize: vertical; /* Allow vertical resize only */
+  }
+  
+  .form-field select {
+    height: 56px; /* Fixed height for select */
+    min-height: 56px;
+    display: flex;
+    align-items: center; /* Center text vertically */
   }
   
   .form-field label {
@@ -3773,6 +3879,8 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
     padding-right: 44px;
     color: #000000 !important; /* Black text for maximum visibility on mobile */
     font-weight: 600 !important; /* Bold text for better visibility */
+    line-height: 1.4 !important; /* Better line height for text visibility */
+    font-size: 16px !important; /* Ensure consistent font size */
   }
   
   .form-field select option {
@@ -3902,7 +4010,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 }
 
 .form-checkbox label {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text);
   line-height: 1.4;
   margin: 0;
@@ -3928,6 +4036,138 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 
 .privacy-link:hover {
   text-decoration: underline;
+}
+
+/* Ensure intl-tel-input dropdown works well inside form */
+.intl-tel-input,
+.iti {
+  width: 100%;
+}
+
+.iti__country-list {
+  z-index: 10000; /* keep popup above cards/modals */
+}
+
+/* Make sure the dial code block is visible and not clipped */
+.iti--separate-dial-code .iti__flag-container {
+  z-index: 2;
+  background: #fff;
+  border-right: 1px solid #e5e7eb;
+}
+
+.iti--separate-dial-code .iti__selected-dial-code {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Polished phone field styling to match design inside the contact form */
+.contact-form-new .iti {
+  width: 100%;
+}
+
+.contact-form-new .iti--separate-dial-code input[type="tel"] {
+  border-radius: 12px;
+  padding-left: 104px; /* align with larger left dial-code area */
+  height: 44px;
+}
+
+/* keep phone input height consistent with other inputs */
+.contact-form-new .form-field input[type="tel"] {
+  height: 44px;
+  min-height: 44px;
+  line-height: 44px;
+}
+
+.contact-form-new .iti--separate-dial-code .iti__flag-container {
+  width: 96px; /* roomy dial-code block */
+  background: #f8fafc; /* subtle card-like background */
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+  border-right: 1px solid #e5e7eb;
+}
+
+.contact-form-new .iti--separate-dial-code .iti__selected-flag {
+  padding: 0 10px; /* space for flag + dial code */
+}
+
+.contact-form-new .iti--separate-dial-code .iti__selected-dial-code {
+  font-weight: 800; /* bold like screenshot */
+  color: #0f172a; /* near-black for emphasis */
+  font-size: 16px;
+}
+
+.contact-form-new .iti__arrow {
+  border-top-color: #64748b; /* softer arrow */
+}
+
+/* Custom composite phone input (code box + number input) */
+.contact-form-new .phone-input-group {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  overflow: hidden; /* keep children within rounded corners */
+  background: #ffffff;
+}
+
+.contact-form-new .phone-input-group:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.contact-form-new .phone-code {
+  min-width: 92px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: #0f172a;
+  background: #f3f4f6; /* distinct gray background */
+  border-right: 1px solid #d1d5db; /* visible separator */
+}
+
+.contact-form-new .phone-input-group input[type="tel"] {
+  flex: 1 1 auto;
+  border: 0; /* container provides the border */
+  height: 44px;
+  padding: 0 12px;
+  font-size: 16px; /* match other inputs */
+  line-height: 44px;
+  color: var(--text);
+  background: transparent;
+}
+
+.contact-form-new .phone-input-group input[type="tel"]:focus {
+  outline: none;
+}
+
+/* Distinct country-code block and unified rounded container (Image 2 style) */
+.contact-form-new .iti--separate-dial-code input[type="tel"] {
+  border-radius: 12px;               /* rounded corners for entire control */
+  border: 1px solid #d1d5db;         /* visible container border */
+}
+
+.contact-form-new .iti--separate-dial-code input[type="tel"]:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.contact-form-new .iti--separate-dial-code .iti__flag-container {
+  background: #f3f4f6;               /* distinct bg for dial code area */
+  border-right: 1px solid #d1d5db;   /* clear vertical separator */
+  border-top-left-radius: 12px;      /* match input rounding on left */
+  border-bottom-left-radius: 12px;
+}
+
+.contact-form-new .iti--separate-dial-code .iti__selected-flag {
+  padding: 0 12px;                    /* space for flag and +code */
+}
+
+.contact-form-new .iti--separate-dial-code .iti__selected-dial-code {
+  font-weight: 700;                    /* emphasize country code */
+  color: #0f172a;
 }
 
 
@@ -3958,6 +4198,13 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   font-size: 14px;
 }
 
+/* Collapse message area when empty to remove space under the submit button */
+.form-result:empty {
+  margin: 0;
+  padding: 0;
+  display: none;
+}
+
 .form-result.success {
   background: #d1fae5;
   color: #065f46;
@@ -3970,6 +4217,12 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   border: 1px solid #fca5a5;
 }
 
+.form-result.submitting {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+}
+
 /* Find Us block - dark centered layout */
 .find-us { background: #f8fafc; color: var(--text); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .find-us h2 { text-align: center; margin: 0 0 10px; color: var(--text); }
@@ -3978,6 +4231,12 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 .find-us .map-embed { max-width: 900px; box-shadow: var(--shadow); }
 .find-us .address-note { text-align: center; color: #64748b; font-size: 0.92rem; margin: 10px 0 0; }
 .ctas-center { justify-content: center; display: flex; gap: 12px; margin-top: 12px; }
+.ctas-center .btn-animated {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 /* Join CTA block above footer */
 .cta-join { padding: 30px 0 20px; background: #ffffff; border-top: 1px solid var(--border); }
@@ -3990,3 +4249,403 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 /* REMOVED CONFLICTING CSS RULES - USING INLINE STYLES INSTEAD */
 
 
+/* Floating WhatsApp Chat Button */
+.whatsapp-float {
+  position: fixed;
+  /* Mirror Gravita spacing: small constant offset from viewport edges */
+  bottom: 20px;
+  left: 20px;
+  /* Respect device safe areas in addition to the 20px offset */
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  left: calc(20px + env(safe-area-inset-left));
+  /* Match visual size similar to Gravita */
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #25D366; /* ensure full green circle behind image */
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  /* Layered shadow and soft glow for better separation on light backgrounds */
+  box-shadow: 
+    0 10px 24px rgba(2, 8, 23, 0.18),       /* depth */
+    0 8px 18px rgba(37, 211, 102, 0.18);    /* WhatsApp-green glow */
+  z-index: 2000;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: fixed;
+  overflow: hidden; /* keep image strictly within the circular container */
+  position: fixed;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.06);
+  box-shadow:
+    0 14px 36px rgba(2, 8, 23, 0.22),
+    0 0 22px rgba(37, 211, 102, 0.28);
+}
+
+.whatsapp-float:active {
+  transform: scale(0.98);
+  box-shadow:
+    0 8px 18px rgba(2, 8, 23, 0.2),
+    0 0 16px rgba(37, 211, 102, 0.22);
+}
+
+.whatsapp-float svg {
+  width: 30px;
+  height: 30px;
+  fill: #ffffff;
+  display: block;
+}
+
+/* If using image instead of SVG: absolutely center for perfect alignment */
+.whatsapp-float img,
+.whatsapp-float svg {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  margin: 0;
+  border-radius: 50%;
+}
+
+/* Trim any inherent transparent padding in the PNG so it visually fills */
+.whatsapp-float img {
+  transform: scale(1.08);
+}
+
+/* Optional tooltip for desktop */
+.whatsapp-float .whatsapp-tooltip {
+  position: absolute;
+  left: 74px;
+  bottom: 50%;
+  transform: translateY(50%);
+  background: #111827; /* slate-900 */
+  color: #ffffff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  font-size: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  pointer-events: none;
+}
+
+.whatsapp-float:hover .whatsapp-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(50%) translateX(2px);
+}
+
+.whatsapp-float .whatsapp-tooltip::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent #111827 transparent transparent;
+}
+
+@media (max-width: 768px) {
+  .whatsapp-float .whatsapp-tooltip { display: none; }
+  /* Keep same size and offset on mobile for consistency */
+  .whatsapp-float { width: 56px; height: 56px; }
+  .whatsapp-float svg { width: 28px; height: 28px; }
+}
+
+/* Ensure the PNG fills the circular container perfectly */
+.whatsapp-float svg { border-radius: 50% !important; }
+
+@media (max-width: 480px) {
+  .whatsapp-float { 
+    /* Maintain a small clear offset on extra-small screens too */
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    left: calc(20px + env(safe-area-inset-left));
+  }
+}
+
+
+/* Opening Popup: overlay and card */
+.opening-popup-overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 1100; /* above back-to-top (1000) and WhatsApp (1000) */
+  /* Block background interaction and add blurred, translucent backdrop */
+  pointer-events: auto;
+  background: rgba(15, 23, 42, 0.5); /* slate-900 at 50% */
+  backdrop-filter: blur(6px);
+}
+
+/* Reusable card surface to match "Send Us a Message" card */
+.card-surface {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 20px;
+}
+
+/* Compact layout for the left "Get In Touch" card */
+.contact-info-left.card-surface {
+  padding: 12px 16px;
+}
+
+.contact-info-left h2 { margin-bottom: 12px; }
+.contact-info-left h3 { margin: 12px 0 6px; }
+.contact-info-left p { margin: 4px 0 8px; line-height: 1.45; }
+
+/* Spacing between stacked cards */
+.card-surface + .card-surface { margin-top: 16px; }
+
+/* Disable ALL image animations and hover effects site-wide */
+img {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+.products-grid .product:hover .product-figure img,
+.card.product:hover .product-figure img,
+.impact-row .media-photo:hover img,
+.world-map-wrap:hover .world-map-img,
+.section[aria-label="About Us"] .media-photo:hover img,
+#history-block .media-photo:hover img,
+#mission-block .media-photo:hover img {
+  transform: none !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+/* Also neutralize any custom animation classes if applied */
+.image-modern-pulse,
+.image-elegant-zoom,
+.image-smooth-slide,
+.image-elastic-bounce,
+.image-floating-glow,
+.image-spiral-entrance,
+.image-slide-up-bounce,
+.image-gentle-shake,
+.image-smooth-wobble {
+  animation: none !important;
+}
+
+.opening-popup-card {
+  pointer-events: auto; /* allow interactions on the card */
+  width: min(92vw, 380px);
+  background: #ffffff;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 18px 16px 16px;
+  opacity: 0;
+  transform: translateY(10px) scale(0.98);
+  animation: openingPopupFadeIn 300ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.opening-popup-card.fade-out {
+  animation: openingPopupFadeOut 220ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes openingPopupFadeIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes openingPopupFadeOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(8px) scale(0.98); }
+}
+
+.opening-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* center header block */
+  gap: 10px;
+  position: relative; /* allow close button absolute positioning */
+}
+
+/* Center the text block inside header */
+.opening-popup-header > div {
+  text-align: center;
+  width: 100%;
+}
+
+.opening-popup-title {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.opening-popup-subtitle {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.opening-popup-close {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 2px 6px;
+  position: absolute;
+  top: 6px;
+  right: 6px; /* keep close button on the right while header text is centered */
+}
+
+.opening-popup-close:hover { color: #0f172a; background: #f1f5f9; }
+
+.opening-popup-form .field {
+  display: flex;
+  flex-direction: column;
+  margin: 8px 0 6px;
+}
+
+.opening-popup-form .field label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.opening-popup-form .field input,
+.opening-popup-form .field select {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text);
+  background: #ffffff;
+  min-height: 40px;
+}
+
+/* Make popup country select look like other inputs (custom arrow) */
+.opening-popup-form .field select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px;
+  padding-right: 36px; /* room for arrow */
+}
+
+.opening-popup-form .field select option { color: #111827; }
+
+/* Phone input with visible dialing code prefix (popup) */
+.opening-phone-wrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  min-height: 40px;
+  overflow: hidden;
+  padding: 0; /* avoid inner white overflow outside rounded border */
+}
+
+.opening-phone-wrap:focus-within {
+  border-color: #94a3b8;
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.15);
+}
+
+.opening-dial-code {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  height: 40px;
+  background: #f8fafc;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 600;
+  border-right: 1px solid #e5e7eb;
+  border-radius: 8px 0 0 8px;
+  white-space: nowrap;
+  min-width: 60px;
+}
+
+.opening-phone-wrap input {
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+}
+
+/* Ensure input inside phone wrap does not draw its own border/radius from generic rules */
+.opening-popup-form .field .opening-phone-wrap input {
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Make the wrap take full width of field */
+.opening-popup-form .field .opening-phone-wrap { width: 100%; }
+
+.opening-popup-form .error-text {
+  color: #dc2626;
+  font-size: 11px;
+  margin-top: 3px;
+  display: none;
+}
+
+.opening-popup-form .error-text.show { display: block; }
+
+.opening-popup-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  justify-content: center; /* center submit button */
+}
+
+.opening-popup-submit {
+  /* Match the yellow style used by "Send Us a Message" button */
+  background: linear-gradient(135deg, #FFA500 0%, #E69500 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 14px 22px; /* make it a bit bigger */
+  font-weight: 800;
+  font-size: 16px;
+  cursor: pointer;
+  min-width: 160px;
+  box-shadow: 0 8px 25px rgba(255, 165, 0, 0.3);
+}
+
+.opening-popup-submit:hover { 
+  background: linear-gradient(135deg, #E69500 0%, #CC8400 100%);
+  filter: brightness(1);
+}
+.opening-popup-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.opening-popup-success {
+  text-align: center;
+  font-size: 14px;
+  color: #065f46;
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 8px;
+}

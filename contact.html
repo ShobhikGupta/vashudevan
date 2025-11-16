@@ -7,6 +7,8 @@
     <meta name="description" content="Contact Vashudevan Met Global LLP — Get in touch for product inquiries, sales, and partnership opportunities.">
     <link rel="icon" href="assets/img/logo.svg">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <!-- intl-tel-input CSS for phone number input -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.12/build/css/intlTelInput.min.css">
   </head>
   <body>
     <header class="site-header">
@@ -61,9 +63,9 @@
             <p>OFFICE NO. 501, 5TH FLOOR,<br>WESTERN BUSINESS PARK, VESU,<br>SURAT, GUJARAT, INDIA – 395007</p>
 
             <h3>Contact Details</h3>
-            <p>Phone: <a href="tel:+919879208178">+91 9879208178</a></p>
-            <p>Email 1: <a href="mailto:exim@vashudevan.com">exim@vashudevan.com</a></p>
-            <p>Email 2: <a href="mailto:vashudevan.mg@gmail.com">vashudevan.mg@gmail.com</a></p>
+            <p><a href="tel:+919879208178">+91 9879208178</a></p>
+            <p><a href="mailto:exim@vashudevan.com">exim@vashudevan.com</a></p>
+            <p><a href="mailto:vashudevan.mg@gmail.com">vashudevan.mg@gmail.com</a></p>
 
             <h3>Office Hours</h3>
             <p>10 AM – 6 PM (Mon–Sat)</p>
@@ -83,15 +85,18 @@
                 </div>
                 <div class="form-field">
                   <label for="contact">Contact number *</label>
-                  <input type="tel" id="contact" name="contact" placeholder="Contact number" required>
+                  <div class="phone-input-group" id="contact-phone-group" role="group" aria-label="Phone number with country code">
+                    <div class="phone-code" id="contact-dial-code" aria-hidden="true">+91</div>
+                    <input type="tel" id="contact" name="contact" placeholder="Phone Number" inputmode="tel" autocomplete="tel" required>
+                  </div>
                   <span class="error" aria-live="polite">Not a valid phone number.</span>
                 </div>
               </div>
 
               <div class="form-row">
                 <div class="form-field">
-                  <label for="email">Email ID *</label>
-                  <input type="email" id="email" name="email" placeholder="E-mail Id" required>
+                  <label for="emailID">Email ID *</label>
+                  <input type="email" id="emailID" name="EmailID" placeholder="Email ID" required>
                   <span class="error" aria-live="polite">Please enter email.</span>
                 </div>
                 <div class="form-field">
@@ -306,7 +311,7 @@
                   <span class="error" aria-live="polite">Please enter organization.</span>
                 </div>
                 <div class="form-field">
-                  <label for="type">Select Type</label>
+                  <label for="type">Type</label>
                   <select id="type" name="type">
                     <option value="">Select type</option>
                     <option value="buyer">Buyer</option>
@@ -343,28 +348,32 @@
 
       <section class="section find-us">
         <div class="container">
-          <h2>Find Us</h2>
-          <p class="address-line"><strong>Vashudevan Met Global LLP</strong><br>OFFICE NO. 501, 5TH FLOOR, WESTERN BUSINESS PARK,<br>VESU, SURAT, GUJARAT, INDIA – 395007</p>
-          <div class="map-wrap">
-            <div class="map-embed" role="region" aria-label="Map showing office location">
-              <iframe title="Vashudevan Met Global LLP Location" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"
-                src="https://www.google.com/maps?q=OFFICE%20NO.%20501%2C%205TH%20FLOOR%2C%20WESTERN%20BUSINESS%20PARK%2C%20VESU%2C%20SURAT%2C%20GUJARAT%2C%20INDIA%20%E2%80%93%20395007&output=embed"></iframe>
+          <div class="card-surface">
+            <h2>Find Us</h2>
+            <p class="address-line"><strong>Vashudevan Met Global LLP</strong><br>OFFICE NO. 501, 5TH FLOOR, WESTERN BUSINESS PARK,<br>VESU, SURAT, GUJARAT, INDIA – 395007</p>
+            <div class="map-wrap">
+              <div class="map-embed" role="region" aria-label="Map showing office location">
+                <iframe title="Vashudevan Met Global LLP Location" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"
+                  src="https://www.google.com/maps?q=OFFICE%20NO.%20501%2C%205TH%20FLOOR%2C%20WESTERN%20BUSINESS%20PARK%2C%20VESU%2C%20SURAT%2C%20GUJARAT%2C%20INDIA%20%E2%80%93%20395007&output=embed"></iframe>
+              </div>
             </div>
-          </div>
-          <p class="address-note">Click on the map to get directions or view in Google Maps</p>
-          <div class="overlay-ctas ctas-center">
-            <a class="btn-animated secondary" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=OFFICE%20NO.%20501%2C%205TH%20FLOOR%2C%20WESTERN%20BUSINESS%20PARK%2C%20VESU%2C%20SURAT%2C%20GUJARAT%2C%20INDIA%20%E2%80%93%20395007">Get Directions</a>
-            <a class="btn-animated secondary" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=OFFICE%20NO.%20501%2C%205TH%20FLOOR%2C%20WESTERN%20BUSINESS%20PARK%2C%20VESU%2C%20SURAT%2C%20GUJARAT%2C%20INDIA%20%E2%80%93%20395007">View in Google Maps</a>
+            <p class="address-note">Click on the map to get directions or view in Google Maps</p>
+            <div class="overlay-ctas ctas-center">
+              <a class="btn-animated secondary" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=OFFICE%20NO.%20501%2C%205TH%20FLOOR%2C%20WESTERN%20BUSINESS%20PARK%2C%20VESU%2C%20SURAT%2C%20GUJARAT%2C%20INDIA%20%E2%80%93%20395007">Get Directions</a>
+              <a class="btn-animated secondary" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=OFFICE%20NO.%20501%2C%205TH%20FLOOR%2C%20WESTERN%20BUSINESS%20PARK%2C%20VESU%2C%20SURAT%2C%20GUJARAT%2C%20INDIA%20%E2%80%93%20395007">View in Google Maps</a>
+            </div>
           </div>
         </div>
       </section>
 
       <section id="join-family" class="section cta-join">
         <div class="container">
-          <h2>JOIN THE VASHUDEVAN FAMILY!</h2>
-          <p class="lead">“Vashudevan Met Global LLP is growing and always looking for great talent. If you are interested in learning more about opportunities and being a part of the Vashudevan family, please send us your resume to:”</p>
-          <p class="cta-email"><a class="email-link" href="mailto:exim@vashudevan.com">exim@vashudevan.com</a></p>
-          <p class="small-note">“Learn about our Privacy Policy & Terms and Conditions”</p>
+          <div class="card-surface">
+            <h2>JOIN THE VASHUDEVAN FAMILY!</h2>
+            <p class="lead">“Vashudevan Met Global LLP is growing and always looking for great talent. If you are interested in learning more about opportunities and being a part of the Vashudevan family, please send us your resume to:”</p>
+            <p class="cta-email"><a class="email-link" href="mailto:exim@vashudevan.com">exim@vashudevan.com</a></p>
+            <p class="small-note">“Learn about our Privacy Policy & Terms and Conditions”</p>
+          </div>
         </div>
       </section>
     </main>
@@ -394,12 +403,7 @@
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                 </svg>
               </a>
-              <a href="#" class="social-link" aria-label="X (formerly Twitter)">
-                <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                </svg>
-              </a>
-              <a href="#" class="social-link" aria-label="LinkedIn">
+              <a href="https://www.linkedin.com/company/vashudevan-met-global-llp/" class="social-link" aria-label="LinkedIn" target="_blank" rel="noopener">
                 <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                 </svg>
@@ -416,7 +420,533 @@
     </footer>
 
     <script src="assets/js/config.js"></script>
+    <!-- intl-tel-input JavaScript library -->
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.12/build/js/intlTelInput.min.js"></script>
     <script src="assets/js/main.js"></script>
+    
+    <!-- Direct intl-tel-input initialization with two-way sync to Country select -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, initializing intl-tel-input...');
+        
+        // Wait a bit for all scripts to load
+        setTimeout(function() {
+          var phoneInput = document.getElementById('contact');
+          if (phoneInput && window.intlTelInput) {
+            try {
+              var iti = phoneInput._iti;
+              if (!iti) {
+                console.log('Initializing intl-tel-input with separateDialCode: true');
+                iti = window.intlTelInput(phoneInput, {
+                  initialCountry: 'in',
+                  separateDialCode: true,
+                  nationalMode: false,
+                  autoPlaceholder: 'aggressive',
+                  utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.12/build/js/utils.js'
+                });
+                phoneInput._iti = iti;
+                console.log('✅ intl-tel-input initialized successfully with separateDialCode: true');
+              } else {
+                console.log('intl-tel-input already initialized; using existing instance');
+              }
+              
+              // Sync with country select
+              var countrySelect = document.getElementById('country');
+              if (countrySelect) {
+                var countryMapping = {
+                  'afghanistan': 'af', 'albania': 'al', 'algeria': 'dz', 'andorra': 'ad', 'angola': 'ao',
+                  'argentina': 'ar', 'armenia': 'am', 'australia': 'au', 'austria': 'at', 'azerbaijan': 'az',
+                  'bahamas': 'bs', 'bahrain': 'bh', 'bangladesh': 'bd', 'belarus': 'by', 'belgium': 'be',
+                  'belize': 'bz', 'benin': 'bj', 'bhutan': 'bt', 'bolivia': 'bo', 'bosnia-and-herzegovina': 'ba',
+                  'botswana': 'bw', 'brazil': 'br', 'brunei': 'bn', 'bulgaria': 'bg', 'burkina-faso': 'bf',
+                  'burundi': 'bi', 'cambodia': 'kh', 'cameroon': 'cm', 'canada': 'ca', 'central-african-republic': 'cf',
+                  'chad': 'td', 'chile': 'cl', 'china': 'cn', 'colombia': 'co', 'comoros': 'km', 'congo': 'cg',
+                  'congo-democratic-republic': 'cd', 'costa-rica': 'cr', 'cote-divoire': 'ci', 'croatia': 'hr',
+                  'cuba': 'cu', 'cyprus': 'cy', 'czech-republic': 'cz', 'denmark': 'dk', 'djibouti': 'dj',
+                  'dominica': 'dm', 'dominican-republic': 'do', 'ecuador': 'ec', 'egypt': 'eg', 'el-salvador': 'sv',
+                  'equatorial-guinea': 'gq', 'eritrea': 'er', 'estonia': 'ee', 'eswatini': 'sz', 'ethiopia': 'et',
+                  'fiji': 'fj', 'finland': 'fi', 'france': 'fr', 'gabon': 'ga', 'gambia': 'gm', 'georgia': 'ge',
+                  'germany': 'de', 'ghana': 'gh', 'greece': 'gr', 'grenada': 'gd', 'guatemala': 'gt', 'guinea': 'gn',
+                  'guinea-bissau': 'gw', 'guyana': 'gy', 'haiti': 'ht', 'honduras': 'hn', 'hungary': 'hu',
+                  'iceland': 'is', 'india': 'in', 'indonesia': 'id', 'iran': 'ir', 'iraq': 'iq', 'ireland': 'ie',
+                  'israel': 'il', 'italy': 'it', 'jamaica': 'jm', 'japan': 'jp', 'jordan': 'jo', 'kazakhstan': 'kz',
+                  'kenya': 'ke', 'kiribati': 'ki', 'korea-north': 'kp', 'korea-south': 'kr', 'kuwait': 'kw',
+                  'kyrgyzstan': 'kg', 'laos': 'la', 'latvia': 'lv', 'lebanon': 'lb', 'lesotho': 'ls', 'liberia': 'lr',
+                  'libya': 'ly', 'liechtenstein': 'li', 'lithuania': 'lt', 'luxembourg': 'lu', 'madagascar': 'mg',
+                  'malawi': 'mw', 'malaysia': 'my', 'maldives': 'mv', 'mali': 'ml', 'malta': 'mt',
+                  'marshall-islands': 'mh', 'mauritania': 'mr', 'mauritius': 'mu', 'mexico': 'mx', 'micronesia': 'fm',
+                  'moldova': 'md', 'monaco': 'mc', 'mongolia': 'mn', 'montenegro': 'me', 'morocco': 'ma',
+                  'mozambique': 'mz', 'myanmar': 'mm', 'namibia': 'na', 'nauru': 'nr', 'nepal': 'np',
+                  'netherlands': 'nl', 'new-zealand': 'nz', 'nicaragua': 'ni', 'niger': 'ne', 'nigeria': 'ng',
+                  'north-macedonia': 'mk', 'norway': 'no', 'oman': 'om', 'pakistan': 'pk', 'palau': 'pw',
+                  'palestine': 'ps', 'panama': 'pa', 'papua-new-guinea': 'pg', 'paraguay': 'py', 'peru': 'pe',
+                  'philippines': 'ph', 'poland': 'pl', 'portugal': 'pt', 'qatar': 'qa', 'romania': 'ro',
+                  'russia': 'ru', 'rwanda': 'rw', 'samoa': 'ws', 'san-marino': 'sm', 'sao-tome-and-principe': 'st',
+                  'saudi-arabia': 'sa', 'senegal': 'sn', 'serbia': 'rs', 'seychelles': 'sc', 'sierra-leone': 'sl',
+                  'singapore': 'sg', 'slovakia': 'sk', 'slovenia': 'si', 'solomon-islands': 'sb', 'somalia': 'so',
+                  'south-africa': 'za', 'south-sudan': 'ss', 'spain': 'es', 'sri-lanka': 'lk', 'sudan': 'sd',
+                  'suriname': 'sr', 'sweden': 'se', 'switzerland': 'ch', 'syria': 'sy', 'taiwan': 'tw',
+                  'tajikistan': 'tj', 'tanzania': 'tz', 'thailand': 'th', 'timor-leste': 'tl', 'togo': 'tg',
+                  'tonga': 'to', 'trinidad-and-tobago': 'tt', 'tunisia': 'tn', 'turkey': 'tr', 'turkmenistan': 'tm',
+                  'tuvalu': 'tv', 'uganda': 'ug', 'ukraine': 'ua', 'united-arab-emirates': 'ae',
+                  'united-kingdom': 'gb', 'united-states': 'us', 'uruguay': 'uy', 'uzbekistan': 'uz',
+                  'vanuatu': 'vu', 'vatican-city': 'va', 'venezuela': 've', 'vietnam': 'vn', 'yemen': 'ye',
+                  'zambia': 'zm', 'zimbabwe': 'zw'
+                };
+                // Expose mapping globally for other scripts (e.g., custom phone code renderer)
+                try { window.countryMapping = countryMapping; } catch(_) {}
+                // Build iso2 -> dialCode map once from intl-tel-input data (if available)
+                try {
+                  if (!window.iso2ToDial && window.intlTelInputGlobals && typeof window.intlTelInputGlobals.getCountryData === 'function') {
+                    var list = window.intlTelInputGlobals.getCountryData();
+                    var map = {};
+                    for (var i = 0; i < list.length; i++) { map[list[i].iso2] = String(list[i].dialCode); }
+                    window.iso2ToDial = map;
+                  }
+                } catch(_) {}
+                
+                function syncCountryToPhone() {
+                  if (!iti || !countrySelect) return;
+                  var selectedValue = countrySelect.value;
+                  console.log('Country selected:', selectedValue);
+                  
+                  if (selectedValue && countryMapping[selectedValue]) {
+                    var iso2 = countryMapping[selectedValue];
+                    iti.setCountry(iso2);
+                    var countryData = iti.getSelectedCountryData();
+                    console.log('✅ Country synced to', countryData.name, '+' + countryData.dialCode);
+                  }
+                }
+                
+                countrySelect.addEventListener('change', syncCountryToPhone);
+                countrySelect.addEventListener('input', syncCountryToPhone);
+                syncCountryToPhone();
+
+                // Also sync from phone dropdown back to country select
+                phoneInput.addEventListener('countrychange', function() {
+                  try {
+                    var cd = iti.getSelectedCountryData();
+                    if (!cd || !cd.iso2) return;
+                    // find matching key in mapping
+                    var keys = Object.keys(countryMapping);
+                    for (var i = 0; i < keys.length; i++) {
+                      if (countryMapping[keys[i]] === cd.iso2) {
+                        countrySelect.value = keys[i];
+                        countrySelect.dispatchEvent(new Event('change', { bubbles: true }));
+                        break;
+                      }
+                    }
+                  } catch (e) { console.log('reverse sync error', e); }
+                });
+              }
+            } catch(e) {
+              console.error('❌ Failed to initialize intl-tel-input:', e);
+            }
+          } else {
+            console.error('❌ Phone input or intl-tel-input library not found');
+          }
+        }, 500);
+      });
+    </script>
+    
+    <!-- Google Sheets Integration Script -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('contact-form');
+        const formResult = document.getElementById('form-result');
+        const submitBtn = form.querySelector('.submit-btn');
+        
+        // Your Google Apps Script Web App URL
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsmNbhUkhWY3hEmYof4dGi7cOEYEbMDoBSFe3erSciipp-_-tI1RKuQ7P3ms9gyYYR/exec';
+        
+        
+        
+        form.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          // Prevent other submit listeners (e.g., in assets/js/main.js) from interfering
+          if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+          console.log('Form submitted!');
+          
+          // Get form values
+          const fullName = document.getElementById('fullname').value.trim();
+          const contactNumber = document.getElementById('contact').value.trim();
+          
+          // Get emailID with debugging
+          const emailField = document.getElementById('emailID');
+          let emailID = '';
+          if (emailField) {
+            emailID = emailField.value ? emailField.value.trim() : '';
+            console.log('Email field found:', {
+              id: emailField.id,
+              name: emailField.name,
+              value: emailField.value,
+              trimmed: emailID
+            });
+          } else {
+            console.log('Email field NOT found!');
+          }
+          
+          // Use default if empty
+          if (!emailID) {
+            emailID = 'no-email@example.com';
+            console.log('Using default emailID:', emailID);
+          }
+          
+          const countryEl = document.getElementById('country');
+          const country = countryEl ? countryEl.value : '';
+          // Clean country: use the visible option text (e.g., "Australia")
+          const cleanedCountry = (function(){
+            if (!countryEl) return country || '';
+            var opt = countryEl.options && countryEl.options[countryEl.selectedIndex];
+            return (opt && opt.text ? opt.text : country).trim();
+          })();
+          const organization = document.getElementById('organization').value.trim();
+          const type = document.getElementById('type').value;
+          const message = document.getElementById('message').value.trim();
+          const privacy = document.getElementById('privacy').checked;
+          
+          // Build full international phone number (E.164) using intl-tel-input if available
+          const fullPhone = (function(){
+            try {
+              const phoneEl = document.getElementById('contact');
+              if (phoneEl && phoneEl._iti && typeof phoneEl._iti.getNumber === 'function') {
+                const utils = (window.intlTelInputUtils || {}).numberFormat ? window.intlTelInputUtils : null;
+                const number = utils ? phoneEl._iti.getNumber(utils.numberFormat.E164) : phoneEl._iti.getNumber();
+                if (number) return String(number).replace(/\s+/g, '');
+              }
+              // Fallback: if intl-tel-input not available, try to prefix with selected dial code when possible
+              if (phoneEl && phoneEl._iti && typeof phoneEl._iti.getSelectedCountryData === 'function') {
+                const cd = phoneEl._iti.getSelectedCountryData();
+                const digits = (contactNumber || '').replace(/\D/g, '');
+                if (cd && cd.dialCode && digits) return '+' + cd.dialCode + digits;
+              }
+            } catch(_) {}
+            return contactNumber;
+          })();
+
+          console.log('Form values:', { fullName, contactNumber: fullPhone, emailID, country: cleanedCountry, organization, type, message, privacy });
+          
+          // Clear all previous errors
+          clearAllErrors();
+          
+          // Field-specific validation with error display
+          let isValid = true;
+          
+          if (!fullName) {
+            showFieldError('fullname', 'Please enter full name.');
+            isValid = false;
+          }
+          
+          if (!fullPhone) {
+            showFieldError('contact', 'Not a valid phone number.');
+            isValid = false;
+          } else if (!fullPhone.match(/^\+[1-9]\d{6,14}$/)) {
+            showFieldError('contact', 'Not a valid phone number.');
+            isValid = false;
+          }
+          
+          if (!emailID || emailID === 'no-email@example.com') {
+            showFieldError('emailID', 'Please enter email.');
+            isValid = false;
+          } else if (!emailID.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+            showFieldError('emailID', 'Please enter a valid email address.');
+            isValid = false;
+          }
+          
+          if (!cleanedCountry) {
+            showFieldError('country', 'Please select country.');
+            isValid = false;
+          }
+          
+          if (!message) {
+            showFieldError('message', 'Please enter your message.');
+            isValid = false;
+          }
+          
+          if (!privacy) {
+            showFieldError('privacy', 'Please accept the privacy policy to continue.');
+            isValid = false;
+          }
+          
+          if (!isValid) {
+            showMessage('❌ Please fill in all required fields correctly', 'error');
+            return;
+          }
+          
+          console.log('Validation passed, submitting...');
+          
+          // Show submitting message
+          showMessage('⏳ Submitting...', 'submitting');
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Submitting...';
+          
+          try {
+            // Prepare payload the new Apps Script doPost expects
+            const data = {
+              source: 'main',
+              fullName: fullName,
+              // phone (multiple aliases)
+              contactNumber: fullPhone,
+              phone: fullPhone,
+              phoneNumber: fullPhone,
+              'Phone Number': fullPhone,
+              // email (multiple aliases)
+              email: emailID,
+              mailId: emailID,
+              'Mail ID': emailID,
+              // country (multiple aliases)
+              country: cleanedCountry,
+              Country: cleanedCountry,
+              organization: organization,
+              type: type,
+              message: message,
+              submittedAt: new Date().toISOString(),
+              page: window.location.href
+            };
+
+            console.log('Sending data:', data);
+
+            // Try a proper CORS JSON POST first (may succeed if GAS allows it)
+            let corsOk = false;
+            try {
+              const res = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify(data)
+              });
+              corsOk = !!res.ok;
+            } catch(_) { corsOk = false; }
+
+            // Fallback: fire a no-cors JSON POST which Apps Script accepts
+            if (!corsOk) {
+              try {
+                fetch(GOOGLE_SCRIPT_URL, {
+                  method: 'POST',
+                  mode: 'no-cors',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(data)
+                });
+              } catch(_) {}
+            }
+
+            // Additional fallback: sendBeacon with JSON blob
+            try {
+              const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+              navigator.sendBeacon(GOOGLE_SCRIPT_URL, blob);
+            } catch(_) {}
+            
+            // Final fallback: URL-encoded with common field names to match sheet headers
+               try {
+                 const formData = new URLSearchParams();
+                 formData.append('source', 'main');
+                 formData.append('fullName', fullName);
+                 formData.append('country', cleanedCountry);
+                 formData.append('Country', cleanedCountry);
+                 formData.append('phone', fullPhone);
+                 formData.append('phoneNumber', fullPhone);
+                 formData.append('Phone Number', fullPhone);
+                 formData.append('contactNumber', fullPhone);
+                 formData.append('email', emailID);
+                 formData.append('mailId', emailID);
+                 formData.append('Mail ID', emailID);
+                 formData.append('organization', organization);
+                 formData.append('type', type);
+                 formData.append('message', message);
+                 formData.append('submittedAt', new Date().toISOString());
+                 formData.append('page', window.location.href);
+                 fetch(GOOGLE_SCRIPT_URL, {
+                   method: 'POST',
+                   mode: 'no-cors',
+                   headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                   body: formData.toString()
+                 });
+               } catch(_) {}
+            
+            // Wait
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Success
+            showMessage('Thank you! Your details have been submitted.', 'success');
+            form.reset();
+            
+          } catch (error) {
+            console.error('Error:', error);
+            showMessage('❌ Failed to send message. Please try again.', 'error');
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit';
+          }
+        });
+        
+        function showMessage(message, type) {
+          formResult.textContent = message;
+          formResult.className = `form-result ${type}`;
+          
+          // Auto-hide success message after 5 seconds
+          if (type === 'success') {
+            setTimeout(() => {
+              formResult.textContent = '';
+              formResult.className = 'form-result';
+            }, 5000);
+          }
+        }
+        
+        function showFieldError(fieldId, message) {
+          const field = document.getElementById(fieldId);
+          if (field) {
+            const errorElement = field.parentElement.querySelector('.error');
+            if (errorElement) {
+              errorElement.textContent = message;
+              errorElement.classList.add('show');
+            }
+          }
+        }
+        
+        function clearAllErrors() {
+          const errorElements = form.querySelectorAll('.error');
+          errorElements.forEach(error => {
+            error.textContent = '';
+            error.classList.remove('show');
+          });
+        }
+      });
+    </script>
+    
+    <!-- Equalize left card height to match form card (desktop only) -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const leftCard = document.querySelector('.contact-info-left');
+        const rightFormCard = document.querySelector('.contact-form-new');
+        const rightContainer = document.querySelector('.contact-form-container');
+        if (!leftCard || !rightFormCard) return;
+        
+        function getTargetHeight() {
+          return (rightContainer ? rightContainer.offsetHeight : rightFormCard.offsetHeight);
+        }
+        
+        function syncHeights() {
+          if (window.matchMedia('(min-width: 769px)').matches) {
+            leftCard.style.height = 'auto';
+            leftCard.style.height = getTargetHeight() + 'px';
+          } else {
+            leftCard.style.height = '';
+          }
+        }
+        
+        syncHeights();
+        window.addEventListener('resize', syncHeights);
+        window.addEventListener('load', syncHeights);
+        const ro = new ResizeObserver(syncHeights);
+        ro.observe(rightFormCard);
+      });
+    </script>
+    
+    <!-- Swap phone and country fields: Country above Phone Number -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var form = document.getElementById('contact-form');
+        if (!form) return;
+        var rows = form.querySelectorAll('.form-row');
+        if (rows.length < 2) return;
+        var row1 = rows[0];
+        var row2 = rows[1];
+        var contactEl = form.querySelector('#contact');
+        var countryEl = form.querySelector('#country');
+        if (!contactEl || !countryEl) return;
+        var contactField = contactEl.closest('.form-field');
+        var countryField = countryEl.closest('.form-field');
+        if (!contactField || !countryField) return;
+        // Move contact to row 2 (after Email), country to row 1 (after Full Name)
+        row2.appendChild(contactField);
+        row1.appendChild(countryField);
+      });
+    </script>
+
+    <!-- Robust: ensure intl-tel-input is initialized and two-way synced -->
+    <script>
+      (function(){
+        function ensurePhoneSync(){
+          var phoneInput = document.getElementById('contact');
+          var countrySelect = document.getElementById('country');
+          if (!phoneInput || !countrySelect) return;
+          var iti = phoneInput._iti;
+          if (!iti && window.intlTelInput) {
+            try {
+              iti = window.intlTelInput(phoneInput, {
+                initialCountry: 'in',
+                separateDialCode: true,
+                nationalMode: false,
+                autoPlaceholder: 'aggressive',
+                utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.12/build/js/utils.js'
+              });
+              phoneInput._iti = iti;
+            } catch(_) {}
+          }
+          if (!iti) return;
+
+          if (phoneInput.dataset.syncBound === 'true') return; // avoid double-binding
+
+          var mapping = {
+            'afghanistan': 'af','albania': 'al','algeria': 'dz','andorra': 'ad','angola': 'ao',
+            'argentina': 'ar','armenia': 'am','australia': 'au','austria': 'at','azerbaijan': 'az',
+            'bahamas': 'bs','bahrain': 'bh','bangladesh': 'bd','belarus': 'by','belgium': 'be',
+            'belize': 'bz','benin': 'bj','bhutan': 'bt','bolivia': 'bo','bosnia-and-herzegovina': 'ba',
+            'botswana': 'bw','brazil': 'br','brunei': 'bn','bulgaria': 'bg','burkina-faso': 'bf',
+            'burundi': 'bi','cambodia': 'kh','cameroon': 'cm','canada': 'ca','central-african-republic': 'cf',
+            'chad': 'td','chile': 'cl','china': 'cn','colombia': 'co','comoros': 'km','congo': 'cg',
+            'congo-democratic-republic': 'cd','costa-rica': 'cr','cote-divoire': 'ci','croatia': 'hr',
+            'cuba': 'cu','cyprus': 'cy','czech-republic': 'cz','denmark': 'dk','djibouti': 'dj',
+            'dominica': 'dm','dominican-republic': 'do','ecuador': 'ec','egypt': 'eg','el-salvador': 'sv',
+            'equatorial-guinea': 'gq','eritrea': 'er','estonia': 'ee','eswatini': 'sz','ethiopia': 'et',
+            'fiji': 'fj','finland': 'fi','france': 'fr','gabon': 'ga','gambia': 'gm','georgia': 'ge',
+            'germany': 'de','ghana': 'gh','greece': 'gr','grenada': 'gd','guatemala': 'gt','guinea': 'gn',
+            'guinea-bissau': 'gw','guyana': 'gy','haiti': 'ht','honduras': 'hn','hungary': 'hu',
+            'iceland': 'is','india': 'in','indonesia': 'id','iran': 'ir','iraq': 'iq','ireland': 'ie',
+            'israel': 'il','italy': 'it','jamaica': 'jm','japan': 'jp','jordan': 'jo','kazakhstan': 'kz',
+            'kenya': 'ke','kiribati': 'ki','korea-north': 'kp','korea-south': 'kr','kuwait': 'kw',
+            'kyrgyzstan': 'kg','laos': 'la','latvia': 'lv','lebanon': 'lb','lesotho': 'ls','liberia': 'lr',
+            'libya': 'ly','liechtenstein': 'li','lithuania': 'lt','luxembourg': 'lu','madagascar': 'mg',
+            'malawi': 'mw','malaysia': 'my','maldives': 'mv','mali': 'ml','malta': 'mt','marshall-islands': 'mh',
+            'mauritania': 'mr','mauritius': 'mu','mexico': 'mx','micronesia': 'fm','moldova': 'md','monaco': 'mc',
+            'mongolia': 'mn','montenegro': 'me','morocco': 'ma','mozambique': 'mz','myanmar': 'mm',
+            'namibia': 'na','nauru': 'nr','nepal': 'np','netherlands': 'nl','new-zealand': 'nz','nicaragua': 'ni',
+            'niger': 'ne','nigeria': 'ng','north-macedonia': 'mk','norway': 'no','oman': 'om','pakistan': 'pk',
+            'palau': 'pw','palestine': 'ps','panama': 'pa','papua-new-guinea': 'pg','paraguay': 'py','peru': 'pe',
+            'philippines': 'ph','poland': 'pl','portugal': 'pt','qatar': 'qa','romania': 'ro','russia': 'ru',
+            'rwanda': 'rw','samoa': 'ws','san-marino': 'sm','sao-tome-and-principe': 'st','saudi-arabia': 'sa',
+            'senegal': 'sn','serbia': 'rs','seychelles': 'sc','sierra-leone': 'sl','singapore': 'sg','slovakia': 'sk',
+            'slovenia': 'si','solomon-islands': 'sb','somalia': 'so','south-africa': 'za','south-sudan': 'ss',
+            'spain': 'es','sri-lanka': 'lk','sudan': 'sd','suriname': 'sr','sweden': 'se','switzerland': 'ch',
+            'syria': 'sy','taiwan': 'tw','tajikistan': 'tj','tanzania': 'tz','thailand': 'th','timor-leste': 'tl',
+            'togo': 'tg','tonga': 'to','trinidad-and-tobago': 'tt','tunisia': 'tn','turkey': 'tr','turkmenistan': 'tm',
+            'tuvalu': 'tv','uganda': 'ug','ukraine': 'ua','united-arab-emirates': 'ae','united-kingdom': 'gb',
+            'united-states': 'us','uruguay': 'uy','uzbekistan': 'uz','vanuatu': 'vu','vatican-city': 'va',
+            'venezuela': 've','vietnam': 'vn','yemen': 'ye','zambia': 'zm','zimbabwe': 'zw'
+          };
+
+          function syncCountryToPhone(){
+            var val = countrySelect.value;
+            if (val && mapping[val]) { iti.setCountry(mapping[val]); }
+          }
+          function syncPhoneToCountry(){
+            try {
+              var cd = iti.getSelectedCountryData();
+              if (!cd || !cd.iso2) return;
+              var keys = Object.keys(mapping);
+              for (var i=0;i<keys.length;i++){ if (mapping[keys[i]] === cd.iso2){ countrySelect.value = keys[i]; break; } }
+            } catch(_){}
+          }
+          countrySelect.addEventListener('change', syncCountryToPhone);
+          phoneInput.addEventListener('countrychange', syncPhoneToCountry);
+          phoneInput.dataset.syncBound = 'true';
+          // initial sync
+          syncCountryToPhone();
+          setTimeout(syncCountryToPhone, 300);
+        }
+        if (document.readyState === 'complete') { setTimeout(ensurePhoneSync, 200); }
+        else { window.addEventListener('load', function(){ setTimeout(ensurePhoneSync, 200); }); }
+      })();
+    </script>
   </body>
   </html>
 

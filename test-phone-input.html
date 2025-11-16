@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Phone Input - intl-tel-input</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.12/build/css/intlTelInput.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .test-section {
+      margin: 30px 0;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    h1 {
+      color: #333;
+    }
+    h2 {
+      color: #555;
+      font-size: 18px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    input[type="tel"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      margin-top: 15px;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    .success {
+      color: #28a745;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 intl-tel-input Integration Test</h1>
+  
+  <div class="test-section">
+    <h2>Test 1: Default Configuration (India as default)</h2>
+    <label for="phone1">Phone Number</label>
+    <input type="tel" id="phone1">
+    <button onclick="testPhone1()">Get Phone Number</button>
+    <div class="result" id="result1"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 2: With Country Selector Sync</h2>
+    <label for="country2">Country</label>
+    <select id="country2">
+      <option value="">Select country</option>
+      <option value="india">India</option>
+      <option value="united-states">United States</option>
+      <option value="singapore">Singapore</option>
+      <option value="united-kingdom">United Kingdom</option>
+      <option value="australia">Australia</option>
+    </select>
+    <br><br>
+    <label for="phone2">Phone Number</label>
+    <input type="tel" id="phone2">
+    <button onclick="testPhone2()">Get Phone Number</button>
+    <div class="result" id="result2"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Instructions</h2>
+    <ul>
+      <li><strong>Test 1:</strong> Should default to India (+91). Try entering a phone number and click the button.</li>
+      <li><strong>Test 2:</strong> Select a country from the dropdown, then enter a phone number. The country code should sync automatically.</li>
+      <li><strong>Expected behavior:</strong> The country code should update when you select a different country.</li>
+    </ul>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.12/build/js/intlTelInput.min.js"></script>
+  <script>
+    // Test 1: Simple initialization with India as default
+    const phoneInput1 = document.querySelector("#phone1");
+    const iti1 = window.intlTelInput(phoneInput1, {
+      initialCountry: "in",
+      separateDialCode: true,
+      nationalMode: false,
+      autoPlaceholder: "aggressive",
+      utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.12/build/js/utils.js"
+    });
+
+    function testPhone1() {
+      const number = iti1.getNumber();
+      const country = iti1.getSelectedCountryData();
+      document.getElementById('result1').innerHTML = `
+        <div class="success">✅ Success!</div>
+        <strong>Full Number:</strong> ${number}<br>
+        <strong>Country:</strong> ${country.name} (${country.iso2.toUpperCase()})<br>
+        <strong>Dial Code:</strong> +${country.dialCode}
+      `;
+    }
+
+    // Test 2: With country selector sync
+    const phoneInput2 = document.querySelector("#phone2");
+    const countrySelect = document.querySelector("#country2");
+    const iti2 = window.intlTelInput(phoneInput2, {
+      initialCountry: "in",
+      separateDialCode: true,
+      nationalMode: false,
+      autoPlaceholder: "aggressive",
+      utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.12/build/js/utils.js"
+    });
+
+    // Sync country selector with phone input
+    function normalize(str) { 
+      return (str || '').toString().toLowerCase().replace(/[^a-z]+/g, ' ').trim(); 
+    }
+
+    function syncCountryToPhone() {
+      const selectedText = countrySelect.options[countrySelect.selectedIndex] ? 
+                          countrySelect.options[countrySelect.selectedIndex].text : '';
+      const data = window.intlTelInputGlobals.getCountryData();
+      const normalized = normalize(selectedText);
+      const match = data.find(c => normalize(c.name) === normalized) || 
+                   data.find(c => normalize(c.name).indexOf(normalized) === 0);
+      
+      if (match) {
+        iti2.setCountry(match.iso2);
+        console.log('Country synced to', match.name, '+' + match.dialCode);
+      }
+    }
+
+    countrySelect.addEventListener('change', syncCountryToPhone);
+    
+    // Set default to India
+    countrySelect.value = 'india';
+    syncCountryToPhone();
+
+    function testPhone2() {
+      const number = iti2.getNumber();
+      const country = iti2.getSelectedCountryData();
+      document.getElementById('result2').innerHTML = `
+        <div class="success">✅ Success!</div>
+        <strong>Full Number:</strong> ${number}<br>
+        <strong>Country:</strong> ${country.name} (${country.iso2.toUpperCase()})<br>
+        <strong>Dial Code:</strong> +${country.dialCode}
+      `;
+    }
+
+    console.log('✅ intl-tel-input test page loaded successfully');
+    console.log('Test 1: India default -', iti1.getSelectedCountryData().name);
+    console.log('Test 2: India default -', iti2.getSelectedCountryData().name);
+  </script>
+</body>
+</html>
+

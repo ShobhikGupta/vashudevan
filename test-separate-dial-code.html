@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Separate Dial Code Test - URGENT FIX</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.12/build/css/intlTelInput.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .test-container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    h1 {
+      color: #d32f2f;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .test-section {
+      margin: 20px 0;
+      padding: 20px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      background-color: #fafafa;
+    }
+    .test-section h2 {
+      color: #1976d2;
+      margin-top: 0;
+    }
+    .form-row {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .form-field {
+      flex: 1;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #333;
+    }
+    select, input[type="tel"] {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    select:focus, input[type="tel"]:focus {
+      border-color: #1976d2;
+      outline: none;
+    }
+    .test-button {
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px;
+    }
+    .test-button:hover {
+      background-color: #1565c0;
+    }
+    .result {
+      margin-top: 15px;
+      padding: 15px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    .success {
+      background-color: #e8f5e8;
+      border: 1px solid #4caf50;
+      color: #2e7d32;
+    }
+    .error {
+      background-color: #ffebee;
+      border: 1px solid #f44336;
+      color: #c62828;
+    }
+    .info {
+      background-color: #e3f2fd;
+      border: 1px solid #2196f3;
+      color: #1565c0;
+    }
+    .country-test {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .country-btn {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      background: white;
+      cursor: pointer;
+      border-radius: 4px;
+      text-align: center;
+    }
+    .country-btn:hover {
+      background-color: #f0f0f0;
+    }
+    .country-btn.active {
+      background-color: #1976d2;
+      color: white;
+    }
+    .current-status {
+      background-color: #fff3e0;
+      border: 1px solid #ff9800;
+      color: #e65100;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    .visual-test {
+      background-color: #f8f9fa;
+      border: 2px dashed #6c757d;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+    }
+    .phone-input-container {
+      position: relative;
+      margin: 20px 0;
+    }
+    .dial-code-box {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      background-color: #e9ecef;
+      border: 2px solid #ddd;
+      border-right: none;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      font-weight: bold;
+      color: #495057;
+      border-radius: 6px 0 0 6px;
+      z-index: 10;
+    }
+    .phone-input-with-code {
+      padding-left: 80px;
+    }
+    .test-instructions {
+      background-color: #e8f5e8;
+      border: 1px solid #4caf50;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>🛑 URGENT FIX: Separate Dial Code Test</h1>
+    
+    <div class="current-status">
+      <strong>Testing:</strong> separateDialCode: true feature<br>
+      <strong>Expected:</strong> Country code appears in separate box on left, updates instantly when country changes<br>
+      <strong>Key Test:</strong> Germany → +49, Singapore → +65, India → +91
+    </div>
+
+    <div class="test-instructions">
+      <h3>✅ What to Look For:</h3>
+      <ul>
+        <li><strong>Visual Layout:</strong> Country code should appear in a separate box on the left side of the phone input</li>
+        <li><strong>Instant Updates:</strong> When you select a country, the code in the separate box should change immediately</li>
+        <li><strong>Default:</strong> Should start with India (+91) by default</li>
+        <li><strong>Functionality:</strong> The separate box should be non-editable (just displays the code)</li>
+      </ul>
+    </div>
+
+    <div class="test-section">
+      <h2>Test 1: Main Contact Form Simulation</h2>
+      <div class="form-row">
+        <div class="form-field">
+          <label for="country1">Country</label>
+          <select id="country1">
+            <option value="">Select country</option>
+            <option value="india">India</option>
+            <option value="germany">Germany</option>
+            <option value="singapore">Singapore</option>
+            <option value="united-states">United States</option>
+            <option value="united-kingdom">United Kingdom</option>
+            <option value="australia">Australia</option>
+            <option value="japan">Japan</option>
+            <option value="france">France</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="phone1">Phone Number (with separate dial code)</label>
+          <input type="tel" id="phone1" placeholder="Phone Number">
+        </div>
+      </div>
+      <button class="test-button" onclick="testPhone1()">Get Phone Number</button>
+      <button class="test-button" onclick="getCurrentCountry1()">Get Current Country</button>
+      <div class="result" id="result1"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>Test 2: Visual Verification</h2>
+      <p>Look at the phone input above. You should see:</p>
+      <ul>
+        <li>✅ A separate box on the left showing the country code (e.g., +91)</li>
+        <li>✅ The phone number input field on the right</li>
+        <li>✅ When you change country, the left box updates instantly</li>
+      </ul>
+      
+      <div class="visual-test">
+        <h4>Visual Test - Select Countries:</h4>
+        <div class="country-test">
+          <div class="country-btn" onclick="testCountry('in', 'India', '+91')">🇮🇳 India (+91)</div>
+          <div class="country-btn" onclick="testCountry('de', 'Germany', '+49')">🇩🇪 Germany (+49)</div>
+          <div class="country-btn" onclick="testCountry('sg', 'Singapore', '+65')">🇸🇬 Singapore (+65)</div>
+          <div class="country-btn" onclick="testCountry('us', 'United States', '+1')">🇺🇸 USA (+1)</div>
+          <div class="country-btn" onclick="testCountry('gb', 'United Kingdom', '+44')">🇬🇧 UK (+44)</div>
+          <div class="country-btn" onclick="testCountry('au', 'Australia', '+61')">🇦🇺 Australia (+61)</div>
+          <div class="country-btn" onclick="testCountry('jp', 'Japan', '+81')">🇯🇵 Japan (+81)</div>
+          <div class="country-btn" onclick="testCountry('fr', 'France', '+33')">🇫🇷 France (+33)</div>
+        </div>
+        <div class="result" id="result2"></div>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>Test 3: Manual Country Selection</h2>
+      <p>Use the dropdown to manually select countries and verify the separate dial code box updates:</p>
+      <div class="form-row">
+        <div class="form-field">
+          <label for="country2">Country</label>
+          <select id="country2">
+            <option value="">Select country</option>
+            <option value="india">India</option>
+            <option value="germany">Germany</option>
+            <option value="singapore">Singapore</option>
+            <option value="united-states">United States</option>
+            <option value="united-kingdom">United Kingdom</option>
+            <option value="australia">Australia</option>
+            <option value="japan">Japan</option>
+            <option value="france">France</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="phone2">Phone Number (with separate dial code)</label>
+          <input type="tel" id="phone2" placeholder="Phone Number">
+        </div>
+      </div>
+      <button class="test-button" onclick="testPhone2()">Get Phone Number</button>
+      <button class="test-button" onclick="getCurrentCountry2()">Get Current Country</button>
+      <div class="result" id="result3"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>Expected Results</h2>
+      <div class="test-instructions">
+        <h4>✅ SUCCESS CRITERIA:</h4>
+        <ol>
+          <li><strong>Visual Layout:</strong> Country code appears in separate box on left side</li>
+          <li><strong>Instant Updates:</strong> Selecting Germany shows +49, Singapore shows +65</li>
+          <li><strong>Default Country:</strong> Starts with India (+91)</li>
+          <li><strong>Separate Box:</strong> Non-editable, just displays the code</li>
+          <li><strong>Phone Input:</strong> Only accepts the phone number (without country code)</li>
+        </ol>
+        
+        <h4>❌ FAILURE INDICATORS:</h4>
+        <ul>
+          <li>Country code not in separate box</li>
+          <li>Code doesn't update when country changes</li>
+          <li>Code stays at +91 regardless of selection</li>
+          <li>Phone input includes country code</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.12/build/js/intlTelInput.min.js"></script>
+  <script>
+    let iti1, iti2;
+
+    // Country mapping for testing
+    const countryMapping = {
+      'afghanistan': 'af', 'albania': 'al', 'algeria': 'dz', 'andorra': 'ad', 'angola': 'ao',
+      'argentina': 'ar', 'armenia': 'am', 'australia': 'au', 'austria': 'at', 'azerbaijan': 'az',
+      'bahamas': 'bs', 'bahrain': 'bh', 'bangladesh': 'bd', 'belarus': 'by', 'belgium': 'be',
+      'belize': 'bz', 'benin': 'bj', 'bhutan': 'bt', 'bolivia': 'bo', 'bosnia-and-herzegovina': 'ba',
+      'botswana': 'bw', 'brazil': 'br', 'brunei': 'bn', 'bulgaria': 'bg', 'burkina-faso': 'bf',
+      'burundi': 'bi', 'cambodia': 'kh', 'cameroon': 'cm', 'canada': 'ca', 'central-african-republic': 'cf',
+      'chad': 'td', 'chile': 'cl', 'china': 'cn', 'colombia': 'co', 'comoros': 'km', 'congo': 'cg',
+      'congo-democratic-republic': 'cd', 'costa-rica': 'cr', 'cote-divoire': 'ci', 'croatia': 'hr',
+      'cuba': 'cu', 'cyprus': 'cy', 'czech-republic': 'cz', 'denmark': 'dk', 'djibouti': 'dj',
+      'dominica': 'dm', 'dominican-republic': 'do', 'ecuador': 'ec', 'egypt': 'eg', 'el-salvador': 'sv',
+      'equatorial-guinea': 'gq', 'eritrea': 'er', 'estonia': 'ee', 'eswatini': 'sz', 'ethiopia': 'et',
+      'fiji': 'fj', 'finland': 'fi', 'france': 'fr', 'gabon': 'ga', 'gambia': 'gm', 'georgia': 'ge',
+      'germany': 'de', 'ghana': 'gh', 'greece': 'gr', 'grenada': 'gd', 'guatemala': 'gt', 'guinea': 'gn',
+      'guinea-bissau': 'gw', 'guyana': 'gy', 'haiti': 'ht', 'honduras': 'hn', 'hungary': 'hu',
+      'iceland': 'is', 'india': 'in', 'indonesia': 'id', 'iran': 'ir', 'iraq': 'iq', 'ireland': 'ie',
+      'israel': 'il', 'italy': 'it', 'jamaica': 'jm', 'japan': 'jp', 'jordan': 'jo', 'kazakhstan': 'kz',
+      'kenya': 'ke', 'kiribati': 'ki', 'korea-north': 'kp', 'korea-south': 'kr', 'kuwait': 'kw',
+      'kyrgyzstan': 'kg', 'laos': 'la', 'latvia': 'lv', 'lebanon': 'lb', 'lesotho': 'ls', 'liberia': 'lr',
+      'libya': 'ly', 'liechtenstein': 'li', 'lithuania': 'lt', 'luxembourg': 'lu', 'madagascar': 'mg',
+      'malawi': 'mw', 'malaysia': 'my', 'maldives': 'mv', 'mali': 'ml', 'malta': 'mt',
+      'marshall-islands': 'mh', 'mauritania': 'mr', 'mauritius': 'mu', 'mexico': 'mx', 'micronesia': 'fm',
+      'moldova': 'md', 'monaco': 'mc', 'mongolia': 'mn', 'montenegro': 'me', 'morocco': 'ma',
+      'mozambique': 'mz', 'myanmar': 'mm', 'namibia': 'na', 'nauru': 'nr', 'nepal': 'np',
+      'netherlands': 'nl', 'new-zealand': 'nz', 'nicaragua': 'ni', 'niger': 'ne', 'nigeria': 'ng',
+      'north-macedonia': 'mk', 'norway': 'no', 'oman': 'om', 'pakistan': 'pk', 'palau': 'pw',
+      'palestine': 'ps', 'panama': 'pa', 'papua-new-guinea': 'pg', 'paraguay': 'py', 'peru': 'pe',
+      'philippines': 'ph', 'poland': 'pl', 'portugal': 'pt', 'qatar': 'qa', 'romania': 'ro',
+      'russia': 'ru', 'rwanda': 'rw', 'samoa': 'ws', 'san-marino': 'sm', 'sao-tome-and-principe': 'st',
+      'saudi-arabia': 'sa', 'senegal': 'sn', 'serbia': 'rs', 'seychelles': 'sc', 'sierra-leone': 'sl',
+      'singapore': 'sg', 'slovakia': 'sk', 'slovenia': 'si', 'solomon-islands': 'sb', 'somalia': 'so',
+      'south-africa': 'za', 'south-sudan': 'ss', 'spain': 'es', 'sri-lanka': 'lk', 'sudan': 'sd',
+      'suriname': 'sr', 'sweden': 'se', 'switzerland': 'ch', 'syria': 'sy', 'taiwan': 'tw',
+      'tajikistan': 'tj', 'tanzania': 'tz', 'thailand': 'th', 'timor-leste': 'tl', 'togo': 'tg',
+      'tonga': 'to', 'trinidad-and-tobago': 'tt', 'tunisia': 'tn', 'turkey': 'tr', 'turkmenistan': 'tm',
+      'tuvalu': 'tv', 'uganda': 'ug', 'ukraine': 'ua', 'united-arab-emirates': 'ae',
+      'united-kingdom': 'gb', 'united-states': 'us', 'uruguay': 'uy', 'uzbekistan': 'uz',
+      'vanuatu': 'vu', 'vatican-city': 'va', 'venezuela': 've', 'vietnam': 'vn', 'yemen': 'ye',
+      'zambia': 'zm', 'zimbabwe': 'zw'
+    };
+
+    // Initialize Test 1
+    function initTest1() {
+      const phoneInput1 = document.querySelector("#phone1");
+      const countrySelect1 = document.querySelector("#country1");
+      
+      iti1 = window.intlTelInput(phoneInput1, {
+        initialCountry: "in",
+        separateDialCode: true,
+        nationalMode: false,
+        autoPlaceholder: "aggressive",
+        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.12/build/js/utils.js"
+      });
+
+      // Sync country select with phone input
+      function syncCountryToPhone1() {
+        if (!iti1 || !countrySelect1) return;
+        const selectedValue = countrySelect1.value;
+        console.log('Test 1 - Country selected:', selectedValue);
+        
+        if (selectedValue && countryMapping[selectedValue]) {
+          const iso2 = countryMapping[selectedValue];
+          iti1.setCountry(iso2);
+          const countryData = iti1.getSelectedCountryData();
+          console.log('Test 1 - Country synced to', countryData.name, '+' + countryData.dialCode);
+          updateResult('result1', `✅ Country changed to ${countryData.name} (+${countryData.dialCode})`, 'success');
+        }
+      }
+
+      countrySelect1.addEventListener('change', syncCountryToPhone1);
+      countrySelect1.addEventListener('input', syncCountryToPhone1);
+      
+      // Set default to India
+      countrySelect1.value = 'india';
+      syncCountryToPhone1();
+    }
+
+    // Initialize Test 3
+    function initTest2() {
+      const phoneInput2 = document.querySelector("#phone2");
+      const countrySelect2 = document.querySelector("#country2");
+      
+      iti2 = window.intlTelInput(phoneInput2, {
+        initialCountry: "in",
+        separateDialCode: true,
+        nationalMode: false,
+        autoPlaceholder: "aggressive",
+        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.12/build/js/utils.js"
+      });
+
+      // Sync country select with phone input
+      function syncCountryToPhone2() {
+        if (!iti2 || !countrySelect2) return;
+        const selectedValue = countrySelect2.value;
+        console.log('Test 2 - Country selected:', selectedValue);
+        
+        if (selectedValue && countryMapping[selectedValue]) {
+          const iso2 = countryMapping[selectedValue];
+          iti2.setCountry(iso2);
+          const countryData = iti2.getSelectedCountryData();
+          console.log('Test 2 - Country synced to', countryData.name, '+' + countryData.dialCode);
+          updateResult('result3', `✅ Country changed to ${countryData.name} (+${countryData.dialCode})`, 'success');
+        }
+      }
+
+      countrySelect2.addEventListener('change', syncCountryToPhone2);
+      countrySelect2.addEventListener('input', syncCountryToPhone2);
+      
+      // Set default to India
+      countrySelect2.value = 'india';
+      syncCountryToPhone2();
+    }
+
+    // Test functions
+    function testPhone1() {
+      if (!iti1) return;
+      const number = iti1.getNumber();
+      const country = iti1.getSelectedCountryData();
+      updateResult('result1', `
+        <strong>Full Number:</strong> ${number}<br>
+        <strong>Country:</strong> ${country.name} (${country.iso2.toUpperCase()})<br>
+        <strong>Dial Code:</strong> +${country.dialCode}<br>
+        <strong>Separate Dial Code:</strong> ${iti1.isValidNumber() ? '✅ Working' : '❌ Not working'}
+      `, 'success');
+    }
+
+    function testPhone2() {
+      if (!iti2) return;
+      const number = iti2.getNumber();
+      const country = iti2.getSelectedCountryData();
+      updateResult('result3', `
+        <strong>Full Number:</strong> ${number}<br>
+        <strong>Country:</strong> ${country.name} (${country.iso2.toUpperCase()})<br>
+        <strong>Dial Code:</strong> +${country.dialCode}<br>
+        <strong>Separate Dial Code:</strong> ${iti2.isValidNumber() ? '✅ Working' : '❌ Not working'}
+      `, 'success');
+    }
+
+    function getCurrentCountry1() {
+      if (!iti1) return;
+      const country = iti1.getSelectedCountryData();
+      updateResult('result1', `Current country: ${country.name} (+${country.dialCode})`, 'info');
+    }
+
+    function getCurrentCountry2() {
+      if (!iti2) return;
+      const country = iti2.getSelectedCountryData();
+      updateResult('result3', `Current country: ${country.name} (+${country.dialCode})`, 'info');
+    }
+
+    function testCountry(iso2, name, expectedCode) {
+      if (iti1) {
+        iti1.setCountry(iso2);
+        const country = iti1.getSelectedCountryData();
+        const actualCode = '+' + country.dialCode;
+        const isCorrect = actualCode === expectedCode;
+        
+        updateResult('result2', `
+          ${isCorrect ? '✅' : '❌'} ${name}: Expected ${expectedCode}, Got ${actualCode}<br>
+          <strong>Country:</strong> ${country.name} (${country.iso2.toUpperCase()})<br>
+          <strong>Dial Code:</strong> +${country.dialCode}<br>
+          <strong>Separate Dial Code:</strong> ${iti1.isValidNumber() ? '✅ Working' : '❌ Not working'}
+        `, isCorrect ? 'success' : 'error');
+      }
+    }
+
+    function updateResult(elementId, message, type) {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.innerHTML = message;
+        element.className = `result ${type}`;
+      }
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      initTest1();
+      initTest2();
+      console.log('✅ Separate dial code test page loaded');
+      console.log('Look for the separate dial code box on the left side of phone inputs');
+    });
+  </script>
+</body>
+</html>
