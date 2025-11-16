@@ -1198,8 +1198,10 @@
   };
 
   // Contact form validation and submit via configured endpoint
+  // DISABLED: Contact form now uses inline Google Apps Script handler in contact.html
+  // to avoid duplicate submissions. This handler is kept for reference only.
   const form = document.getElementById('contact-form');
-  if (form) {
+  if (false && form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       // If no custom endpoint is configured, skip this default handler entirely
@@ -1988,7 +1990,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Opening popup form (auto after load, once per user)
 (function(){
-  var STORAGE_KEY = 'openingPopupsCompleted';
+  var STORAGE_KEY = 'openingPopupCompleted';
   var SHOW_DELAY_MS = 2000;
 
   function isHomePage() {
@@ -2004,9 +2006,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function hasCompleted() {
     // Single source of truth: localStorage only
-    try {
-      return localStorage.getItem(STORAGE_KEY) === '1';
-    } catch(e) {}
+    // try {
+    //   return localStorage.getItem(STORAGE_KEY) === '1';
+    // } catch(e) {}
     return false;
   }
 
@@ -2713,8 +2715,26 @@ document.addEventListener('DOMContentLoaded', function() {
         hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
       });
 
-      // Get full phone number with country code from intl-tel-input
+      // Get full phone number with country code - always use country dropdown
       var fullPhone = (function(){
+        var rawPhone = (phone || '').trim();
+        var digits = rawPhone.replace(/\D/g, '');
+        
+        // If user already typed a number starting with +, use it as-is
+        if (rawPhone.charAt(0) === '+') {
+          return rawPhone.replace(/\s+/g, '');
+        }
+        
+        // Otherwise, always prepend the dial code from the selected country
+        try {
+          var selectedVal = popupCountry && popupCountry.value;
+          var dc = __dialCodeByValue && __dialCodeByValue[selectedVal];
+          if (dc && digits) {
+            return '+' + dc + digits;
+          }
+        } catch(_) {}
+        
+        // Final fallback: try intl-tel-input if available
         try {
           if (popupPhone && popupPhone._iti && typeof popupPhone._iti.getNumber === 'function') {
             var utils = (window.intlTelInputUtils || {}).numberFormat ? window.intlTelInputUtils : null;
@@ -2722,14 +2742,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (number) return String(number).replace(/\s+/g, '');
           }
         } catch(_) {}
-        // Fallback: prefix with selected country's dial code, force E.164 like +<code><digits>
-        try {
-          var selectedVal = popupCountry && popupCountry.value;
-          var dc = (selectedVal && (window.__dialCodeByValue || {}).hasOwnProperty ? (window.__dialCodeByValue[selectedVal]) : null) || (__dialCodeByValue && __dialCodeByValue[selectedVal]);
-          var digits = (phone || '').replace(/\D/g, '');
-          if (dc && digits) return '+' + dc + digits;
-        } catch(_) {}
-        return phone;
+        
+        return rawPhone;
       })();
 
       // Normalize country text once to reuse across payload variants
