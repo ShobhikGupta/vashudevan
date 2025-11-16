@@ -2006,9 +2006,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function hasCompleted() {
     // Single source of truth: localStorage only
-    // try {
-    //   return localStorage.getItem(STORAGE_KEY) === '1';
-    // } catch(e) {}
+    try {
+      return localStorage.getItem(STORAGE_KEY) === '1';
+    } catch(e) {}
     return false;
   }
 
