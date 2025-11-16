@@ -4628,7 +4628,12 @@ img {
   background: linear-gradient(135deg, #E69500 0%, #CC8400 100%);
   filter: brightness(1);
 }
-.opening-popup-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+.opening-popup-submit:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  box-shadow: none;
+  cursor: not-allowed;
+}
 
 .opening-popup-success {
   text-align: center;

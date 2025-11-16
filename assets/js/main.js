@@ -1988,7 +1988,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Opening popup form (auto after load, once per user)
 (function(){
-  var STORAGE_KEY = 'openingPopupCompleted';
+  var STORAGE_KEY = 'openingPopupsCompleted';
   var SHOW_DELAY_MS = 2000;
 
   function isHomePage() {
@@ -2638,13 +2638,30 @@ document.addEventListener('DOMContentLoaded', function() {
       return ok;
     }
 
-    // Disable submit until all required fields are filled
+    // Disable submit until all required fields look valid (basic regex checks)
     function updateSubmitState() {
       try {
         var hasCountry = !!(popupCountry && popupCountry.value);
-        var hasPhone = !!(popupPhone && popupPhone.value.trim());
-        var hasEmail = !!(popupEmail && popupEmail.value.trim());
-        if (submitBtn) submitBtn.disabled = !(hasCountry && hasPhone && hasEmail);
+        var phoneVal = popupPhone && popupPhone.value.trim();
+        var emailVal = popupEmail && popupEmail.value.trim();
+
+        var phoneOk = !!phoneVal && /^\+?[0-9\-()\s]{7,20}$/.test(phoneVal);
+        var emailOk = !!emailVal && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal);
+
+        // Live inline errors for text fields: only show when user has typed something
+        if (phoneVal && !phoneOk) {
+          showError('phone', 'Not a valid phone number.');
+        } else {
+          showError('phone', '');
+        }
+
+        if (emailVal && !emailOk) {
+          showError('email', 'Please enter a valid email.');
+        } else {
+          showError('email', '');
+        }
+
+        if (submitBtn) submitBtn.disabled = !(hasCountry && phoneOk && emailOk);
       } catch(_) {}
     }
     if (submitBtn) submitBtn.disabled = true;
