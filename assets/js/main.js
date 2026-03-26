@@ -12,20 +12,24 @@
     toggle.addEventListener('click', function () {
       const isOpen = nav.classList.toggle('open');
       toggle.classList.toggle('open');
+      document.body.classList.toggle('menu-open');
       toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
   }
 
-  // Close menu when clicking on overlay
-  if (nav) {
-    nav.addEventListener('click', function (e) {
-      if (e.target === nav) {
+  // Close menu when clicking on overlay background or outside drawer
+  document.addEventListener('click', function (e) {
+    if (nav.classList.contains('open')) {
+      // If clicking exactly the nav (which now has the ::before overlay) 
+      // or if clicking outside both the nav and the toggle
+      if (e.target === nav || (!nav.contains(e.target) && !toggle.contains(e.target))) {
         nav.classList.remove('open');
         toggle.classList.remove('open');
+        document.body.classList.remove('menu-open');
         toggle.setAttribute('aria-expanded', 'false');
       }
-    });
-  }
+    }
+  });
 
   // Mobile submenu toggle with smooth accordion animation
   submenuParents.forEach(function (parent) {
