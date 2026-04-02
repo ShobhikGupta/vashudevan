@@ -324,10 +324,33 @@
             <img class="world-map-img" alt="World map" src="assets/img/world map with locations.png">
             <!-- Pins removed per request; map already includes markers -->
           </div>
-          <!-- Infinite country ticker — JS clones items for seamless loop -->
-          <div class="country-ticker-wrap">
-            <div class="country-ticker">
-              <div class="country-ticker-track" id="country-ticker-track">
+          <!-- Infinite country ticker — pure CSS animation, no overflow bleed -->
+          <div class="country-ticker-wrap" aria-label="Trading locations ticker">
+            <div class="country-ticker" aria-hidden="true">
+              <!-- Group A -->
+              <div class="country-ticker-track">
+                <span>USA</span>
+                <span>Canada</span>
+                <span>Mexico</span>
+                <span>South America</span>
+                <span>UK</span>
+                <span>Europe</span>
+                <span>Australia</span>
+                <span>New Zealand</span>
+                <span>India</span>
+                <span>China</span>
+                <span>Hong Kong</span>
+                <span>Malaysia</span>
+                <span>Korea</span>
+                <span>Taiwan</span>
+                <span>Pakistan</span>
+                <span>Africa</span>
+                <span>Middle East</span>
+                <span>Mauritius</span>
+                <span>Georgia</span>
+              </div>
+              <!-- Group B (duplicate for seamless loop) -->
+              <div class="country-ticker-track" aria-hidden="true">
                 <span>USA</span>
                 <span>Canada</span>
                 <span>Mexico</span>
@@ -402,46 +425,7 @@
     <script src="assets/js/main.js"></script>
     <script src="assets/js/products.render.simple.js"></script>
 
-    <script>
-      // ── Infinite Country Ticker ──
-      (function () {
-        var track = document.getElementById('country-ticker-track');
-        if (!track) return;
-
-        // Clone all original items and append so we always have twice the content
-        var originals = Array.from(track.children);
-        originals.forEach(function (el) {
-          track.appendChild(el.cloneNode(true));
-        });
-
-        var offset = 0;
-        var paused = false;
-        var speed = 0.6; // px per frame (~36 seconds for full loop at 60fps)
-
-        // Measure the width of one full set (half the total)
-        function getSetWidth() {
-          return originals.reduce(function (sum, el) { return sum + el.offsetWidth; }, 0);
-        }
-
-        track.addEventListener('mouseenter', function () { paused = true; });
-        track.addEventListener('mouseleave', function () { paused = false; });
-
-        function tick() {
-          if (!paused) {
-            offset += speed;
-            var setWidth = getSetWidth();
-            // Reset exactly when we've scrolled one full set — lands on the clone = seamless
-            if (offset >= setWidth) {
-              offset -= setWidth;
-            }
-            track.style.transform = 'translateX(-' + offset + 'px)';
-          }
-          requestAnimationFrame(tick);
-        }
-
-        requestAnimationFrame(tick);
-      })();
-    </script>
+    <!-- Ticker is pure CSS – no JS needed -->
   </body>
   </html>
 

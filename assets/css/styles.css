@@ -1616,7 +1616,8 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 .bsj { border-top: 1px solid #e5e7eb; }
 .products-preview { border-top: 1px solid #e5e7eb; padding: 40px 0 80px; box-shadow: var(--shadow); }
 .products-preview .products-grid { margin-top: 40px; }
-.locations { border-top: 1px solid #e5e7eb; padding-top: 20px; }
+/* overflow:hidden is essential — prevents the ticker track from widening the page on mobile/zoom */
+.locations { border-top: 1px solid #e5e7eb; padding-top: 20px; overflow: hidden; }
 
 /* Ensure other section headings mirror the Greenland style */
 #our-impact h2, #leadership-team h2 {
@@ -4673,12 +4674,15 @@ img {
   margin-top: 8px;
 }
 
-/* ── Country Ticker / Marquee ── */
+/* ── Country Ticker (pure CSS, overflow-safe) ── */
 .country-ticker-wrap {
   position: relative;
   margin-top: 32px;
+  /* Critical: clip overflow so the track never bleeds outside on mobile/zoom */
   overflow: hidden;
   padding: 8px 0;
+  /* Prevent contributing to horizontal scroll of the page */
+  max-width: 100%;
 }
 
 /* Fade masks on left and right edges */
@@ -4688,7 +4692,7 @@ img {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 80px;
+  width: 64px;
   z-index: 2;
   pointer-events: none;
 }
@@ -4701,24 +4705,29 @@ img {
   background: linear-gradient(to left, #ffffff 0%, rgba(255,255,255,0) 100%);
 }
 
+/* The visible viewport for the ticker */
 .country-ticker {
-  overflow: hidden;
-  width: 100%;
-}
-
-.country-ticker-track {
-  display: flex;
+  display: flex;          /* side-by-side: track-A | track-B */
   flex-wrap: nowrap;
-  width: max-content;
+  width: max-content;     /* shrink-wraps both groups */
+  animation: ticker-scroll 35s linear infinite;
+  /* Pause on hover */
   will-change: transform;
 }
 
-.country-ticker-track:hover {
-  /* pause handled by JS */
+.country-ticker:hover {
+  animation-play-state: paused;
+}
+
+/* Each track group is an inline-flex row of country labels */
+.country-ticker-track {
+  display: flex;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
 }
 
 .country-ticker-track span {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   white-space: nowrap;
   font-size: 1rem;
@@ -4732,15 +4741,31 @@ img {
 }
 
 .country-ticker-track span::before {
-  content: '•';
+  content: '\2022'; /* bullet */
   color: #1a1a1a;
   font-size: 1.1rem;
   line-height: 1;
 }
 
-
-
+/* Seamless loop: animate from 0% to -50% of the total (= -1 group width).
+   Using percentage makes it immune to viewport size, zoom level, and
+   device pixel ratio — the browser resolves it against the element's own width. */
 @keyframes ticker-scroll {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
+}
+
+/* Reduce speed slightly on mobile for readability */
+@media (max-width: 768px) {
+  .country-ticker {
+    animation-duration: 25s;
+  }
+  .country-ticker-track span {
+    font-size: 0.875rem;
+    padding: 10px 18px;
+  }
+  .country-ticker-wrap::before,
+  .country-ticker-wrap::after {
+    width: 32px;
+  }
 }
