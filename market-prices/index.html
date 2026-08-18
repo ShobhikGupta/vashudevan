@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <base href="/">
+    <title>Global Metal Market Prices — Vashudevan Met Global LLP</title>
+    <meta name="description" content="Indicative and delayed global metal market reference data from Vashudevan Met Global LLP.">
+    <link rel="icon" href="/assets/img/LOGO.png">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="logo" href="/index.html" aria-label="Vashudevan Met Global LLP home">
+          <img src="/assets/img/New LOGO.jpeg" alt="Vashudevan Met Global LLP logo">
+          <span>Vashudevan Met Global LLP</span>
+        </a>
+        <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <nav id="site-nav" class="site-nav">
+          <ul>
+            <li><a href="/index.html">Home</a></li>
+            <li class="has-submenu">
+              <a href="javascript:void(0)">About Us</a>
+              <ul class="submenu">
+                <li><a href="/who-we-are.html">Who We Are</a></li>
+                <li><a href="/our-impact.html">Our Impact</a></li>
+              </ul>
+            </li>
+            <li><a href="/products.html">Products</a></li>
+            <li><a href="/market-prices" aria-current="page">Market</a></li>
+            <li><a href="/contact.html">Contact Us</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page market-page">
+      <section class="page-hero market-page-hero">
+        <div class="container market-dashboard">
+          <h1>Global Metal Market Prices</h1>
+          <p>Indicative / Delayed Market Reference Data</p>
+
+          <aside class="market-notice" aria-label="Market reference notice">
+            <span class="market-notice-icon" aria-hidden="true">i</span>
+            <div>
+              <h2>Market Reference Notice</h2>
+              <p>Prices shown are indicative / delayed market references and do not represent a firm offer, bid, purchase price, selling price or exact physical quotation from Vashudevan Met Global LLP. Actual physical pricing may vary by grade, quality, recovery, location, freight, duties and prevailing market conditions.</p>
+              <div class="market-notice-badges" aria-label="Market reference labels">
+                <span>Indicative / Delayed</span>
+                <span>Reference Only</span>
+                <span>Final Physical Rates May Vary</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section market-dashboard-section" aria-labelledby="market-overview-heading">
+        <div class="container market-dashboard">
+          <div class="market-section-heading">
+            <h2 id="market-overview-heading">Market Overview</h2>
+            <p>Key metal and currency market references.</p>
+          </div>
+
+          <div class="market-overview-shell">
+            <div class="market-dashboard-strip">
+              <div class="market-group-tabs" role="tablist" aria-label="Market overview groups">
+                <button class="market-group-tab active" type="button" data-market-overview-group="metals" aria-selected="true">Metals</button>
+                <button class="market-group-tab" type="button" data-market-overview-group="fx" aria-selected="false">FX</button>
+              </div>
+            </div>
+
+            <p id="market-quote-basis" class="market-quote-basis"><strong>Quote Basis:</strong> Displayed metal quotes follow the native quote basis supplied by each TradingView data provider.</p>
+
+            <div id="market-data-panel" class="market-widget-panel" data-market-view="metals">
+              <div class="market-widget-fallback">Market data temporarily unavailable.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section market-chart-section" aria-labelledby="market-chart-heading">
+        <div class="container market-dashboard">
+          <div class="market-section-heading">
+            <h2 id="market-chart-heading">Interactive Market Chart</h2>
+            <p>Select a benchmark to explore price movement and historical performance.</p>
+          </div>
+
+          <div class="market-chart-selector" aria-label="Select market chart">
+            <div class="market-chart-control-row">
+              <div class="market-chart-control-field">
+                <span class="market-control-label">Category</span>
+                <div class="market-group-tabs" role="tablist" aria-label="Chart groups">
+                  <button class="market-group-tab active" type="button" data-chart-group="metals" aria-selected="true">Metals</button>
+                  <button class="market-group-tab" type="button" data-chart-group="fx" aria-selected="false">FX</button>
+                </div>
+              </div>
+
+              <div class="market-select-field">
+                <span>Benchmark</span>
+                <div class="market-custom-select" data-benchmark-dropdown>
+                  <button id="market-chart-benchmark-button" class="market-custom-select-button" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="market-chart-benchmark-list">
+                    <span data-selected-label>Aluminium</span>
+                    <span class="market-custom-select-chevron" aria-hidden="true">⌄</span>
+                  </button>
+                  <ul id="market-chart-benchmark-list" class="market-custom-select-list" role="listbox" tabindex="-1" aria-labelledby="market-chart-benchmark-button"></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="market-chart-panel">
+            <div id="market-chart-widget" class="market-chart-widget" aria-live="polite">
+              <div class="market-widget-fallback">Market data temporarily unavailable.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section market-cta-section" aria-label="Market quotation contact">
+        <div class="container market-dashboard">
+          <div class="market-cta-card">
+            <div class="market-cta-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img">
+                <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5v-11Zm2.5-.75a.75.75 0 0 0-.75.75v.35l6.25 4.06 6.25-4.06V6.5a.75.75 0 0 0-.75-.75h-11Zm11.75 3.2-5.84 3.79a.75.75 0 0 1-.82 0L5.75 8.95v8.55c0 .41.34.75.75.75h11c.41 0 .75-.34.75-.75V8.95Z"/>
+              </svg>
+            </div>
+            <div class="market-cta-copy">
+              <h2>Need live prices or a bulk quotation?</h2>
+              <p>Contact our team for current physical scrap pricing, availability and bulk requirements.</p>
+            </div>
+            <a class="market-cta-button" href="/contact.html">Contact Us <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <button class="back-to-top" id="back-to-top" aria-label="Back to top">
+      ↑
+    </button>
+
+    <footer class="site-footer pro-footer">
+      <div class="container footer-members">
+        <p>Proud Members Of</p>
+        <div class="logos">
+          <img src="https://mrai.org.in/images/mrai-logo.png" alt="MRAI logo">
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <div class="footer-left">Vashudevan Met Global LLP</div>
+        <div class="footer-center">© 2025 Vashudevan Met Global LLP. All rights reserved.</div>
+        <div class="footer-right">
+          <div class="follow-us-section">
+            <h3 class="follow-us-title">Follow Us</h3>
+            <div class="follow-us-separator"></div>
+            <div class="social-icons">
+              <a href="https://www.facebook.com/profile.php?id=61577681908111" class="social-link" aria-label="Facebook" target="_blank" rel="noopener">
+                <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </a>
+              <a href="https://www.linkedin.com/company/109161337/" class="social-link" aria-label="LinkedIn" target="_blank" rel="noopener">
+                <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+              </a>
+              <a href="https://www.instagram.com/vashudevan_metglobal_llp?igsh=NWJrZjQ3MTNqdTU4&utm_source=qr" class="social-link" aria-label="Instagram" target="_blank" rel="noopener">
+                <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script>
+      const VASHUDEVAN_MARKET_GROUPS = {
+        metals: {
+          label: 'Metals',
+          items: [
+            { label: 'Aluminium', symbol: 'CAPITALCOM:ALUMINUM' },
+            { label: 'Copper', symbol: 'CMCMARKETS:COPPER' },
+            { label: 'Zinc', symbol: 'PEPPERSTONE:ZINC' },
+            { label: 'Nickel', symbol: 'PEPPERSTONE:NICKEL' },
+            { label: 'Lead', symbol: 'CAPITALCOM:LEAD' },
+            { label: 'Iron Ore', symbol: 'CAPITALCOM:TSI' },
+            { label: 'Gold', symbol: 'CAPITALCOM:XAUUSD' },
+            { label: 'Silver', symbol: 'CAPITALCOM:XAGUSD' },
+            { label: 'Platinum', symbol: 'PEPPERSTONE:XPTUSD' }
+          ]
+        },
+        fx: {
+          label: 'FX',
+          items: [
+            { label: 'USD/INR', symbol: 'FX_IDC:USDINR' },
+            { label: 'GBP/INR', symbol: 'FX_IDC:GBPINR' },
+            { label: 'EUR/INR', symbol: 'FX_IDC:EURINR' }
+          ]
+        }
+      };
+
+      (function () {
+        const marketPanel = document.getElementById('market-data-panel');
+        const quoteBasis = document.getElementById('market-quote-basis');
+        const overviewTabs = Array.from(document.querySelectorAll('[data-market-overview-group]'));
+        const chartMount = document.getElementById('market-chart-widget');
+        const chartGroupTabs = Array.from(document.querySelectorAll('[data-chart-group]'));
+        const benchmarkDropdown = document.querySelector('[data-benchmark-dropdown]');
+        const benchmarkButton = document.getElementById('market-chart-benchmark-button');
+        const benchmarkList = document.getElementById('market-chart-benchmark-list');
+        const benchmarkSelectedLabel = benchmarkButton ? benchmarkButton.querySelector('[data-selected-label]') : null;
+        const selectedByGroup = {
+          metals: VASHUDEVAN_MARKET_GROUPS.metals.items[0].symbol,
+          fx: VASHUDEVAN_MARKET_GROUPS.fx.items[0].symbol
+        };
+        let activeChartGroup = 'metals';
+        let activeOptionIndex = 0;
+
+        function setActiveTab(tabs, activeTab) {
+          tabs.forEach(function (tab) {
+            const isActive = tab === activeTab;
+            tab.classList.toggle('active', isActive);
+            tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+          });
+        }
+
+        function createFallback() {
+          const fallback = document.createElement('div');
+          fallback.className = 'market-widget-fallback';
+          fallback.textContent = 'Market data temporarily unavailable.';
+          return fallback;
+        }
+
+        function updateQuoteBasis(groupKey) {
+          if (!quoteBasis) return;
+          if (groupKey === 'fx') {
+            quoteBasis.innerHTML = '<strong>Quote Basis:</strong> FX values represent INR per 1 unit of the base currency, such as USD/INR, GBP/INR and EUR/INR.';
+            return;
+          }
+          quoteBasis.innerHTML = '<strong>Quote Basis:</strong> Displayed metal quotes follow the native quote basis supplied by each TradingView data provider.';
+        }
+
+        function renderMarketData(groupKey) {
+          if (!marketPanel) return;
+          const group = VASHUDEVAN_MARKET_GROUPS[groupKey] || VASHUDEVAN_MARKET_GROUPS.metals;
+          marketPanel.dataset.marketView = groupKey;
+          updateQuoteBasis(groupKey);
+          marketPanel.textContent = '';
+
+          const container = document.createElement('div');
+          container.className = 'tradingview-widget-container';
+          container.style.height = '100%';
+          container.style.width = '100%';
+          container.innerHTML = [
+            '<div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>',
+            '<div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/markets/?utm_source=www.vashudevanmetglobal.com&amp;utm_medium=widget_new&amp;utm_campaign=market-quotes" rel="noopener nofollow" target="_blank"><span class="blue-text">Market summary</span></a><span class="trademark"> by TradingView</span></div>'
+          ].join('');
+
+          const script = document.createElement('script');
+          script.type = 'text/javascript';
+          script.async = true;
+          script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js';
+          script.text = JSON.stringify({
+            title: group.label,
+            width: '100%',
+            height: '100%',
+            locale: 'en',
+            showSymbolLogo: false,
+            colorTheme: 'light',
+            isTransparent: true,
+            symbolsGroups: [
+              {
+                name: group.label,
+                symbols: group.items.map(function (item) {
+                  return {
+                    name: item.symbol,
+                    displayName: item.label
+                  };
+                })
+              }
+            ]
+          }, null, 2);
+
+          container.appendChild(script);
+          marketPanel.appendChild(container);
+        }
+
+        function tradingViewSymbolUrl(symbol) {
+          const parts = symbol.split(':');
+          return 'https://www.tradingview.com/symbols/' + encodeURIComponent(parts[1] || symbol) + '/?exchange=' + encodeURIComponent(parts[0] || '');
+        }
+
+        function allMarketItems() {
+          return VASHUDEVAN_MARKET_GROUPS.metals.items.concat(VASHUDEVAN_MARKET_GROUPS.fx.items);
+        }
+
+        function findMarketItem(symbol) {
+          return allMarketItems().find(function (item) {
+            return item.symbol === symbol;
+          }) || VASHUDEVAN_MARKET_GROUPS.metals.items[0];
+        }
+
+        function renderChart(symbol) {
+          if (!chartMount) return;
+          const activeItem = findMarketItem(symbol);
+
+          chartMount.classList.remove('is-loaded');
+          chartMount.innerHTML = [
+            '<div class="tradingview-widget-container" style="height:100%;width:100%">',
+            '<div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>',
+            '<div class="tradingview-widget-copyright"><a href="' + tradingViewSymbolUrl(activeItem.symbol) + '" rel="noopener nofollow" target="_blank"><span class="blue-text">' + activeItem.label + ' chart</span></a><span class="trademark"> by TradingView</span></div>',
+            '<div class="market-widget-fallback">Market data temporarily unavailable.</div>',
+            '</div>'
+          ].join('');
+
+          const script = document.createElement('script');
+          script.type = 'text/javascript';
+          script.async = true;
+          script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+          script.text = JSON.stringify({
+            autosize: true,
+            symbol: activeItem.symbol,
+            interval: 'D',
+            timezone: 'exchange',
+            theme: 'light',
+            style: '1',
+            locale: 'en',
+            enable_publishing: false,
+            allow_symbol_change: true,
+            hide_side_toolbar: true,
+            hide_top_toolbar: false,
+            hide_legend: false,
+            hide_volume: false,
+            withdateranges: true,
+            range: '6M',
+            save_image: false,
+            calendar: false,
+            support_host: 'https://www.tradingview.com'
+          }, null, 2);
+          script.onload = function () {
+            chartMount.classList.add('is-loaded');
+          };
+          script.onerror = function () {
+            chartMount.classList.remove('is-loaded');
+          };
+          chartMount.querySelector('.tradingview-widget-container').appendChild(script);
+        }
+
+        function closeBenchmarkDropdown() {
+          if (!benchmarkDropdown || !benchmarkButton) return;
+          benchmarkDropdown.classList.remove('is-open');
+          benchmarkButton.setAttribute('aria-expanded', 'false');
+        }
+
+        function openBenchmarkDropdown() {
+          if (!benchmarkDropdown || !benchmarkButton || !benchmarkList) return;
+          benchmarkDropdown.classList.add('is-open');
+          benchmarkButton.setAttribute('aria-expanded', 'true');
+          const activeOption = benchmarkList.querySelector('[aria-selected="true"]');
+          if (activeOption) activeOption.focus();
+        }
+
+        function selectBenchmarkItem(item, groupKey) {
+          selectedByGroup[groupKey] = item.symbol;
+          if (benchmarkSelectedLabel) benchmarkSelectedLabel.textContent = item.label;
+          if (benchmarkList) {
+            Array.from(benchmarkList.querySelectorAll('[role="option"]')).forEach(function (option) {
+              const isSelected = option.dataset.marketSymbol === item.symbol;
+              option.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+            });
+          }
+          renderChart(item.symbol);
+          closeBenchmarkDropdown();
+          if (benchmarkButton) benchmarkButton.focus();
+        }
+
+        function renderBenchmarkOptions(groupKey) {
+          if (!benchmarkList) return;
+          const group = VASHUDEVAN_MARKET_GROUPS[groupKey] || VASHUDEVAN_MARKET_GROUPS.metals;
+          const activeSymbol = selectedByGroup[groupKey] || group.items[0].symbol;
+          const activeItem = group.items.find(function (item) {
+            return item.symbol === activeSymbol;
+          }) || group.items[0];
+
+          benchmarkList.textContent = '';
+          group.items.forEach(function (item) {
+            const option = document.createElement('li');
+            const isSelected = item.symbol === activeItem.symbol;
+            option.id = 'market-option-' + item.symbol.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+            option.className = 'market-custom-select-option';
+            option.role = 'option';
+            option.tabIndex = -1;
+            option.dataset.marketSymbol = item.symbol;
+            option.textContent = item.label;
+            option.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+            option.addEventListener('click', function () {
+              selectBenchmarkItem(item, groupKey);
+            });
+            benchmarkList.appendChild(option);
+          });
+
+          activeOptionIndex = Math.max(0, group.items.findIndex(function (item) {
+            return item.symbol === activeItem.symbol;
+          }));
+          if (benchmarkSelectedLabel) benchmarkSelectedLabel.textContent = activeItem.label;
+        }
+
+        function renderChartGroup(groupKey) {
+          const group = VASHUDEVAN_MARKET_GROUPS[groupKey] || VASHUDEVAN_MARKET_GROUPS.metals;
+          const activeSymbol = selectedByGroup[groupKey] || group.items[0].symbol;
+          activeChartGroup = groupKey;
+          renderBenchmarkOptions(groupKey);
+          renderChart(activeSymbol);
+        }
+
+        overviewTabs.forEach(function (tab) {
+          tab.addEventListener('click', function () {
+            const groupKey = tab.getAttribute('data-market-overview-group') || 'metals';
+            setActiveTab(overviewTabs, tab);
+            renderMarketData(groupKey);
+          });
+        });
+
+        chartGroupTabs.forEach(function (tab) {
+          tab.addEventListener('click', function () {
+            const groupKey = tab.getAttribute('data-chart-group') || 'metals';
+            setActiveTab(chartGroupTabs, tab);
+            renderChartGroup(groupKey);
+          });
+        });
+
+        if (benchmarkButton && benchmarkList) {
+          benchmarkButton.addEventListener('click', function () {
+            if (benchmarkDropdown.classList.contains('is-open')) {
+              closeBenchmarkDropdown();
+            } else {
+              openBenchmarkDropdown();
+            }
+          });
+
+          benchmarkButton.addEventListener('keydown', function (event) {
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+              event.preventDefault();
+              openBenchmarkDropdown();
+            }
+          });
+
+          benchmarkList.addEventListener('keydown', function (event) {
+            const options = Array.from(benchmarkList.querySelectorAll('[role="option"]'));
+            if (!options.length) return;
+
+            if (event.key === 'Escape') {
+              event.preventDefault();
+              closeBenchmarkDropdown();
+              benchmarkButton.focus();
+              return;
+            }
+
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+              event.preventDefault();
+              activeOptionIndex = event.key === 'ArrowDown'
+                ? Math.min(options.length - 1, activeOptionIndex + 1)
+                : Math.max(0, activeOptionIndex - 1);
+              options[activeOptionIndex].focus();
+              return;
+            }
+
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              const activeOption = document.activeElement && document.activeElement.getAttribute('role') === 'option'
+                ? document.activeElement
+                : options[activeOptionIndex];
+              const group = VASHUDEVAN_MARKET_GROUPS[activeChartGroup] || VASHUDEVAN_MARKET_GROUPS.metals;
+              const item = group.items.find(function (entry) {
+                return activeOption && activeOption.dataset.marketSymbol === entry.symbol;
+              });
+              if (item) selectBenchmarkItem(item, activeChartGroup);
+            }
+          });
+
+          document.addEventListener('click', function (event) {
+            if (!benchmarkDropdown.contains(event.target)) {
+              closeBenchmarkDropdown();
+            }
+          });
+        }
+
+        renderMarketData('metals');
+        renderChartGroup('metals');
+      })();
+    </script>
+  </body>
+</html>

@@ -41,6 +41,7 @@
               </ul>
             </li>
             <li><a href="products.html">Products</a></li>
+            <li><a href="/market-prices">Market</a></li>
             <li><a href="contact.html">Contact Us</a></li>
           </ul>
         </nav>
@@ -143,6 +144,80 @@
       </section>
 
       <!-- Highlights folded into overlay cards on hero -->
+
+      <section class="market-ticker-strip" aria-label="Metal price ticker">
+        <div class="market-ticker-widget">
+          <div class="tradingview-widget-container market-ticker-tradingview">
+            <div class="tradingview-widget-container__widget">
+              <div class="market-ticker-fallback">Market data temporarily unavailable.</div>
+            </div>
+            <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/markets/?utm_source=www.vashudevanmetglobal.com&amp;utm_medium=widget_new&amp;utm_campaign=ticker-tape" rel="noopener nofollow" target="_blank"><span class="blue-text">Ticker tape</span></a><span class="trademark"> by TradingView</span></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+            {
+              "symbols": [
+                {
+                  "description": "Aluminium",
+                  "proName": "CAPITALCOM:ALUMINUM"
+                },
+                {
+                  "description": "Copper",
+                  "proName": "CMCMARKETS:COPPER"
+                },
+                {
+                  "description": "Zinc",
+                  "proName": "PEPPERSTONE:ZINC"
+                },
+                {
+                  "description": "Nickel",
+                  "proName": "PEPPERSTONE:NICKEL"
+                },
+                {
+                  "description": "Lead",
+                  "proName": "CAPITALCOM:LEAD"
+                },
+                {
+                  "description": "Iron Ore",
+                  "proName": "CAPITALCOM:TSI"
+                },
+                {
+                  "description": "Gold",
+                  "proName": "CAPITALCOM:XAUUSD"
+                },
+                {
+                  "description": "Silver",
+                  "proName": "CAPITALCOM:XAGUSD"
+                },
+                {
+                  "description": "Platinum",
+                  "proName": "PEPPERSTONE:XPTUSD"
+                },
+                {
+                  "description": "USD/INR",
+                  "proName": "FX_IDC:USDINR"
+                },
+                {
+                  "description": "GBP/INR",
+                  "proName": "FX_IDC:GBPINR"
+                },
+                {
+                  "description": "EUR/INR",
+                  "proName": "FX_IDC:EURINR"
+                }
+              ],
+              "showSymbolLogo": false,
+              "colorTheme": "light",
+              "isTransparent": true,
+              "displayMode": "compact",
+              "locale": "en"
+            }
+            </script>
+          </div>
+          <a class="market-ticker-link" href="/market-prices" aria-label="View market prices">
+            <span class="market-ticker-link-full">View Market</span>
+            <span class="market-ticker-link-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+      </section>
 
       <section class="bsj" aria-label="Buy Sell Join">
         <div class="container bsj-grid">
@@ -328,25 +403,27 @@
           <div class="country-ticker-wrap">
             <div class="country-ticker">
               <div class="country-ticker-track" id="country-ticker-track">
-                <span>USA</span>
-                <span>Canada</span>
-                <span>Mexico</span>
-                <span>South America</span>
-                <span>UK</span>
-                <span>Europe</span>
-                <span>Australia</span>
-                <span>New Zealand</span>
-                <span>India</span>
-                <span>China</span>
-                <span>Hong Kong</span>
-                <span>Malaysia</span>
-                <span>Korea</span>
-                <span>Taiwan</span>
-                <span>Pakistan</span>
-                <span>Africa</span>
-                <span>Middle East</span>
-                <span>Mauritius</span>
-                <span>Georgia</span>
+                <div class="country-ticker-group">
+                  <span>USA</span>
+                  <span>Canada</span>
+                  <span>Mexico</span>
+                  <span>South America</span>
+                  <span>UK</span>
+                  <span>Europe</span>
+                  <span>Australia</span>
+                  <span>New Zealand</span>
+                  <span>India</span>
+                  <span>China</span>
+                  <span>Hong Kong</span>
+                  <span>Malaysia</span>
+                  <span>Korea</span>
+                  <span>Taiwan</span>
+                  <span>Pakistan</span>
+                  <span>Africa</span>
+                  <span>Middle East</span>
+                  <span>Mauritius</span>
+                  <span>Georgia</span>
+                </div>
               </div>
             </div>
           </div>
@@ -408,41 +485,13 @@
         var track = document.getElementById('country-ticker-track');
         if (!track) return;
 
-        // Clone all original items and append so we always have twice the content
-        var originals = Array.from(track.children);
-        originals.forEach(function (el) {
-          track.appendChild(el.cloneNode(true));
-        });
+        var originalGroup = track.querySelector('.country-ticker-group');
+        if (!originalGroup || track.querySelector('.country-ticker-group[aria-hidden="true"]')) return;
 
-        var offset = 0;
-        var paused = false;
-        var speed = 0.6; // px per frame (~36 seconds for full loop at 60fps)
-
-        // Measure the width of one full set (half the total)
-        function getSetWidth() {
-          return originals.reduce(function (sum, el) { return sum + el.offsetWidth; }, 0);
-        }
-
-        track.addEventListener('mouseenter', function () { paused = true; });
-        track.addEventListener('mouseleave', function () { paused = false; });
-
-        function tick() {
-          if (!paused) {
-            offset += speed;
-            var setWidth = getSetWidth();
-            // Reset exactly when we've scrolled one full set — lands on the clone = seamless
-            if (offset >= setWidth) {
-              offset -= setWidth;
-            }
-            track.style.transform = 'translateX(-' + offset + 'px)';
-          }
-          requestAnimationFrame(tick);
-        }
-
-        requestAnimationFrame(tick);
+        var clone = originalGroup.cloneNode(true);
+        clone.setAttribute('aria-hidden', 'true');
+        track.appendChild(clone);
       })();
     </script>
   </body>
   </html>
-
-
