@@ -46,5 +46,61 @@
   document.head.appendChild(style);
 })();
 
+// Keep the market quotation CTA visually aligned with the Vashudevan light/orange design system.
+(function(){
+  if (!document || !document.head) return;
+
+  var style = document.createElement('style');
+  style.setAttribute('data-market-quotation-theme', 'true');
+  style.textContent = [
+    '.market-cta-section {',
+    '  background: transparent !important;',
+    '}',
+    '.market-cta-card {',
+    '  background: linear-gradient(135deg, #ffffff 0%, #fffaf1 100%) !important;',
+    '  color: #0f172a !important;',
+    '  border: 1px solid rgba(15, 23, 42, 0.10) !important;',
+    '  border-radius: 12px !important;',
+    '  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08) !important;',
+    '}',
+    '.market-cta-icon {',
+    '  background: rgba(255, 165, 0, 0.10) !important;',
+    '  border: 1px solid rgba(255, 165, 0, 0.26) !important;',
+    '  color: #E69500 !important;',
+    '  box-shadow: none !important;',
+    '}',
+    '.market-cta-icon svg,',
+    '.market-cta-icon svg path {',
+    '  fill: currentColor !important;',
+    '}',
+    '.market-cta-copy h2 {',
+    '  color: #0f172a !important;',
+    '}',
+    '.market-cta-copy p {',
+    '  color: #475569 !important;',
+    '}',
+    '.market-cta-button {',
+    '  background: linear-gradient(135deg, #FFA500 0%, #E69500 100%) !important;',
+    '  color: #ffffff !important;',
+    '  border: 0 !important;',
+    '  box-shadow: 0 8px 20px rgba(255, 165, 0, 0.24) !important;',
+    '  text-decoration: none !important;',
+    '}',
+    '.market-cta-button:hover,',
+    '.market-cta-button:focus-visible {',
+    '  background: linear-gradient(135deg, #E69500 0%, #CC8400 100%) !important;',
+    '  color: #ffffff !important;',
+    '  box-shadow: 0 12px 26px rgba(255, 165, 0, 0.30) !important;',
+    '}',
+    '@media (max-width: 640px) {',
+    '  .market-cta-card {',
+    '    padding: 22px 18px !important;',
+    '    border-radius: 10px !important;',
+    '  }',
+    '}'
+  ].join('\n');
+  document.head.appendChild(style);
+})();
+
 
 
