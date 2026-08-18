@@ -14,9 +14,88 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-6CJ7X607D5');
     </script>
+
+    <style>
+      /* Homepage branch only: hardcoded premium 3-slide hero + market ticker. */
+      .premium-home-hero { position: relative; min-height: min(78vh, 820px); overflow: hidden; background: #071321; }
+      .premium-home-hero .carousel-container,
+      .premium-home-hero .carousel-slide { min-height: min(78vh, 820px); }
+      .premium-home-hero .carousel-slide { overflow: hidden; }
+      .premium-home-hero .hero-visual {
+        position: absolute; inset: -3%; width: 106%; height: 106%; object-fit: cover; object-position: 61% center;
+        transform: scale(1.04) translate3d(0,0,0); transition: transform 7s cubic-bezier(.2,.65,.25,1), filter 1.2s ease;
+        will-change: transform;
+      }
+      .premium-home-hero .carousel-slide:nth-child(2) .hero-visual { object-position: 67% center; }
+      .premium-home-hero .carousel-slide:nth-child(3) .hero-visual { object-position: 72% center; }
+      .premium-home-hero .carousel-slide.active .hero-visual { transform: scale(1.12) translate3d(-1.3%,0,0); }
+      .premium-home-hero .carousel-slide:nth-child(2).active .hero-visual { transform: scale(1.11) translate3d(1.1%,-.35%,0); }
+      .premium-home-hero .carousel-slide:nth-child(3).active .hero-visual { transform: scale(1.12) translate3d(-.5%,-.8%,0); }
+      .premium-home-hero .hero-overlay {
+        position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: flex-start;
+        background: radial-gradient(circle at 78% 48%, rgba(255,172,47,.08), transparent 28%), linear-gradient(90deg, rgba(5,14,27,.96) 0%, rgba(5,14,27,.88) 31%, rgba(5,14,27,.58) 52%, rgba(5,14,27,.16) 75%, rgba(5,14,27,.05) 100%);
+      }
+      .premium-home-hero .hero-overlay::after { content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(180deg,rgba(255,255,255,.025),transparent 25%,transparent 78%,rgba(0,0,0,.14)); }
+      .premium-home-hero .overlay-inner {
+        position: relative; z-index: 3; width: min(760px, calc(100% - 64px)); max-width: 760px; margin: 0 0 0 clamp(32px,7vw,112px);
+        padding: 0; text-align: left; background: transparent; border: 0; box-shadow: none; backdrop-filter: none;
+      }
+      .premium-home-hero .hero-kicker,
+      .premium-home-hero .hero-title,
+      .premium-home-hero .subline,
+      .premium-home-hero .overlay-ctas { opacity:0; transform:translate3d(0,24px,0); }
+      .premium-home-hero .carousel-slide.active .hero-kicker { animation:premiumHeroReveal .68s .16s cubic-bezier(.22,.8,.28,1) forwards; }
+      .premium-home-hero .carousel-slide.active .hero-title { animation:premiumHeroReveal .82s .28s cubic-bezier(.22,.8,.28,1) forwards; }
+      .premium-home-hero .carousel-slide.active .subline { animation:premiumHeroReveal .76s .45s cubic-bezier(.22,.8,.28,1) forwards; }
+      .premium-home-hero .carousel-slide.active .overlay-ctas { animation:premiumHeroReveal .74s .62s cubic-bezier(.22,.8,.28,1) forwards; }
+      @keyframes premiumHeroReveal { from{opacity:0;transform:translate3d(0,24px,0);filter:blur(5px)} to{opacity:1;transform:translate3d(0,0,0);filter:blur(0)} }
+      .premium-home-hero .hero-kicker { margin:0 0 17px; color:#ffb84d; font-size:.78rem; line-height:1.2; font-weight:800; letter-spacing:.16em; text-transform:uppercase; }
+      .premium-home-hero .hero-title { max-width:720px; margin:0; color:#fff; font-size:clamp(2.65rem,5.1vw,5.2rem); line-height:.98; font-weight:850; letter-spacing:-.047em; text-shadow:0 10px 34px rgba(0,0,0,.34); text-wrap:balance; }
+      .premium-home-hero .subline { max-width:630px; margin:23px 0 0; color:rgba(255,255,255,.8); font-size:clamp(1rem,1.34vw,1.18rem); line-height:1.58; text-align:left; }
+      .premium-home-hero .overlay-ctas { display:flex; align-items:center; justify-content:flex-start; flex-wrap:wrap; gap:12px; margin-top:29px; }
+      .premium-home-hero .hero-btn { min-height:50px; display:inline-flex; align-items:center; justify-content:center; gap:9px; padding:13px 21px; border-radius:999px; font-size:.95rem; font-weight:760; letter-spacing:-.01em; text-decoration:none; transition:transform .2s ease,box-shadow .25s ease,background .2s ease,border-color .2s ease; }
+      .premium-home-hero .hero-btn.primary { color:#101827; background:linear-gradient(135deg,#ffc766 0%,#ffa500 100%); border:1px solid rgba(255,184,77,.98); box-shadow:0 12px 30px rgba(255,165,0,.24); }
+      .premium-home-hero .hero-btn.secondary { color:#fff; background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.28); box-shadow:0 12px 28px rgba(0,0,0,.14); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); }
+      .premium-home-hero .hero-btn:hover,.premium-home-hero .hero-btn:focus-visible { transform:translateY(-3px); }
+      .premium-home-hero .hero-btn.primary:hover { box-shadow:0 16px 36px rgba(255,165,0,.34); }
+      .premium-home-hero .hero-btn.secondary:hover { background:rgba(255,255,255,.15); border-color:rgba(255,255,255,.46); }
+      .premium-home-hero .carousel-prev,.premium-home-hero .carousel-next { width:48px; height:48px; color:#fff; background:rgba(5,14,27,.4); border:1px solid rgba(255,255,255,.26); box-shadow:0 12px 30px rgba(0,0,0,.14); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); transition:transform .2s ease,background .2s ease,border-color .2s ease; }
+      .premium-home-hero .carousel-prev:hover,.premium-home-hero .carousel-next:hover { transform:scale(1.07); background:rgba(255,165,0,.18); border-color:rgba(255,184,77,.7); }
+      .premium-home-hero .carousel-indicators { bottom:25px; }
+      .premium-home-hero .indicator { width:26px; height:4px; border-radius:999px; background:rgba(255,255,255,.34); overflow:hidden; transition:width .25s ease,background .25s ease; }
+      .premium-home-hero .indicator.active { width:46px; background:#ffb84d; }
+      .premium-home-hero .carousel-counter { right:clamp(18px,3vw,38px); bottom:18px; color:#fff; background:rgba(5,14,27,.44); border:1px solid rgba(255,255,255,.18); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); }
+
+      .home-market-ticker { position:relative; z-index:5; background:#fff; border-bottom:1px solid rgba(15,23,42,.09); box-shadow:0 8px 24px rgba(15,23,42,.04); }
+      .home-market-ticker-inner { min-height:86px; display:flex; align-items:stretch; }
+      .home-market-tv { flex:1 1 auto; min-width:0; overflow:hidden; }
+      .home-market-link { flex:0 0 128px; display:flex; align-items:center; justify-content:center; gap:7px; padding:0 16px; color:#334155; background:linear-gradient(90deg,rgba(248,250,252,.35),#fff 30%); border-left:1px solid rgba(15,23,42,.08); font-weight:750; text-decoration:none; transition:background .2s ease,color .2s ease; }
+      .home-market-link:hover { color:#0f172a; background:#f8fafc; }
+
+      @media (max-width:640px) {
+        .premium-home-hero,.premium-home-hero .carousel-container,.premium-home-hero .carousel-slide { min-height:74vh; }
+        .premium-home-hero .hero-visual,.premium-home-hero .carousel-slide:nth-child(2) .hero-visual,.premium-home-hero .carousel-slide:nth-child(3) .hero-visual { object-position:68% center; }
+        .premium-home-hero .hero-overlay { align-items:flex-end; padding-bottom:94px; background:linear-gradient(180deg,rgba(5,14,27,.08) 0%,rgba(5,14,27,.27) 35%,rgba(5,14,27,.9) 72%,rgba(5,14,27,.98) 100%); }
+        .premium-home-hero .overlay-inner { width:calc(100% - 40px); margin:0 20px; }
+        .premium-home-hero .hero-kicker { margin-bottom:11px; font-size:.67rem; letter-spacing:.12em; }
+        .premium-home-hero .hero-title { font-size:clamp(2rem,9.7vw,3.2rem); line-height:1; }
+        .premium-home-hero .subline { margin-top:14px; font-size:.93rem; line-height:1.48; }
+        .premium-home-hero .overlay-ctas { gap:9px; margin-top:18px; }
+        .premium-home-hero .hero-btn { min-height:45px; padding:11px 15px; font-size:.86rem; }
+        .premium-home-hero .carousel-prev,.premium-home-hero .carousel-next { width:42px; height:42px; top:38%; }
+        .premium-home-hero .carousel-indicators { left:20px; bottom:22px; transform:none; justify-content:flex-start; }
+        .premium-home-hero .carousel-counter { right:18px; bottom:15px; }
+        .home-market-ticker-inner { min-height:84px; }
+        .home-market-link { flex-basis:62px; width:62px; padding:0 2px; gap:1px; text-align:center; line-height:1.03; font-size:inherit; }
+        .home-market-link-text { display:inline-block; width:38px; white-space:normal; }
+      }
+      @media (prefers-reduced-motion:reduce) {
+        .premium-home-hero .hero-visual,.premium-home-hero .hero-kicker,.premium-home-hero .hero-title,.premium-home-hero .subline,.premium-home-hero .overlay-ctas,.premium-home-hero .hero-btn { animation:none!important; transition:none!important; }
+        .premium-home-hero .hero-kicker,.premium-home-hero .hero-title,.premium-home-hero .subline,.premium-home-hero .overlay-ctas { opacity:1; transform:none; filter:none; }
+      }
+    </style>
   </head>
   <body>
     <header class="site-header">
@@ -25,21 +104,11 @@
           <img src="assets/img/New LOGO.jpeg" alt="Vashudevan Met Global LLP logo">
           <span>Vashudevan Met Global LLP</span>
         </a>
-        <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
+        <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
         <nav id="site-nav" class="site-nav">
           <ul>
             <li><a href="index.html" aria-current="page">Home</a></li>
-            <li class="has-submenu">
-              <a href="javascript:void(0)">About Us</a>
-              <ul class="submenu">
-                <li><a href="who-we-are.html">Who We Are</a></li>
-                <li><a href="our-impact.html">Our Impact</a></li>
-              </ul>
-            </li>
+            <li class="has-submenu"><a href="javascript:void(0)">About Us</a><ul class="submenu"><li><a href="who-we-are.html">Who We Are</a></li><li><a href="our-impact.html">Our Impact</a></li></ul></li>
             <li><a href="products.html">Products</a></li>
             <li><a href="contact.html">Contact Us</a></li>
           </ul>
@@ -48,401 +117,89 @@
     </header>
 
     <main>
-      <section class="hero-carousel" aria-label="Hero carousel">
+      <section class="hero-carousel premium-home-hero" aria-label="Featured Vashudevan solutions">
         <div class="carousel-container">
-          <!-- Slide 1 - Original Hero Content -->
           <div class="carousel-slide active" data-slide="1">
-            <img src="assets/img/home page image 3.jpg" 
-                 alt="Our Mission - Global metal recycling and trading" 
-                 loading="eager" />
-            <div class="hero-overlay">
-              <div class="overlay-inner">
-                <h1 class="hero-title">Vashudevan Met Global LLP</h1>
-                <p class="tagline">Recycling Your Material Around The World</p>
-                <p class="subline">Trusted partner in non-ferrous and ferrous scrap, delivering global reach with dependable logistics and market expertise.</p>
-                <div class="overlay-ctas">
-                  <a class="hero-btn primary" href="products.html"><span class="btn-icon">←</span> Explore Products</a>
-                  <a class="hero-btn secondary" href="contact.html">Contact Us <span class="btn-icon">→</span></a>
-                </div>
-              </div>
-            </div>
+            <img class="hero-visual" src="assets/img/homepage/hero-vmg-port.webp" alt="VMG container and international recyclable-metal logistics network" loading="eager">
+            <div class="hero-overlay"><div class="overlay-inner">
+              <p class="hero-kicker">Global Recyclable-Metal Network</p>
+              <h1 class="hero-title">Global Metal Recycling &amp; Supply-Chain Solutions</h1>
+              <p class="subline">Responsible sourcing, coordinated logistics and international recyclable-metal movement across established global markets.</p>
+              <div class="overlay-ctas"><a class="hero-btn primary" href="products.html">Explore Products <span class="btn-icon" aria-hidden="true">→</span></a><a class="hero-btn secondary" href="contact.html">Contact Trade Desk <span class="btn-icon" aria-hidden="true">→</span></a></div>
+            </div></div>
           </div>
-
-          <!-- Slide 2 -->
           <div class="carousel-slide" data-slide="2">
-            <img src="assets/img/home page image 4.jpg" alt="Worldwide metal trading and logistics network" />
-            <div class="hero-overlay">
-              <div class="overlay-inner">
-                <h1 class="hero-title">Seamless Logistics & Supply Chain Management</h1>
-                <p class="tagline">Connecting Markets Across Continents</p>
-                <p class="subline">From North America to Asia, Europe to Africa - we facilitate seamless metal trading across global markets.</p>
-              </div>
-            </div>
+            <img class="hero-visual" src="assets/img/homepage/hero-vmg-port.webp" alt="VMG recyclable-metal supply moving across international markets">
+            <div class="hero-overlay"><div class="overlay-inner">
+              <p class="hero-kicker">Buy • Sell • Ship Globally</p>
+              <h1 class="hero-title">Recyclable Metal Supply Across Continents</h1>
+              <p class="subline">Connecting reliable supply with industrial demand through disciplined coordination, documentation and shipment planning.</p>
+              <div class="overlay-ctas"><a class="hero-btn primary" href="contact.html">Sell Scrap <span class="btn-icon" aria-hidden="true">→</span></a><a class="hero-btn secondary" href="products.html">Buy Scrap <span class="btn-icon" aria-hidden="true">→</span></a></div>
+            </div></div>
           </div>
-
-          <!-- Slide 3 -->
           <div class="carousel-slide" data-slide="3">
-            <img src="assets/img/home page image 7.jpeg" alt="Global Reach, Local Expertise - 20+ Trading Hubs & Advanced Logistics" />
-            <div class="hero-overlay">
-              <div class="overlay-inner">
-                <h1 class="hero-title">Global Reach, Local Expertise</h1>
-                <p class="tagline">20+ Trading Hubs & Advanced Logistics</p>
-                <div class="overlay-ctas">
-                  <a class="hero-btn secondary" href="#locations">See More <span class="btn-icon">→</span></a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Slide 4 -->
-          <div class="carousel-slide" data-slide="4">
-            <img src="assets/img/home page image 10.png" alt="Preserving Natural Resources - Environmental benefits of metal recycling" />
-            <div class="hero-overlay">
-              <div class="overlay-inner">
-                <h1 class="hero-title">Global Metal Recycling</h1>
-                <p class="tagline">Sustainable Solutions for a Better Future</p>
-                <p class="subline">Leading the way in environmentally responsible metal recycling with state-of-the-art facilities and innovative processes.</p>
-                <div class="overlay-ctas">
-                  <a class="hero-btn secondary" href="our-impact.html">Read More <span class="btn-icon">→</span></a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Slide 5 -->
-          <div class="carousel-slide" data-slide="5">
-            <img src="assets/img/home page image 9.webp" alt="Unwavering Commitment to Quality & Integrity - Aggressive Buyers, Assured Grade & Compliance" />
-            <div class="hero-overlay">
-              <div class="overlay-inner">
-                <h1 class="hero-title">Unwavering Commitment to Quality & Integrity</h1>
-                <p class="tagline">Aggressive Buyers, Assured Grade & Compliance</p>
-              </div>
-            </div>
+            <img class="hero-visual" src="assets/img/homepage/hero-vmg-port.webp" alt="VMG circular recyclable-metal value chain">
+            <div class="hero-overlay"><div class="overlay-inner">
+              <p class="hero-kicker">Circular Value • Responsible Sourcing</p>
+              <h1 class="hero-title">Turning Scrap Into Sustainable Industrial Value</h1>
+              <p class="subline">Supporting the circular economy by helping recyclable metals move responsibly from global supply to productive industrial use.</p>
+              <div class="overlay-ctas"><a class="hero-btn primary" href="VMG_BROCHURE.pdf" target="_blank" rel="noopener">Preview Company Profile <span class="btn-icon" aria-hidden="true">→</span></a><a class="hero-btn secondary" href="VMG_BROCHURE.pdf" download>Download PDF <span class="btn-icon" aria-hidden="true">↓</span></a></div>
+            </div></div>
           </div>
         </div>
-
-        <!-- Carousel Navigation -->
-        <div class="carousel-nav">
-          <button class="carousel-prev" aria-label="Previous slide">‹</button>
-          <button class="carousel-next" aria-label="Next slide">›</button>
-        </div>
-
-        <!-- Carousel Indicators -->
-        <div class="carousel-indicators">
-          <button class="indicator active" data-slide="1" aria-label="Go to slide 1"></button>
-          <button class="indicator" data-slide="2" aria-label="Go to slide 2"></button>
-          <button class="indicator" data-slide="3" aria-label="Go to slide 3"></button>
-          <button class="indicator" data-slide="4" aria-label="Go to slide 4"></button>
-          <button class="indicator" data-slide="5" aria-label="Go to slide 5"></button>
-        </div>
-
-        <!-- Slide Counter -->
-        <div class="carousel-counter">
-          <span class="current-slide">1</span>/<span class="total-slides">5</span>
-        </div>
+        <div class="carousel-nav"><button class="carousel-prev" aria-label="Previous slide">‹</button><button class="carousel-next" aria-label="Next slide">›</button></div>
+        <div class="carousel-indicators" aria-label="Hero slides"><button class="indicator active" data-slide="1" aria-label="Go to slide 1"></button><button class="indicator" data-slide="2" aria-label="Go to slide 2"></button><button class="indicator" data-slide="3" aria-label="Go to slide 3"></button></div>
+        <div class="carousel-counter"><span class="current-slide">1</span>/<span class="total-slides">3</span></div>
       </section>
 
-      <!-- Highlights folded into overlay cards on hero -->
+      <section class="home-market-ticker" aria-label="Metal price ticker">
+        <div class="home-market-ticker-inner">
+          <div class="home-market-tv"><div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>{"symbols":[{"description":"Aluminium","proName":"CAPITALCOM:ALUMINUM"},{"description":"Copper","proName":"CMCMARKETS:COPPER"},{"description":"Zinc","proName":"PEPPERSTONE:ZINC"},{"description":"Nickel","proName":"PEPPERSTONE:NICKEL"},{"description":"Lead","proName":"CAPITALCOM:LEAD"},{"description":"Iron Ore","proName":"CAPITALCOM:TSI"},{"description":"Gold","proName":"CAPITALCOM:XAUUSD"},{"description":"Silver","proName":"CAPITALCOM:XAGUSD"},{"description":"Platinum","proName":"PEPPERSTONE:XPTUSD"},{"description":"USD/INR","proName":"FX_IDC:USDINR"},{"description":"GBP/INR","proName":"FX_IDC:GBPINR"},{"description":"EUR/INR","proName":"FX_IDC:EURINR"}],"showSymbolLogo":false,"colorTheme":"light","isTransparent":true,"displayMode":"compact","locale":"en"}</script></div></div>
+          <a class="home-market-link" href="https://deploy-preview-6--exquisite-hotteok-531d58.netlify.app/market-prices/" aria-label="View market prices preview"><span class="home-market-link-text">View Market</span><span aria-hidden="true">→</span></a>
+        </div>
+      </section>
 
       <section class="bsj" aria-label="Buy Sell Join">
         <div class="container bsj-grid">
-          <a href="products.html" class="bsj-card bsj-card-link">
-            <h3><span class="kicker">SELL</span><span class="sub">YOUR SCRAP</span></h3>
-            <div class="accent"></div>
-            <p>Quick, no-hassle service at the best value.</p>
-          </a>
-          <a href="products.html" class="bsj-card bsj-card-link">
-            <h3><span class="kicker">BUY</span><span class="sub">OUR SCRAP</span></h3>
-            <div class="accent"></div>
-            <p>The widest product and service diversification and tonnage.</p>
-          </a>
-          <a href="contact.html#join-family" class="bsj-card bsj-card-link">
-            <h3><span class="kicker">JOIN</span><span class="sub">OUR TEAM</span></h3>
-            <div class="accent"></div>
-            <p>A range of roles to discover and opportunities for growth.</p>
-          </a>
+          <a href="products.html" class="bsj-card bsj-card-link"><h3><span class="kicker">SELL</span><span class="sub">YOUR SCRAP</span></h3><div class="accent"></div><p>Quick, no-hassle service at the best value.</p></a>
+          <a href="products.html" class="bsj-card bsj-card-link"><h3><span class="kicker">BUY</span><span class="sub">OUR SCRAP</span></h3><div class="accent"></div><p>The widest product and service diversification and tonnage.</p></a>
+          <a href="contact.html#join-family" class="bsj-card bsj-card-link"><h3><span class="kicker">JOIN</span><span class="sub">OUR TEAM</span></h3><div class="accent"></div><p>A range of roles to discover and opportunities for growth.</p></a>
         </div>
       </section>
 
-      <section class="section" aria-label="About Us">
-        <div class="container two-col">
-          <div class="media-photo">
-            <img src="assets/img/New LOGO.jpeg" alt="Vashudevan Met Global LLP logo" style="width: 100%; height: 100%; object-fit: contain;">
-          </div>
-          <div>
-            <h2>ABOUT US</h2>
-            <p>Vashudevan MetGlobal LLP is a leading name in the trade of non ferrous and ferrous metal scrap, headquartered in Surat, Gujarat, India. We have strong sourcing networks across India, Latin America and the United States, with regular trade activity in Asia, Europe, Canada and the Middle East. Our company provides complete solutions for commodity logistics, risk management, trade finance and market intelligence to support our partners around the world.</p>
-            <p>We operate across a wide network of trading hubs, including the USA, Canada, Mexico, South America, UK, Europe, Australia, New Zealand, India, China, Hong Kong, Malaysia, Korea, Taiwan, Pakistan, Africa, Middle East, Georgia and Mauritius.</p>
-            <p>Founded on principles of integrity and mutual success, we are known as aggressive and dependable buyers who are committed to shipping only quality material. Our main goal is to build and maintain strong relationships with suppliers, buyers and clients by understanding the needs of the physical commodities supply chain and consistently adding value at every stage.</p>
-            <div class="about-cta">
-              <a class="btn-animated primary" href="who-we-are.html">Read More</a>
-            </div>
-          </div>
-        </div>
-      </section>
+      <section class="section" aria-label="About Us"><div class="container two-col"><div class="media-photo"><img src="assets/img/New LOGO.jpeg" alt="Vashudevan Met Global LLP logo" style="width: 100%; height: 100%; object-fit: contain;"></div><div><h2>ABOUT US</h2><p>Vashudevan MetGlobal LLP is a leading name in the trade of non ferrous and ferrous metal scrap, headquartered in Surat, Gujarat, India. We have strong sourcing networks across India, Latin America and the United States, with regular trade activity in Asia, Europe, Canada and the Middle East. Our company provides complete solutions for commodity logistics, risk management, trade finance and market intelligence to support our partners around the world.</p><p>We operate across a wide network of trading hubs, including the USA, Canada, Mexico, South America, UK, Europe, Australia, New Zealand, India, China, Hong Kong, Malaysia, Korea, Taiwan, Pakistan, Africa, Middle East, Georgia and Mauritius.</p><p>Founded on principles of integrity and mutual success, we are known as aggressive and dependable buyers who are committed to shipping only quality material. Our main goal is to build and maintain strong relationships with suppliers, buyers and clients by understanding the needs of the physical commodities supply chain and consistently adding value at every stage.</p><div class="about-cta"><a class="btn-animated primary" href="who-we-are.html">Read More</a></div></div></div></section>
 
-      <section class="section alt" aria-label="Company Highlights">
-        <div class="container">
-          <div class="highlights-carousel">
-            <div class="highlights-container">
-              <!-- Slide 1 -->
-              <div class="highlight-slide active" data-slide="1">
-                <div class="highlight-card">
-                  <h3>Global Reach</h3>
-                  <p>Trading across regions with reliable logistics, finance, and insights.</p>
-                </div>
-              </div>
-              
-              <!-- Slide 2 -->
-              <div class="highlight-slide" data-slide="2">
-                <div class="highlight-card">
-                  <h3>Supplier Focus</h3>
-                  <p>Built on relationships, quality, and consistent shipping performance.</p>
-                </div>
-              </div>
-              
-              <!-- Slide 3 -->
-              <div class="highlight-slide" data-slide="3">
-                <div class="highlight-card">
-                  <h3>Market Leadership</h3>
-                  <p>Trusted partner in non-ferrous and ferrous scrap markets.</p>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Navigation -->
-            <div class="highlights-nav">
-              <button class="highlight-prev" aria-label="Previous highlight">‹</button>
-              <button class="highlight-next" aria-label="Next highlight">›</button>
-            </div>
-            
-            <!-- Indicators -->
-            <div class="highlights-indicators">
-              <button class="highlight-indicator active" data-slide="1" aria-label="Go to highlight 1"></button>
-              <button class="highlight-indicator" data-slide="2" aria-label="Go to highlight 2"></button>
-              <button class="highlight-indicator" data-slide="3" aria-label="Go to highlight 3"></button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <section class="section alt" aria-label="Company Highlights"><div class="container"><div class="highlights-carousel"><div class="highlights-container"><div class="highlight-slide active" data-slide="1"><div class="highlight-card"><h3>Global Reach</h3><p>Trading across regions with reliable logistics, finance, and insights.</p></div></div><div class="highlight-slide" data-slide="2"><div class="highlight-card"><h3>Supplier Focus</h3><p>Built on relationships, quality, and consistent shipping performance.</p></div></div><div class="highlight-slide" data-slide="3"><div class="highlight-card"><h3>Market Leadership</h3><p>Trusted partner in non-ferrous and ferrous scrap markets.</p></div></div></div><div class="highlights-nav"><button class="highlight-prev" aria-label="Previous highlight">‹</button><button class="highlight-next" aria-label="Next highlight">›</button></div><div class="highlights-indicators"><button class="highlight-indicator active" data-slide="1" aria-label="Go to highlight 1"></button><button class="highlight-indicator" data-slide="2" aria-label="Go to highlight 2"></button><button class="highlight-indicator" data-slide="3" aria-label="Go to highlight 3"></button></div></div></div></section>
 
-      <section class="products-preview">
-        <div class="container">
-          <h2>PRODUCTS</h2>
-          <p style="text-align: center;">Dealing in all kinds of non-ferrous and ferrous scrap metal.</p>
-          <div class="cards grid-3 products-grid">
-            <article class="card product">
-              <a href="product.html?slug=aluminum" aria-label="ALUMINUM">
-                <figure class="product-figure">
-                  <img src="assets/img/products/aluminum/old_sheet_taint_tabor.jpg" alt="ALUMINUM" referrerpolicy="no-referrer">
-                  <figcaption>ALUMINUM</figcaption>
-                </figure>
-              </a>
-            </article>
-            <article class="card product">
-              <a href="product.html?slug=auto-scrap" aria-label="AUTO SCRAP">
-                <figure class="product-figure">
-                  <img src="assets/img/products/auto_scrap/Alternators.jpg" alt="Auto Scrap" referrerpolicy="no-referrer">
-                  <figcaption>AUTO SCRAP</figcaption>
-                </figure>
-              </a>
-            </article>
-            <article class="card product">
-              <a href="product.html?slug=brass" aria-label="BRASS">
-                <figure class="product-figure">
-                  <img src="assets/img/products/BRASS/yellow_brass_honey.jpg" alt="BRASS" referrerpolicy="no-referrer">
-                  <figcaption>BRASS</figcaption>
-                </figure>
-              </a>
-            </article>
-            <article class="card product">
-              <a href="product.html?slug=copper" aria-label="COPPER">
-                <figure class="product-figure">
-                  <img src="assets/img/products/copper/copper-bare-bright-wire.jpg" alt="COPPER" referrerpolicy="no-referrer">
-                  <figcaption>COPPER</figcaption>
-                </figure>
-              </a>
-            </article>
-            <article class="card product">
-              <a href="product.html?slug=copper-bearing" aria-label="COPPER BEARING">
-                <figure class="product-figure">
-                  <img src="assets/img/products/copper_bearing/small_motors_elmo.jpg" alt="COPPER BEARING" referrerpolicy="no-referrer">
-                  <figcaption>COPPER BEARING</figcaption>
-                </figure>
-              </a>
-            </article>
-            <article class="card product">
-              <a href="product.html?slug=ferrous" aria-label="FERROUS">
-                <figure class="product-figure">
-                  <img src="assets/img/products/Ferrous/cast_rotors_drums.jpg" alt="FERROUS" referrerpolicy="no-referrer">
-                  <figcaption>FERROUS</figcaption>
-                </figure>
-              </a>
-            </article>
-            <article class="card product">
-              <a href="product.html?slug=lead" aria-label="LEAD">
-                <figure class="product-figure">
-                  <img src="assets/img/products/LEAD/clean_lead_scrap_radio.jpg" alt="LEAD" referrerpolicy="no-referrer">
-                  <figcaption>LEAD</figcaption>
-                </figure>
-              </a>
-            </article>
-            <article class="card product">
-              <a href="product.html?slug=shredder-scrap" aria-label="SHREDDER SCRAP">
-                <figure class="product-figure">
-                  <img src="assets/img/products/shredder_scrap/ZORBA.jpg" alt="SHREDDER SCRAP" referrerpolicy="no-referrer">
-                  <figcaption>SHREDDER SCRAP</figcaption>
-                </figure>
-              </a>
-            </article>
-            <article class="card product">
-              <a href="product.html?slug=stainless-steel" aria-label="STAINLESS STEEL">
-                <figure class="product-figure">
-                  <img src="assets/img/products/stainless_steel/304_solids_sabot.jpg" alt="STAINLESS STEEL" referrerpolicy="no-referrer">
-                  <figcaption>STAINLESS STEEL</figcaption>
-                </figure>
-              </a>
-            </article>
-            <article class="card product">
-              <a href="product.html?slug=zinc" aria-label="ZINC">
-                <figure class="product-figure">
-                  <img src="assets/img/products/Zinc/zinc_die_cast_saves.jpg" alt="ZINC" referrerpolicy="no-referrer">
-                  <figcaption>ZINC</figcaption>
-                </figure>
-              </a>
-            </article>
-            
-          </div>
-        </div>
-      </section>
+      <section class="products-preview"><div class="container"><h2>PRODUCTS</h2><p style="text-align: center;">Dealing in all kinds of non-ferrous and ferrous scrap metal.</p><div class="cards grid-3 products-grid">
+        <article class="card product"><a href="product.html?slug=aluminum" aria-label="ALUMINUM"><figure class="product-figure"><img src="assets/img/products/aluminum/old_sheet_taint_tabor.jpg" alt="ALUMINUM" referrerpolicy="no-referrer"><figcaption>ALUMINUM</figcaption></figure></a></article>
+        <article class="card product"><a href="product.html?slug=auto-scrap" aria-label="AUTO SCRAP"><figure class="product-figure"><img src="assets/img/products/auto_scrap/Alternators.jpg" alt="Auto Scrap" referrerpolicy="no-referrer"><figcaption>AUTO SCRAP</figcaption></figure></a></article>
+        <article class="card product"><a href="product.html?slug=brass" aria-label="BRASS"><figure class="product-figure"><img src="assets/img/products/BRASS/yellow_brass_honey.jpg" alt="BRASS" referrerpolicy="no-referrer"><figcaption>BRASS</figcaption></figure></a></article>
+        <article class="card product"><a href="product.html?slug=copper" aria-label="COPPER"><figure class="product-figure"><img src="assets/img/products/copper/copper-bare-bright-wire.jpg" alt="COPPER" referrerpolicy="no-referrer"><figcaption>COPPER</figcaption></figure></a></article>
+        <article class="card product"><a href="product.html?slug=copper-bearing" aria-label="COPPER BEARING"><figure class="product-figure"><img src="assets/img/products/copper_bearing/small_motors_elmo.jpg" alt="COPPER BEARING" referrerpolicy="no-referrer"><figcaption>COPPER BEARING</figcaption></figure></a></article>
+        <article class="card product"><a href="product.html?slug=ferrous" aria-label="FERROUS"><figure class="product-figure"><img src="assets/img/products/Ferrous/cast_rotors_drums.jpg" alt="FERROUS" referrerpolicy="no-referrer"><figcaption>FERROUS</figcaption></figure></a></article>
+        <article class="card product"><a href="product.html?slug=lead" aria-label="LEAD"><figure class="product-figure"><img src="assets/img/products/LEAD/clean_lead_scrap_radio.jpg" alt="LEAD" referrerpolicy="no-referrer"><figcaption>LEAD</figcaption></figure></a></article>
+        <article class="card product"><a href="product.html?slug=shredder-scrap" aria-label="SHREDDER SCRAP"><figure class="product-figure"><img src="assets/img/products/shredder_scrap/ZORBA.jpg" alt="SHREDDER SCRAP" referrerpolicy="no-referrer"><figcaption>SHREDDER SCRAP</figcaption></figure></a></article>
+        <article class="card product"><a href="product.html?slug=stainless-steel" aria-label="STAINLESS STEEL"><figure class="product-figure"><img src="assets/img/products/stainless_steel/304_solids_sabot.jpg" alt="STAINLESS STEEL" referrerpolicy="no-referrer"><figcaption>STAINLESS STEEL</figcaption></figure></a></article>
+        <article class="card product"><a href="product.html?slug=zinc" aria-label="ZINC"><figure class="product-figure"><img src="assets/img/products/Zinc/zinc_die_cast_saves.jpg" alt="ZINC" referrerpolicy="no-referrer"><figcaption>ZINC</figcaption></figure></a></article>
+      </div></div></section>
 
-      <section id="locations" class="locations">
-        <div class="container">
-          <h2>LOCATIONS</h2>
-          <p>Our network spans multiple regions, enabling seamless purchase, sale, and shipment worldwide.</p>
-          <div class="world-map-wrap" aria-label="World map with pinned locations">
-            <img class="world-map-img" alt="World map" src="assets/img/world map with locations.png">
-            <!-- Pins removed per request; map already includes markers -->
-          </div>
-          <!-- Infinite country ticker — JS clones items for seamless loop -->
-          <div class="country-ticker-wrap">
-            <div class="country-ticker">
-              <div class="country-ticker-track" id="country-ticker-track">
-                <span>USA</span>
-                <span>Canada</span>
-                <span>Mexico</span>
-                <span>South America</span>
-                <span>UK</span>
-                <span>Europe</span>
-                <span>Australia</span>
-                <span>New Zealand</span>
-                <span>India</span>
-                <span>China</span>
-                <span>Hong Kong</span>
-                <span>Malaysia</span>
-                <span>Korea</span>
-                <span>Taiwan</span>
-                <span>Pakistan</span>
-                <span>Africa</span>
-                <span>Middle East</span>
-                <span>Mauritius</span>
-                <span>Georgia</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <section id="locations" class="locations"><div class="container"><h2>LOCATIONS</h2><p>Our network spans multiple regions, enabling seamless purchase, sale, and shipment worldwide.</p><div class="world-map-wrap" aria-label="World map with pinned locations"><img class="world-map-img" alt="World map" src="assets/img/world map with locations.png"></div><div class="country-ticker-wrap"><div class="country-ticker"><div class="country-ticker-track" id="country-ticker-track"><span>USA</span><span>Canada</span><span>Mexico</span><span>South America</span><span>UK</span><span>Europe</span><span>Australia</span><span>New Zealand</span><span>India</span><span>China</span><span>Hong Kong</span><span>Malaysia</span><span>Korea</span><span>Taiwan</span><span>Pakistan</span><span>Africa</span><span>Middle East</span><span>Mauritius</span><span>Georgia</span></div></div></div></div></section>
     </main>
 
-    <!-- Back to top button -->
-    <button class="back-to-top" id="back-to-top" aria-label="Back to top">
-      ↑
-    </button>
+    <button class="back-to-top" id="back-to-top" aria-label="Back to top">↑</button>
 
-    <footer class="site-footer pro-footer">
-      <div class="container footer-members">
-        <p>Proud Members Of</p>
-        <div class="logos">
-          <img src="https://mrai.org.in/images/mrai-logo.png" alt="MRAI logo">
-        </div>
-      </div>
-      <div class="container footer-bottom">
-        <div class="footer-left">Vashudevan Met Global LLP</div>
-        <div class="footer-center">© 2025 Vashudevan Met Global LLP. All rights reserved.</div>
-        <div class="footer-right">
-          <div class="follow-us-section">
-            <h3 class="follow-us-title">Follow Us</h3>
-            <div class="follow-us-separator"></div>
-            <div class="social-icons">
-              <a href="https://www.facebook.com/profile.php?id=61577681908111" class="social-link" aria-label="Facebook" target="_blank" rel="noopener">
-                <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path
-                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                </svg>
-              </a>
-              <a href="https://www.linkedin.com/company/109161337/" class="social-link" aria-label="LinkedIn" target="_blank" rel="noopener">
-                <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path
-                    d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                </svg>
-              </a>
-              <a href="https://www.instagram.com/vashudevan_metglobal_llp?igsh=NWJrZjQ3MTNqdTU4&utm_source=qr" class="social-link" aria-label="Instagram" target="_blank" rel="noopener">
-                <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path
-                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                </svg>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer>
+    <footer class="site-footer pro-footer"><div class="container footer-members"><p>Proud Members Of</p><div class="logos"><img src="https://mrai.org.in/images/mrai-logo.png" alt="MRAI logo"></div></div><div class="container footer-bottom"><div class="footer-left">Vashudevan Met Global LLP</div><div class="footer-center">© 2025 Vashudevan Met Global LLP. All rights reserved.</div><div class="footer-right"><div class="follow-us-section"><h3 class="follow-us-title">Follow Us</h3><div class="follow-us-separator"></div><div class="social-icons">
+      <a href="https://www.facebook.com/profile.php?id=61577681908111" class="social-link" aria-label="Facebook" target="_blank" rel="noopener"><svg class="social-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg></a>
+      <a href="https://www.linkedin.com/company/109161337/" class="social-link" aria-label="LinkedIn" target="_blank" rel="noopener"><svg class="social-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg></a>
+      <a href="https://www.instagram.com/vashudevan_metglobal_llp?igsh=NWJrZjQ3MTNqdTU4&utm_source=qr" class="social-link" aria-label="Instagram" target="_blank" rel="noopener"><svg class="social-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg></a>
+    </div></div></div></div></footer>
 
     <script src="assets/js/config.js"></script>
     <script src="assets/js/main.js"></script>
     <script src="assets/js/products.render.simple.js"></script>
-
     <script>
-      // ── Infinite Country Ticker ──
-      (function () {
-        var track = document.getElementById('country-ticker-track');
-        if (!track) return;
-
-        // Clone all original items and append so we always have twice the content
-        var originals = Array.from(track.children);
-        originals.forEach(function (el) {
-          track.appendChild(el.cloneNode(true));
-        });
-
-        var offset = 0;
-        var paused = false;
-        var speed = 0.6; // px per frame (~36 seconds for full loop at 60fps)
-
-        // Measure the width of one full set (half the total)
-        function getSetWidth() {
-          return originals.reduce(function (sum, el) { return sum + el.offsetWidth; }, 0);
-        }
-
-        track.addEventListener('mouseenter', function () { paused = true; });
-        track.addEventListener('mouseleave', function () { paused = false; });
-
-        function tick() {
-          if (!paused) {
-            offset += speed;
-            var setWidth = getSetWidth();
-            // Reset exactly when we've scrolled one full set — lands on the clone = seamless
-            if (offset >= setWidth) {
-              offset -= setWidth;
-            }
-            track.style.transform = 'translateX(-' + offset + 'px)';
-          }
-          requestAnimationFrame(tick);
-        }
-
-        requestAnimationFrame(tick);
-      })();
+      (function(){var track=document.getElementById('country-ticker-track');if(!track)return;var originals=Array.from(track.children);originals.forEach(function(el){track.appendChild(el.cloneNode(true));});var offset=0,paused=false,speed=.6;function getSetWidth(){return originals.reduce(function(sum,el){return sum+el.offsetWidth;},0);}track.addEventListener('mouseenter',function(){paused=true;});track.addEventListener('mouseleave',function(){paused=false;});function tick(){if(!paused){offset+=speed;var setWidth=getSetWidth();if(offset>=setWidth)offset-=setWidth;track.style.transform='translateX(-'+offset+'px)';}requestAnimationFrame(tick);}requestAnimationFrame(tick);})();
     </script>
   </body>
-  </html>
-
-
+</html>
