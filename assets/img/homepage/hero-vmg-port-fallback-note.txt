@@ -1,0 +1,1 @@
+Temporary fallback note: hero-vmg-port.webp currently reuses a known-good WebP asset from main so the hardcoded homepage hero visibly renders during preview review.
