@@ -4,94 +4,561 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Resources For Buyers & Suppliers | Vashudevan MetGlobal LLP</title>
-  <meta name="description" content="Helpful resources for recyclable-metal buyers, suppliers, and business partners. Download the Vashudevan MetGlobal LLP company profile, review material checklists, documentation basics, and submit business enquiries.">
+  <meta name="description" content="Helpful resources for recyclable-metal buyers, suppliers, and business partners. Download the Vashudevan MetGlobal LLP company profile, review documentation basics, and view market references.">
   <link rel="icon" href="assets/img/LOGO.png">
   <link rel="stylesheet" href="assets/css/styles.css">
   <style>
-    :root{--res-navy:#081426;--res-navy-2:#0d1d34;--res-ink:#152238;--res-muted:#64748b;--res-line:#e4eaf1;--res-soft:#f6f8fb;--res-orange:#f59e0b;--res-orange-2:#ffb547;--res-white:#fff;--res-green:#0f9f78}
-    .resources-page{background:#fff;color:var(--res-ink)}
-    .resources-page .container{width:min(1180px,calc(100% - 40px));margin-inline:auto}
-    .res-hero{position:relative;overflow:hidden;background:linear-gradient(115deg,#07111f 0%,#0b1b31 58%,#142b47 100%);color:#fff;padding:92px 0 82px}
-    .res-hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 25%,rgba(245,158,11,.18),transparent 34%),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px);background-size:auto,42px 42px,42px 42px;pointer-events:none}
-    .res-hero-inner{position:relative;z-index:1;max-width:900px}
-    .res-eyebrow{display:inline-flex;align-items:center;gap:10px;margin:0 0 14px;color:var(--res-orange-2);font-size:.76rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
-    .res-eyebrow:before{content:"";width:28px;height:2px;background:currentColor;border-radius:99px}
-    .res-hero h1{margin:0;max-width:820px;font-size:clamp(2.55rem,5.4vw,5.15rem);line-height:.98;letter-spacing:-.05em;color:#fff}
-    .res-hero .res-lead{max-width:760px;margin:22px 0 0;font-size:clamp(1.05rem,1.7vw,1.27rem);line-height:1.65;color:rgba(255,255,255,.82)}
-    .res-hero .res-support{max-width:820px;margin:16px 0 0;line-height:1.75;color:rgba(255,255,255,.66)}
-    .res-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
-    .res-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;padding:13px 20px;border-radius:999px;text-decoration:none;font-weight:780;border:1px solid transparent;transition:.2s ease;cursor:pointer;font:inherit}
-    .res-btn:hover{transform:translateY(-2px)}
-    .res-btn.primary{background:linear-gradient(135deg,var(--res-orange-2),var(--res-orange));color:#101827;box-shadow:0 14px 30px rgba(245,158,11,.2)}
-    .res-btn.secondary{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.22);color:#fff;backdrop-filter:blur(10px)}
-    .res-btn.dark{background:var(--res-navy);color:#fff}
-    .res-btn.ghost{border-color:#d7e0ea;color:var(--res-ink);background:#fff}
-    .trust-strip{border-bottom:1px solid var(--res-line);background:#fff}
-    .trust-grid{display:grid;grid-template-columns:repeat(4,1fr)}
-    .trust-item{padding:25px 22px;border-right:1px solid var(--res-line)}
-    .trust-item:first-child{border-left:1px solid var(--res-line)}
-    .trust-item strong{display:block;margin-bottom:6px;font-size:.82rem;text-transform:uppercase;letter-spacing:.08em;color:var(--res-navy)}
-    .trust-item span{display:block;color:var(--res-muted);line-height:1.55;font-size:.93rem}
-    .res-section{padding:78px 0}
-    .res-section.alt{background:var(--res-soft)}
-    .res-section.dark{background:var(--res-navy);color:#fff}
-    .section-head{max-width:760px;margin-bottom:32px}
-    .section-head h2{margin:4px 0 12px;font-size:clamp(2rem,3.2vw,3.25rem);line-height:1.08;letter-spacing:-.035em;color:var(--res-navy)}
-    .dark .section-head h2{color:#fff}
-    .section-head p{margin:0;color:var(--res-muted);line-height:1.75}
-    .dark .section-head p{color:rgba(255,255,255,.68)}
-    .profile-card{display:grid;grid-template-columns:1.1fr .9fr;gap:34px;padding:34px;border:1px solid var(--res-line);border-radius:24px;background:#fff;box-shadow:0 18px 50px rgba(8,20,38,.08)}
-    .profile-card h3{margin:0 0 12px;font-size:1.5rem;color:var(--res-navy)}
-    .profile-card p{color:var(--res-muted);line-height:1.7}
-    .profile-meta{display:grid;gap:10px;padding:22px;border-radius:18px;background:var(--res-soft);align-content:start}
-    .profile-meta div{display:flex;justify-content:space-between;gap:18px;padding-bottom:10px;border-bottom:1px solid #e7ecf2}
-    .profile-meta div:last-child{border-bottom:0;padding-bottom:0}
-    .profile-meta span:first-child{font-size:.8rem;color:var(--res-muted);text-transform:uppercase;letter-spacing:.08em}
-    .profile-meta strong{text-align:right;color:var(--res-navy)}
-    .res-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
-    .res-card{position:relative;padding:28px;border:1px solid var(--res-line);border-radius:20px;background:#fff;box-shadow:0 8px 30px rgba(8,20,38,.045);transition:.2s ease}
-    .res-card:hover{transform:translateY(-3px);box-shadow:0 18px 38px rgba(8,20,38,.08)}
-    .res-card h3{margin:0 0 10px;color:var(--res-navy);font-size:1.25rem}
-    .res-card p{margin:0;color:var(--res-muted);line-height:1.68}
-    .res-card .res-actions{margin-top:20px}
-    .checklist{margin:18px 0 0;padding:15px 17px;border-radius:14px;background:var(--res-soft);list-style:none}
-    .checklist li{position:relative;padding:5px 0 5px 22px;color:#435169;line-height:1.5}
-    .checklist li:before{content:"✓";position:absolute;left:0;color:var(--res-green);font-weight:800}
-    .small-note{margin-top:14px!important;padding-top:14px;border-top:1px solid var(--res-line);font-size:.88rem;color:#7a8799!important}
-    .process-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;counter-reset:step}
-    .process-step{position:relative;padding:24px;border:1px solid rgba(255,255,255,.12);border-radius:18px;background:rgba(255,255,255,.055);counter-increment:step}
-    .process-step:before{content:counter(step,decimal-leading-zero);display:block;margin-bottom:18px;color:var(--res-orange-2);font-size:.78rem;font-weight:800;letter-spacing:.12em}
-    .process-step h3{margin:0 0 9px;font-size:1.02rem;color:#fff}
-    .process-step p{margin:0;color:rgba(255,255,255,.64);line-height:1.6;font-size:.92rem}
-    .market-box{display:grid;grid-template-columns:1fr auto;align-items:center;gap:30px;padding:32px;border-radius:22px;background:linear-gradient(135deg,#0b1a2f,#132d4d);color:#fff}
-    .market-box h3{margin:0 0 10px;font-size:1.6rem}
-    .market-box p{margin:0;color:rgba(255,255,255,.68);line-height:1.68}
-    .notice{margin-top:18px;padding:14px 16px;border-left:3px solid var(--res-orange);border-radius:10px;background:rgba(245,158,11,.09);color:#455268;line-height:1.6;font-size:.91rem}
-    .faq-list{display:grid;gap:10px}
-    .faq-list details{border:1px solid var(--res-line);border-radius:15px;background:#fff;overflow:hidden}
-    .faq-list summary{list-style:none;cursor:pointer;padding:19px 52px 19px 20px;font-weight:750;color:var(--res-navy);position:relative}
-    .faq-list summary::-webkit-details-marker{display:none}
-    .faq-list summary:after{content:"+";position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:1.35rem;color:var(--res-orange)}
-    .faq-list details[open] summary:after{content:"−"}
-    .faq-answer{padding:0 20px 20px;color:var(--res-muted);line-height:1.7}
-    .final-cta{padding:44px;border-radius:26px;background:linear-gradient(125deg,#081426,#102a49);color:#fff}
-    .final-cta h2{margin:0 0 12px;color:#fff;font-size:clamp(2rem,3.3vw,3.1rem)}
-    .final-cta p{max-width:780px;margin:0;color:rgba(255,255,255,.7);line-height:1.7}
-    .resource-footer-links{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:26px;padding-top:24px;border-top:1px solid rgba(255,255,255,.13)}
-    .resource-footer-links a{color:rgba(255,255,255,.74);text-decoration:none;font-size:.92rem}
-    .resource-footer-links a:hover{color:#fff}
-    .trust-rows{display:grid;gap:8px;margin-top:20px;color:rgba(255,255,255,.62);font-size:.9rem}
-    .brand-line{margin-top:16px;color:var(--res-orange-2);font-weight:800;letter-spacing:.04em}
-    .pdf-modal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(2,8,18,.78);backdrop-filter:blur(8px)}
-    .pdf-modal.open{display:flex}
-    .pdf-shell{width:min(1050px,96vw);height:min(82vh,850px);background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 28px 90px rgba(0,0,0,.38);display:flex;flex-direction:column}
-    .pdf-bar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px 16px;border-bottom:1px solid var(--res-line);background:#fff}
-    .pdf-bar strong{color:var(--res-navy)}
-    .pdf-close{border:0;background:#eef2f6;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:1.2rem;color:var(--res-navy)}
-    .pdf-shell iframe{width:100%;height:100%;border:0}
-    @media(max-width:900px){.trust-grid{grid-template-columns:repeat(2,1fr)}.profile-card{grid-template-columns:1fr}.process-grid{grid-template-columns:repeat(2,1fr)}.market-box{grid-template-columns:1fr}.res-grid{grid-template-columns:1fr}}
-    @media(max-width:600px){.resources-page .container{width:min(100% - 28px,1180px)}.res-hero{padding:68px 0 58px}.res-hero h1{font-size:clamp(2.35rem,11vw,3.5rem)}.trust-grid{grid-template-columns:1fr}.trust-item,.trust-item:first-child{border-left:0;border-right:0;border-bottom:1px solid var(--res-line);padding:18px 0}.res-section{padding:58px 0}.profile-card,.res-card,.final-cta,.market-box{padding:22px;border-radius:18px}.process-grid{grid-template-columns:1fr}.res-actions{display:grid}.res-btn{width:100%}.profile-meta div{display:grid;gap:4px}.profile-meta strong{text-align:left}}
-    @media(prefers-reduced-motion:reduce){.res-btn,.res-card{transition:none}.res-btn:hover,.res-card:hover{transform:none}}
+    :root {
+      --vmg-navy: #0a1728;
+      --vmg-navy-soft: #13243a;
+      --vmg-ink: #152238;
+      --vmg-muted: #667386;
+      --vmg-line: #dfe5ec;
+      --vmg-offwhite: #f6f5f1;
+      --vmg-white: #ffffff;
+      --vmg-copper: #b87943;
+      --vmg-copper-dark: #966237;
+      --vmg-steel: #eef1f4;
+      --vmg-shadow: 0 14px 36px rgba(10, 23, 40, .07);
+      --vmg-radius: 18px;
+      --vmg-max: 1160px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { overflow-x: hidden; }
+
+    .resources-page {
+      color: var(--vmg-ink);
+      background: var(--vmg-white);
+    }
+
+    .resources-page .res-container {
+      width: min(var(--vmg-max), calc(100% - 40px));
+      margin-inline: auto;
+    }
+
+    .resources-page a { text-underline-offset: 3px; }
+
+    .res-section {
+      padding: 64px 0;
+    }
+
+    .res-section.alt {
+      background: var(--vmg-offwhite);
+    }
+
+    .res-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 12px;
+      color: var(--vmg-copper);
+      font-size: .76rem;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .res-eyebrow::before {
+      content: "";
+      width: 26px;
+      height: 1px;
+      background: currentColor;
+    }
+
+    .res-heading {
+      margin: 0;
+      max-width: 760px;
+      color: var(--vmg-navy);
+      font-size: clamp(2rem, 3.4vw, 3.2rem);
+      line-height: 1.08;
+      letter-spacing: -.035em;
+    }
+
+    .res-copy {
+      max-width: 760px;
+      margin: 14px 0 0;
+      color: var(--vmg-muted);
+      font-size: 1rem;
+      line-height: 1.72;
+    }
+
+    .res-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .res-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 46px;
+      padding: 12px 19px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      font-size: .94rem;
+      font-weight: 760;
+      line-height: 1;
+      text-decoration: none;
+      transition: transform .2s ease, border-color .2s ease, background-color .2s ease, color .2s ease;
+    }
+
+    .res-btn.primary {
+      background: var(--vmg-copper);
+      color: #fff;
+      border-color: var(--vmg-copper);
+    }
+
+    .res-btn.primary:hover {
+      background: var(--vmg-copper-dark);
+      border-color: var(--vmg-copper-dark);
+    }
+
+    .res-btn.secondary {
+      color: var(--vmg-navy);
+      background: #fff;
+      border-color: #cfd7e1;
+    }
+
+    .res-btn.secondary:hover { border-color: #aeb9c7; }
+    .res-btn:hover { transform: translateY(-2px); }
+
+    /* Hero */
+    .res-hero {
+      padding: 74px 0 68px;
+      background: var(--vmg-navy);
+      color: #fff;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .res-hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(330px, .75fr);
+      gap: 56px;
+      align-items: center;
+    }
+
+    .res-hero .res-eyebrow { color: #d3a378; }
+
+    .res-hero h1 {
+      max-width: 760px;
+      margin: 0;
+      color: #fff;
+      font-size: clamp(2.7rem, 5vw, 4.8rem);
+      line-height: .99;
+      letter-spacing: -.048em;
+    }
+
+    .res-hero-text {
+      max-width: 720px;
+      margin: 20px 0 0;
+      color: rgba(255,255,255,.72);
+      font-size: clamp(1.02rem, 1.5vw, 1.17rem);
+      line-height: 1.68;
+    }
+
+    .res-hero .res-btn.primary {
+      background: #c38a57;
+      border-color: #c38a57;
+    }
+
+    .res-hero .res-btn.secondary {
+      color: #fff;
+      background: transparent;
+      border-color: rgba(255,255,255,.28);
+    }
+
+    .profile-visual {
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 20px;
+      background: #101f33;
+      box-shadow: 0 24px 50px rgba(0,0,0,.22);
+    }
+
+    .profile-sheet {
+      position: relative;
+      min-height: 345px;
+      padding: 28px;
+      overflow: hidden;
+      border-radius: 12px;
+      background: #f3f1eb;
+      color: var(--vmg-navy);
+    }
+
+    .profile-sheet::after {
+      content: "";
+      position: absolute;
+      right: -36px;
+      bottom: -46px;
+      width: 150px;
+      height: 150px;
+      border: 1px solid rgba(184,121,67,.35);
+      border-radius: 50%;
+    }
+
+    .sheet-mark {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--vmg-copper-dark);
+    }
+
+    .sheet-mark span {
+      width: 30px;
+      height: 2px;
+      background: var(--vmg-copper);
+    }
+
+    .profile-sheet h2 {
+      max-width: 260px;
+      margin: 54px 0 12px;
+      font-size: 2rem;
+      line-height: 1.06;
+      letter-spacing: -.035em;
+    }
+
+    .profile-sheet p {
+      max-width: 270px;
+      margin: 0;
+      color: #667386;
+      font-size: .9rem;
+      line-height: 1.6;
+    }
+
+    .sheet-footer {
+      position: absolute;
+      left: 28px;
+      bottom: 26px;
+      color: var(--vmg-navy);
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    /* Company profile */
+    .company-profile-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 36px;
+      align-items: center;
+      padding: 34px 36px;
+      border: 1px solid var(--vmg-line);
+      border-left: 4px solid var(--vmg-copper);
+      border-radius: var(--vmg-radius);
+      background: #fff;
+      box-shadow: var(--vmg-shadow);
+    }
+
+    .company-profile-card h2 {
+      margin: 0;
+      color: var(--vmg-navy);
+      font-size: clamp(1.75rem, 3vw, 2.55rem);
+      letter-spacing: -.03em;
+    }
+
+    .company-profile-card p {
+      max-width: 700px;
+      margin: 12px 0 0;
+      color: var(--vmg-muted);
+      line-height: 1.7;
+    }
+
+    .company-profile-card .res-actions {
+      margin-top: 0;
+      justify-content: flex-end;
+    }
+
+    /* Resource hub */
+    .hub-head,
+    .docs-head,
+    .faq-head {
+      margin-bottom: 28px;
+    }
+
+    .hub-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .hub-card,
+    .doc-card {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      height: 100%;
+      border: 1px solid var(--vmg-line);
+      border-radius: var(--vmg-radius);
+      background: #fff;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+    .hub-card {
+      min-height: 260px;
+      padding: 30px;
+    }
+
+    .hub-card:hover,
+    .doc-card:hover {
+      transform: translateY(-4px);
+      border-color: #cbd4df;
+      box-shadow: var(--vmg-shadow);
+    }
+
+    .hub-card-label {
+      margin-bottom: 44px;
+      color: var(--vmg-copper-dark);
+      font-size: .75rem;
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .hub-card h3,
+    .doc-card h3 {
+      margin: 0;
+      color: var(--vmg-navy);
+      letter-spacing: -.02em;
+    }
+
+    .hub-card h3 { font-size: 1.55rem; }
+
+    .hub-card p,
+    .doc-card p {
+      margin: 11px 0 0;
+      color: var(--vmg-muted);
+      line-height: 1.68;
+    }
+
+    .hub-card .res-actions { margin-top: auto; padding-top: 22px; }
+
+    .hub-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px 30px;
+      margin-top: 22px;
+    }
+
+    .hub-links a {
+      color: var(--vmg-navy);
+      font-size: .94rem;
+      font-weight: 720;
+      text-decoration: none;
+    }
+
+    .hub-links a::after {
+      content: " →";
+      color: var(--vmg-copper);
+    }
+
+    /* Documentation */
+    .docs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .doc-card {
+      min-height: 235px;
+      padding: 26px;
+      background: #fff;
+    }
+
+    .doc-number {
+      margin-bottom: 32px;
+      color: var(--vmg-copper);
+      font-size: .75rem;
+      font-weight: 800;
+      letter-spacing: .11em;
+    }
+
+    .doc-card h3 { font-size: 1.2rem; }
+    .doc-card p { font-size: .94rem; }
+
+    .docs-action {
+      display: flex;
+      justify-content: center;
+      margin-top: 24px;
+    }
+
+    /* Market */
+    .market-strip {
+      padding: 34px 38px;
+      border-radius: var(--vmg-radius);
+      background: var(--vmg-navy);
+      color: #fff;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 34px;
+    }
+
+    .market-strip h2 {
+      margin: 0;
+      color: #fff;
+      font-size: clamp(1.7rem, 3vw, 2.5rem);
+      letter-spacing: -.03em;
+    }
+
+    .market-strip p {
+      max-width: 760px;
+      margin: 10px 0 0;
+      color: rgba(255,255,255,.7);
+      line-height: 1.64;
+    }
+
+    .market-note {
+      display: block;
+      margin-top: 12px;
+      color: rgba(255,255,255,.48);
+      font-size: .82rem;
+      line-height: 1.5;
+    }
+
+    .market-strip .res-btn.primary {
+      white-space: nowrap;
+      background: #c38a57;
+      border-color: #c38a57;
+    }
+
+    /* FAQ */
+    .faq-list {
+      display: grid;
+      gap: 10px;
+      max-width: 920px;
+    }
+
+    .faq-item {
+      border: 1px solid var(--vmg-line);
+      border-radius: 12px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .faq-item summary {
+      position: relative;
+      padding: 18px 54px 18px 20px;
+      color: var(--vmg-navy);
+      font-weight: 740;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .faq-item summary::-webkit-details-marker { display: none; }
+
+    .faq-item summary::after {
+      content: "+";
+      position: absolute;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+      color: var(--vmg-copper);
+      font-size: 1.3rem;
+      font-weight: 500;
+    }
+
+    .faq-item[open] summary::after { content: "−"; }
+
+    .faq-answer {
+      padding: 0 20px 19px;
+      color: var(--vmg-muted);
+      line-height: 1.68;
+    }
+
+    /* Final CTA */
+    .final-cta {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 36px;
+      align-items: center;
+      padding: 36px 38px;
+      border: 1px solid #d7dee7;
+      border-radius: var(--vmg-radius);
+      background: var(--vmg-offwhite);
+    }
+
+    .final-cta h2 {
+      margin: 0;
+      color: var(--vmg-navy);
+      font-size: clamp(1.85rem, 3.2vw, 2.8rem);
+      letter-spacing: -.035em;
+    }
+
+    .final-cta p {
+      max-width: 760px;
+      margin: 10px 0 0;
+      color: var(--vmg-muted);
+      line-height: 1.68;
+    }
+
+    .final-cta .res-actions {
+      margin-top: 0;
+      justify-content: flex-end;
+    }
+
+    /* restrained section reveal */
+    .res-reveal {
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity .55s ease, transform .55s ease;
+    }
+
+    .res-reveal.is-visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    @media (max-width: 940px) {
+      .res-hero-grid { grid-template-columns: 1fr; gap: 38px; }
+      .profile-visual { max-width: 520px; }
+      .company-profile-card,
+      .market-strip,
+      .final-cta { grid-template-columns: 1fr; }
+      .company-profile-card .res-actions,
+      .final-cta .res-actions { justify-content: flex-start; }
+      .docs-grid { grid-template-columns: 1fr; }
+      .doc-card { min-height: 0; }
+    }
+
+    @media (max-width: 680px) {
+      .resources-page .res-container { width: min(var(--vmg-max), calc(100% - 28px)); }
+      .res-section { padding: 52px 0; }
+      .res-hero { padding: 58px 0 54px; }
+      .res-hero h1 { font-size: clamp(2.35rem, 11vw, 3.4rem); }
+      .hub-grid { grid-template-columns: 1fr; }
+      .hub-card { min-height: 0; padding: 24px; }
+      .hub-card-label { margin-bottom: 28px; }
+      .company-profile-card,
+      .market-strip,
+      .final-cta { padding: 26px 22px; }
+      .res-actions { display: grid; width: 100%; }
+      .res-btn { width: 100%; }
+      .hub-links { justify-content: flex-start; }
+      .profile-sheet { min-height: 305px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .res-reveal { opacity: 1; transform: none; transition: none; }
+      .hub-card,
+      .doc-card,
+      .res-btn { transition: none; }
+      .hub-card:hover,
+      .doc-card:hover,
+      .res-btn:hover { transform: none; }
+    }
   </style>
 </head>
 <body>
@@ -101,11 +568,19 @@
         <img src="assets/img/New LOGO.jpeg" alt="Vashudevan Met Global LLP logo">
         <span>Vashudevan Met Global LLP</span>
       </a>
-      <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
       <nav id="site-nav" class="site-nav">
         <ul>
           <li><a href="index.html">Home</a></li>
-          <li class="has-submenu"><a href="javascript:void(0)">About Us</a><ul class="submenu"><li><a href="who-we-are.html">Who We Are</a></li><li><a href="our-impact.html">Our Impact</a></li></ul></li>
+          <li class="has-submenu">
+            <a href="javascript:void(0)">About Us</a>
+            <ul class="submenu">
+              <li><a href="who-we-are.html">Who We Are</a></li>
+              <li><a href="our-impact.html">Our Impact</a></li>
+            </ul>
+          </li>
           <li><a href="products.html">Products</a></li>
           <li><a href="resources.html" aria-current="page">Resources</a></li>
           <li><a href="contact.html">Contact Us</a></li>
@@ -115,127 +590,248 @@
   </header>
 
   <main class="resources-page">
+    <!-- 1. Hero -->
     <section class="res-hero">
-      <div class="container res-hero-inner">
-        <p class="res-eyebrow">VMG Resources</p>
-        <h1>Resources For Buyers &amp; Suppliers</h1>
-        <p class="res-lead">Helpful guides, checklists, and company resources for recyclable-metal sourcing, supply, documentation, and shipment coordination.</p>
-        <p class="res-support">Vashudevan MetGlobal LLP supports ferrous and non-ferrous recyclable-metal movement through verified networks, quality coordination, documentation support, and container-based shipment coordination across international markets.</p>
-        <div class="res-actions"><a class="res-btn primary" href="VMG_BROCHURE.pdf" download>Download Company Profile <span>↓</span></a><a class="res-btn secondary" href="contact.html#vmg-desk">Contact VMG Desk <span>→</span></a></div>
-      </div>
-    </section>
+      <div class="res-container res-hero-grid">
+        <div class="res-reveal">
+          <p class="res-eyebrow">VMG Resources</p>
+          <h1>Resources For Buyers &amp; Suppliers</h1>
+          <p class="res-hero-text">Helpful company resources, checklists, and market references for recyclable-metal sourcing, supply, documentation, and shipment coordination.</p>
+          <div class="res-actions">
+            <a class="res-btn primary" href="VMG_BROCHURE.pdf" download>Download Company Profile</a>
+            <a class="res-btn secondary" href="contact.html#vmg-desk">Contact VMG Desk</a>
+          </div>
+        </div>
 
-    <section class="trust-strip" aria-label="Built for serious business enquiries">
-      <div class="container trust-grid">
-        <div class="trust-item"><strong>Buyers</strong><span>Send clear grade, quantity, destination, and shipment requirements.</span></div>
-        <div class="trust-item"><strong>Suppliers</strong><span>Share material details, photos, origin, loading information, and documentation.</span></div>
-        <div class="trust-item"><strong>Partners</strong><span>Connect for logistics, inspection, yard, sourcing, and long-term business coordination.</span></div>
-        <div class="trust-item"><strong>Market Users</strong><span>Use market references carefully and contact VMG for physical scrap pricing.</span></div>
-      </div>
-    </section>
-
-    <section class="res-section" id="company-profile">
-      <div class="container">
-        <div class="section-head"><p class="res-eyebrow">Company Profile</p><h2>Download The VMG Company Profile</h2><p>Explore Vashudevan MetGlobal LLP’s recyclable-metal categories, global network, sustainability approach, and supply-chain capabilities in one concise company profile.</p></div>
-        <div class="profile-card">
-          <div><h3>Vashudevan MetGlobal LLP Company Profile</h3><p>A professional overview of our business, material categories, global presence, sustainability commitment, and contact details.</p><div class="res-actions"><button class="res-btn dark" type="button" id="preview-profile">Preview PDF <span>↗</span></button><a class="res-btn ghost" href="VMG_BROCHURE.pdf" download>Download PDF <span>↓</span></a></div></div>
-          <div class="profile-meta"><div><span>Updated</span><strong>2026</strong></div><div><span>Format</span><strong>PDF</strong></div><div><span>Best For</span><strong>Buyers, suppliers, business partners, and institutional enquiries</strong></div></div>
+        <div class="profile-visual res-reveal" aria-label="VMG company profile preview visual">
+          <div class="profile-sheet">
+            <div class="sheet-mark"><span></span> VMG Company Profile</div>
+            <h2>Vashudevan MetGlobal LLP</h2>
+            <p>Recyclable-metal sourcing, supply-chain coordination and responsible global material movement.</p>
+            <div class="sheet-footer">2026 · Company Profile · PDF</div>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="res-section alt" id="buyer-resources">
-      <div class="container">
-        <div class="section-head"><p class="res-eyebrow">For Buyers</p><h2>Buyer Resources</h2><p>Use these resources to share clear buying requirements and help our team understand your material needs, destination, shipment expectations, and documentation preferences.</p></div>
-        <div class="res-grid">
-          <article class="res-card"><h3>Buying Requirement Checklist</h3><p>Before requesting a quotation, buyers should share the material category, grade/specification, required quantity, destination port or delivery location, inspection preference, shipment timeline, and commercial terms.</p><ul class="checklist"><li>Material category and grade</li><li>Required quantity</li><li>Destination port or location</li><li>Preferred shipment terms</li><li>Inspection requirement</li><li>Expected timeline</li><li>Company details and contact person</li></ul><div class="res-actions"><a class="res-btn dark" href="contact.html#buy-requirement">Send Buying Requirement <span>→</span></a></div></article>
-          <article class="res-card"><h3>Material Grade Guide</h3><p>A quick reference for common ferrous and non-ferrous recyclable-metal categories supported by VMG, including aluminium, copper, brass, ferrous scrap, stainless steel, lead, zinc, auto scrap, shredder scrap, and copper-bearing materials.</p><div class="res-actions"><a class="res-btn ghost" href="products.html">Explore Products <span>→</span></a></div></article>
-          <article class="res-card"><h3>Market Reference Guide</h3><p>Market benchmarks can help buyers follow broad price movement, but physical recyclable-metal pricing depends on grade, recovery, quality, location, freight, duties, documentation, and market conditions.</p><div class="res-actions"><a class="res-btn ghost" href="/market-prices">View Market Prices <span>→</span></a></div></article>
-          <article class="res-card"><h3>Bulk Quotation Request</h3><p>For bulk recyclable-metal requirements, send your specifications and expected shipment details to the VMG team for review and business coordination.</p><div class="res-actions"><a class="res-btn dark" href="contact.html#bulk-quotation">Request Bulk Quotation <span>→</span></a></div></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="res-section" id="supplier-resources">
-      <div class="container">
-        <div class="section-head"><p class="res-eyebrow">For Suppliers</p><h2>Supplier Resources</h2><p>These resources help suppliers share material offers in a clear and structured way, reducing back-and-forth and helping our team review enquiries efficiently.</p></div>
-        <div class="res-grid">
-          <article class="res-card"><h3>Supplier Onboarding Checklist</h3><p>Suppliers can share company details, location, available material categories, yard/loading information, inspection availability, documentation details, and authorised contact information.</p><ul class="checklist"><li>Company name and location</li><li>Contact person details</li><li>Material category and grade</li><li>Quantity available</li><li>Loading location or port</li><li>Photos and videos</li><li>Inspection availability</li><li>Business documents, where required</li></ul><div class="res-actions"><a class="res-btn dark" href="contact.html#supplier-enquiry">Start Supplier Enquiry <span>→</span></a></div></article>
-          <article class="res-card"><h3>Material Offer Checklist</h3><p>A strong material offer should include grade, origin, quantity, packing/loading details, target price, shipment readiness, inspection preference, and clear photos or videos.</p><div class="res-actions"><a class="res-btn dark" href="contact.html#material-offer">Submit Material Offer <span>→</span></a></div></article>
-          <article class="res-card" id="container-loading-guide"><h3>Container Loading Photo Guide</h3><p>For container-based shipments, suppliers should maintain clear visual records such as empty container photos, material close-ups, loading progress, container number, seal number, and final loaded container view.</p><div class="res-actions"><a class="res-btn ghost" href="#container-loading-guide">View Loading Guide <span>↓</span></a></div></article>
-          <article class="res-card"><h3>Partner With VMG</h3><p>We welcome serious business discussions with verified suppliers, recyclers, processors, yards, logistics partners, and inspection networks.</p><div class="res-actions"><a class="res-btn dark" href="contact.html#partnership-enquiry">Start Partnership Enquiry <span>→</span></a></div></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="res-section alt" id="documentation-guides">
-      <div class="container">
-        <div class="section-head"><p class="res-eyebrow">Documentation Support</p><h2>Documentation Guides</h2><p>International recyclable-metal movement requires disciplined documentation. Requirements may differ based on material, origin, destination, shipment terms, inspection needs, and applicable regulations.</p></div>
-        <div class="res-grid">
-          <article class="res-card"><h3>Import / Export Document Checklist</h3><p>Common documents may include commercial invoice, packing list, contract or purchase order, bill of lading, certificate of origin where applicable, inspection certificate where applicable, and other shipment-specific documents.</p><p class="small-note">Final documentation depends on the commercial agreement, material type, destination, and applicable regulations.</p><div class="res-actions"><a class="res-btn dark" href="contact.html#documentation-support">Contact VMG For Documentation Support <span>→</span></a></div></article>
-          <article class="res-card"><h3>PSIC / Inspection Basics</h3><p>Inspection and certification requirements may apply depending on the material category, country of origin, loading location, destination, and current regulations. VMG supports inspection coordination where applicable.</p><p class="small-note">Inspection terms should always be confirmed before shipment planning.</p><div class="res-actions"><a class="res-btn ghost" href="contact.html#inspection-support">Ask About Inspection <span>→</span></a></div></article>
-          <article class="res-card"><h3>Incoterms Basics</h3><p>Commercial terms such as FOB, CFR, CIF, EXW, and related trade terms help define responsibilities, costs, and risks between buyers and sellers. Final terms should be agreed clearly before shipment.</p><p class="small-note">This section is for general business understanding only and is not legal advice.</p><div class="res-actions"><a class="res-btn ghost" href="contact.html#shipment-terms">Discuss Shipment Terms <span>→</span></a></div></article>
-          <article class="res-card"><h3>KYC Document Requirements</h3><p>For serious business enquiries, company KYC documents may be requested to support verification, compliance, and secure transaction coordination.</p><ul class="checklist"><li>Company registration details</li><li>GST / tax registration, where applicable</li><li>Import-export registration, where applicable</li><li>Authorised contact person</li><li>Business address</li><li>Bank or transaction details, only when commercially required</li></ul><div class="res-actions"><a class="res-btn dark" href="contact.html#kyc-details">Submit Business Details <span>→</span></a></div></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="res-section dark" id="our-process">
-      <div class="container">
-        <div class="section-head"><p class="res-eyebrow">Our Process</p><h2>How We Move Recyclable Metals Globally</h2><p>A structured process helps reduce confusion, improve communication, and support dependable recyclable-metal movement across global markets.</p></div>
-        <div class="process-grid"><article class="process-step"><h3>Enquiry Received</h3><p>We review the buyer requirement, supplier offer, partnership enquiry, or documentation request.</p></article><article class="process-step"><h3>Material Grade &amp; Quantity Reviewed</h3><p>Material category, grade, quantity, origin, destination, quality expectations, and shipment readiness are checked.</p></article><article class="process-step"><h3>Supplier / Buyer Coordination</h3><p>We coordinate with verified networks to align availability, requirements, communication, and next steps.</p></article><article class="process-step"><h3>Pricing &amp; Terms Discussion</h3><p>Commercial terms, shipment basis, inspection needs, payment structure, and timeline are discussed as per the enquiry.</p></article><article class="process-step"><h3>Documentation Support</h3><p>Relevant commercial, shipment, inspection, and compliance-related documentation is coordinated where applicable.</p></article><article class="process-step"><h3>Container Loading &amp; Shipment Coordination</h3><p>For container-based movement, loading information, container details, shipment planning, and logistics coordination are managed with discipline.</p></article><article class="process-step"><h3>Ongoing Trade Communication</h3><p>We maintain clear communication across the transaction lifecycle to support reliability, transparency, and long-term business relationships.</p></article></div>
-      </div>
-    </section>
-
-    <section class="res-section" id="market-references">
-      <div class="container">
-        <div class="section-head"><p class="res-eyebrow">Market References</p><h2>Track Metal &amp; FX Market References</h2><p>Use VMG’s Market page to view indicative metal and currency benchmarks. These references help users follow broad market movement, but they are not firm purchase or selling quotations.</p></div>
-        <div class="market-box"><div><h3>Indicative market references, not physical quotations.</h3><p>Market references are indicative and may be delayed. Physical recyclable-metal pricing can differ by grade, recovery, quality, location, freight, duties, documentation, shipment terms, and market conditions.</p></div><a class="res-btn primary" href="/market-prices">View Market Prices <span>→</span></a></div>
-      </div>
-    </section>
-
-    <section class="res-section alt" id="faq">
-      <div class="container">
-        <div class="section-head"><p class="res-eyebrow">FAQ</p><h2>Frequently Asked Questions</h2><p>Quick answers for buyers, suppliers, and business partners exploring recyclable-metal opportunities with Vashudevan MetGlobal LLP.</p></div>
-        <div class="faq-list">
-          <details><summary>What materials does Vashudevan MetGlobal LLP support?</summary><div class="faq-answer">We support ferrous and non-ferrous recyclable-metal categories including aluminium, copper, brass, ferrous scrap, stainless steel, lead, zinc, auto scrap, shredder scrap, and copper-bearing materials.</div></details>
-          <details><summary>Can international suppliers contact VMG?</summary><div class="faq-answer">Yes. International suppliers can contact VMG with material details, quantity, origin, loading location, photos/videos, inspection availability, and shipment readiness.</div></details>
-          <details><summary>Can buyers send specific material requirements?</summary><div class="faq-answer">Yes. Buyers can send their required material category, grade/specification, quantity, destination port or location, inspection preference, shipment timeline, and commercial terms.</div></details>
-          <details><summary>Are the Market page prices final quotations?</summary><div class="faq-answer">No. Market page prices are indicative market references only. Physical scrap pricing can differ by grade, recovery, quality, location, freight, duties, documentation, and market conditions.</div></details>
-          <details><summary>Is third-party inspection available?</summary><div class="faq-answer">Third-party inspection such as SGS/BV or other inspection support may be arranged where applicable, depending on final commercial terms, material type, location, and buyer/supplier requirements.</div></details>
-          <details><summary>What documents are usually required for import/export?</summary><div class="faq-answer">Common documents may include commercial invoice, packing list, contract or purchase order, bill of lading, certificate of origin where applicable, inspection certificate where applicable, and other shipment-specific documents.</div></details>
-          <details><summary>How can I submit a material offer?</summary><div class="faq-answer">Use the Submit Material Offer form and share material grade, quantity, origin, loading location, photos/videos, target price, inspection availability, and contact details.</div></details>
-          <details><summary>How can I request a bulk quotation?</summary><div class="faq-answer">Use the Send Buying Requirement or Bulk Quotation form and include the required grade/specification, quantity, destination, shipment terms, inspection requirement, and expected timeline.</div></details>
-          <details><summary>Where is Vashudevan MetGlobal LLP based?</summary><div class="faq-answer">Vashudevan MetGlobal LLP is headquartered in Surat, Gujarat, India, and supports recyclable-metal sourcing, supply, documentation, and shipment coordination across international markets.</div></details>
-          <details><summary>How can I download the company profile?</summary><div class="faq-answer">You can download the Vashudevan MetGlobal LLP company profile from the Resources page, homepage company profile section, footer, or Need Help menu.</div></details>
-        </div>
-      </div>
-    </section>
-
+    <!-- 2. Company Profile -->
     <section class="res-section">
-      <div class="container">
-        <div class="final-cta"><h2>Need Sourcing, Supply, Or Shipment Support?</h2><p>Connect with VMG for recyclable-metal requirements, supplier offers, documentation support, inspection coordination, and container-based shipment movement.</p><div class="res-actions"><a class="res-btn primary" href="contact.html#vmg-desk">Contact VMG Desk <span>→</span></a><a class="res-btn secondary" href="VMG_BROCHURE.pdf" download>Download Company Profile <span>↓</span></a><a class="res-btn secondary" href="contact.html#material-offer">Submit Material Offer <span>→</span></a><a class="res-btn secondary" href="contact.html#buy-requirement">Send Buying Requirement <span>→</span></a></div><nav class="resource-footer-links" aria-label="Resource links"><a href="#company-profile">Company Profile</a><a href="#buyer-resources">Buyer Resources</a><a href="#supplier-resources">Supplier Resources</a><a href="#documentation-guides">Documentation Guides</a><a href="/market-prices">Market Prices</a><a href="#faq">FAQ</a></nav><div class="trust-rows"><div><strong>Proud Member Of:</strong> MRAI | BIR | RecycleInMe</div><div><strong>Verified &amp; Registered:</strong> GST | IEC | MSME | D-U-N-S</div></div><div class="brand-line">Recycle. Resource. Responsibly.</div></div>
+      <div class="res-container">
+        <article class="company-profile-card res-reveal">
+          <div>
+            <p class="res-eyebrow">Company Profile</p>
+            <h2>Download The VMG Company Profile</h2>
+            <p>Explore Vashudevan MetGlobal LLP’s recyclable-metal categories, global network, sustainability approach, and supply-chain capabilities.</p>
+          </div>
+          <div class="res-actions">
+            <a class="res-btn secondary" href="VMG_BROCHURE.pdf" target="_blank" rel="noopener">Preview PDF</a>
+            <a class="res-btn primary" href="VMG_BROCHURE.pdf" download>Download PDF</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 3. Buyer & Supplier Resource Hub -->
+    <section class="res-section alt" id="resource-hub">
+      <div class="res-container">
+        <div class="hub-head res-reveal">
+          <p class="res-eyebrow">Resource Hub</p>
+          <h2 class="res-heading">Buyer &amp; Supplier Resources</h2>
+          <p class="res-copy">Share clearer enquiries from the start so our team can review material requirements and offers efficiently.</p>
+        </div>
+
+        <div class="hub-grid">
+          <article class="hub-card res-reveal">
+            <div class="hub-card-label">Buying Requirements</div>
+            <h3>For Buyers</h3>
+            <p>Send clear buying requirements with grade, quantity, destination, inspection preference, shipment timeline, and commercial terms.</p>
+            <div class="res-actions">
+              <a class="res-btn primary" href="contact.html#buy-requirement">Send Buying Requirement</a>
+            </div>
+          </article>
+
+          <article class="hub-card res-reveal">
+            <div class="hub-card-label">Material Offers</div>
+            <h3>For Suppliers</h3>
+            <p>Submit material offers with grade, origin, quantity, loading location, photos/videos, inspection availability, and shipment readiness.</p>
+            <div class="res-actions">
+              <a class="res-btn primary" href="contact.html#material-offer">Submit Material Offer</a>
+            </div>
+          </article>
+        </div>
+
+        <div class="hub-links res-reveal" aria-label="Additional resource links">
+          <a href="products.html">Explore Products</a>
+          <a href="contact.html#partnership-enquiry">Partner With VMG</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Documentation Support -->
+    <section class="res-section" id="documentation-support">
+      <div class="res-container">
+        <div class="docs-head res-reveal">
+          <p class="res-eyebrow">Documentation Support</p>
+          <h2 class="res-heading">Essential Trade Documentation</h2>
+          <p class="res-copy">A concise reference to the documentation, inspection, and commercial terms commonly discussed in international recyclable-metal trade.</p>
+        </div>
+
+        <div class="docs-grid">
+          <article class="doc-card res-reveal">
+            <div class="doc-number">01</div>
+            <h3>Import / Export Documents</h3>
+            <p>Commercial invoice, packing list, PO/contract, bill of lading, certificate of origin, inspection certificate where applicable, and shipment-specific documents.</p>
+          </article>
+
+          <article class="doc-card res-reveal">
+            <div class="doc-number">02</div>
+            <h3>Inspection &amp; PSIC Basics</h3>
+            <p>Inspection and certification requirements may vary by material, origin, destination, loading location, and current regulations.</p>
+          </article>
+
+          <article class="doc-card res-reveal">
+            <div class="doc-number">03</div>
+            <h3>Shipment Terms</h3>
+            <p>FOB, CFR, CIF, EXW, and other commercial terms define responsibility, cost, and risk between buyer and seller.</p>
+          </article>
+        </div>
+
+        <div class="docs-action res-reveal">
+          <a class="res-btn secondary" href="contact.html#documentation-support">Ask About Documentation</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Market Reference -->
+    <section class="res-section alt" id="market-reference">
+      <div class="res-container">
+        <div class="market-strip res-reveal">
+          <div>
+            <h2>Track Metal &amp; FX Market References</h2>
+            <p>View indicative metal and currency benchmarks used by global buyers, suppliers, and recyclable-metal supply chains.</p>
+            <small class="market-note">Market references are indicative and are not firm purchase or selling quotations.</small>
+          </div>
+          <a class="res-btn primary" href="/market-prices">View Market Prices</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. FAQ -->
+    <section class="res-section" id="faq">
+      <div class="res-container">
+        <div class="faq-head res-reveal">
+          <p class="res-eyebrow">FAQ</p>
+          <h2 class="res-heading">Frequently Asked Questions</h2>
+          <p class="res-copy">Quick answers for buyers, suppliers, and business partners working with VMG.</p>
+        </div>
+
+        <div class="faq-list res-reveal">
+          <details class="faq-item">
+            <summary>What materials does Vashudevan MetGlobal LLP support?</summary>
+            <div class="faq-answer">We support ferrous and non-ferrous recyclable-metal categories including aluminium, copper, brass, ferrous scrap, stainless steel, lead, zinc, auto scrap, shredder scrap, and copper-bearing materials.</div>
+          </details>
+
+          <details class="faq-item">
+            <summary>Can buyers send specific material requirements?</summary>
+            <div class="faq-answer">Yes. Buyers can share the required material category, grade/specification, quantity, destination port or location, inspection preference, shipment timeline, and commercial terms.</div>
+          </details>
+
+          <details class="faq-item">
+            <summary>Can suppliers submit material offers?</summary>
+            <div class="faq-answer">Yes. Suppliers can submit material grade, origin, available quantity, loading location, photos/videos, inspection availability, shipment readiness, and contact details.</div>
+          </details>
+
+          <details class="faq-item">
+            <summary>Are Market page prices final quotations?</summary>
+            <div class="faq-answer">No. Market page prices are indicative market references only. Physical recyclable-metal pricing can differ by grade, recovery, quality, location, freight, duties, documentation, and market conditions.</div>
+          </details>
+
+          <details class="faq-item">
+            <summary>Is third-party inspection available?</summary>
+            <div class="faq-answer">Third-party inspection such as SGS/BV or other inspection support may be arranged where applicable, depending on commercial terms, material type, location, and buyer/supplier requirements.</div>
+          </details>
+
+          <details class="faq-item">
+            <summary>How can I download the company profile?</summary>
+            <div class="faq-answer">Use the Download Company Profile or Download PDF button on this Resources page to access the current VMG company profile.</div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Final CTA -->
+    <section class="res-section alt">
+      <div class="res-container">
+        <div class="final-cta res-reveal">
+          <div>
+            <h2>Need Sourcing, Supply, Or Shipment Support?</h2>
+            <p>Connect with VMG for recyclable-metal requirements, supplier offers, documentation support, inspection coordination, and container-based shipment movement.</p>
+          </div>
+          <div class="res-actions">
+            <a class="res-btn primary" href="contact.html#vmg-desk">Contact VMG Desk</a>
+            <a class="res-btn secondary" href="VMG_BROCHURE.pdf" download>Download Company Profile</a>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
+  <!-- Back to top button -->
   <button class="back-to-top" id="back-to-top" aria-label="Back to top">↑</button>
-  <footer class="site-footer pro-footer"><div class="container footer-members"><p>Proud Members Of</p><div class="logos"><img src="https://mrai.org.in/images/mrai-logo.png" alt="MRAI logo"></div></div><div class="container footer-bottom"><div class="footer-left">Vashudevan Met Global LLP</div><div class="footer-center">© 2026 Vashudevan Met Global LLP. All rights reserved.</div><div class="footer-right"></div></div></footer>
 
-  <div class="pdf-modal" id="pdf-modal" role="dialog" aria-modal="true" aria-label="Vashudevan MetGlobal LLP Company Profile preview"><div class="pdf-shell"><div class="pdf-bar"><strong>Vashudevan MetGlobal LLP Company Profile</strong><button class="pdf-close" type="button" id="pdf-close" aria-label="Close PDF preview">×</button></div><iframe src="VMG_BROCHURE.pdf" title="Vashudevan MetGlobal LLP Company Profile PDF"></iframe></div></div>
+  <!-- 8. Existing normal site footer -->
+  <footer class="site-footer pro-footer">
+    <div class="container footer-members">
+      <p>Proud Members Of</p>
+      <div class="logos">
+        <img src="https://mrai.org.in/images/mrai-logo.png" alt="MRAI logo">
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <div class="footer-left">Vashudevan Met Global LLP</div>
+      <div class="footer-center">© 2025 Vashudevan Met Global LLP. All rights reserved.</div>
+      <div class="footer-right">
+        <div class="follow-us-section">
+          <h3 class="follow-us-title">Follow Us</h3>
+          <div class="follow-us-separator"></div>
+          <div class="social-icons">
+            <a href="https://www.facebook.com/profile.php?id=61577681908111" class="social-link" aria-label="Facebook" target="_blank" rel="noopener">
+              <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            </a>
+            <a href="https://www.linkedin.com/company/109161337/" class="social-link" aria-label="LinkedIn" target="_blank" rel="noopener">
+              <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            </a>
+            <a href="https://www.instagram.com/vashudevan_metglobal_llp?igsh=NWJrZjQ3MTNqdTU4&utm_source=qr" class="social-link" aria-label="Instagram" target="_blank" rel="noopener">
+              <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/main.js"></script>
   <script>
-    (function(){
-      var modal=document.getElementById('pdf-modal');
-      var openBtn=document.getElementById('preview-profile');
-      var closeBtn=document.getElementById('pdf-close');
-      function closeModal(){modal.classList.remove('open');document.body.style.overflow='';}
-      if(openBtn) openBtn.addEventListener('click',function(){modal.classList.add('open');document.body.style.overflow='hidden';});
-      if(closeBtn) closeBtn.addEventListener('click',closeModal);
-      if(modal) modal.addEventListener('click',function(e){if(e.target===modal) closeModal();});
-      document.addEventListener('keydown',function(e){if(e.key==='Escape'&&modal.classList.contains('open')) closeModal();});
+    (function () {
+      var items = document.querySelectorAll('.res-reveal');
+      if (!items.length) return;
+
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) {
+        items.forEach(function (item) { item.classList.add('is-visible'); });
+        return;
+      }
+
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12 });
+
+      items.forEach(function (item) { observer.observe(item); });
     })();
   </script>
 </body>
