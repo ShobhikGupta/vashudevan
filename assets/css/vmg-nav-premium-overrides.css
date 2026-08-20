@@ -1,4 +1,72 @@
-/* Premium refinements for the VMG two-tier navigation */
+/* Premium refinements for the VMG three-tier navigation */
+
+.vmg-utility-strip {
+  max-height: 32px;
+  overflow: hidden;
+  background: #081a2f;
+  color: rgba(255, 255, 255, .72);
+  transition: max-height 220ms ease, opacity 180ms ease, transform 220ms ease;
+}
+
+.vmg-utility-inner {
+  width: min(1380px, calc(100% - 48px));
+  min-height: 32px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.vmg-utility-tagline {
+  color: rgba(255, 255, 255, .72);
+  font-size: .75rem;
+  font-weight: 620;
+  letter-spacing: .02em;
+  white-space: nowrap;
+}
+
+.vmg-utility-contact {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 18px;
+  min-width: 0;
+}
+
+.vmg-utility-contact-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, .68);
+  font-size: .74rem;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.vmg-utility-contact-item:hover,
+.vmg-utility-contact-item:focus-visible {
+  color: #fff;
+  outline: none;
+}
+
+.vmg-utility-contact-item svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  color: #d3a378;
+}
+
+.vmg-econship-header.is-condensed .vmg-utility-strip {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.vmg-mobile-utility-item {
+  display: none;
+}
 
 @media (min-width: 992px) {
   .vmg-nav-brand-row {
@@ -133,6 +201,18 @@
 }
 
 @media (max-width: 1180px) and (min-width: 992px) {
+  .vmg-utility-inner {
+    width: calc(100% - 34px);
+  }
+
+  .vmg-utility-contact {
+    gap: 12px;
+  }
+
+  .vmg-utility-contact-item {
+    font-size: .69rem;
+  }
+
   .vmg-nav-brand-row {
     width: calc(100% - 34px);
     grid-template-columns: minmax(300px, 1fr) auto minmax(300px, 1fr);
@@ -162,17 +242,27 @@
 }
 
 @media (max-width: 991px) {
+  .vmg-utility-strip {
+    display: none;
+  }
+
   .vmg-nav-socials {
     display: none;
   }
 
+  .vmg-mobile-utility-item,
   .vmg-mobile-socials-item {
     display: block;
     width: 100%;
-    padding: 15px 12px 8px;
-    border-top: 1px solid rgba(255, 255, 255, .08);
   }
 
+  .vmg-mobile-utility-item {
+    padding: 14px 12px;
+    border-top: 1px solid rgba(255, 255, 255, .08);
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+  }
+
+  .vmg-mobile-utility-label,
   .vmg-mobile-socials-label {
     display: block;
     margin-bottom: 10px;
@@ -181,6 +271,27 @@
     font-weight: 700;
     letter-spacing: .1em;
     text-transform: uppercase;
+  }
+
+  .vmg-mobile-utility-contact {
+    display: grid;
+    gap: 10px;
+  }
+
+  .vmg-mobile-utility-contact .vmg-utility-contact-item {
+    color: rgba(255, 255, 255, .74);
+    font-size: .84rem;
+    line-height: 1.3;
+  }
+
+  .vmg-mobile-utility-contact .vmg-utility-contact-item svg {
+    width: 16px;
+    height: 16px;
+    color: #d3a378;
+  }
+
+  .vmg-mobile-socials-item {
+    padding: 15px 12px 8px;
   }
 
   .vmg-mobile-socials {
@@ -216,6 +327,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .vmg-utility-strip,
   .vmg-social-link,
   .vmg-econship-header .site-nav .has-submenu > a::after {
     transition: none;
