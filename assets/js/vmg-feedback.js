@@ -1,3 +1,21 @@
+(function(){
+  if (!document || !document.head) return;
+  if (!document.querySelector('link[data-vmg-footer-style]')) {
+    var link=document.createElement('link');
+    link.rel='stylesheet';
+    link.href='/assets/css/vmg-footer.css';
+    link.setAttribute('data-vmg-footer-style','true');
+    document.head.appendChild(link);
+  }
+  if (!document.querySelector('script[data-vmg-footer-script]')) {
+    var script=document.createElement('script');
+    script.src='/assets/js/vmg-footer.js';
+    script.async=false;
+    script.setAttribute('data-vmg-footer-script','true');
+    document.head.appendChild(script);
+  }
+})();
+
 (function () {
   'use strict';
 
