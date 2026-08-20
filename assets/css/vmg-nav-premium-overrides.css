@@ -12,18 +12,19 @@
     box-shadow: 0 1px 0 rgba(15, 23, 42, .06);
   }
 
+  /* Use almost the full header width while keeping the brand truly centered. */
   .vmg-nav-brand-row {
-    width: min(1380px, calc(100% - 56px));
-    min-height: 78px;
-    grid-template-columns: minmax(360px, 1fr) auto minmax(360px, 1fr);
-    gap: 34px;
+    width: min(1480px, calc(100% - 40px));
+    min-height: 82px;
+    grid-template-columns: minmax(410px, 1fr) auto minmax(410px, 1fr);
+    gap: 28px;
     border: 0;
   }
 
   /* Compact, quieter shipment utility */
   .vmg-track-shipment {
     justify-self: start;
-    max-width: 405px;
+    max-width: 430px;
     gap: 10px;
   }
 
@@ -35,7 +36,7 @@
   }
 
   .vmg-track-form {
-    grid-template-columns: minmax(165px, 205px) auto;
+    grid-template-columns: minmax(165px, 210px) auto;
     border: 1px solid #d8dee6;
     border-radius: 8px;
     background: #fff;
@@ -73,27 +74,49 @@
     background: #9f693b;
   }
 
-  /* Stronger centered identity */
+  /* Strong centered VMG identity: logo + eye-catching wordmark. */
   .vmg-econship-header .logo {
     grid-column: 2;
     position: relative;
     z-index: 2;
-    gap: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 13px;
+    min-width: 390px;
+    max-width: 560px;
+    padding: 5px 18px;
+    color: #050b14;
   }
 
   .vmg-econship-header .logo img.vmg-updated-header-logo {
-    width: 34px !important;
-    height: 54px !important;
+    width: 38px !important;
+    height: 60px !important;
     object-fit: contain !important;
-    flex: 0 0 34px;
+    flex: 0 0 38px;
     border-radius: 0;
   }
 
+  /* Keep the existing DOM text accessible while presenting the preferred brand styling. */
   .vmg-econship-header .logo span {
-    color: #0a1728;
-    font-size: 1.06rem;
-    font-weight: 820;
-    letter-spacing: -.018em;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    color: #050b14;
+    font-size: 0 !important;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -.025em;
+  }
+
+  .vmg-econship-header .logo span::after {
+    content: 'Vashudevan MetGlobal LLP';
+    display: inline-block;
+    color: #050b14;
+    font-size: 1.22rem;
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -.028em;
   }
 
   /* Same VMG social profiles, visually restrained */
@@ -263,21 +286,41 @@
 
 @media (max-width: 1180px) and (min-width: 992px) {
   .vmg-nav-brand-row {
-    width: calc(100% - 36px);
-    grid-template-columns: minmax(285px, 1fr) auto minmax(285px, 1fr);
-    gap: 20px;
+    width: calc(100% - 30px);
+    grid-template-columns: minmax(280px, 1fr) auto minmax(280px, 1fr);
+    gap: 16px;
   }
 
   .vmg-track-shipment { gap: 7px; }
-  .vmg-track-title { font-size: .78rem; }
-  .vmg-track-form { grid-template-columns: minmax(140px, 174px) auto; }
+  .vmg-track-title { font-size: .76rem; }
+  .vmg-track-form { grid-template-columns: minmax(135px, 168px) auto; }
   .vmg-nav-socials { gap: 5px; }
   .vmg-social-link { width: 32px; height: 32px; }
+
+  .vmg-econship-header .logo {
+    min-width: 330px;
+    padding-inline: 10px;
+    gap: 10px;
+  }
+
+  .vmg-econship-header .logo img.vmg-updated-header-logo {
+    width: 32px !important;
+    height: 50px !important;
+    flex-basis: 32px;
+  }
+
+  .vmg-econship-header .logo span::after {
+    font-size: 1.05rem;
+  }
 }
 
 @media (max-width: 991px) {
   .vmg-nav-socials {
     display: none;
+  }
+
+  .vmg-econship-header .logo {
+    gap: 8px;
   }
 
   .vmg-econship-header .logo img.vmg-updated-header-logo {
@@ -286,6 +329,25 @@
     object-fit: contain !important;
     flex: 0 0 25px;
     border-radius: 0;
+  }
+
+  .vmg-econship-header .logo span {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    color: #050b14;
+    font-size: 0 !important;
+    font-weight: 860;
+    line-height: 1;
+  }
+
+  .vmg-econship-header .logo span::after {
+    content: 'Vashudevan MetGlobal LLP';
+    color: #050b14;
+    font-size: .88rem;
+    font-weight: 860;
+    line-height: 1.05;
+    letter-spacing: -.02em;
   }
 
   .vmg-mobile-socials-item {
