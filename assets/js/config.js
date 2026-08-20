@@ -200,6 +200,13 @@
       brandRow.insertBefore(desktopTracker, brandRow.firstChild);
     }
 
+    var logoImage = logo.querySelector('img');
+    if (logoImage) {
+      logoImage.src = '/assets/img/vmg-header-logo.svg';
+      logoImage.alt = 'Vashudevan Met Global LLP logo';
+      logoImage.classList.add('vmg-updated-header-logo');
+    }
+
     if (logo.parentNode !== brandRow) brandRow.appendChild(logo);
 
     var oldBalance = brandRow.querySelector('.vmg-nav-balance');
