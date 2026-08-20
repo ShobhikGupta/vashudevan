@@ -5,7 +5,7 @@
   window.AppConfig.contactEndpoint = window.AppConfig.contactEndpoint || '';
 })();
 
-// Load preview-only shared styles without editing every page template.
+// Load preview-only shared styles/scripts without editing every page template.
 (function(){
   if (!document || !document.head) return;
 
@@ -18,9 +18,20 @@
     document.head.appendChild(link);
   }
 
+  function loadScript(src, marker) {
+    if (document.querySelector('script[' + marker + ']')) return;
+    var script = document.createElement('script');
+    script.src = src;
+    script.async = false;
+    script.setAttribute(marker, 'true');
+    document.head.appendChild(script);
+  }
+
   loadStylesheet('/assets/css/vmg-trade-nav.css', 'data-vmg-trade-nav');
   loadStylesheet('/assets/css/vmg-nav-premium-overrides.css', 'data-vmg-nav-premium');
   loadStylesheet('/assets/css/vmg-market-polish.css', 'data-vmg-market-polish');
+  loadStylesheet('/assets/css/vmg-feedback.css', 'data-vmg-feedback-style');
+  loadScript('/assets/js/vmg-feedback.js', 'data-vmg-feedback-script');
 })();
 
 // Build the requested site-wide order and premium two-tier trade navigation.
@@ -208,9 +219,7 @@
     }
 
     var logoText = logo.querySelector('span');
-    if (logoText) {
-      logoText.textContent = 'Vashudevan MetGlobal LLP';
-    }
+    if (logoText) logoText.textContent = 'Vashudevan MetGlobal LLP';
 
     if (logo.parentNode !== brandRow) brandRow.appendChild(logo);
 
