@@ -123,6 +123,9 @@
     .market-strip p{max-width:760px;margin:9px 0 0;color:rgba(255,255,255,.7);line-height:1.6}
     .market-note{display:block;margin-top:9px;color:rgba(255,255,255,.48);font-size:.82rem;line-height:1.48}
     .market-strip .res-btn.primary{white-space:nowrap;background:#c38a57;border-color:#c38a57}
+    .market-link-disabled{color:#7a8696;cursor:not-allowed}
+    .market-link-disabled:after{content:""}
+    .market-strip .market-coming-soon{white-space:nowrap;background:rgba(255,255,255,.08);color:rgba(255,255,255,.68);border-color:rgba(255,255,255,.18);cursor:not-allowed;pointer-events:none}
 
     /* FAQ */
     .faq-list{display:grid;gap:12px;max-width:960px}
@@ -216,7 +219,7 @@
           <p class="res-hero-text">Helpful company resources, checklists, and market references for recyclable-metal sourcing, supply, documentation, and shipment coordination.</p>
           <div class="res-actions">
             <a class="res-btn primary" href="VMG_BROCHURE.pdf" download>Download Company Profile</a>
-            <a class="res-btn secondary" href="contact.html#vmg-desk">Contact VMG Desk</a>
+            <a class="res-btn secondary" href="contact.html">Contact VMG Desk</a>
           </div>
         </div>
         <div class="profile-visual res-reveal" aria-label="VMG resources publication visual">
@@ -263,27 +266,27 @@
 
           <div class="hub-panel active" id="panel-buyers" role="tabpanel" aria-labelledby="tab-buyers">
             <div class="hub-grid">
-              <article class="hub-card"><div class="hub-card-kicker">Requirement Preparation</div><h3>Buying Requirement Checklist</h3><p>Share material category, grade/specification, quantity, destination, shipment terms, inspection preference, timeline, and company contact details.</p><a class="card-link" href="contact.html#buy-requirement">Send Buying Requirement</a></article>
+              <article class="hub-card"><div class="hub-card-kicker">Requirement Preparation</div><h3>Buying Requirement Checklist</h3><p>Share material category, grade/specification, quantity, destination, shipment terms, inspection preference, timeline, and company contact details.</p><a class="card-link" href="contact.html">Send Buying Requirement</a></article>
               <article class="hub-card"><div class="hub-card-kicker">Material Reference</div><h3>Material Grade Guide</h3><p>Review common ferrous and non-ferrous recyclable-metal categories supported by VMG before sending your buying requirement.</p><a class="card-link" href="products.html">Explore Products</a></article>
-              <article class="hub-card"><div class="hub-card-kicker">Price Context</div><h3>Market Reference Guide</h3><p>Use metal and FX benchmarks for broad market direction while keeping grade, recovery, freight, location, and documentation in context.</p><a class="card-link" href="/market-prices">View Market Prices</a></article>
-              <article class="hub-card"><div class="hub-card-kicker">Bulk Requirements</div><h3>Bulk Quotation Request</h3><p>Share specifications, expected volume, destination, inspection needs, shipment basis, commercial terms, and expected timeline.</p><a class="card-link" href="contact.html#bulk-quotation">Request Bulk Quotation</a></article>
+              <article class="hub-card"><div class="hub-card-kicker">Price Context</div><h3>Market Reference Guide</h3><p>Use metal and FX benchmarks for broad market direction while keeping grade, recovery, freight, location, and documentation in context.</p><span class="card-link market-link-disabled" aria-disabled="true">Market Page Coming Soon</span></article>
+              <article class="hub-card"><div class="hub-card-kicker">Bulk Requirements</div><h3>Bulk Quotation Request</h3><p>Share specifications, expected volume, destination, inspection needs, shipment basis, commercial terms, and expected timeline.</p><a class="card-link" href="contact.html">Request Bulk Quotation</a></article>
             </div>
           </div>
 
           <div class="hub-panel" id="panel-suppliers" role="tabpanel" aria-labelledby="tab-suppliers" hidden>
             <div class="hub-grid">
-              <article class="hub-card"><div class="hub-card-kicker">Supplier Setup</div><h3>Supplier Onboarding Checklist</h3><p>Share company details, authorised contact, available grades, quantity, yard/loading information, inspection availability, and relevant documents.</p><a class="card-link" href="contact.html#supplier-enquiry">Start Supplier Enquiry</a></article>
+              <article class="hub-card"><div class="hub-card-kicker">Supplier Setup</div><h3>Supplier Onboarding Checklist</h3><p>Share company details, authorised contact, available grades, quantity, yard/loading information, inspection availability, and relevant documents.</p><a class="card-link" href="contact.html">Start Supplier Enquiry</a></article>
               <article class="hub-card"><div class="hub-card-kicker">Offer Preparation</div><h3>Material Offer Checklist</h3><p>A clear offer should include grade, origin, quantity, packing/loading details, target price, shipment readiness, inspection preference, and photos/videos.</p><div class="card-note">Use this checklist before submitting an offer.</div></article>
               <article class="hub-card"><div class="hub-card-kicker">Loading Records</div><h3>Container Loading Photo Guide</h3><p>Maintain empty-container photos, material close-ups, loading progress, container number, seal number, and final loaded-container view.</p><div class="card-note">Keep records clear and shipment-specific.</div></article>
-              <article class="hub-card"><div class="hub-card-kicker">Direct Submission</div><h3>Submit Material Offer</h3><p>Send grade, quantity, origin, loading location, photos/videos, inspection availability, shipment readiness, and contact details.</p><a class="card-link" href="contact.html#material-offer">Submit Material Offer</a></article>
+              <article class="hub-card"><div class="hub-card-kicker">Direct Submission</div><h3>Submit Material Offer</h3><p>Send grade, quantity, origin, loading location, photos/videos, inspection availability, shipment readiness, and contact details.</p><a class="card-link" href="contact.html">Submit Material Offer</a></article>
             </div>
           </div>
 
           <div class="hub-panel" id="panel-partners" role="tabpanel" aria-labelledby="tab-partners" hidden>
             <div class="hub-grid partner-grid">
-              <article class="hub-card"><div class="hub-card-kicker">Network Partnerships</div><h3>Logistics / Inspection / Yard / Recycler Partnership Enquiry</h3><p>Connect with VMG for serious partnerships across logistics, inspection, yards, recyclers, processors, and sourcing networks.</p><a class="card-link" href="contact.html#partnership-enquiry">Start Partnership Enquiry</a></article>
+              <article class="hub-card"><div class="hub-card-kicker">Network Partnerships</div><h3>Logistics / Inspection / Yard / Recycler Partnership Enquiry</h3><p>Connect with VMG for serious partnerships across logistics, inspection, yards, recyclers, processors, and sourcing networks.</p><a class="card-link" href="contact.html">Start Partnership Enquiry</a></article>
               <article class="hub-card"><div class="hub-card-kicker">Long-Term Coordination</div><h3>Long-Term Business Coordination</h3><p>Build repeatable coordination around sourcing, material movement, inspection, loading, documentation, and trade communication.</p><div class="card-note">Best suited for verified ongoing commercial relationships.</div></article>
-              <article class="hub-card"><div class="hub-card-kicker">Direct Desk</div><h3>Contact VMG Desk</h3><p>Speak directly with the VMG team when a partnership enquiry requires commercial review and next-step coordination.</p><a class="card-link" href="contact.html#vmg-desk">Contact VMG Desk</a></article>
+              <article class="hub-card"><div class="hub-card-kicker">Direct Desk</div><h3>Contact VMG Desk</h3><p>Speak directly with the VMG team when a partnership enquiry requires commercial review and next-step coordination.</p><a class="card-link" href="contact.html">Contact VMG Desk</a></article>
             </div>
           </div>
         </div>
@@ -303,7 +306,7 @@
           <article class="doc-card"><div class="doc-number">03</div><h3>Incoterms Basics</h3><p>FOB, CFR, CIF, EXW, and related commercial terms help define responsibility, cost, and risk between buyer and seller before shipment.</p></article>
           <article class="doc-card"><div class="doc-number">04</div><h3>KYC Document Requirements</h3><p>Serious business enquiries may require company registration details, tax/import-export registrations, authorised contacts, business address, and relevant verification details.</p></article>
         </div>
-        <div class="docs-action res-reveal"><a class="res-btn secondary" href="contact.html#documentation-support">Ask About Documentation</a></div>
+        <div class="docs-action res-reveal"><a class="res-btn secondary" href="contact.html">Ask About Documentation</a></div>
       </div>
     </section>
 
@@ -329,8 +332,8 @@
     <section class="res-section alt" id="market-reference">
       <div class="res-container">
         <div class="market-strip res-reveal">
-          <div><h2>Track Metal &amp; FX Market References</h2><p>View indicative metal and currency benchmarks used by global buyers, suppliers, and recyclable-metal supply chains.</p><small class="market-note">Market references are indicative and are not firm purchase or selling quotations.</small></div>
-          <a class="res-btn primary" href="/market-prices">View Market Prices</a>
+          <div><h2>Track Metal &amp; FX Market References</h2><p>View indicative metal and currency benchmarks used by global buyers, suppliers, and recyclable-metal supply chains.</p><small class="market-note">Market references are indicative and are not firm purchase or selling quotations.</small><small class="market-note">Market references will be available after the Market page is published.</small></div>
+          <span class="res-btn market-coming-soon" aria-disabled="true">Market Page Coming Soon</span>
         </div>
       </div>
     </section>
@@ -354,7 +357,7 @@
       <div class="res-container">
         <div class="final-cta res-reveal">
           <div><h2>Need Sourcing, Supply, Or Shipment Support?</h2><p>Connect with VMG for recyclable-metal requirements, supplier offers, documentation support, inspection coordination, and container-based shipment movement.</p></div>
-          <div class="res-actions"><a class="res-btn primary" href="contact.html#vmg-desk">Contact VMG Desk</a><a class="res-btn secondary" href="VMG_BROCHURE.pdf" download>Download Company Profile</a></div>
+          <div class="res-actions"><a class="res-btn primary" href="contact.html">Contact VMG Desk</a><a class="res-btn secondary" href="VMG_BROCHURE.pdf" download>Download Company Profile</a></div>
         </div>
       </div>
     </section>
