@@ -10,6 +10,100 @@
   window.AppConfig.contactEndpoint = window.AppConfig.contactEndpoint || '';
 })();
 
+// Load the VMG two-tier navigation skin without modifying every page template.
+(function(){
+  if (!document || !document.head) return;
+  if (document.querySelector('link[data-vmg-trade-nav]')) return;
+  var link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = '/assets/css/vmg-trade-nav.css';
+  link.setAttribute('data-vmg-trade-nav', 'true');
+  document.head.appendChild(link);
+})();
+
+// Build the requested site-wide order and Econship-inspired two-tier structure.
+(function () {
+  function normalizePath(href) {
+    try {
+      return new URL(href, window.location.origin).pathname.replace(/\/$/, '') || '/';
+    } catch (e) {
+      return href || '';
+    }
+  }
+
+  function isCurrent(path) {
+    var current = (window.location.pathname || '/').replace(/\/$/, '') || '/';
+    if (path === '/index.html') return current === '/' || current === '/index.html';
+    if (path === '/market-prices') return current === '/market-prices' || current === '/market-prices/index.html';
+    if (path === '/resources.html') return current === '/resources.html' || current === '/resources';
+    return current === path;
+  }
+
+  function ensurePrimaryItem(navList, label, href) {
+    var links = Array.prototype.slice.call(navList.querySelectorAll(':scope > li > a'));
+    var link = links.find(function (candidate) {
+      return candidate.textContent.trim().toLowerCase() === label.toLowerCase() || normalizePath(candidate.getAttribute('href')) === href;
+    });
+
+    if (!link) {
+      var li = document.createElement('li');
+      link = document.createElement('a');
+      link.textContent = label;
+      link.href = href;
+      li.appendChild(link);
+      navList.appendChild(li);
+    } else if (href !== 'javascript:void(0)') {
+      link.href = href;
+    }
+
+    if (href !== 'javascript:void(0)' && isCurrent(href)) {
+      link.setAttribute('aria-current', 'page');
+    } else if (href !== 'javascript:void(0)') {
+      link.removeAttribute('aria-current');
+    }
+
+    return link.closest('li');
+  }
+
+  function enhanceNavigation() {
+    var header = document.querySelector('.site-header');
+    var headerInner = header && header.querySelector('.header-inner');
+    var logo = headerInner && headerInner.querySelector('.logo');
+    var toggle = headerInner && headerInner.querySelector('.nav-toggle');
+    var nav = document.getElementById('site-nav');
+    var navList = nav && nav.querySelector(':scope > ul');
+    if (!header || !headerInner || !logo || !toggle || !nav || !navList) return;
+
+    header.classList.add('vmg-econship-header');
+
+    var brandRow = headerInner.querySelector('.vmg-nav-brand-row');
+    if (!brandRow) {
+      brandRow = document.createElement('div');
+      brandRow.className = 'vmg-nav-brand-row';
+      headerInner.insertBefore(brandRow, headerInner.firstChild);
+    }
+    if (logo.parentNode !== brandRow) brandRow.appendChild(logo);
+    if (toggle.parentNode !== brandRow) brandRow.appendChild(toggle);
+
+    var homeItem = ensurePrimaryItem(navList, 'Home', '/index.html');
+    var aboutItem = ensurePrimaryItem(navList, 'About Us', 'javascript:void(0)');
+    var productsItem = ensurePrimaryItem(navList, 'Products', '/products.html');
+    var marketItem = ensurePrimaryItem(navList, 'Market', '/market-prices');
+    var resourcesItem = ensurePrimaryItem(navList, 'Resources', '/resources.html');
+    var contactItem = ensurePrimaryItem(navList, 'Contact Us', '/contact.html');
+
+    [homeItem, aboutItem, productsItem, marketItem, resourcesItem, contactItem].forEach(function (item) {
+      if (item) navList.appendChild(item);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', enhanceNavigation, { once: true });
+  } else {
+    enhanceNavigation();
+  }
+})();
+
 // Compact the homepage market CTA on phones so the ticker gets more horizontal room.
 (function(){
   if (!document || !document.head) return;
@@ -242,41 +336,3 @@
   ].join('\n');
   document.head.appendChild(style);
 })();
-
-// Keep Resources in the requested global navigation position: Market → Resources → Contact Us.
-(function () {
-  function ensureResourcesNav() {
-    var navList = document.querySelector('#site-nav > ul');
-    if (!navList) return;
-
-    var existing = navList.querySelector('a[href="resources.html"], a[href="/resources.html"], a[href="/resources"]');
-    var contactLink = navList.querySelector('a[href="contact.html"], a[href="/contact.html"]');
-    if (!contactLink) return;
-
-    var contactItem = contactLink.closest('li');
-    if (!contactItem) return;
-
-    var item = existing ? existing.closest('li') : document.createElement('li');
-    var link = existing || document.createElement('a');
-
-    link.href = '/resources.html';
-    link.textContent = 'Resources';
-
-    var path = (window.location.pathname || '').toLowerCase();
-    if (path.endsWith('/resources.html') || path.endsWith('/resources')) {
-      link.setAttribute('aria-current', 'page');
-    } else {
-      link.removeAttribute('aria-current');
-    }
-
-    if (!existing) item.appendChild(link);
-    navList.insertBefore(item, contactItem);
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', ensureResourcesNav, { once: true });
-  } else {
-    ensureResourcesNav();
-  }
-})();
-
