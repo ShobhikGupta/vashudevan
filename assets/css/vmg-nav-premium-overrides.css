@@ -81,9 +81,12 @@
     gap: 10px;
   }
 
-  .vmg-econship-header .logo img {
-    width: 46px;
-    height: 46px;
+  .vmg-econship-header .logo img.vmg-updated-header-logo {
+    width: 34px !important;
+    height: 54px !important;
+    object-fit: contain !important;
+    flex: 0 0 34px;
+    border-radius: 0;
   }
 
   .vmg-econship-header .logo span {
@@ -275,6 +278,14 @@
 @media (max-width: 991px) {
   .vmg-nav-socials {
     display: none;
+  }
+
+  .vmg-econship-header .logo img.vmg-updated-header-logo {
+    width: 25px !important;
+    height: 40px !important;
+    object-fit: contain !important;
+    flex: 0 0 25px;
+    border-radius: 0;
   }
 
   .vmg-mobile-socials-item {
