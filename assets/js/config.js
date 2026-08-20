@@ -243,5 +243,40 @@
   document.head.appendChild(style);
 })();
 
+// Keep Resources in the requested global navigation position: Market → Resources → Contact Us.
+(function () {
+  function ensureResourcesNav() {
+    var navList = document.querySelector('#site-nav > ul');
+    if (!navList) return;
 
+    var existing = navList.querySelector('a[href="resources.html"], a[href="/resources.html"], a[href="/resources"]');
+    var contactLink = navList.querySelector('a[href="contact.html"], a[href="/contact.html"]');
+    if (!contactLink) return;
+
+    var contactItem = contactLink.closest('li');
+    if (!contactItem) return;
+
+    var item = existing ? existing.closest('li') : document.createElement('li');
+    var link = existing || document.createElement('a');
+
+    link.href = '/resources.html';
+    link.textContent = 'Resources';
+
+    var path = (window.location.pathname || '').toLowerCase();
+    if (path.endsWith('/resources.html') || path.endsWith('/resources')) {
+      link.setAttribute('aria-current', 'page');
+    } else {
+      link.removeAttribute('aria-current');
+    }
+
+    if (!existing) item.appendChild(link);
+    navList.insertBefore(item, contactItem);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ensureResourcesNav, { once: true });
+  } else {
+    ensureResourcesNav();
+  }
+})();
 
