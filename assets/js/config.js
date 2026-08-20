@@ -19,11 +19,30 @@
   }
 
   loadStylesheet('/assets/css/vmg-trade-nav.css', 'data-vmg-trade-nav');
+  loadStylesheet('/assets/css/vmg-nav-premium-overrides.css', 'data-vmg-nav-premium');
   loadStylesheet('/assets/css/vmg-market-polish.css', 'data-vmg-market-polish');
 })();
 
 // Build the requested site-wide order and Econship-inspired two-tier structure.
 (function () {
+  var SOCIALS = [
+    {
+      label: 'Facebook',
+      href: 'https://www.facebook.com/profile.php?id=61577681908111',
+      icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.5 22v-9h3l.45-3.5H13.5V7.25c0-1.01.28-1.7 1.73-1.7H17V2.42c-.31-.04-1.37-.13-2.61-.13-2.58 0-4.35 1.58-4.35 4.48V9.5H7.12V13h2.92v9h3.46Z"/></svg>'
+    },
+    {
+      label: 'LinkedIn',
+      href: 'https://www.linkedin.com/company/109161337/',
+      icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5.4 7.9H2.2V22h3.2V7.9ZM3.8 2A1.9 1.9 0 1 0 3.8 5.8 1.9 1.9 0 0 0 3.8 2ZM22 13.9c0-4.25-2.27-6.23-5.3-6.23-2.45 0-3.54 1.34-4.15 2.28V7.9H9.36V22h3.19v-6.98c0-1.84.35-3.62 2.63-3.62 2.25 0 2.28 2.1 2.28 3.74V22H22v-8.1Z"/></svg>'
+    },
+    {
+      label: 'Instagram',
+      href: 'https://www.instagram.com/vashudevan_metglobal_llp?igsh=NWJrZjQ3MTNqdTU4&utm_source=qr',
+      icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7.8 2h8.4A5.8 5.8 0 0 1 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8A5.8 5.8 0 0 1 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2Zm0 2A3.8 3.8 0 0 0 4 7.8v8.4A3.8 3.8 0 0 0 7.8 20h8.4a3.8 3.8 0 0 0 3.8-3.8V7.8A3.8 3.8 0 0 0 16.2 4H7.8Zm8.7 1.5a1.35 1.35 0 1 1 0 2.7 1.35 1.35 0 0 1 0-2.7ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg>'
+    }
+  ];
+
   function normalizePath(href) {
     try {
       return new URL(href, window.location.origin).pathname.replace(/\/$/, '') || '/';
@@ -100,6 +119,24 @@
     return wrapper;
   }
 
+  function createSocialLinks(className) {
+    var wrapper = document.createElement('div');
+    wrapper.className = className;
+
+    SOCIALS.forEach(function (social) {
+      var link = document.createElement('a');
+      link.className = 'vmg-social-link';
+      link.href = social.href;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.setAttribute('aria-label', social.label);
+      link.innerHTML = social.icon;
+      wrapper.appendChild(link);
+    });
+
+    return wrapper;
+  }
+
   function ensureToast() {
     var toast = document.querySelector('.vmg-track-toast');
     if (toast) return toast;
@@ -162,12 +199,13 @@
 
     if (logo.parentNode !== brandRow) brandRow.appendChild(logo);
 
-    var balance = brandRow.querySelector('.vmg-nav-balance');
-    if (!balance) {
-      balance = document.createElement('div');
-      balance.className = 'vmg-nav-balance';
-      balance.setAttribute('aria-hidden', 'true');
-      brandRow.appendChild(balance);
+    var oldBalance = brandRow.querySelector('.vmg-nav-balance');
+    if (oldBalance) oldBalance.remove();
+
+    var desktopSocials = brandRow.querySelector('.vmg-nav-socials');
+    if (!desktopSocials) {
+      desktopSocials = createSocialLinks('vmg-nav-socials');
+      brandRow.appendChild(desktopSocials);
     }
 
     if (toggle.parentNode !== brandRow) brandRow.appendChild(toggle);
@@ -189,6 +227,19 @@
       mobileTrackerItem.className = 'vmg-mobile-tracker-item';
       mobileTrackerItem.appendChild(createTracker(true));
       navList.insertBefore(mobileTrackerItem, navList.firstChild);
+    }
+
+    var mobileSocialsItem = navList.querySelector('.vmg-mobile-socials-item');
+    if (!mobileSocialsItem) {
+      mobileSocialsItem = document.createElement('li');
+      mobileSocialsItem.className = 'vmg-mobile-socials-item';
+
+      var mobileLabel = document.createElement('span');
+      mobileLabel.className = 'vmg-mobile-socials-label';
+      mobileLabel.textContent = 'Follow Us';
+      mobileSocialsItem.appendChild(mobileLabel);
+      mobileSocialsItem.appendChild(createSocialLinks('vmg-mobile-socials'));
+      navList.appendChild(mobileSocialsItem);
     }
 
     bindTrackForms();
