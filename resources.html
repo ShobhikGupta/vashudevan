@@ -74,8 +74,8 @@
     .hub-tab[aria-selected="true"]{background:#fff;color:var(--vmg-navy);box-shadow:inset 0 -3px 0 var(--vmg-copper)}
     .hub-panel{display:none;padding:24px}
     .hub-panel.active{display:block}
-    .hub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
-    .hub-grid.partner-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .hub-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px;align-items:stretch}
+    .hub-grid.partner-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr))}
     .hub-card,.doc-card{display:flex;flex-direction:column;min-width:0;height:100%;border:1px solid var(--vmg-line);border-radius:16px;background:#fff;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
     .hub-card{min-height:205px;padding:23px}
     .hub-card:hover,.doc-card:hover{transform:translateY(-4px);border-color:#cbd4df;box-shadow:var(--vmg-shadow)}
@@ -88,7 +88,7 @@
     .card-note{margin-top:auto;padding-top:17px;color:#7a8696;font-size:.87rem;line-height:1.52}
 
     /* Documentation */
-    .docs-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
+    .docs-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
     .doc-card{min-height:205px;padding:24px}
     .doc-number{margin-bottom:25px;color:var(--vmg-copper);font-size:.74rem;font-weight:800;letter-spacing:.11em}
     .doc-card h3{font-size:1.18rem}
@@ -278,7 +278,7 @@
           </div>
 
           <div class="hub-panel active" id="panel-buyers" role="tabpanel" aria-labelledby="tab-buyers">
-            <div class="hub-grid">
+            <div class="hub-grid auto-grid-md equal-card-grid">
               <article class="hub-card"><div class="hub-card-kicker">Requirement Preparation</div><h3>Buying Requirement Checklist</h3><p>Share material category, grade/specification, quantity, destination, shipment terms, inspection preference, timeline, and company contact details.</p><a class="card-link" href="contact.html#buy-requirement">Send Buying Requirement</a></article>
               <article class="hub-card"><div class="hub-card-kicker">Material Reference</div><h3>Material Grade Guide</h3><p>Review common ferrous and non-ferrous recyclable-metal categories supported by VMG before sending your buying requirement.</p><a class="card-link" href="products.html">Explore Products</a></article>
               <article class="hub-card"><div class="hub-card-kicker">Price Context</div><h3>Market Reference Guide</h3><p>Use metal and FX benchmarks for broad market direction while keeping grade, recovery, freight, location, and documentation in context.</p><a class="card-link" href="/market-prices">View Market Prices</a></article>
@@ -287,7 +287,7 @@
           </div>
 
           <div class="hub-panel" id="panel-suppliers" role="tabpanel" aria-labelledby="tab-suppliers" hidden>
-            <div class="hub-grid">
+            <div class="hub-grid auto-grid-md equal-card-grid">
               <article class="hub-card"><div class="hub-card-kicker">Supplier Setup</div><h3>Supplier Onboarding Checklist</h3><p>Share company details, authorised contact, available grades, quantity, yard/loading information, inspection availability, and relevant documents.</p><a class="card-link" href="contact.html#supplier-enquiry">Start Supplier Enquiry</a></article>
               <article class="hub-card"><div class="hub-card-kicker">Offer Preparation</div><h3>Material Offer Checklist</h3><p>A clear offer should include grade, origin, quantity, packing/loading details, target price, shipment readiness, inspection preference, and photos/videos.</p><div class="card-note">Use this checklist before submitting an offer.</div></article>
               <article class="hub-card"><div class="hub-card-kicker">Loading Records</div><h3>Container Loading Photo Guide</h3><p>Maintain empty-container photos, material close-ups, loading progress, container number, seal number, and final loaded-container view.</p><div class="card-note">Keep records clear and shipment-specific.</div></article>
@@ -296,7 +296,7 @@
           </div>
 
           <div class="hub-panel" id="panel-partners" role="tabpanel" aria-labelledby="tab-partners" hidden>
-            <div class="hub-grid partner-grid">
+            <div class="hub-grid partner-grid auto-grid-sm equal-card-grid">
               <article class="hub-card"><div class="hub-card-kicker">Network Partnerships</div><h3>Logistics / Inspection / Yard / Recycler Partnership Enquiry</h3><p>Connect with VMG for serious partnerships across logistics, inspection, yards, recyclers, processors, and sourcing networks.</p><a class="card-link" href="contact.html#partnership-enquiry">Start Partnership Enquiry</a></article>
               <article class="hub-card"><div class="hub-card-kicker">Long-Term Coordination</div><h3>Long-Term Business Coordination</h3><p>Build repeatable coordination around sourcing, material movement, inspection, loading, documentation, and trade communication.</p><div class="card-note">Best suited for verified ongoing commercial relationships.</div></article>
               <article class="hub-card"><div class="hub-card-kicker">Direct Desk</div><h3>Contact VMG Desk</h3><p>Speak directly with the VMG team when a partnership enquiry requires commercial review and next-step coordination.</p><a class="card-link" href="contact.html#vmg-desk">Contact VMG Desk</a></article>
@@ -313,7 +313,7 @@
           <h2 class="res-heading">Essential Trade Documentation</h2>
           <p class="res-copy">A concise reference to common documents, inspection basics, commercial terms, and KYC requirements used in international recyclable-metal trade.</p>
         </div>
-        <div class="docs-grid">
+        <div class="docs-grid auto-grid-md equal-card-grid">
           <article class="doc-card res-reveal"><div class="doc-number">01</div><h3>Import / Export Documents</h3><p>Commercial invoice, packing list, PO/contract, bill of lading, certificate of origin, inspection certificate where applicable, and shipment-specific documents.</p></article>
           <article class="doc-card res-reveal"><div class="doc-number">02</div><h3>PSIC / Inspection Basics</h3><p>Inspection and certification requirements may vary by material, origin, destination, loading location, inspection terms, and current regulations.</p></article>
           <article class="doc-card res-reveal"><div class="doc-number">03</div><h3>Incoterms Basics</h3><p>FOB, CFR, CIF, EXW, and related commercial terms help define responsibility, cost, and risk between buyer and seller before shipment.</p></article>

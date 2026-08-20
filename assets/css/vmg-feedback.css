@@ -310,7 +310,7 @@ body.vmg-feedback-open .vmg-feedback-drawer {
   display: none;
 }
 
-@media (max-width: 1180px) and (min-width: 992px) {
+@media (max-width: 1320px) and (min-width: 992px) {
   .vmg-nav-socials .vmg-feedback-trigger {
     padding-inline: 11px;
     margin-right: 4px;

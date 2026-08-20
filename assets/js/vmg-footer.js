@@ -2,13 +2,13 @@
   'use strict';
 
   var LOGOS={
-    mrai:'https://drive.google.com/thumbnail?id=1LuYF-QNatI3zkvcQy-xC0hLD0uD5fuQH&sz=w500',
-    bir:'https://drive.google.com/thumbnail?id=1sW6c-oY0OJ-a0Z1r4P-Gl8a_monBE-KW&sz=w500',
-    recycleinme:'https://drive.google.com/thumbnail?id=1tHl6yW1wH07-GMowrfPhi9OSmBIq4HzC&sz=w500',
-    duns:'https://drive.google.com/thumbnail?id=1tUP91q6iYjV0sh7ZkXJjVn230580O6sL&sz=w500',
-    iec:'https://drive.google.com/thumbnail?id=1R95aNW2dIXhc-E_azwsp9ZRCM47ED7c8&sz=w500',
-    gst:'https://drive.google.com/thumbnail?id=1EZKk40u76pMRtjBuf6ElAJlDaREd5EqT&sz=w500',
-    msme:'https://drive.google.com/thumbnail?id=1hjjLnbgBG3Z9W8WN9AgNjsIbh9rsIQhz&sz=w500'
+    mrai:'/assets/img/footer-logos/mrai.png',
+    bir:'/assets/img/footer-logos/bir.png',
+    recycleinme:'/assets/img/footer-logos/recycleinme.png',
+    duns:'/assets/img/footer-logos/duns.png',
+    iec:'/assets/img/footer-logos/iec.png',
+    gst:'/assets/img/footer-logos/gst.png',
+    msme:'/assets/img/footer-logos/msme.png'
   };
 
   var socials=[
@@ -37,16 +37,11 @@
         <div class="vmg-footer-wrap">\
           <h2 class="vmg-footer-section-title">Proud Member Of</h2>\
           <div class="vmg-footer-member-grid">\
-            '+trustCard('mrai','MRAI','Member')+'\
-            '+trustCard('bir','BIR','Member')+'\
-            '+trustCard('recycleinme','RecycleInMe','Premium Member')+'\
+            '+trustCard('mrai','MRAI','Member')+trustCard('bir','BIR','Member')+trustCard('recycleinme','RecycleInMe','Premium Member')+'\
           </div>\
-          <h2 class="vmg-footer-section-title">Verified &amp; Registered</h2>\
+          <h2 class="vmg-footer-section-title vmg-footer-verified-title">Verified &amp; Registered</h2>\
           <div class="vmg-footer-verify-grid">\
-            '+trustCard('duns','D-U-N-S','861572919','https://www.dnb.com/business-directory/company-profiles.vashudevan_metglobal_llp.136a46a739ed77d5feca2ac7ba44975f.html')+'\
-            '+trustCard('iec','IEC','IEC Registered')+'\
-            '+trustCard('gst','GST','GSTIN 24AARFV7153Q1Z7')+'\
-            '+trustCard('msme','MSME','MSME Registered')+'\
+            '+trustCard('duns','D-U-N-S','861572919','https://www.dnb.com/business-directory/company-profiles.vashudevan_metglobal_llp.136a46a739ed77d5feca2ac7ba44975f.html')+trustCard('iec','IEC','IEC Registered')+trustCard('gst','GST','GSTIN 24AARFV7153Q1Z7')+trustCard('msme','MSME','MSME Registered')+'\
           </div>\
         </div>\
       </div>\
@@ -60,11 +55,11 @@
             <li><a href="/contact.html">Contact Us</a></li>\
           </ul>\
           <div class="vmg-footer-subscribe-row">\
-            <div class="vmg-footer-subscribe-copy"><small>VMG Trade Updates</small><strong>Stay Ahead of the Market</strong><span>Occasional recyclable-metal market references and important VMG updates.</span></div>\
-            <form class="vmg-footer-subscribe-form" data-vmg-subscribe-form novalidate><input class="vmg-footer-subscribe-input" type="email" name="email" autocomplete="email" placeholder="Business email address" aria-label="Business email address" required><button class="vmg-footer-subscribe-button" type="submit">Subscribe</button><p class="vmg-footer-subscribe-status" role="status" aria-live="polite"></p></form>\
+            <div class="vmg-footer-subscribe-copy"><strong>VMG Trade Updates</strong><span>Occasional recyclable-metal market updates.</span></div>\
+            <form class="vmg-footer-subscribe-form" data-vmg-subscribe-form novalidate><div class="vmg-footer-subscribe-controls"><input class="vmg-footer-subscribe-input" type="email" name="email" autocomplete="email" placeholder="Business email address" aria-label="Business email address" aria-describedby="vmg-footer-subscribe-status" aria-invalid="false" required><button class="vmg-footer-subscribe-button" type="submit">Subscribe</button></div><p class="vmg-footer-subscribe-status" id="vmg-footer-subscribe-status" role="status" aria-live="polite"></p></form>\
           </div>\
           <div class="vmg-footer-bottom">\
-            <a class="vmg-footer-brand-lockup" href="/index.html"><img src="/assets/img/vmg-header-logo.svg" alt=""><strong>Vashudevan MetGlobal LLP</strong></a>\
+            <a class="vmg-footer-brand-lockup" href="/index.html"><strong>Vashudevan MetGlobal LLP</strong></a>\
             <span class="vmg-footer-copyright">© 2026 Vashudevan MetGlobal LLP. All rights reserved.</span>\
             <div class="vmg-footer-socials">'+socialMarkup()+'</div>\
           </div>\
@@ -104,13 +99,29 @@
     var button=form.querySelector('.vmg-footer-subscribe-button');
     var status=form.querySelector('.vmg-footer-subscribe-status');
 
+    function clearStatus(){
+      status.textContent='';
+      status.className='vmg-footer-subscribe-status';
+      input.setAttribute('aria-invalid','false');
+    }
+
+    input.addEventListener('input',clearStatus);
+
     form.addEventListener('submit',function(event){
       event.preventDefault();
-      status.className='vmg-footer-subscribe-status';
+      clearStatus();
       var email=(input.value||'').trim();
-      if(!email||!input.checkValidity()){
-        status.textContent='Enter a valid business email address.';
+      if(!email){
+        status.textContent='Please enter your business email.';
         status.classList.add('is-error');
+        input.setAttribute('aria-invalid','true');
+        input.focus();
+        return;
+      }
+      if(!input.checkValidity()){
+        status.textContent='Please enter a valid business email.';
+        status.classList.add('is-error');
+        input.setAttribute('aria-invalid','true');
         input.focus();
         return;
       }
@@ -128,7 +139,7 @@
 
       fetch(endpoint,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({source:'trade-updates-subscription',type:'Trade Updates Subscription',email:email,'MAIL ID':email,page:window.location.href,submittedAt:new Date().toISOString()})})
         .then(function(){
-          status.textContent='Subscription request sent.';
+          status.textContent='Thank you. Your subscription request was sent.';
           status.classList.add('is-success');
           form.reset();
         })
