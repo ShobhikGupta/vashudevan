@@ -1,24 +1,25 @@
 // Configuration for client-side features
-// Update contactEndpoint to your email service or serverless endpoint
-// Example (Formspree): 'https://formspree.io/f/yourFormId'
-// Example (custom API): 'https://api.example.com/contact'
 (function(){
   window.AppConfig = window.AppConfig || {};
-  // Primary Google Apps Script Web App URL (used by main contact form)
   window.AppConfig.googleScriptUrl = 'https://script.google.com/macros/s/AKfycbxsmNbhUkhWY3hEmYof4dGi7cOEYEbMDoBSFe3erSciipp-_-tI1RKuQ7P3ms9gyYYR/exec';
-  // Optional: fallback custom endpoint for JSON POSTs (kept for compatibility)
   window.AppConfig.contactEndpoint = window.AppConfig.contactEndpoint || '';
 })();
 
-// Load the VMG two-tier navigation skin without modifying every page template.
+// Load preview-only shared styles without editing every page template.
 (function(){
   if (!document || !document.head) return;
-  if (document.querySelector('link[data-vmg-trade-nav]')) return;
-  var link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = '/assets/css/vmg-trade-nav.css';
-  link.setAttribute('data-vmg-trade-nav', 'true');
-  document.head.appendChild(link);
+
+  function loadStylesheet(href, marker) {
+    if (document.querySelector('link[' + marker + ']')) return;
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    link.setAttribute(marker, 'true');
+    document.head.appendChild(link);
+  }
+
+  loadStylesheet('/assets/css/vmg-trade-nav.css', 'data-vmg-trade-nav');
+  loadStylesheet('/assets/css/vmg-market-polish.css', 'data-vmg-market-polish');
 })();
 
 // Build the requested site-wide order and Econship-inspired two-tier structure.
@@ -42,7 +43,9 @@
   function ensurePrimaryItem(navList, label, href) {
     var links = Array.prototype.slice.call(navList.querySelectorAll(':scope > li > a'));
     var link = links.find(function (candidate) {
-      return candidate.textContent.trim().toLowerCase() === label.toLowerCase() || normalizePath(candidate.getAttribute('href')) === href;
+      var textMatch = candidate.textContent.trim().toLowerCase() === label.toLowerCase();
+      var pathMatch = href !== 'javascript:void(0)' && normalizePath(candidate.getAttribute('href')) === href;
+      return textMatch || pathMatch;
     });
 
     if (!link) {
@@ -65,6 +68,74 @@
     return link.closest('li');
   }
 
+  function createTracker(compact) {
+    var wrapper = document.createElement('div');
+    wrapper.className = 'vmg-track-shipment';
+
+    var title = document.createElement('span');
+    title.className = 'vmg-track-title';
+    title.textContent = 'Track Shipment';
+
+    var form = document.createElement('form');
+    form.className = 'vmg-track-form';
+    form.setAttribute('data-vmg-track-form', 'true');
+    form.setAttribute('aria-label', 'Track shipment');
+
+    var input = document.createElement('input');
+    input.className = 'vmg-track-input';
+    input.type = 'text';
+    input.autocomplete = 'off';
+    input.placeholder = compact ? 'BL / Container / CTO No.' : 'Enter BL/Container/CTO No.';
+    input.setAttribute('aria-label', 'BL, container or CTO number');
+
+    var button = document.createElement('button');
+    button.className = 'vmg-track-button';
+    button.type = 'submit';
+    button.textContent = 'Track';
+
+    form.appendChild(input);
+    form.appendChild(button);
+    wrapper.appendChild(title);
+    wrapper.appendChild(form);
+    return wrapper;
+  }
+
+  function ensureToast() {
+    var toast = document.querySelector('.vmg-track-toast');
+    if (toast) return toast;
+    toast = document.createElement('div');
+    toast.className = 'vmg-track-toast';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    toast.textContent = 'Shipment tracking portal is coming soon.';
+    document.body.appendChild(toast);
+    return toast;
+  }
+
+  function bindTrackForms() {
+    var toast = ensureToast();
+    var hideTimer = null;
+
+    document.querySelectorAll('[data-vmg-track-form]').forEach(function (form) {
+      if (form.dataset.bound === 'true') return;
+      form.dataset.bound = 'true';
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        var input = form.querySelector('.vmg-track-input');
+        var hasValue = input && input.value.trim();
+        toast.textContent = hasValue
+          ? 'Shipment tracking portal is coming soon. Your reference has not been submitted.'
+          : 'Shipment tracking portal is coming soon.';
+        toast.classList.add('is-visible');
+        clearTimeout(hideTimer);
+        hideTimer = setTimeout(function () {
+          toast.classList.remove('is-visible');
+        }, 3200);
+      });
+    });
+  }
+
   function enhanceNavigation() {
     var header = document.querySelector('.site-header');
     var headerInner = header && header.querySelector('.header-inner');
@@ -82,7 +153,23 @@
       brandRow.className = 'vmg-nav-brand-row';
       headerInner.insertBefore(brandRow, headerInner.firstChild);
     }
+
+    var desktopTracker = brandRow.querySelector('.vmg-track-shipment');
+    if (!desktopTracker) {
+      desktopTracker = createTracker(false);
+      brandRow.insertBefore(desktopTracker, brandRow.firstChild);
+    }
+
     if (logo.parentNode !== brandRow) brandRow.appendChild(logo);
+
+    var balance = brandRow.querySelector('.vmg-nav-balance');
+    if (!balance) {
+      balance = document.createElement('div');
+      balance.className = 'vmg-nav-balance';
+      balance.setAttribute('aria-hidden', 'true');
+      brandRow.appendChild(balance);
+    }
+
     if (toggle.parentNode !== brandRow) brandRow.appendChild(toggle);
 
     var homeItem = ensurePrimaryItem(navList, 'Home', '/index.html');
@@ -95,6 +182,16 @@
     [homeItem, aboutItem, productsItem, marketItem, resourcesItem, contactItem].forEach(function (item) {
       if (item) navList.appendChild(item);
     });
+
+    var mobileTrackerItem = navList.querySelector('.vmg-mobile-tracker-item');
+    if (!mobileTrackerItem) {
+      mobileTrackerItem = document.createElement('li');
+      mobileTrackerItem.className = 'vmg-mobile-tracker-item';
+      mobileTrackerItem.appendChild(createTracker(true));
+      navList.insertBefore(mobileTrackerItem, navList.firstChild);
+    }
+
+    bindTrackForms();
   }
 
   if (document.readyState === 'loading') {
@@ -102,237 +199,4 @@
   } else {
     enhanceNavigation();
   }
-})();
-
-// Compact the homepage market CTA on phones so the ticker gets more horizontal room.
-(function(){
-  if (!document || !document.head) return;
-
-  var style = document.createElement('style');
-  style.setAttribute('data-market-mobile-cta', 'true');
-  style.textContent = [
-    '@media (max-width: 640px) {',
-    '  .market-ticker-link {',
-    '    width: 62px !important;',
-    '    padding-left: 2px !important;',
-    '    padding-right: 2px !important;',
-    '    gap: 1px !important;',
-    '  }',
-    '  .market-ticker-link-full {',
-    '    display: inline-block;',
-    '    width: 38px;',
-    '    white-space: normal !important;',
-    '    text-align: center;',
-    '    line-height: 1.02;',
-    '  }',
-    '}',
-    '@media (max-width: 380px) {',
-    '  .market-ticker-link {',
-    '    width: 58px !important;',
-    '    padding-left: 1px !important;',
-    '    padding-right: 1px !important;',
-    '  }',
-    '  .market-ticker-link-full {',
-    '    width: 36px;',
-    '  }',
-    '}'
-  ].join('\n');
-  document.head.appendChild(style);
-})();
-
-// Market page-only visual polish: align the dashboard to the core VMG container,
-// bring the benchmark dropdown into the VMG form language, and keep the quotation
-// CTA compact and industrial rather than app-like.
-(function(){
-  if (!document || !document.head) return;
-  if (!document.querySelector('.market-page')) return;
-
-  var style = document.createElement('style');
-  style.setAttribute('data-market-page-polish', 'true');
-  style.textContent = [
-    '/* Consistent VMG page grid */',
-    '.market-page .market-dashboard {',
-    '  width: min(1200px, 94%) !important;',
-    '  max-width: 1200px !important;',
-    '  margin-left: auto !important;',
-    '  margin-right: auto !important;',
-    '}',
-    '.market-page .market-overview-shell,',
-    '.market-page .market-chart-selector,',
-    '.market-page .market-chart-panel,',
-    '.market-page .market-cta-card {',
-    '  width: 100% !important;',
-    '  max-width: none !important;',
-    '}',
-    '.market-page .market-chart-selector {',
-    '  margin: 0 0 14px !important;',
-    '  padding: 14px 16px !important;',
-    '  border: 1px solid #dfe5ec !important;',
-    '  border-radius: 14px !important;',
-    '  background: #ffffff !important;',
-    '  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.045) !important;',
-    '}',
-    '.market-page .market-chart-control-row {',
-    '  width: min(640px, 100%) !important;',
-    '  margin: 0 auto !important;',
-    '  gap: 14px !important;',
-    '}',
-    '',
-    '/* Premium VMG benchmark dropdown */',
-    '.market-page .market-custom-select-button {',
-    '  min-height: 44px !important;',
-    '  display: flex !important;',
-    '  align-items: center !important;',
-    '  justify-content: center !important;',
-    '  padding: 0 42px !important;',
-    '  text-align: center !important;',
-    '  color: #0f172a !important;',
-    '  background: #ffffff !important;',
-    '  border: 1px solid #d5dce5 !important;',
-    '  border-radius: 10px !important;',
-    '  box-shadow: none !important;',
-    '  font-weight: 700 !important;',
-    '}',
-    '.market-page .market-custom-select-button [data-selected-label] {',
-    '  width: 100% !important;',
-    '  text-align: center !important;',
-    '  pointer-events: none;',
-    '}',
-    '.market-page .market-custom-select-button:hover {',
-    '  border-color: #b8c2cf !important;',
-    '  background: #fbfcfd !important;',
-    '}',
-    '.market-page .market-custom-select-button:focus-visible,',
-    '.market-page .market-custom-select.is-open .market-custom-select-button {',
-    '  border-color: #b87943 !important;',
-    '  box-shadow: 0 0 0 3px rgba(184, 121, 67, 0.12) !important;',
-    '  outline: none !important;',
-    '}',
-    '.market-page .market-custom-select-chevron {',
-    '  right: 14px !important;',
-    '  color: #64748b !important;',
-    '}',
-    '.market-page .market-custom-select-list {',
-    '  top: calc(100% + 6px) !important;',
-    '  padding: 6px !important;',
-    '  overflow-y: auto !important;',
-    '  max-height: 282px !important;',
-    '  background: #ffffff !important;',
-    '  border: 1px solid #d5dce5 !important;',
-    '  border-radius: 10px !important;',
-    '  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.12) !important;',
-    '}',
-    '.market-page .market-custom-select.is-open .market-custom-select-list {',
-    '  gap: 2px !important;',
-    '}',
-    '.market-page .market-custom-select-option {',
-    '  padding: 10px 12px !important;',
-    '  border-radius: 7px !important;',
-    '  text-align: center !important;',
-    '  color: #475569 !important;',
-    '  background: transparent !important;',
-    '  font-size: 0.92rem !important;',
-    '  font-weight: 650 !important;',
-    '}',
-    '.market-page .market-custom-select-option:hover,',
-    '.market-page .market-custom-select-option:focus {',
-    '  color: #0f172a !important;',
-    '  background: #f8fafc !important;',
-    '}',
-    '.market-page .market-custom-select-option[aria-selected="true"] {',
-    '  color: #7b522f !important;',
-    '  background: #f7f2ed !important;',
-    '  box-shadow: inset 2px 0 0 #b87943 !important;',
-    '}',
-    '',
-    '/* Compact premium quotation CTA */',
-    '.market-page .market-cta-section {',
-    '  padding-top: 24px !important;',
-    '  background: #ffffff !important;',
-    '}',
-    '.market-page .market-cta-card {',
-    '  grid-template-columns: auto minmax(0, 1fr) auto !important;',
-    '  gap: 16px !important;',
-    '  padding: 18px 20px !important;',
-    '  color: #0f172a !important;',
-    '  background: #ffffff !important;',
-    '  border: 1px solid #dfe5ec !important;',
-    '  border-left: 3px solid #b87943 !important;',
-    '  border-radius: 14px !important;',
-    '  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.055) !important;',
-    '}',
-    '.market-page .market-cta-icon {',
-    '  width: 42px !important;',
-    '  height: 42px !important;',
-    '  border-radius: 10px !important;',
-    '  color: #a86f3e !important;',
-    '  background: #f8f3ee !important;',
-    '  border: 1px solid #e9ddd1 !important;',
-    '  box-shadow: none !important;',
-    '}',
-    '.market-page .market-cta-icon svg,',
-    '.market-page .market-cta-icon svg path {',
-    '  fill: currentColor !important;',
-    '}',
-    '.market-page .market-cta-copy h2 {',
-    '  margin-bottom: 3px !important;',
-    '  color: #0a1728 !important;',
-    '  font-size: clamp(1.05rem, 1.7vw, 1.25rem) !important;',
-    '  letter-spacing: -0.01em !important;',
-    '}',
-    '.market-page .market-cta-copy p {',
-    '  margin: 0 !important;',
-    '  color: #64748b !important;',
-    '  font-size: 0.92rem !important;',
-    '}',
-    '.market-page .market-cta-button {',
-    '  min-height: 42px !important;',
-    '  padding: 10px 16px !important;',
-    '  color: #ffffff !important;',
-    '  background: #0a1728 !important;',
-    '  border: 1px solid #0a1728 !important;',
-    '  border-radius: 9px !important;',
-    '  box-shadow: none !important;',
-    '  text-decoration: none !important;',
-    '  font-weight: 750 !important;',
-    '}',
-    '.market-page .market-cta-button:hover,',
-    '.market-page .market-cta-button:focus-visible {',
-    '  color: #ffffff !important;',
-    '  background: #13243a !important;',
-    '  border-color: #13243a !important;',
-    '  box-shadow: 0 8px 18px rgba(10, 23, 40, 0.16) !important;',
-    '}',
-    '',
-    '@media (max-width: 640px) {',
-    '  .market-page .market-dashboard {',
-    '    width: calc(100% - 28px) !important;',
-    '  }',
-    '  .market-page .market-chart-selector {',
-    '    padding: 12px !important;',
-    '  }',
-    '  .market-page .market-chart-control-row {',
-    '    gap: 10px !important;',
-    '  }',
-    '  .market-page .market-cta-card {',
-    '    grid-template-columns: 1fr !important;',
-    '    justify-items: center !important;',
-    '    gap: 10px !important;',
-    '    padding: 18px 16px !important;',
-    '    text-align: center !important;',
-    '    border-left-width: 1px !important;',
-    '    border-top: 3px solid #b87943 !important;',
-    '  }',
-    '  .market-page .market-cta-button {',
-    '    width: 100% !important;',
-    '    max-width: 260px !important;',
-    '  }',
-    '}',
-    '@media (max-width: 380px) {',
-    '  .market-page .market-chart-control-row {',
-    '    grid-template-columns: 1fr !important;',
-    '  }',
-    '}'
-  ].join('\n');
-  document.head.appendChild(style);
 })();
