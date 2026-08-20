@@ -61,7 +61,7 @@
               <ul class="vmg-footer-list">\
                 <li><a href="/resources.html#faq">FAQ</a></li>\
                 <li><a href="/VMG_BROCHURE.pdf" target="_blank" rel="noopener">Company Profile</a></li>\
-                <li><a href="/resources.html#documentation-support">Documentation Support</a></li>\
+                <li><a href="/resources.html">Documentation Support</a></li>\
                 <li><button type="button" data-vmg-legal-pending="Privacy Policy">Privacy Policy</button></li>\
                 <li><button type="button" data-vmg-legal-pending="Terms &amp; Conditions">Terms &amp; Conditions</button></li>\
               </ul>\
