@@ -203,8 +203,13 @@
     var logoImage = logo.querySelector('img');
     if (logoImage) {
       logoImage.src = '/assets/img/vmg-header-logo.svg';
-      logoImage.alt = 'Vashudevan Met Global LLP logo';
+      logoImage.alt = 'Vashudevan MetGlobal LLP logo';
       logoImage.classList.add('vmg-updated-header-logo');
+    }
+
+    var logoText = logo.querySelector('span');
+    if (logoText) {
+      logoText.textContent = 'Vashudevan MetGlobal LLP';
     }
 
     if (logo.parentNode !== brandRow) brandRow.appendChild(logo);
