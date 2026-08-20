@@ -23,7 +23,7 @@
   loadStylesheet('/assets/css/vmg-market-polish.css', 'data-vmg-market-polish');
 })();
 
-// Build the requested site-wide order and premium three-tier trade navigation.
+// Build the requested site-wide order and premium two-tier trade navigation.
 (function () {
   var SOCIALS = [
     {
@@ -40,24 +40,6 @@
       label: 'Instagram',
       href: 'https://www.instagram.com/vashudevan_metglobal_llp?igsh=NWJrZjQ3MTNqdTU4&utm_source=qr',
       icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7.8 2h8.4A5.8 5.8 0 0 1 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8A5.8 5.8 0 0 1 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2Zm0 2A3.8 3.8 0 0 0 4 7.8v8.4A3.8 3.8 0 0 0 7.8 20h8.4a3.8 3.8 0 0 0 3.8-3.8V7.8A3.8 3.8 0 0 0 16.2 4H7.8Zm8.7 1.5a1.35 1.35 0 1 1 0 2.7 1.35 1.35 0 0 1 0-2.7ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg>'
-    }
-  ];
-
-  var CONTACTS = [
-    {
-      label: 'Surat, Gujarat, India',
-      href: '',
-      icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.7" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>'
-    },
-    {
-      label: 'exim@vashudevan.com',
-      href: 'mailto:exim@vashudevan.com',
-      icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m4.5 7 7.5 6 7.5-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-    },
-    {
-      label: '+91 9879208178',
-      href: 'tel:+919879208178',
-      icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M7.2 3.5 4.8 4.7a2 2 0 0 0-1 2.3c1.6 6.4 6.8 11.6 13.2 13.2a2 2 0 0 0 2.3-1l1.2-2.4-4.1-2-1.3 1.9c-3.4-1.3-6.1-4-7.4-7.4l1.9-1.3-2.4-4.5Z"/></svg>'
     }
   ];
 
@@ -122,7 +104,7 @@
     input.className = 'vmg-track-input';
     input.type = 'text';
     input.autocomplete = 'off';
-    input.placeholder = compact ? 'BL / Container / CTO No.' : 'Enter BL/Container/CTO No.';
+    input.placeholder = 'BL / Container / CTO No.';
     input.setAttribute('aria-label', 'BL, container or CTO number');
 
     var button = document.createElement('button');
@@ -153,38 +135,6 @@
     });
 
     return wrapper;
-  }
-
-  function createContactLinks(className) {
-    var wrapper = document.createElement('div');
-    wrapper.className = className;
-
-    CONTACTS.forEach(function (item) {
-      var node = item.href ? document.createElement('a') : document.createElement('span');
-      node.className = 'vmg-utility-contact-item';
-      if (item.href) node.href = item.href;
-      node.innerHTML = item.icon + '<span>' + item.label + '</span>';
-      wrapper.appendChild(node);
-    });
-
-    return wrapper;
-  }
-
-  function createUtilityStrip() {
-    var strip = document.createElement('div');
-    strip.className = 'vmg-utility-strip';
-
-    var inner = document.createElement('div');
-    inner.className = 'vmg-utility-inner';
-
-    var tagline = document.createElement('span');
-    tagline.className = 'vmg-utility-tagline';
-    tagline.textContent = 'Global Recyclable-Metal Trading & Supply';
-
-    inner.appendChild(tagline);
-    inner.appendChild(createContactLinks('vmg-utility-contact'));
-    strip.appendChild(inner);
-    return strip;
   }
 
   function ensureToast() {
@@ -223,24 +173,6 @@
     });
   }
 
-  function bindHeaderCondense(header) {
-    if (header.dataset.vmgCondenseBound === 'true') return;
-    header.dataset.vmgCondenseBound = 'true';
-
-    var ticking = false;
-    function update() {
-      header.classList.toggle('is-condensed', window.scrollY > 28);
-      ticking = false;
-    }
-
-    window.addEventListener('scroll', function () {
-      if (ticking) return;
-      ticking = true;
-      window.requestAnimationFrame(update);
-    }, { passive: true });
-    update();
-  }
-
   function enhanceNavigation() {
     var header = document.querySelector('.site-header');
     var headerInner = header && header.querySelector('.header-inner');
@@ -252,11 +184,8 @@
 
     header.classList.add('vmg-econship-header');
 
-    var utilityStrip = header.querySelector('.vmg-utility-strip');
-    if (!utilityStrip) {
-      utilityStrip = createUtilityStrip();
-      header.insertBefore(utilityStrip, header.firstChild);
-    }
+    var oldUtility = header.querySelector('.vmg-utility-strip');
+    if (oldUtility) oldUtility.remove();
 
     var brandRow = headerInner.querySelector('.vmg-nav-brand-row');
     if (!brandRow) {
@@ -295,25 +224,15 @@
       if (item) navList.appendChild(item);
     });
 
+    var oldMobileUtility = navList.querySelector('.vmg-mobile-utility-item');
+    if (oldMobileUtility) oldMobileUtility.remove();
+
     var mobileTrackerItem = navList.querySelector('.vmg-mobile-tracker-item');
     if (!mobileTrackerItem) {
       mobileTrackerItem = document.createElement('li');
       mobileTrackerItem.className = 'vmg-mobile-tracker-item';
       mobileTrackerItem.appendChild(createTracker(true));
       navList.insertBefore(mobileTrackerItem, navList.firstChild);
-    }
-
-    var mobileUtilityItem = navList.querySelector('.vmg-mobile-utility-item');
-    if (!mobileUtilityItem) {
-      mobileUtilityItem = document.createElement('li');
-      mobileUtilityItem.className = 'vmg-mobile-utility-item';
-
-      var mobileUtilityLabel = document.createElement('span');
-      mobileUtilityLabel.className = 'vmg-mobile-utility-label';
-      mobileUtilityLabel.textContent = 'VMG Trade Desk';
-      mobileUtilityItem.appendChild(mobileUtilityLabel);
-      mobileUtilityItem.appendChild(createContactLinks('vmg-mobile-utility-contact'));
-      navList.appendChild(mobileUtilityItem);
     }
 
     var mobileSocialsItem = navList.querySelector('.vmg-mobile-socials-item');
@@ -323,14 +242,13 @@
 
       var mobileLabel = document.createElement('span');
       mobileLabel.className = 'vmg-mobile-socials-label';
-      mobileLabel.textContent = 'Follow Us';
+      mobileLabel.textContent = 'Follow VMG';
       mobileSocialsItem.appendChild(mobileLabel);
       mobileSocialsItem.appendChild(createSocialLinks('vmg-mobile-socials'));
       navList.appendChild(mobileSocialsItem);
     }
 
     bindTrackForms();
-    bindHeaderCondense(header);
   }
 
   if (document.readyState === 'loading') {
