@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <base href="/">
+  <title>Global Metal Market Prices | Vashudevan Met Global LLP</title>
+  <meta name="description" content="Indicative global metal and FX market references from Vashudevan Met Global LLP.">
+  <link rel="icon" href="/assets/img/LOGO.png">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="/index.html" aria-label="Vashudevan Met Global LLP home"><img src="/assets/img/New LOGO.jpeg" alt="Vashudevan Met Global LLP logo"><span>Vashudevan Met Global LLP</span></a>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+      <nav id="site-nav" class="site-nav"><ul>
+        <li><a href="/index.html">Home</a></li>
+        <li class="has-submenu"><a href="javascript:void(0)">About Us</a><ul class="submenu"><li><a href="/who-we-are.html">Who We Are</a></li><li><a href="/our-impact.html">Our Impact</a></li></ul></li>
+        <li><a href="/products.html">Products</a></li>
+        <li><a href="/market-prices" aria-current="page">Market</a></li>
+        <li><a href="/contact.html">Contact Us</a></li>
+      </ul></nav>
+    </div>
+  </header>
+
+  <main class="page market-page">
+    <section class="market-page-hero"><div class="container market-dashboard"><h1>Global Metal Market Prices</h1><p>Indicative / Delayed Market Reference Data</p><aside class="market-notice"><h2>Market Reference Notice</h2><p>Prices shown are indicative / delayed market references and do not represent a firm offer, bid, purchase price, selling price or exact physical quotation from Vashudevan Met Global LLP. Actual physical pricing may vary by grade, quality, recovery, location, freight, duties and prevailing market conditions.</p><div class="market-notice-badges"><span>Indicative / Delayed</span><span>Reference Only</span><span>Final Physical Rates May Vary</span></div></aside></div></section>
+    <section class="section market-dashboard-section"><div class="container market-dashboard"><div class="market-section-heading"><h2>Market Overview</h2><p>Key metal and currency market references.</p></div><div class="market-overview-shell"><div class="market-dashboard-strip"><div class="market-group-tabs" role="tablist"><button class="market-group-tab active" type="button" data-market-overview-group="metals">Metals</button><button class="market-group-tab" type="button" data-market-overview-group="fx">FX</button></div></div><p id="market-quote-basis" class="market-quote-basis"><strong>Quote Basis:</strong> Displayed metal quotes follow the native quote basis supplied by each TradingView data provider.</p><div id="market-data-panel" class="market-widget-panel"><div class="market-widget-fallback">Market data temporarily unavailable.</div></div></div></div></section>
+    <section class="section market-chart-section"><div class="container market-dashboard"><div class="market-section-heading"><h2>Interactive Market Chart</h2><p>Select a benchmark to explore price movement and historical performance.</p></div><div class="market-chart-selector"><div class="market-chart-control-row"><div class="market-chart-control-field"><span class="market-control-label">Category</span><div class="market-group-tabs" role="tablist"><button class="market-group-tab active" type="button" data-chart-group="metals">Metals</button><button class="market-group-tab" type="button" data-chart-group="fx">FX</button></div></div><div class="market-select-field"><span>Benchmark</span><div class="market-custom-select" data-benchmark-dropdown><button id="market-chart-benchmark-button" class="market-custom-select-button" type="button" aria-haspopup="listbox" aria-expanded="false"><span data-selected-label>Aluminium</span><span class="market-custom-select-chevron" aria-hidden="true">⌄</span></button><ul id="market-chart-benchmark-list" class="market-custom-select-list" role="listbox" tabindex="-1"></ul></div></div></div></div><div class="market-chart-panel"><div id="market-chart-widget" class="market-chart-widget"><div class="market-widget-fallback">Market data temporarily unavailable.</div></div></div></div></section>
+    <section class="section market-cta-section"><div class="container market-dashboard"><div class="market-cta-card"><div><h2>Need live prices or a bulk quotation?</h2><p>Contact our team for current physical scrap pricing, availability and bulk requirements.</p></div><a class="market-cta-button" href="/contact.html">Contact Us <span aria-hidden="true">→</span></a></div></div></section>
+  </main>
+
+  <footer class="site-footer pro-footer"><div class="container footer-bottom"><div class="footer-left">Vashudevan Met Global LLP</div><div class="footer-center">© 2026 Vashudevan Met Global LLP. All rights reserved.</div><div class="footer-right">Recycle. Resource. Responsibly.</div></div></footer>
+  <script src="/assets/js/main.js"></script>
+  <script>
+  (function(){
+    var groups={metals:[['Aluminium','CAPITALCOM:ALUMINUM'],['Copper','CMCMARKETS:COPPER'],['Zinc','PEPPERSTONE:ZINC'],['Nickel','PEPPERSTONE:NICKEL'],['Lead','CAPITALCOM:LEAD'],['Iron Ore','CAPITALCOM:TSI'],['Gold','CAPITALCOM:XAUUSD'],['Silver','CAPITALCOM:XAGUSD'],['Platinum','PEPPERSTONE:XPTUSD']],fx:[['USD/INR','FX_IDC:USDINR'],['GBP/INR','FX_IDC:GBPINR'],['EUR/INR','FX_IDC:EURINR']]}, panel=document.getElementById('market-data-panel'), chart=document.getElementById('market-chart-widget'), basis=document.getElementById('market-quote-basis'), dropdown=document.querySelector('[data-benchmark-dropdown]'), button=document.getElementById('market-chart-benchmark-button'), list=document.getElementById('market-chart-benchmark-list'), label=button.querySelector('[data-selected-label]'), active='metals';
+    function widget(target,src,settings){target.innerHTML='<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div></div>';var s=document.createElement('script');s.async=true;s.src=src;s.text=JSON.stringify(settings);target.querySelector('.tradingview-widget-container').appendChild(s)}
+    function overview(key){basis.innerHTML=key==='fx'?'<strong>Quote Basis:</strong> FX values represent INR per 1 unit of the base currency.':'<strong>Quote Basis:</strong> Displayed metal quotes follow the native quote basis supplied by each TradingView data provider.';widget(panel,'https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js',{title:key==='fx'?'FX':'Metals',width:'100%',height:key==='fx'?260:420,locale:'en',showSymbolLogo:false,colorTheme:'light',isTransparent:true,symbolsGroups:[{name:key,symbols:groups[key].map(function(i){return{name:i[1],displayName:i[0]}})}]})}
+    function close(){dropdown.classList.remove('is-open');button.setAttribute('aria-expanded','false')}function choose(item){label.textContent=item[0];draw(item[1]);close();button.focus()}function options(key){active=key;list.innerHTML=groups[key].map(function(i,n){return '<li class="market-custom-select-option" role="option" tabindex="-1" data-symbol="'+i[1]+'" aria-selected="'+(!n)+'">'+i[0]+'</li>'}).join('');list.querySelectorAll('[role="option"]').forEach(function(o,n){o.onclick=function(){choose(groups[active][n])}});label.textContent=groups[key][0][0];draw(groups[key][0][1])}
+    function draw(symbol){widget(chart,'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js',{autosize:true,symbol:symbol,interval:'D',timezone:'exchange',theme:'light',style:'1',locale:'en',enable_publishing:false,allow_symbol_change:true,hide_side_toolbar:true,withdateranges:true,range:'6M',save_image:false,calendar:false,support_host:'https://www.tradingview.com'})}
+    document.querySelectorAll('[data-market-overview-group]').forEach(function(b){b.onclick=function(){document.querySelectorAll('[data-market-overview-group]').forEach(function(x){x.classList.toggle('active',x===b)});overview(b.dataset.marketOverviewGroup)}});document.querySelectorAll('[data-chart-group]').forEach(function(b){b.onclick=function(){document.querySelectorAll('[data-chart-group]').forEach(function(x){x.classList.toggle('active',x===b)});options(b.dataset.chartGroup)}});button.onclick=function(){dropdown.classList.toggle('is-open');button.setAttribute('aria-expanded',dropdown.classList.contains('is-open'))};document.addEventListener('click',function(e){if(!dropdown.contains(e.target))close()});overview('metals');options('metals');
+  })();
+  </script>
+</body>
+</html>
