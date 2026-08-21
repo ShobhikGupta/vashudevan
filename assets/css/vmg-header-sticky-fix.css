@@ -68,13 +68,11 @@
     pointer-events: auto !important;
   }
 
-  /* Footer is visible: entire closed mobile header retreats. */
   .site-header.vmg-econship-header.vmg-footer-in-view:not(.vmg-menu-open) {
     transform: translate3d(0,calc(-100% - 2px),0) !important;
     pointer-events: none !important;
   }
 
-  /* Footer has left viewport: default rule above immediately restores header. */
   .site-header.vmg-econship-header:not(.vmg-footer-in-view),
   .site-header.vmg-econship-header.vmg-menu-open,
   body.menu-open .site-header.vmg-econship-header {
@@ -82,7 +80,6 @@
     pointer-events: auto !important;
   }
 
-  /* Open menu always wins, including over the footer. */
   body.menu-open .site-header.vmg-econship-header.vmg-footer-in-view,
   .site-header.vmg-econship-header.vmg-menu-open.vmg-footer-in-view {
     transform: translate3d(0,0,0) !important;
@@ -147,13 +144,11 @@
     box-shadow: 0 8px 24px rgba(4,12,23,.14) !important;
   }
 
-  /* Footer enters: persistent Tier 2 retreats. */
   .site-header.vmg-econship-header.vmg-tier2-pinned.vmg-footer-in-view .site-nav {
     transform: translate3d(0,calc(-100% - 2px),0) !important;
     pointer-events: none !important;
   }
 
-  /* Footer exits: explicitly restore pinned Tier 2. */
   .site-header.vmg-econship-header.vmg-tier2-pinned:not(.vmg-footer-in-view) .site-nav {
     transform: translate3d(0,0,0) !important;
     pointer-events: auto !important;
@@ -162,8 +157,9 @@
 
 /* =========================================================
    GO TO TOP
-   Same footer state as header retreat. Existing older JS may add
-   .visible earlier, but this CSS makes footer visibility authoritative.
+   This is intentionally driven by the exact SAME state that means
+   the mobile header / desktop Tier 2 has actually retreated.
+   Older JS is allowed to add/remove .visible; it cannot override this.
    ========================================================= */
 .back-to-top,
 .back-to-top.visible {
@@ -173,15 +169,16 @@
   transform: translateY(16px) !important;
 }
 
-body.vmg-footer-visible .back-to-top.visible {
+body.vmg-header-retreated .back-to-top,
+body.vmg-header-retreated .back-to-top.visible {
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
   transform: translateY(0) !important;
 }
 
-body:not(.vmg-footer-visible) .back-to-top,
-body:not(.vmg-footer-visible) .back-to-top.visible {
+body:not(.vmg-header-retreated) .back-to-top,
+body:not(.vmg-header-retreated) .back-to-top.visible {
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
