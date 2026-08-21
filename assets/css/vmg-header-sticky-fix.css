@@ -1,147 +1,129 @@
-/*
-  VMG header behavior — stable implementation.
-
-  We intentionally rely on the scroll state that already exists in main.js:
-    .site-header.is-scrolled   -> page has started scrolling
-    body.scroll-top-visible    -> page has reached the final/footer zone
-
-  This avoids the previous measured offsets / stale footer observer state.
-*/
-
+/* VMG header behavior — hardcoded shell, deterministic states. */
 .site-header.vmg-econship-header {
-  --vmg-nav-height: 54px;
-  position: sticky !important;
-  top: 0 !important;
   z-index: 1200 !important;
-  transform: translate3d(0, 0, 0) !important;
   background: #fff;
-  transition: transform 340ms cubic-bezier(.22, 1, .36, 1), box-shadow 180ms ease !important;
-  will-change: transform;
 }
 
-/* Neutralize every previous experimental header state so stale JS classes cannot hide it. */
-.site-header.vmg-econship-header.vmg-tier1-collapsed,
-.site-header.vmg-econship-header.vmg-header-retreat,
-.site-header.vmg-econship-header.vmg-tier2-pinned,
-.site-header.vmg-econship-header.vmg-footer-active {
-  transform: translate3d(0, 0, 0) !important;
-  pointer-events: auto !important;
+/* Brand social images: preserve the circle size, enlarge the real logo inside. */
+.vmg-social-link .vmg-social-icon-img {
+  display: block !important;
+  width: 21px !important;
+  height: 21px !important;
+  max-width: 21px !important;
+  max-height: 21px !important;
+  object-fit: contain !important;
+  flex: 0 0 21px !important;
 }
 
-.site-header.vmg-econship-header .site-nav {
-  transform: translate3d(0, 0, 0) !important;
+.vmg-footer-social-img {
+  display: block;
+  width: 17px;
+  height: 17px;
+  object-fit: contain;
 }
 
-/* =========================================================
+/* ---------------------------------------------------------
    MOBILE / TABLET
-   Full header stays visible throughout normal browsing.
-   ========================================================= */
+   Full header remains sticky until the real footer appears.
+   --------------------------------------------------------- */
 @media (max-width: 991px) {
   .site-header.vmg-econship-header {
     position: sticky !important;
     top: 0 !important;
-    min-height: 64px !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: translate3d(0,0,0) !important;
+    transition: transform 320ms cubic-bezier(.22,1,.36,1), box-shadow 180ms ease !important;
+    will-change: transform;
   }
 
   .site-header.vmg-econship-header .vmg-nav-brand-row {
     min-height: 64px !important;
     max-height: 64px !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    opacity: 1 !important;
-    transform: translate3d(0, 0, 0) !important;
-    overflow: visible !important;
-    pointer-events: auto !important;
-  }
-
-  /* Ignore desktop/stale state classes on mobile. */
-  .site-header.vmg-econship-header.is-scrolled .vmg-nav-brand-row,
-  .site-header.vmg-econship-header.vmg-tier1-collapsed .vmg-nav-brand-row,
-  .site-header.vmg-econship-header.vmg-tier2-pinned .vmg-nav-brand-row {
-    min-height: 64px !important;
-    max-height: 64px !important;
     opacity: 1 !important;
     transform: none !important;
+    overflow: visible !important;
   }
 
-  /* The existing main.js toggles scroll-top-visible only in the final/footer zone.
-     That makes this retreat reversible when the visitor scrolls back upward. */
-  body.scroll-top-visible:not(.menu-open) .site-header.vmg-econship-header {
-    transform: translate3d(0, calc(-100% - 2px), 0) !important;
+  .site-header.vmg-econship-header.vmg-footer-in-view:not(.vmg-menu-open) {
+    transform: translate3d(0,calc(-100% - 2px),0) !important;
     pointer-events: none !important;
   }
 
-  /* An open mobile menu always wins: never make the menu disappear under the user. */
-  body.menu-open .site-header.vmg-econship-header,
-  body.menu-open.scroll-top-visible .site-header.vmg-econship-header {
-    transform: translate3d(0, 0, 0) !important;
+  .site-header.vmg-econship-header.vmg-menu-open,
+  body.menu-open .site-header.vmg-econship-header {
+    transform: translate3d(0,0,0) !important;
     pointer-events: auto !important;
+  }
+
+  .vmg-mobile-socials .vmg-social-icon-img {
+    width: 22px !important;
+    height: 22px !important;
+    max-width: 22px !important;
+    max-height: 22px !important;
   }
 }
 
-/* =========================================================
+/* ---------------------------------------------------------
    DESKTOP
-   Tier 1 collapses; Tier 2 remains sticky.
-   ========================================================= */
+   Tier 1 is normal flow and scrolls away naturally.
+   Tier 2 becomes fixed only when it reaches viewport top.
+   --------------------------------------------------------- */
 @media (min-width: 992px) {
   .site-header.vmg-econship-header {
-    position: sticky !important;
-    top: 0 !important;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    transform: none !important;
+    transition: none !important;
+    will-change: auto !important;
     overflow: visible !important;
   }
 
   .site-header.vmg-econship-header .vmg-nav-brand-row {
     min-height: 82px !important;
-    max-height: 82px !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    overflow: hidden !important;
+    max-height: none !important;
     opacity: 1 !important;
-    transform: translate3d(0, 0, 0) !important;
-    transition:
-      min-height 300ms cubic-bezier(.22, 1, .36, 1),
-      max-height 300ms cubic-bezier(.22, 1, .36, 1),
-      opacity 180ms ease,
-      transform 300ms cubic-bezier(.22, 1, .36, 1) !important;
+    transform: none !important;
+    overflow: visible !important;
+    pointer-events: auto !important;
   }
 
-  /* main.js adds is-scrolled as soon as the visitor moves down.
-     Collapse only Tier 1; the navy navigation band stays at viewport top. */
-  .site-header.vmg-econship-header.is-scrolled .vmg-nav-brand-row {
-    min-height: 0 !important;
-    max-height: 0 !important;
-    opacity: 0 !important;
-    transform: translate3d(0, -100%, 0) !important;
-    pointer-events: none !important;
-  }
-
-  .site-header.vmg-econship-header .site-nav,
-  .site-header.vmg-econship-header.vmg-tier2-pinned .site-nav {
+  .site-header.vmg-econship-header .site-nav {
     position: relative !important;
     top: auto !important;
     left: auto !important;
     right: auto !important;
     width: 100% !important;
-    z-index: 1 !important;
-    transform: translate3d(0, 0, 0) !important;
-    transition: box-shadow 180ms ease !important;
+    transform: translate3d(0,0,0) !important;
+    transition: transform 300ms cubic-bezier(.22,1,.36,1), box-shadow 180ms ease !important;
+    will-change: transform;
   }
 
-  .site-header.vmg-econship-header.is-scrolled .site-nav {
-    box-shadow: 0 8px 24px rgba(4, 12, 23, .14) !important;
+  /* Spacer prevents page jump the instant tier 2 becomes fixed. */
+  .site-header.vmg-econship-header.vmg-tier2-pinned {
+    padding-bottom: var(--vmg-tier2-height, 52px) !important;
   }
 
-  /* In the final/footer zone the remaining Tier 2 retreats with the header.
-     Scrolling upward automatically restores it because main.js removes the body class. */
-  body.scroll-top-visible .site-header.vmg-econship-header {
-    transform: translate3d(0, calc(-100% - 2px), 0) !important;
+  .site-header.vmg-econship-header.vmg-tier2-pinned .site-nav {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    z-index: 1300 !important;
+    box-shadow: 0 8px 24px rgba(4,12,23,.14) !important;
+  }
+
+  .site-header.vmg-econship-header.vmg-tier2-pinned.vmg-footer-in-view .site-nav {
+    transform: translate3d(0,calc(-100% - 2px),0) !important;
     pointer-events: none !important;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .site-header.vmg-econship-header,
-  .site-header.vmg-econship-header .vmg-nav-brand-row,
   .site-header.vmg-econship-header .site-nav {
     transition: none !important;
   }
