@@ -10,9 +10,73 @@
     if (!document.head || document.querySelector('link[data-vmg-chatgpt-mobile-fixes]')) return;
     var link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '/assets/css/vmg-chatgpt-mobile-fixes.css?v=20260821e';
+    link.href = '/assets/css/vmg-chatgpt-mobile-fixes.css?v=20260821f';
     link.setAttribute('data-vmg-chatgpt-mobile-fixes', 'true');
     document.head.appendChild(link);
+  }
+
+  function replaceTextNodes(element, replacements) {
+    if (!element) return;
+    var walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    var nodes = [];
+    var node;
+    while ((node = walker.nextNode())) nodes.push(node);
+    nodes.forEach(function (textNode) {
+      var next = textNode.nodeValue;
+      replacements.forEach(function (pair) {
+        next = next.replace(pair[0], pair[1]);
+      });
+      if (next !== textNode.nodeValue) textNode.nodeValue = next;
+    });
+  }
+
+  function normalizeLegalAndBrochureLabels() {
+    var brochureReplacements = [
+      [/Download The VMG Company Profile/gi, 'Download The VMG Brochure'],
+      [/Preview Company Profile/gi, 'Preview VMG Brochure'],
+      [/Download Company Profile/gi, 'Download VMG Brochure'],
+      [/View Company Profile/gi, 'View VMG Brochure'],
+      [/Company Profile/gi, 'VMG Brochure']
+    ];
+
+    document.querySelectorAll('a, button, h1, h2, h3, h4, .section-label, .eyebrow').forEach(function (element) {
+      replaceTextNodes(element, brochureReplacements);
+      ['aria-label', 'title'].forEach(function (attribute) {
+        var value = element.getAttribute && element.getAttribute(attribute);
+        if (!value) return;
+        brochureReplacements.forEach(function (pair) { value = value.replace(pair[0], pair[1]); });
+        element.setAttribute(attribute, value);
+      });
+    });
+
+    document.querySelectorAll('a').forEach(function (link) {
+      var text = link.textContent.trim();
+      if (/^privacy policy$/i.test(text)) link.href = '/privacy-policy.html';
+      if (/^(terms\s*&\s*conditions|terms and conditions|t&c)$/i.test(text)) {
+        link.textContent = 'Disclaimer';
+        link.href = '/disclaimer.html';
+      }
+    });
+
+    document.querySelectorAll('button').forEach(function (button) {
+      var text = button.textContent.trim();
+      var target = null;
+      var label = null;
+      if (/^privacy policy$/i.test(text)) {
+        target = '/privacy-policy.html';
+        label = 'Privacy Policy';
+      } else if (/^(terms\s*&\s*conditions|terms and conditions|t&c)$/i.test(text)) {
+        target = '/disclaimer.html';
+        label = 'Disclaimer';
+      }
+      if (!target || !button.parentNode) return;
+      var link = document.createElement('a');
+      link.href = target;
+      link.className = button.className;
+      link.textContent = label;
+      link.setAttribute('aria-label', label);
+      button.parentNode.replaceChild(link, button);
+    });
   }
 
   function polishMobileNavUtilityLinks(attempt) {
@@ -61,7 +125,7 @@
       '<li><a href="/faq.html">FAQ</a></li>',
       '<li><a href="/privacy-policy.html">Privacy Policy</a></li>',
       '<li><a href="/disclaimer.html">Disclaimer</a></li>',
-      '<li><a href="/Vashudevan-MetGlobal-Company-Profile.pdf" target="_blank" rel="noopener">Company Profile</a></li>',
+      '<li><a href="/Vashudevan-MetGlobal-Company-Profile.pdf" target="_blank" rel="noopener">VMG Brochure</a></li>',
       '<li><a href="/contact.html">Contact Us</a></li>'
     ].join('');
   }
@@ -101,6 +165,56 @@
     }
   }
 
+  function initHeaderScrollBehavior(attempt) {
+    attempt = attempt || 0;
+    var header = document.querySelector('.site-header.vmg-econship-header, .site-header');
+    if (!header) {
+      if (attempt < 25) window.setTimeout(function () { initHeaderScrollBehavior(attempt + 1); }, 100);
+      return;
+    }
+    if (header.dataset.vmgScrollBehavior === 'true') return;
+    header.dataset.vmgScrollBehavior = 'true';
+
+    var desktopQuery = window.matchMedia('(min-width: 992px)');
+    var ticking = false;
+
+    function updateTierState() {
+      ticking = false;
+      var shouldCollapseTierOne = desktopQuery.matches && window.scrollY > 110;
+      header.classList.toggle('vmg-tier1-collapsed', shouldCollapseTierOne);
+    }
+
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(updateTierState);
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', updateTierState);
+    else if (desktopQuery.addListener) desktopQuery.addListener(updateTierState);
+    updateTierState();
+
+    function observeFinalFooter(footerAttempt) {
+      footerAttempt = footerAttempt || 0;
+      var footer = document.querySelector('footer.vmg-global-footer, footer.site-footer');
+      if (!footer) {
+        if (footerAttempt < 40) window.setTimeout(function () { observeFinalFooter(footerAttempt + 1); }, 100);
+        return;
+      }
+
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          header.classList.toggle('vmg-header-retreat', entry.isIntersecting);
+        });
+      }, { root: null, threshold: 0.01 });
+
+      observer.observe(footer);
+    }
+
+    observeFinalFooter();
+  }
+
   function closeMenu(restoreFocus) {
     var root = document.getElementById(ROOT_ID);
     if (!root || !root.classList.contains('is-open')) return;
@@ -130,6 +244,11 @@
     polishMobileNavUtilityLinks();
     polishFooterLinks();
     enhanceContactPage();
+    normalizeLegalAndBrochureLabels();
+    initHeaderScrollBehavior();
+
+    window.setTimeout(normalizeLegalAndBrochureLabels, 350);
+    window.setTimeout(normalizeLegalAndBrochureLabels, 1200);
 
     if (document.getElementById(ROOT_ID)) return;
 
@@ -144,7 +263,7 @@
         '<a role="menuitem" href="/contact.html">Submit Material Offer</a>',
         '<a role="menuitem" href="/contact.html">Send Buying Requirement</a>',
         '<a role="menuitem" href="mailto:exim@vashudevan.com">Email Us</a>',
-        '<a role="menuitem" href="/Vashudevan-MetGlobal-Company-Profile.pdf" download="Vashudevan-MetGlobal-Company-Profile.pdf">Download Company Profile</a>',
+        '<a role="menuitem" href="/Vashudevan-MetGlobal-Company-Profile.pdf" download="Vashudevan-MetGlobal-Company-Profile.pdf">Download VMG Brochure</a>',
       '</div>',
       '<button class="vmg-help-trigger" type="button" aria-controls="vmg-help-menu" aria-expanded="false">',
         helpIcon,
