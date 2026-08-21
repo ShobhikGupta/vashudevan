@@ -1,4 +1,4 @@
-/* VMG header/footer scroll behaviour — authoritative state styles. */
+/* VMG header/footer scroll behavior — single source of truth. */
 .site-header.vmg-econship-header {
   z-index: 1200 !important;
   background: #fff;
@@ -22,7 +22,7 @@
   pointer-events: none !important;
 }
 
-/* Preserve the existing real social icon rendering. */
+/* Real social icon assets: preserve circle dimensions, enlarge only artwork. */
 .vmg-social-link .vmg-social-icon-img {
   display: block !important;
   width: 21px !important;
@@ -42,22 +42,22 @@
 
 /* =========================================================
    MOBILE / TABLET
-   The full header is sticky. Only .header-retreat may hide it.
+   Full header stays sticky while browsing.
+   It retreats ONLY while the real final footer is visible.
+   Removing that state restores it immediately.
    ========================================================= */
 @media (max-width: 991px) {
-  html body .site-header.vmg-econship-header {
+  .site-header.vmg-econship-header {
     position: sticky !important;
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;
-    opacity: 1 !important;
-    transform: translateY(0) !important;
-    transition: transform 240ms ease, opacity 200ms ease !important;
-    will-change: transform, opacity !important;
-    pointer-events: auto !important;
+    transform: translate3d(0,0,0) !important;
+    transition: transform 320ms cubic-bezier(.22,1,.36,1), box-shadow 180ms ease !important;
+    will-change: transform;
   }
 
-  html body .site-header.vmg-econship-header .vmg-nav-brand-row {
+  .site-header.vmg-econship-header .vmg-nav-brand-row {
     min-height: 64px !important;
     max-height: 64px !important;
     margin-top: 0 !important;
@@ -68,16 +68,21 @@
     pointer-events: auto !important;
   }
 
-  html body .site-header.vmg-econship-header.header-retreat {
-    opacity: 0 !important;
-    transform: translateY(-110%) !important;
+  .site-header.vmg-econship-header.vmg-footer-in-view:not(.vmg-menu-open) {
+    transform: translate3d(0,calc(-100% - 2px),0) !important;
     pointer-events: none !important;
   }
 
-  html body.menu-open .site-header.vmg-econship-header,
-  html body .site-header.vmg-econship-header:not(.header-retreat) {
-    opacity: 1 !important;
-    transform: translateY(0) !important;
+  .site-header.vmg-econship-header:not(.vmg-footer-in-view),
+  .site-header.vmg-econship-header.vmg-menu-open,
+  body.menu-open .site-header.vmg-econship-header {
+    transform: translate3d(0,0,0) !important;
+    pointer-events: auto !important;
+  }
+
+  body.menu-open .site-header.vmg-econship-header.vmg-footer-in-view,
+  .site-header.vmg-econship-header.vmg-menu-open.vmg-footer-in-view {
+    transform: translate3d(0,0,0) !important;
     pointer-events: auto !important;
   }
 
@@ -91,24 +96,23 @@
 
 /* =========================================================
    DESKTOP
-   Tier 1 remains normal document flow. Tier 2 pins at viewport top.
-   Only .tier2-retreat may move the pinned Tier 2 out of view.
+   Tier 1 is ordinary document flow.
+   Tier 2 pins only when it physically reaches viewport top.
+   Footer visibility makes Tier 2 retreat; footer exit restores it.
    ========================================================= */
 @media (min-width: 992px) {
-  html body .site-header.vmg-econship-header {
+  .site-header.vmg-econship-header {
     position: relative !important;
     top: auto !important;
     left: auto !important;
     right: auto !important;
-    opacity: 1 !important;
     transform: none !important;
     transition: none !important;
     will-change: auto !important;
     overflow: visible !important;
-    pointer-events: auto !important;
   }
 
-  html body .site-header.vmg-econship-header .vmg-nav-brand-row {
+  .site-header.vmg-econship-header .vmg-nav-brand-row {
     min-height: 82px !important;
     max-height: none !important;
     margin: 0 !important;
@@ -118,67 +122,73 @@
     pointer-events: auto !important;
   }
 
-  html body .site-header.vmg-econship-header .site-nav {
+  .site-header.vmg-econship-header .site-nav {
     position: relative !important;
     top: auto !important;
     left: auto !important;
     right: auto !important;
     width: 100% !important;
-    opacity: 1 !important;
-    transform: translateY(0) !important;
-    transition: transform 240ms ease, opacity 200ms ease !important;
-    will-change: transform, opacity !important;
-    pointer-events: auto !important;
+    transform: translate3d(0,0,0) !important;
+    transition: transform 300ms cubic-bezier(.22,1,.36,1), box-shadow 180ms ease !important;
+    will-change: transform;
   }
 
-  html body .site-header.vmg-econship-header.vmg-tier2-pinned .site-nav {
+  .site-header.vmg-econship-header.vmg-tier2-pinned .site-nav {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;
     width: 100% !important;
     z-index: 1300 !important;
-    opacity: 1 !important;
-    transform: translateY(0) !important;
+    transform: translate3d(0,0,0) !important;
     box-shadow: 0 8px 24px rgba(4,12,23,.14) !important;
   }
 
-  html body .site-header.vmg-econship-header.vmg-tier2-pinned .site-nav.tier2-retreat {
-    opacity: 0 !important;
-    transform: translateY(-110%) !important;
+  .site-header.vmg-econship-header.vmg-tier2-pinned.vmg-footer-in-view .site-nav {
+    transform: translate3d(0,calc(-100% - 2px),0) !important;
     pointer-events: none !important;
+  }
+
+  .site-header.vmg-econship-header.vmg-tier2-pinned:not(.vmg-footer-in-view) .site-nav {
+    transform: translate3d(0,0,0) !important;
+    pointer-events: auto !important;
   }
 }
 
 /* =========================================================
    GO TO TOP
-   Legacy .visible / body.scroll-top-visible cannot reveal this button.
-   Only the shared retreat controller's .vmg-retreat-visible state can.
+   This is intentionally driven by the exact SAME state that means
+   the mobile header / desktop Tier 2 has actually retreated.
+   Older JS is allowed to add/remove .visible; it cannot override this.
    ========================================================= */
-html body .back-to-top,
-html body .back-to-top.visible,
-html body.scroll-top-visible .back-to-top,
-html body.scroll-top-visible .back-to-top.visible {
+.back-to-top,
+.back-to-top.visible {
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
   transform: translateY(16px) !important;
 }
 
-html body .back-to-top.vmg-retreat-visible,
-html body .back-to-top.visible.vmg-retreat-visible,
-html body.scroll-top-visible .back-to-top.vmg-retreat-visible,
-html body.scroll-top-visible .back-to-top.visible.vmg-retreat-visible {
+body.vmg-header-retreated .back-to-top,
+body.vmg-header-retreated .back-to-top.visible {
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
   transform: translateY(0) !important;
 }
 
+body:not(.vmg-header-retreated) .back-to-top,
+body:not(.vmg-header-retreated) .back-to-top.visible {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateY(16px) !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  html body .site-header.vmg-econship-header,
-  html body .site-header.vmg-econship-header .site-nav,
-  html body .back-to-top {
+  .site-header.vmg-econship-header,
+  .site-header.vmg-econship-header .site-nav,
+  .back-to-top {
     transition: none !important;
   }
 }
