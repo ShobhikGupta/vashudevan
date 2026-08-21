@@ -1,10 +1,28 @@
-/* VMG header behavior — hardcoded shell, deterministic states. */
+/* VMG header/footer scroll behavior — single source of truth. */
 .site-header.vmg-econship-header {
   z-index: 1200 !important;
   background: #fff;
 }
 
-/* Brand social images: preserve the circle size, enlarge the real logo inside. */
+.vmg-tier2-sentinel {
+  display: block !important;
+  width: 100% !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+}
+
+.vmg-tier2-spacer {
+  display: block !important;
+  width: 100% !important;
+  height: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Real social icon assets: preserve circle dimensions, enlarge only artwork. */
 .vmg-social-link .vmg-social-icon-img {
   display: block !important;
   width: 21px !important;
@@ -22,10 +40,12 @@
   object-fit: contain;
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    MOBILE / TABLET
-   Full header remains sticky until the real footer appears.
-   --------------------------------------------------------- */
+   Full header stays sticky while browsing.
+   It retreats ONLY while the real final footer is visible.
+   Removing that state restores it immediately.
+   ========================================================= */
 @media (max-width: 991px) {
   .site-header.vmg-econship-header {
     position: sticky !important;
@@ -40,18 +60,31 @@
   .site-header.vmg-econship-header .vmg-nav-brand-row {
     min-height: 64px !important;
     max-height: 64px !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
     opacity: 1 !important;
     transform: none !important;
     overflow: visible !important;
+    pointer-events: auto !important;
   }
 
+  /* Footer is visible: entire closed mobile header retreats. */
   .site-header.vmg-econship-header.vmg-footer-in-view:not(.vmg-menu-open) {
     transform: translate3d(0,calc(-100% - 2px),0) !important;
     pointer-events: none !important;
   }
 
+  /* Footer has left viewport: default rule above immediately restores header. */
+  .site-header.vmg-econship-header:not(.vmg-footer-in-view),
   .site-header.vmg-econship-header.vmg-menu-open,
   body.menu-open .site-header.vmg-econship-header {
+    transform: translate3d(0,0,0) !important;
+    pointer-events: auto !important;
+  }
+
+  /* Open menu always wins, including over the footer. */
+  body.menu-open .site-header.vmg-econship-header.vmg-footer-in-view,
+  .site-header.vmg-econship-header.vmg-menu-open.vmg-footer-in-view {
     transform: translate3d(0,0,0) !important;
     pointer-events: auto !important;
   }
@@ -64,11 +97,12 @@
   }
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    DESKTOP
-   Tier 1 is normal flow and scrolls away naturally.
-   Tier 2 becomes fixed only when it reaches viewport top.
-   --------------------------------------------------------- */
+   Tier 1 is ordinary document flow.
+   Tier 2 pins only when it physically reaches viewport top.
+   Footer visibility makes Tier 2 retreat; footer exit restores it.
+   ========================================================= */
 @media (min-width: 992px) {
   .site-header.vmg-econship-header {
     position: relative !important;
@@ -84,6 +118,7 @@
   .site-header.vmg-econship-header .vmg-nav-brand-row {
     min-height: 82px !important;
     max-height: none !important;
+    margin: 0 !important;
     opacity: 1 !important;
     transform: none !important;
     overflow: visible !important;
@@ -101,11 +136,6 @@
     will-change: transform;
   }
 
-  /* Spacer prevents page jump the instant tier 2 becomes fixed. */
-  .site-header.vmg-econship-header.vmg-tier2-pinned {
-    padding-bottom: var(--vmg-tier2-height, 52px) !important;
-  }
-
   .site-header.vmg-econship-header.vmg-tier2-pinned .site-nav {
     position: fixed !important;
     top: 0 !important;
@@ -113,18 +143,55 @@
     right: 0 !important;
     width: 100% !important;
     z-index: 1300 !important;
+    transform: translate3d(0,0,0) !important;
     box-shadow: 0 8px 24px rgba(4,12,23,.14) !important;
   }
 
+  /* Footer enters: persistent Tier 2 retreats. */
   .site-header.vmg-econship-header.vmg-tier2-pinned.vmg-footer-in-view .site-nav {
     transform: translate3d(0,calc(-100% - 2px),0) !important;
     pointer-events: none !important;
   }
+
+  /* Footer exits: explicitly restore pinned Tier 2. */
+  .site-header.vmg-econship-header.vmg-tier2-pinned:not(.vmg-footer-in-view) .site-nav {
+    transform: translate3d(0,0,0) !important;
+    pointer-events: auto !important;
+  }
+}
+
+/* =========================================================
+   GO TO TOP
+   Same footer state as header retreat. Existing older JS may add
+   .visible earlier, but this CSS makes footer visibility authoritative.
+   ========================================================= */
+.back-to-top,
+.back-to-top.visible {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateY(16px) !important;
+}
+
+body.vmg-footer-visible .back-to-top.visible {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: translateY(0) !important;
+}
+
+body:not(.vmg-footer-visible) .back-to-top,
+body:not(.vmg-footer-visible) .back-to-top.visible {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateY(16px) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .site-header.vmg-econship-header,
-  .site-header.vmg-econship-header .site-nav {
+  .site-header.vmg-econship-header .site-nav,
+  .back-to-top {
     transition: none !important;
   }
 }
