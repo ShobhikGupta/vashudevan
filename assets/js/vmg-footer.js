@@ -156,6 +156,7 @@
 
   function init(){
     var existing=document.querySelector('footer.site-footer');
+    if(existing && existing.getAttribute('data-vmg-static-footer') === 'true'){ bindSubscribe(existing); return; }
     var footer=createFooter();
     if(existing){existing.replaceWith(footer);}else{document.body.appendChild(footer);}
     document.querySelectorAll('footer.site-footer').forEach(function(node,index){if(index>0)node.remove();});

@@ -210,6 +210,11 @@
   }
 
   function enhanceNavigation() {
+    var staticHeader = document.querySelector('.site-header[data-vmg-static-header="true"]');
+    if (staticHeader) {
+      bindTrackForms();
+      return;
+    }
     var header = document.querySelector('.site-header');
     var headerInner = header && header.querySelector('.header-inner');
     var logo = headerInner && headerInner.querySelector('.logo');
