@@ -43,6 +43,25 @@ for path in pages:
         path.write_text(text)
         changed.append(path.relative_to(ROOT).as_posix())
 
+# Once the approved shell is hardcoded, config.js must not reconstruct it again.
+config = ROOT / 'assets' / 'js' / 'config.js'
+config_text = config.read_text()
+needle = "  function enhanceNavigation() {\n    var header = document.querySelector('.site-header');"
+replacement = "  function enhanceNavigation() {\n    var staticHeader = document.querySelector('.site-header[data-vmg-static-header=\"true\"]');\n    if (staticHeader) {\n      bindTrackForms();\n      return;\n    }\n    var header = document.querySelector('.site-header');"
+if needle in config_text:
+    config_text = config_text.replace(needle, replacement, 1)
+config.write_text(config_text)
+
+# Prevent vmg-footer.js from replacing the hardcoded footer after DOMContentLoaded.
+footer_js = ROOT / 'assets' / 'js' / 'vmg-footer.js'
+footer_text = footer_js.read_text()
+needle = "  function init(){\n    var existing=document.querySelector('footer.site-footer');\n    var footer=createFooter();"
+replacement = "  function init(){\n    var existing=document.querySelector('footer.site-footer');\n    if(existing && existing.getAttribute('data-vmg-static-footer') === 'true'){ bindSubscribe(existing); return; }\n    var footer=createFooter();"
+if needle in footer_text:
+    footer_text = footer_text.replace(needle, replacement, 1)
+footer_js.write_text(footer_text)
+
 print('Updated pages:')
 for item in changed:
     print(' -', item)
+print('Dynamic shell replacement disabled for hardcoded header/footer.')
