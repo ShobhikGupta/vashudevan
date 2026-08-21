@@ -1,3 +1,6 @@
+@import url('/assets/css/vmg-header-sticky-fix.css?v=20260822h');
+@import url('/assets/css/vmg-header-layout-fix.css?v=20260822c');
+
 /* Premium refinements for the VMG two-tier navigation */
 
 /* Remove the experimental third utility tier entirely. */
@@ -101,7 +104,6 @@
     border-radius: 0;
   }
 
-  /* Keep the existing DOM text accessible while presenting the preferred brand styling. */
   .vmg-econship-header .logo span {
     display: inline-flex;
     align-items: center;
@@ -123,7 +125,6 @@
     letter-spacing: -.028em;
   }
 
-  /* Same VMG social profiles, visually restrained. */
   .vmg-nav-socials {
     grid-column: 3;
     justify-self: end;
@@ -163,7 +164,6 @@
     display: block;
   }
 
-  /* Cleaner primary navigation: one continuous band, not six chunky blocks. */
   .vmg-econship-header .site-nav {
     background: #0a1728;
     border-top: 1px solid rgba(255, 255, 255, .035);
@@ -237,7 +237,6 @@
     opacity: 1;
   }
 
-  /* About Us dropdown: restrained corporate panel. */
   .vmg-econship-header .site-nav .submenu,
   .vmg-econship-header .site-nav .has-submenu:hover .submenu {
     top: calc(100% + 1px);
