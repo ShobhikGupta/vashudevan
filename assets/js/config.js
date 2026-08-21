@@ -5,12 +5,10 @@
   window.AppConfig.contactEndpoint = window.AppConfig.contactEndpoint || '';
 })();
 
-// Shared shell assets. Keep the latest header/footer behavior CSS cache-busted.
+// Shared shell assets. Header placement/behavior CSS is loaded by the page itself;
+// do not swap those stylesheets at runtime because that causes visible layout flicker.
 (function () {
   if (!document || !document.head) return;
-
-  var stickyLink = document.querySelector('link[data-vmg-header-sticky-fix]');
-  if (stickyLink) stickyLink.href = '/assets/css/vmg-header-sticky-fix.css?v=20260822g';
 
   function loadStylesheet(href, marker) {
     if (document.querySelector('link[' + marker + ']')) return;
@@ -31,9 +29,8 @@
   }
 
   loadStylesheet('/assets/css/vmg-market-polish.css', 'data-vmg-market-polish');
-  loadStylesheet('/assets/css/vmg-header-layout-fix.css?v=20260822a', 'data-vmg-header-layout-fix');
-  loadScript('/assets/js/vmg-feedback.js?v=20260822g', 'data-vmg-feedback-script');
-  loadScript('/assets/js/vmg-help.js?v=20260822g', 'data-vmg-help-script');
+  loadScript('/assets/js/vmg-feedback.js?v=20260822j', 'data-vmg-feedback-script');
+  loadScript('/assets/js/vmg-help.js?v=20260822j', 'data-vmg-help-script');
 })();
 
 (function () {
@@ -59,9 +56,6 @@
     document.querySelectorAll('.vmg-social-link, .vmg-footer-socials a').forEach(function (link) {
       var key = socialKey(link);
       if (!key || !SOCIAL_ASSETS[key]) return;
-
-      var current = link.querySelector('img[data-vmg-social-asset="true"]');
-      if (current && current.getAttribute('src') === SOCIAL_ASSETS[key]) return;
 
       var img = document.createElement('img');
       img.src = SOCIAL_ASSETS[key];
@@ -90,9 +84,11 @@
   function bindTrackForms() {
     var toast = ensureToast();
     var timer = null;
+
     document.querySelectorAll('[data-vmg-track-form]').forEach(function (form) {
       if (form.dataset.bound === 'true') return;
       form.dataset.bound = 'true';
+
       form.addEventListener('submit', function (event) {
         event.preventDefault();
         var input = form.querySelector('.vmg-track-input');
@@ -101,13 +97,16 @@
           : 'Shipment tracking portal is coming soon.';
         toast.classList.add('is-visible');
         window.clearTimeout(timer);
-        timer = window.setTimeout(function () { toast.classList.remove('is-visible'); }, 3200);
+        timer = window.setTimeout(function () {
+          toast.classList.remove('is-visible');
+        }, 3200);
       });
     });
   }
 
   function setActiveNav() {
     var path = (window.location.pathname || '/').replace(/\/$/, '') || '/';
+
     document.querySelectorAll('#site-nav > ul > li > a[data-vmg-nav-path]').forEach(function (link) {
       link.removeAttribute('aria-current');
       var key = link.getAttribute('data-vmg-nav-path');
@@ -117,6 +116,7 @@
         (key === 'market' && (path === '/market-prices' || path === '/market-prices/index.html')) ||
         (key === 'resources' && (path === '/resources.html' || path === '/faq.html')) ||
         (key === 'contact' && path === '/contact.html');
+
       if (match) link.setAttribute('aria-current', 'page');
     });
   }
@@ -127,67 +127,72 @@
     var nav = header && header.querySelector('.site-nav');
     var footer = document.querySelector('footer.vmg-global-footer, footer.site-footer');
     var backToTop = document.getElementById('back-to-top');
-    if (!header || !brandRow || !nav) return;
 
-    header.dataset.vmgStickyFix = 'true';
+    if (!header || !brandRow || !nav || !footer) return;
 
     var desktopQuery = window.matchMedia('(min-width: 992px)');
-    var raf = 0;
+    var rafId = 0;
     var navParent = nav.parentNode;
-    if (!navParent) return;
+    var spacer = navParent && navParent.querySelector('.vmg-tier2-spacer');
 
-    // These markers MUST be siblings of the nav. Previously they were inserted
-    // on the header itself, even though nav lives inside .header-inner, which
-    // threw NotFoundError and aborted all sticky/footer synchronization.
-    var sentinel = navParent.querySelector('.vmg-tier2-sentinel');
-    if (!sentinel) {
-      sentinel = document.createElement('span');
-      sentinel.className = 'vmg-tier2-sentinel';
-      sentinel.setAttribute('aria-hidden', 'true');
-      navParent.insertBefore(sentinel, nav);
-    }
-
-    var spacer = navParent.querySelector('.vmg-tier2-spacer');
-    if (!spacer) {
+    if (!spacer && navParent) {
       spacer = document.createElement('div');
       spacer.className = 'vmg-tier2-spacer';
       spacer.setAttribute('aria-hidden', 'true');
       navParent.insertBefore(spacer, nav);
     }
 
+    // Remove obsolete sentinel from older iterations if one is still present.
+    var oldSentinel = navParent && navParent.querySelector('.vmg-tier2-sentinel');
+    if (oldSentinel) oldSentinel.remove();
+
     function isMenuOpen() {
       return document.body.classList.contains('menu-open') || nav.classList.contains('open');
     }
 
-    function isFooterActuallyVisible() {
-      if (!footer || !footer.isConnected) {
-        footer = document.querySelector('footer.vmg-global-footer, footer.site-footer');
-      }
-      if (!footer) return false;
+    function footerIsVisible() {
       var rect = footer.getBoundingClientRect();
-      var visiblePixels = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
-      return rect.top < window.innerHeight && rect.bottom > 0 && visiblePixels > 1;
+      return rect.top < window.innerHeight && rect.bottom > 0;
     }
 
-    function syncDesktopTier2(desktop) {
+    function desktopTier2Threshold() {
+      // Header's document top + Tier 1 height = Tier 2's original top.
+      // This stays stable even after Tier 2 becomes fixed.
+      var headerDocTop = header.getBoundingClientRect().top + window.scrollY;
+      return headerDocTop + brandRow.getBoundingClientRect().height;
+    }
+
+    function setPinned(desktop) {
       if (!desktop) {
         header.classList.remove('vmg-tier2-pinned');
-        spacer.style.height = '0px';
+        if (spacer) spacer.style.height = '0px';
         return false;
       }
 
-      var shouldPin = sentinel.getBoundingClientRect().top <= 0;
+      var threshold = desktopTier2Threshold();
+      var shouldPin = window.scrollY >= Math.max(0, threshold - 0.5);
       var navHeight = Math.max(1, Math.round(nav.getBoundingClientRect().height));
-      header.style.setProperty('--vmg-tier2-height', navHeight + 'px');
+
       header.classList.toggle('vmg-tier2-pinned', shouldPin);
-      spacer.style.height = shouldPin ? navHeight + 'px' : '0px';
+      header.style.setProperty('--vmg-tier2-height', navHeight + 'px');
+      if (spacer) spacer.style.height = shouldPin ? navHeight + 'px' : '0px';
+
       return shouldPin;
     }
 
-    function syncFooterState(footerVisible, menuOpen, desktop, tier2Pinned) {
-      var retreat = footerVisible && !menuOpen && (!desktop || tier2Pinned);
+    function applyState() {
+      rafId = 0;
 
-      header.classList.toggle('vmg-footer-in-view', retreat);
+      var desktop = desktopQuery.matches;
+      var pinned = setPinned(desktop);
+      var footerVisible = footerIsVisible();
+      var menuOpen = isMenuOpen();
+
+      // Mobile: retreat the whole sticky header when footer is visible, except while menu is open.
+      // Desktop: retreat only the already-pinned Tier 2 when footer is visible.
+      var retreat = footerVisible && !menuOpen && (!desktop || pinned);
+
+      header.classList.toggle('vmg-footer-in-view', footerVisible);
       header.classList.toggle('vmg-menu-open', menuOpen);
       document.body.classList.toggle('vmg-footer-visible', footerVisible);
       document.body.classList.toggle('vmg-header-retreated', retreat);
@@ -198,39 +203,38 @@
       }
     }
 
-    function update() {
-      raf = 0;
-      var desktop = desktopQuery.matches;
-      var menuOpen = isMenuOpen();
-      var footerVisible = isFooterActuallyVisible();
-      var tier2Pinned = syncDesktopTier2(desktop);
-      syncFooterState(footerVisible, menuOpen, desktop, tier2Pinned);
+    function requestState() {
+      if (rafId) return;
+      rafId = window.requestAnimationFrame(applyState);
     }
 
-    function requestUpdate() {
-      if (raf) return;
-      raf = window.requestAnimationFrame(update);
+    window.addEventListener('scroll', requestState, { passive: true });
+    window.addEventListener('resize', requestState, { passive: true });
+
+    if (desktopQuery.addEventListener) {
+      desktopQuery.addEventListener('change', requestState);
+    } else if (desktopQuery.addListener) {
+      desktopQuery.addListener(requestState);
     }
 
-    window.addEventListener('scroll', requestUpdate, { passive: true });
-    window.addEventListener('resize', requestUpdate, { passive: true });
-    document.addEventListener('click', function () { window.setTimeout(requestUpdate, 0); });
-    document.addEventListener('keydown', function () { window.setTimeout(requestUpdate, 0); });
+    // Mobile menu open/close must update header visibility even if the page does not scroll.
+    var menuObserver = new MutationObserver(requestState);
+    menuObserver.observe(nav, { attributes: true, attributeFilter: ['class'] });
+    menuObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
-    if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', requestUpdate);
-    else if (desktopQuery.addListener) desktopQuery.addListener(requestUpdate);
-
-    if (footer && 'IntersectionObserver' in window) {
-      var footerObserver = new IntersectionObserver(function () {
-        requestUpdate();
-      }, { root: null, threshold: [0, 0.001, 0.05] });
+    if ('IntersectionObserver' in window) {
+      var footerObserver = new IntersectionObserver(requestState, {
+        root: null,
+        threshold: [0, 0.001, 0.05]
+      });
       footerObserver.observe(footer);
     }
 
-    update();
-    window.setTimeout(requestUpdate, 80);
-    window.setTimeout(requestUpdate, 300);
-    window.setTimeout(requestUpdate, 900);
+    // Recheck after fonts/images/layout settle, without changing the source of truth.
+    applyState();
+    window.setTimeout(requestState, 80);
+    window.setTimeout(requestState, 250);
+    window.setTimeout(requestState, 800);
   }
 
   function init() {
@@ -240,6 +244,9 @@
     initHeaderBehavior();
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
-  else init();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
 })();
