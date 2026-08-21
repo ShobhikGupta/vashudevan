@@ -10,7 +10,7 @@
     if (!document.head || document.querySelector('link[data-vmg-chatgpt-mobile-fixes]')) return;
     var link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '/assets/css/vmg-chatgpt-mobile-fixes.css?v=20260821d';
+    link.href = '/assets/css/vmg-chatgpt-mobile-fixes.css?v=20260821e';
     link.setAttribute('data-vmg-chatgpt-mobile-fixes', 'true');
     document.head.appendChild(link);
   }
@@ -21,26 +21,17 @@
     var row = item && item.querySelector('.vmg-mobile-bottom-links-row');
 
     if (!item || !row) {
-      if (attempt < 20) {
+      if (attempt < 25) {
         window.setTimeout(function () { polishMobileNavUtilityLinks(attempt + 1); }, 80);
       }
       return;
     }
 
-    var children = Array.prototype.slice.call(row.children);
-    var faq = children.find(function (node) {
-      return node.tagName === 'A' && /\/faq\.html(?:$|[?#])/.test(node.getAttribute('href') || '');
-    });
-    var privacy = row.querySelector('[data-vmg-nav-legal="Privacy Policy"]');
-    var terms = row.querySelector('[data-vmg-nav-legal="Terms & Conditions"]');
-    var profileLink = children.find(function (node) {
-      return node.tagName === 'A' && /Vashudevan-MetGlobal-Company-Profile\.pdf/.test(node.getAttribute('href') || '');
-    });
-
-    if (profileLink) profileLink.remove();
-    [faq, privacy, terms].forEach(function (node) {
-      if (node) row.appendChild(node);
-    });
+    row.innerHTML = [
+      '<a href="/faq.html">FAQ</a>',
+      '<a href="/privacy-policy.html">Privacy Policy</a>',
+      '<a href="/disclaimer.html">Disclaimer</a>'
+    ].join('');
     row.setAttribute('aria-label', 'FAQ and legal links');
 
     var brochureCta = item.querySelector('.vmg-mobile-brochure-cta');
@@ -53,6 +44,60 @@
       brochureCta.setAttribute('aria-label', 'View VMG brochure');
       brochureCta.innerHTML = brochureIcon + '<span>VMG BROCHURE</span><span class="vmg-mobile-brochure-arrow" aria-hidden="true">↗</span>';
       item.appendChild(brochureCta);
+    }
+  }
+
+  function polishFooterLinks(attempt) {
+    attempt = attempt || 0;
+    var list = document.querySelector('.vmg-footer-mini-links');
+    if (!list) {
+      if (attempt < 30) {
+        window.setTimeout(function () { polishFooterLinks(attempt + 1); }, 100);
+      }
+      return;
+    }
+
+    list.innerHTML = [
+      '<li><a href="/faq.html">FAQ</a></li>',
+      '<li><a href="/privacy-policy.html">Privacy Policy</a></li>',
+      '<li><a href="/disclaimer.html">Disclaimer</a></li>',
+      '<li><a href="/Vashudevan-MetGlobal-Company-Profile.pdf" target="_blank" rel="noopener">Company Profile</a></li>',
+      '<li><a href="/contact.html">Contact Us</a></li>'
+    ].join('');
+  }
+
+  function enhanceContactPage() {
+    if (!/\/contact\.html$/.test(window.location.pathname)) return;
+
+    var contactPanel = document.querySelector('.contact-info-left');
+    if (contactPanel && !contactPanel.querySelector('[data-vmg-contact-person="sujit"]')) {
+      var headings = Array.prototype.slice.call(contactPanel.querySelectorAll('h3'));
+      var detailsHeading = headings.find(function (heading) {
+        return heading.textContent.trim().toLowerCase() === 'contact details';
+      });
+
+      if (detailsHeading) {
+        var phoneParagraph = detailsHeading.nextElementSibling;
+        if (phoneParagraph && phoneParagraph.querySelector('a[href^="tel:"]')) {
+          phoneParagraph.className = 'vmg-contact-person';
+          phoneParagraph.setAttribute('data-vmg-contact-person', 'sujit');
+          phoneParagraph.innerHTML = '<strong>Sujit Gupta</strong><a href="tel:+919879208178">+91 9879208178</a>';
+
+          var shobhik = document.createElement('p');
+          shobhik.className = 'vmg-contact-person';
+          shobhik.setAttribute('data-vmg-contact-person', 'shobhik');
+          shobhik.innerHTML = '<strong>Shobhik Gupta</strong><a href="tel:+919316571362">+91 9316571362</a>';
+          phoneParagraph.insertAdjacentElement('afterend', shobhik);
+        }
+      }
+    }
+
+    var privacyLink = document.querySelector('.privacy-link');
+    if (privacyLink) privacyLink.href = '/privacy-policy.html';
+
+    var smallNote = document.querySelector('.cta-join .small-note');
+    if (smallNote) {
+      smallNote.innerHTML = 'Learn about our <a href="/privacy-policy.html">Privacy Policy</a> &amp; <a href="/disclaimer.html">Disclaimer</a>';
     }
   }
 
@@ -83,6 +128,8 @@
   function createHelp() {
     ensureFixStylesheet();
     polishMobileNavUtilityLinks();
+    polishFooterLinks();
+    enhanceContactPage();
 
     if (document.getElementById(ROOT_ID)) return;
 
