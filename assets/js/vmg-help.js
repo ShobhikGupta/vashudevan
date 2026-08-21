@@ -5,6 +5,15 @@
   var activeTrigger = null;
   var helpIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.5 2.5 0 0 1 4.8 1c0 1.8-2.5 2-2.5 3.6M12 17.2h.01"/></svg>';
 
+  function ensureFixStylesheet() {
+    if (!document.head || document.querySelector('link[data-vmg-chatgpt-mobile-fixes]')) return;
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = '/assets/css/vmg-chatgpt-mobile-fixes.css?v=20260821a';
+    link.setAttribute('data-vmg-chatgpt-mobile-fixes', 'true');
+    document.head.appendChild(link);
+  }
+
   function closeMenu(restoreFocus) {
     var root = document.getElementById(ROOT_ID);
     if (!root || !root.classList.contains('is-open')) return;
@@ -28,6 +37,7 @@
   }
 
   function createHelp() {
+    ensureFixStylesheet();
     if (document.getElementById(ROOT_ID)) return;
 
     var root = document.createElement('div');
