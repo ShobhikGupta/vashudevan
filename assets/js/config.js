@@ -9,6 +9,9 @@
 (function () {
   if (!document || !document.head) return;
 
+  var staticHeader = document.querySelector('.site-header[data-vmg-static-header="true"]');
+  if (staticHeader) staticHeader.dataset.vmgStickyFix = 'true';
+
   function loadStylesheet(href, marker) {
     if (document.querySelector('link[' + marker + ']')) return;
     var link = document.createElement('link');
@@ -86,7 +89,6 @@
     var nav = header && header.querySelector('.site-nav');
     if (!header || !brandRow || !nav) return;
 
-    // Prevent the older help-script implementation from attaching a second header controller.
     header.dataset.vmgStickyFix = 'true';
 
     var desktopQuery = window.matchMedia('(min-width: 992px)');
@@ -117,11 +119,8 @@
       header.classList.toggle('vmg-menu-open', menuOpen);
       header.classList.toggle('vmg-footer-in-view', footerInView() && !menuOpen);
 
-      if (desktop) {
-        header.classList.toggle('vmg-tier2-pinned', window.scrollY >= navStart - 1);
-      } else {
-        header.classList.remove('vmg-tier2-pinned');
-      }
+      if (desktop) header.classList.toggle('vmg-tier2-pinned', window.scrollY >= navStart - 1);
+      else header.classList.remove('vmg-tier2-pinned');
     }
 
     function requestUpdate() {
