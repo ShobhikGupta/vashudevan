@@ -3,6 +3,67 @@
   window.AppConfig = window.AppConfig || {};
   window.AppConfig.googleScriptUrl = 'https://script.google.com/macros/s/AKfycbxsmNbhUkhWY3hEmYof4dGi7cOEYEbMDoBSFe3erSciipp-_-tI1RKuQ7P3ms9gyYYR/exec';
   window.AppConfig.contactEndpoint = window.AppConfig.contactEndpoint || '';
+  window.AppConfig.gaMeasurementId = 'G-6CJ7X607D5';
+})();
+
+// GA4 bootstrap for real public pages only.
+// index.html already has the GA4 base tag, so this block reuses it there and
+// installs the same property only on public pages where the base tag is missing.
+(function () {
+  'use strict';
+
+  if (!document || !document.head) return;
+
+  var measurementId = 'G-6CJ7X607D5';
+  var publicPaths = [
+    '/',
+    '/index.html',
+    '/who-we-are.html',
+    '/our-impact.html',
+    '/products.html',
+    '/product.html',
+    '/resources.html',
+    '/faq.html',
+    '/contact.html',
+    '/privacy-policy.html',
+    '/disclaimer.html',
+    '/market-prices',
+    '/market-prices/',
+    '/market-prices/index.html'
+  ];
+  var path = window.location.pathname || '/';
+
+  if (publicPaths.indexOf(path) === -1) return;
+
+  var existingGaScript = document.querySelector(
+    'script[src*="googletagmanager.com/gtag/js?id=' + measurementId + '"]'
+  );
+
+  if (!existingGaScript) {
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = window.gtag || function () {
+      window.dataLayer.push(arguments);
+    };
+
+    window.gtag('js', new Date());
+    window.gtag('config', measurementId, {
+      send_page_view: true
+    });
+
+    var gaScript = document.createElement('script');
+    gaScript.async = true;
+    gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(measurementId);
+    gaScript.setAttribute('data-vmg-ga4-base', 'true');
+    document.head.appendChild(gaScript);
+  }
+
+  if (!document.querySelector('script[data-vmg-analytics-script]')) {
+    var analyticsScript = document.createElement('script');
+    analyticsScript.src = '/assets/js/analytics.js?v=20260822a';
+    analyticsScript.defer = true;
+    analyticsScript.setAttribute('data-vmg-analytics-script', 'true');
+    document.head.appendChild(analyticsScript);
+  }
 })();
 
 // Shared shell assets. Header placement/behavior CSS is loaded by the page itself;
@@ -142,7 +203,6 @@
       navParent.insertBefore(spacer, nav);
     }
 
-    // Remove obsolete sentinel from older iterations if one is still present.
     var oldSentinel = navParent && navParent.querySelector('.vmg-tier2-sentinel');
     if (oldSentinel) oldSentinel.remove();
 
@@ -156,8 +216,6 @@
     }
 
     function desktopTier2Threshold() {
-      // Header's document top + Tier 1 height = Tier 2's original top.
-      // This stays stable even after Tier 2 becomes fixed.
       var headerDocTop = header.getBoundingClientRect().top + window.scrollY;
       return headerDocTop + brandRow.getBoundingClientRect().height;
     }
@@ -187,9 +245,6 @@
       var pinned = setPinned(desktop);
       var footerVisible = footerIsVisible();
       var menuOpen = isMenuOpen();
-
-      // Mobile: retreat the whole sticky header when footer is visible, except while menu is open.
-      // Desktop: retreat only the already-pinned Tier 2 when footer is visible.
       var retreat = footerVisible && !menuOpen && (!desktop || pinned);
 
       header.classList.toggle('vmg-footer-in-view', footerVisible);
@@ -217,7 +272,6 @@
       desktopQuery.addListener(requestState);
     }
 
-    // Mobile menu open/close must update header visibility even if the page does not scroll.
     var menuObserver = new MutationObserver(requestState);
     menuObserver.observe(nav, { attributes: true, attributeFilter: ['class'] });
     menuObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
@@ -230,7 +284,6 @@
       footerObserver.observe(footer);
     }
 
-    // Recheck after fonts/images/layout settle, without changing the source of truth.
     applyState();
     window.setTimeout(requestState, 80);
     window.setTimeout(requestState, 250);
