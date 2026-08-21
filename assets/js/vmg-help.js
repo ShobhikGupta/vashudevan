@@ -9,7 +9,7 @@
     if (!document.head || document.querySelector('link[data-vmg-chatgpt-mobile-fixes]')) return;
     var link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '/assets/css/vmg-chatgpt-mobile-fixes.css?v=20260821a';
+    link.href = '/assets/css/vmg-chatgpt-mobile-fixes.css?v=20260821c';
     link.setAttribute('data-vmg-chatgpt-mobile-fixes', 'true');
     document.head.appendChild(link);
   }
@@ -18,6 +18,7 @@
     var root = document.getElementById(ROOT_ID);
     if (!root || !root.classList.contains('is-open')) return;
     root.classList.remove('is-open');
+    document.body.classList.remove('vmg-help-open');
     root.querySelector('.vmg-help-trigger').setAttribute('aria-expanded', 'false');
     root.querySelector('.vmg-help-menu').setAttribute('aria-hidden', 'true');
     if (restoreFocus && activeTrigger) activeTrigger.focus();
@@ -28,6 +29,7 @@
     if (!root) return;
     activeTrigger = trigger;
     root.classList.add('is-open');
+    document.body.classList.add('vmg-help-open');
     trigger.setAttribute('aria-expanded', 'true');
     root.querySelector('.vmg-help-menu').setAttribute('aria-hidden', 'false');
     window.setTimeout(function () {
