@@ -31,7 +31,9 @@
   loadStylesheet('/assets/css/vmg-nav-premium-overrides.css', 'data-vmg-nav-premium');
   loadStylesheet('/assets/css/vmg-market-polish.css', 'data-vmg-market-polish');
   loadStylesheet('/assets/css/vmg-feedback.css', 'data-vmg-feedback-style');
-  loadScript('/assets/js/vmg-feedback.js', 'data-vmg-feedback-script');
+  loadStylesheet('/assets/css/vmg-responsive-polish.css?v=20260821g', 'data-vmg-responsive-polish');
+  loadScript('/assets/js/vmg-feedback.js?v=20260821g', 'data-vmg-feedback-script');
+  loadScript('/assets/js/vmg-help.js?v=20260821g', 'data-vmg-help-script');
 })();
 
 // Build the requested site-wide order and premium two-tier trade navigation.
@@ -189,6 +191,22 @@
     });
   }
 
+  function bindMobileLegalNotices() {
+    var toast = ensureToast();
+    var hideTimer = null;
+
+    document.querySelectorAll('[data-vmg-nav-legal]').forEach(function (button) {
+      if (button.dataset.bound === 'true') return;
+      button.dataset.bound = 'true';
+      button.addEventListener('click', function () {
+        toast.textContent = button.getAttribute('data-vmg-nav-legal') + ' page is being prepared and will be linked here.';
+        toast.classList.add('is-visible');
+        window.clearTimeout(hideTimer);
+        hideTimer = window.setTimeout(function () { toast.classList.remove('is-visible'); }, 2800);
+      });
+    });
+  }
+
   function enhanceNavigation() {
     var header = document.querySelector('.site-header');
     var headerInner = header && header.querySelector('.header-inner');
@@ -274,7 +292,23 @@
       navList.appendChild(mobileSocialsItem);
     }
 
+    var mobileBottomLinks = navList.querySelector('.vmg-mobile-bottom-links');
+    if (!mobileBottomLinks) {
+      mobileBottomLinks = document.createElement('li');
+      mobileBottomLinks.className = 'vmg-mobile-bottom-links';
+      mobileBottomLinks.innerHTML = [
+        '<div class="vmg-mobile-bottom-links-row" aria-label="Mobile utility links">',
+          '<a href="/Vashudevan-MetGlobal-Company-Profile.pdf" download="Vashudevan-MetGlobal-Company-Profile.pdf">Download Company Profile</a>',
+          '<a href="/faq.html">FAQ</a>',
+          '<button type="button" data-vmg-nav-legal="Privacy Policy">Privacy Policy</button>',
+          '<button type="button" data-vmg-nav-legal="Terms &amp; Conditions">Terms &amp; Conditions</button>',
+        '</div>'
+      ].join('');
+      navList.appendChild(mobileBottomLinks);
+    }
+
     bindTrackForms();
+    bindMobileLegalNotices();
   }
 
   if (document.readyState === 'loading') {

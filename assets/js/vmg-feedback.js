@@ -9,7 +9,7 @@
   }
   if (!document.querySelector('script[data-vmg-footer-script]')) {
     var script=document.createElement('script');
-    script.src='/assets/js/vmg-footer.js';
+    script.src='/assets/js/vmg-footer.js?v=20260821';
     script.async=false;
     script.setAttribute('data-vmg-footer-script','true');
     document.head.appendChild(script);

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Resources For Buyers & Suppliers | Vashudevan MetGlobal LLP</title>
+  <title>Resources For Buyers &amp; Suppliers | Vashudevan MetGlobal LLP</title>
   <meta name="description" content="Helpful resources for recyclable-metal buyers, suppliers, and business partners. Download the Vashudevan MetGlobal LLP company profile, review documentation basics, and view market references.">
   <link rel="icon" href="assets/img/LOGO.png">
   <link rel="stylesheet" href="assets/css/styles.css">
@@ -25,7 +25,6 @@
 
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
-    body{overflow-x:hidden}
     .resources-page{color:var(--vmg-ink);background:#fff}
     .res-container{width:min(var(--vmg-max),calc(100% - 40px));margin-inline:auto}
     .res-section{padding:60px 0}
@@ -202,8 +201,9 @@
       .hub-card:hover,.doc-card:hover,.process-step:hover{transform:none}
     }
   </style>
+  <link rel="stylesheet" href="assets/css/vmg-resources.css">
 </head>
-<body>
+<body class="resources-view">
   <header class="site-header">
     <div class="container header-inner">
       <a class="logo" href="index.html" aria-label="Vashudevan Met Global LLP home">
@@ -231,7 +231,7 @@
           <h1>Resources For Buyers &amp; Suppliers</h1>
           <p class="res-hero-text">Helpful company resources, checklists, and market references for recyclable-metal sourcing, supply, documentation, and shipment coordination.</p>
           <div class="res-actions">
-            <a class="res-btn primary" href="VMG_BROCHURE.pdf" download>Download Company Profile</a>
+            <a class="res-btn primary" href="/Vashudevan-MetGlobal-Company-Profile.pdf" download>Download Company Profile</a>
             <a class="res-btn secondary" href="contact.html#vmg-desk">Contact VMG Desk</a>
           </div>
         </div>
@@ -255,8 +255,8 @@
             <p>Explore Vashudevan MetGlobal LLP’s recyclable-metal categories, global network, sustainability approach, and supply-chain capabilities.</p>
           </div>
           <div class="res-actions">
-            <a class="res-btn secondary" href="VMG_BROCHURE.pdf" target="_blank" rel="noopener">Preview PDF</a>
-            <a class="res-btn primary" href="VMG_BROCHURE.pdf" download>Download PDF</a>
+            <a class="res-btn secondary" href="/Vashudevan-MetGlobal-Company-Profile.pdf" target="_blank" rel="noopener">Preview PDF</a>
+            <a class="res-btn primary" href="/Vashudevan-MetGlobal-Company-Profile.pdf" download>Download PDF</a>
           </div>
         </article>
       </div>
@@ -264,7 +264,7 @@
 
     <section class="res-section alt" id="resource-hub">
       <div class="res-container">
-        <div class="section-head res-reveal">
+        <div class="section-head centered res-reveal">
           <p class="res-eyebrow">Resource Hub</p>
           <h2 class="res-heading">Buyer, Supplier &amp; Partner Resources</h2>
           <p class="res-copy">Use the relevant resource set to share clearer requirements, offers, and partnership enquiries with the VMG team.</p>
@@ -308,36 +308,86 @@
 
     <section class="res-section" id="documentation-support">
       <div class="res-container">
-        <div class="section-head res-reveal">
+        <div class="section-head centered res-reveal">
           <p class="res-eyebrow">Documentation Support</p>
           <h2 class="res-heading">Essential Trade Documentation</h2>
-          <p class="res-copy">A concise reference to common documents, inspection basics, commercial terms, and KYC requirements used in international recyclable-metal trade.</p>
+          <p class="res-copy">A concise reference to common documents, inspection basics, commercial terms, and counterparty verification used in international recyclable-metal trade.</p>
         </div>
         <div class="docs-grid auto-grid-md equal-card-grid">
-          <article class="doc-card res-reveal"><div class="doc-number">01</div><h3>Import / Export Documents</h3><p>Commercial invoice, packing list, PO/contract, bill of lading, certificate of origin, inspection certificate where applicable, and shipment-specific documents.</p></article>
-          <article class="doc-card res-reveal"><div class="doc-number">02</div><h3>PSIC / Inspection Basics</h3><p>Inspection and certification requirements may vary by material, origin, destination, loading location, inspection terms, and current regulations.</p></article>
-          <article class="doc-card res-reveal"><div class="doc-number">03</div><h3>Incoterms Basics</h3><p>FOB, CFR, CIF, EXW, and related commercial terms help define responsibility, cost, and risk between buyer and seller before shipment.</p></article>
-          <article class="doc-card res-reveal"><div class="doc-number">04</div><h3>KYC Document Requirements</h3><p>Serious business enquiries may require company registration details, tax/import-export registrations, authorised contacts, business address, and relevant verification details.</p></article>
+          <article class="doc-card res-reveal"><div class="doc-number">01</div><h3>Import / Export Documents</h3><p>Supporting records may include a Commercial Invoice, Packing List or Commercial Invoice cum Packing List, Bill of Lading or Airway Bill, and Bill of Entry or Shipping Bill as applicable.</p></article>
+          <article class="doc-card res-reveal"><div class="doc-number">02</div><h3>PSI / Inspection Basics</h3><p>Inspection and certification requirements may vary by material, transaction, buyer requirement, origin and destination. Where applicable, third-party inspection coordination may be discussed.</p></article>
+          <article class="doc-card res-reveal"><div class="doc-number">03</div><h3>Incoterms Basics</h3><p>Incoterms® are ICC trade terms used to clarify delivery responsibilities, costs and risks between seller and buyer. They do not replace the complete contract.</p></article>
+          <article class="doc-card res-reveal"><div class="doc-number">04</div><h3>KYC &amp; Counterparty Verification</h3><p>Company registration details, authorised contacts, business address and relevant verification information may be requested depending on the transaction and circumstances.</p></article>
         </div>
+        <p class="docs-note res-reveal">Documentation and verification requirements may vary by material, origin, destination, counterparty and transaction terms.</p>
         <div class="docs-action res-reveal"><a class="res-btn secondary" href="contact.html#documentation-support">Ask About Documentation</a></div>
       </div>
     </section>
 
     <section class="process-section" id="our-process">
       <div class="res-container">
-        <div class="section-head res-reveal">
-          <p class="res-eyebrow">Our Process</p>
-          <h2 class="res-heading">How We Move Recyclable Metals Globally</h2>
-          <p class="res-copy">A structured process for clear communication, material review, documentation support, and container-based shipment coordination.</p>
-        </div>
-        <div class="process-grid">
-          <article class="process-step res-reveal"><div class="process-num">01</div><h3>Enquiry Received</h3><p>We review buyer requirements, supplier offers, partnership enquiries, or documentation requests.</p></article>
-          <article class="process-step res-reveal"><div class="process-num">02</div><h3>Material Grade &amp; Quantity Reviewed</h3><p>Material category, grade, quantity, origin, destination, and shipment readiness are checked.</p></article>
-          <article class="process-step res-reveal"><div class="process-num">03</div><h3>Supplier / Buyer Coordination</h3><p>We coordinate with verified networks to align availability, requirements, and next steps.</p></article>
-          <article class="process-step row-end res-reveal"><div class="process-num">04</div><h3>Pricing &amp; Terms Discussion</h3><p>Commercial terms, shipment basis, inspection needs, payment structure, and timeline are discussed.</p></article>
-          <article class="process-step res-reveal"><div class="process-num">05</div><h3>Documentation Support</h3><p>Commercial, shipment, inspection, and compliance-related documents are coordinated where applicable.</p></article>
-          <article class="process-step res-reveal"><div class="process-num">06</div><h3>Container Loading &amp; Shipment Coordination</h3><p>Container details, loading information, shipment planning, and logistics coordination are managed with discipline.</p></article>
-          <article class="process-step row-end res-reveal"><div class="process-num">07</div><h3>Ongoing Trade Communication</h3><p>Clear communication is maintained across the transaction lifecycle to support transparency and reliability.</p></article>
+        <div class="process-layout">
+          <div class="process-overview res-reveal">
+            <p class="res-eyebrow">Our Process</p>
+            <h2 class="res-heading">How We Move Recyclable Metals Globally</h2>
+            <p class="res-copy">A structured coordination process from initial enquiry through shipment and ongoing communication.</p>
+            <ol class="process-list" aria-label="VMG recyclable-metal coordination process">
+              <li><span>01</span><strong>Enquiry Received</strong></li>
+              <li><span>02</span><strong>Material Grade &amp; Quantity Reviewed</strong></li>
+              <li><span>03</span><strong>Supplier / Buyer Coordination</strong></li>
+              <li><span>04</span><strong>Pricing &amp; Terms Discussion</strong></li>
+              <li><span>05</span><strong>Documentation Support</strong></li>
+              <li><span>06</span><strong>Container Loading &amp; Shipment Coordination</strong></li>
+              <li><span>07</span><strong>Ongoing Trade Communication</strong></li>
+            </ol>
+          </div>
+
+          <div class="process-printer res-reveal">
+            <div class="trade-docket" data-trade-docket data-stage="idle" aria-label="VMG Trade Docket printer">
+              <div class="docket-machine">
+                <div class="docket-machine-header">
+                  <strong>VMG Trade Docket</strong>
+                  <button class="docket-print" type="button" data-docket-print>
+                    <svg class="docket-print-icon" aria-hidden="true" viewBox="0 0 20 20">
+                      <path d="M5.5 7V3.5h9V7M5 14H3.5V8.5h13V14H15m-9.5-3.5h.01M6 12.5h8V17H6z"/>
+                    </svg>
+                    <svg class="docket-replay-icon" aria-hidden="true" viewBox="0 0 20 20">
+                      <path d="M5.1 6.1A6 6 0 1 1 4 12.8M5.1 6.1V2.9m0 3.2h3.2"/>
+                    </svg>
+                    <span data-docket-print-label>Print Trade Docket</span>
+                  </button>
+                </div>
+                <div class="docket-screen">
+                  <p class="docket-screen-eyebrow">VMG Process</p>
+                  <h3>Global Material Movement</h3>
+                  <div class="docket-status" role="status" aria-live="polite"><span class="docket-status-indicator" aria-hidden="true"></span><span data-docket-status>Ready To Print</span></div>
+                </div>
+                <div class="docket-slot" aria-hidden="true"></div>
+              </div>
+              <div class="docket-output">
+                <div class="docket-paper-shell">
+                  <article class="docket-paper" aria-label="How VMG moves recyclable metals">
+                    <p class="docket-paper-brand">VASHUDEVAN METGLOBAL LLP</p>
+                    <h3>VMG TRADE DOCKET</h3>
+                    <p class="docket-paper-subtitle">HOW WE MOVE RECYCLABLE METALS</p>
+                    <div class="docket-rule" aria-hidden="true"></div>
+                    <ol class="docket-steps">
+                      <li><span class="docket-step-number">01</span><span>ENQUIRY RECEIVED</span></li>
+                      <li><span class="docket-step-number">02</span><span>MATERIAL GRADE &amp; QUANTITY REVIEWED</span></li>
+                      <li><span class="docket-step-number">03</span><span>SUPPLIER / BUYER COORDINATION</span></li>
+                      <li><span class="docket-step-number">04</span><span>PRICING &amp; TERMS DISCUSSION</span></li>
+                      <li><span class="docket-step-number">05</span><span>DOCUMENTATION SUPPORT</span></li>
+                      <li><span class="docket-step-number">06</span><span>CONTAINER LOADING &amp;<br>SHIPMENT COORDINATION</span></li>
+                      <li><span class="docket-step-number">07</span><span>ONGOING TRADE COMMUNICATION</span></li>
+                    </ol>
+                    <div class="docket-rule" aria-hidden="true"></div>
+                    <p class="docket-paper-footer">RECYCLE. RESOURCE. RESPONSIBLY.</p>
+                  </article>
+                </div>
+              </div>
+              <p class="docket-caption">Visual workflow; steps may vary by transaction.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -353,16 +403,11 @@
 
     <section class="res-section" id="faq">
       <div class="res-container">
-        <div class="section-head res-reveal"><p class="res-eyebrow">FAQ</p><h2 class="res-heading">Frequently Asked Questions</h2><p class="res-copy">Quick answers for buyers, suppliers, and business partners working with VMG.</p></div>
-        <div class="faq-list res-reveal">
-          <details class="faq-item"><summary>What materials does Vashudevan MetGlobal LLP support?</summary><div class="faq-answer">We support ferrous and non-ferrous recyclable-metal categories including aluminium, copper, brass, ferrous scrap, stainless steel, lead, zinc, auto scrap, shredder scrap, and copper-bearing materials.</div></details>
-          <details class="faq-item"><summary>Can buyers send specific material requirements?</summary><div class="faq-answer">Yes. Buyers can share required material category, grade/specification, quantity, destination port or location, inspection preference, shipment timeline, and commercial terms.</div></details>
-          <details class="faq-item"><summary>Can suppliers submit material offers?</summary><div class="faq-answer">Yes. Suppliers can submit material grade, origin, available quantity, loading location, photos/videos, inspection availability, shipment readiness, and contact details.</div></details>
-          <details class="faq-item"><summary>Are Market page prices final quotations?</summary><div class="faq-answer">No. Market page prices are indicative market references only. Physical recyclable-metal pricing can differ by grade, recovery, quality, location, freight, duties, documentation, and market conditions.</div></details>
-          <details class="faq-item"><summary>Is third-party inspection available?</summary><div class="faq-answer">Third-party inspection such as SGS/BV or other inspection support may be arranged where applicable, depending on commercial terms, material type, location, and buyer/supplier requirements.</div></details>
-          <details class="faq-item"><summary>What documents are usually required for import/export?</summary><div class="faq-answer">Common documents may include commercial invoice, packing list, contract or purchase order, bill of lading, certificate of origin where applicable, inspection certificate where applicable, and other shipment-specific documents.</div></details>
-          <details class="faq-item"><summary>How can I submit a material offer?</summary><div class="faq-answer">Use the Suppliers tab or contact form and share grade, quantity, origin, loading location, photos/videos, target price, inspection availability, and shipment readiness.</div></details>
-          <details class="faq-item"><summary>How can I download the company profile?</summary><div class="faq-answer">Use the dedicated Company Profile section near the top of this Resources page to preview or download the current VMG PDF.</div></details>
+        <div class="faq-teaser res-reveal">
+          <p class="res-eyebrow">FAQ</p>
+          <h2>Have A Question?</h2>
+          <p>Find answers about recyclable-metal requirements, supplier offers, documentation, inspections, shipment coordination, market references and working with VMG.</p>
+          <a class="res-btn secondary" href="faq.html">View All FAQs&nbsp; →</a>
         </div>
       </div>
     </section>
@@ -371,7 +416,7 @@
       <div class="res-container">
         <div class="final-cta res-reveal">
           <div><h2>Need Sourcing, Supply, Or Shipment Support?</h2><p>Connect with VMG for recyclable-metal requirements, supplier offers, documentation support, inspection coordination, and container-based shipment movement.</p></div>
-          <div class="res-actions"><a class="res-btn primary" href="contact.html#vmg-desk">Contact VMG Desk</a><a class="res-btn secondary" href="VMG_BROCHURE.pdf" download>Download Company Profile</a></div>
+          <div class="res-actions"><a class="res-btn primary" href="contact.html#vmg-desk">Contact VMG Desk</a><a class="res-btn secondary" href="/Vashudevan-MetGlobal-Company-Profile.pdf" download>Download Company Profile</a></div>
         </div>
       </div>
     </section>
@@ -382,8 +427,8 @@
   <footer class="site-footer pro-footer resources-footer">
     <div class="footer-resource-wrap">
       <div class="footer-trust">
-        <div class="footer-trust-block"><strong>Proud Member Of</strong><div class="footer-trust-list"><span class="footer-chip">MRAI</span><span class="footer-chip">BIR</span><span class="footer-chip">RecycleInMe</span></div></div>
-        <div class="footer-trust-block"><strong>Verified &amp; Registered</strong><div class="footer-trust-list"><span class="footer-chip">GST</span><span class="footer-chip">IEC</span><span class="footer-chip">MSME</span><span class="footer-chip">D-U-N-S</span></div></div>
+        <div class="footer-trust-block"><strong>Proud Member Of</strong><div class="footer-trust-list"><span class="footer-chip"><img src="assets/img/footer-logos/mrai.png" alt="" loading="lazy"><span>MRAI</span></span><span class="footer-chip"><img src="assets/img/footer-logos/bir.png" alt="" loading="lazy"><span>BIR</span></span><span class="footer-chip"><img src="assets/img/footer-logos/recycleinme.png" alt="" loading="lazy"><span>RecycleInMe</span></span></div></div>
+        <div class="footer-trust-block"><strong>Verified &amp; Registered</strong><div class="footer-trust-list"><span class="footer-chip"><img src="assets/img/footer-logos/duns.png" alt="" loading="lazy"><span>D-U-N-S</span></span><span class="footer-chip"><img src="assets/img/footer-logos/iec.png" alt="" loading="lazy"><span>IEC</span></span><span class="footer-chip"><img src="assets/img/footer-logos/gst.png" alt="" loading="lazy"><span>GST</span></span><span class="footer-chip"><img src="assets/img/footer-logos/msme.png" alt="" loading="lazy"><span>MSME</span></span></div></div>
       </div>
       <div class="footer-main">
         <div><h3 class="footer-brand-title">Vashudevan Met Global LLP</h3><p class="footer-tagline">Recycle. Resource. Responsibly.</p></div>
@@ -395,37 +440,8 @@
     </div>
   </footer>
 
-  <script src="assets/js/config.js"></script>
+  <script src="assets/js/config.js?v=20260821g"></script>
   <script src="assets/js/main.js"></script>
-  <script>
-    (function(){
-      var tabs=document.querySelectorAll('.hub-tab');
-      var panels=document.querySelectorAll('.hub-panel');
-      tabs.forEach(function(tab){
-        tab.addEventListener('click',function(){
-          var target=tab.getAttribute('data-tab');
-          tabs.forEach(function(t){t.setAttribute('aria-selected',t===tab?'true':'false');});
-          panels.forEach(function(panel){
-            var active=panel.id==='panel-'+target;
-            panel.classList.toggle('active',active);
-            panel.hidden=!active;
-          });
-        });
-      });
-
-      var reveals=document.querySelectorAll('.res-reveal');
-      if(!reveals.length)return;
-      if(window.matchMedia('(prefers-reduced-motion: reduce)').matches||!('IntersectionObserver' in window)){
-        reveals.forEach(function(el){el.classList.add('is-visible');});
-        return;
-      }
-      var observer=new IntersectionObserver(function(entries){
-        entries.forEach(function(entry){
-          if(entry.isIntersecting){entry.target.classList.add('is-visible');observer.unobserve(entry.target);}
-        });
-      },{threshold:.1});
-      reveals.forEach(function(el){observer.observe(el);});
-    })();
-  </script>
+  <script src="assets/js/vmg-resources.js"></script>
 </body>
 </html>

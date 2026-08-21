@@ -51,7 +51,7 @@
             <li><a href="/resources.html#faq">FAQ</a></li>\
             <li><button type="button" data-vmg-legal-pending="Privacy Policy">Privacy Policy</button></li>\
             <li><button type="button" data-vmg-legal-pending="Terms &amp; Conditions">Terms &amp; Conditions</button></li>\
-            <li><a href="/VMG_BROCHURE.pdf" target="_blank" rel="noopener">Company Profile</a></li>\
+            <li><a href="/Vashudevan-MetGlobal-Company-Profile.pdf" target="_blank" rel="noopener">Company Profile</a></li>\
             <li><a href="/contact.html">Contact Us</a></li>\
           </ul>\
           <div class="vmg-footer-subscribe-row">\
