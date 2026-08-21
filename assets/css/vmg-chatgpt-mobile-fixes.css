@@ -56,6 +56,87 @@ body.vmg-help-open .whatsapp-float {
   top: auto !important;
 }
 
+@media (max-width: 991px) {
+  /* Keep FAQ + legal links together as one tidy utility line. */
+  .vmg-mobile-bottom-links {
+    display: grid !important;
+    gap: 10px !important;
+    padding: 10px 8px 12px !important;
+  }
+
+  .vmg-mobile-bottom-links-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: clamp(8px, 2.8vw, 16px) !important;
+    width: 100% !important;
+    white-space: nowrap !important;
+  }
+
+  .vmg-mobile-bottom-links-row a,
+  .vmg-mobile-bottom-links-row button {
+    flex: 0 0 auto !important;
+    min-height: 24px !important;
+    padding: 2px 0 !important;
+    font-size: clamp(.54rem, 1.8vw, .64rem) !important;
+    color: rgba(255,255,255,.64) !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .vmg-mobile-bottom-links-row a:hover,
+  .vmg-mobile-bottom-links-row a:focus-visible,
+  .vmg-mobile-bottom-links-row button:hover,
+  .vmg-mobile-bottom-links-row button:focus-visible {
+    color: #fff !important;
+  }
+
+  /* Dedicated premium brochure CTA sits below FAQ / Privacy / Terms. */
+  .vmg-mobile-brochure-cta {
+    width: min(100%, 250px) !important;
+    min-height: 38px !important;
+    margin: 0 auto !important;
+    padding: 0 13px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    border: 1px solid rgba(211,163,120,.55) !important;
+    border-radius: 8px !important;
+    background: rgba(211,163,120,.09) !important;
+    color: #f6e5d5 !important;
+    text-decoration: none !important;
+    font-size: .68rem !important;
+    font-weight: 800 !important;
+    letter-spacing: .08em !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.04) !important;
+    transition: background-color .16s ease, border-color .16s ease, color .16s ease !important;
+  }
+
+  .vmg-mobile-brochure-cta:hover,
+  .vmg-mobile-brochure-cta:focus-visible {
+    background: rgba(211,163,120,.16) !important;
+    border-color: #d3a378 !important;
+    color: #fff !important;
+    outline: none !important;
+  }
+
+  .vmg-mobile-brochure-cta svg {
+    width: 15px !important;
+    height: 15px !important;
+    flex: 0 0 15px !important;
+    color: #d3a378 !important;
+  }
+
+  .vmg-mobile-brochure-arrow {
+    margin-left: 2px !important;
+    font-size: .78rem !important;
+    color: #d3a378 !important;
+  }
+}
+
 @media (max-width: 768px) {
   /* Hero text remains left aligned on mobile and both CTAs stay on one line. */
   .home-view .home-main .home-hero .overlay-ctas {
