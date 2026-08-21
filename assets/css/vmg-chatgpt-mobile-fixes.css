@@ -1,4 +1,4 @@
-/* Focused VMG responsive fixes: hero CTA row, Trade Desk row, and stable floating controls. */
+/* Focused VMG responsive fixes: hero CTA row, Trade Desk row, stable floating controls, and mobile market scrolling. */
 
 /* Keep the floating contact controls pinned to the viewport on every page. */
 .whatsapp-float {
@@ -8,6 +8,15 @@
   bottom: calc(56px + max(12px, env(safe-area-inset-bottom))) !important;
   top: auto !important;
   z-index: 2002 !important;
+  transition: opacity .16s ease, visibility .16s ease, transform .16s ease !important;
+}
+
+/* While the Need Help menu is open, temporarily hide WhatsApp so it cannot cover the menu. */
+body.vmg-help-open .whatsapp-float {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: scale(.9) !important;
 }
 
 .vmg-help {
@@ -17,7 +26,7 @@
   bottom: max(12px, env(safe-area-inset-bottom)) !important;
   top: auto !important;
   justify-items: start !important;
-  z-index: 2001 !important;
+  z-index: 2003 !important;
 }
 
 .vmg-help-trigger {
@@ -36,6 +45,7 @@
 
 .vmg-help-menu {
   transform-origin: bottom left !important;
+  z-index: 2004 !important;
 }
 
 .back-to-top {
@@ -139,15 +149,19 @@
     font-size: 16px !important;
   }
 
-  /* Market Overview remains visible, but its TradingView iframe must not trap vertical touch scrolling. */
-  .market-page .market-overview-shell {
+  /* Market Overview remains visible but becomes read-only to touch, so vertical swipes always scroll the page. */
+  .market-page .market-overview-shell,
+  .market-page #market-data-panel {
     touch-action: pan-y !important;
     overscroll-behavior: auto !important;
   }
 
-  .market-page .market-overview-shell iframe {
+  .market-page #market-data-panel,
+  .market-page #market-data-panel *,
+  .market-page .market-overview-shell iframe,
+  .market-page .market-overview-shell .tradingview-widget-container,
+  .market-page .market-overview-shell .tradingview-widget-container__widget {
     pointer-events: none !important;
-    touch-action: pan-y !important;
   }
 }
 
