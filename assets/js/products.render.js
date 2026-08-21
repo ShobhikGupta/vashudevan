@@ -56,6 +56,7 @@
 
     sortedCategories.forEach(function (cat) {
       var displayImg = cat.icon || (cat.subproducts && cat.subproducts[0] && cat.subproducts[0].image) || '';
+      var displayName = cat.slug === 'aluminum' ? 'Aluminium' : cat.name;
       if (!displayImg) {
         console.log('No image for category:', cat.name);
         return;
@@ -64,37 +65,28 @@
       var article = document.createElement('article');
       article.className = 'card product';
 
-      var link = document.createElement('div');
-      link.style.cursor = 'pointer';
-      link.style.pointerEvents = 'auto';
-      link.style.userSelect = 'text';
-      link.style.webkitUserSelect = 'text';
-      link.style.mozUserSelect = 'text';
-      link.style.msUserSelect = 'text';
-      
-      // Store the href for navigation
-      link.setAttribute('data-href', 'product.html?slug=' + encodeURIComponent(cat.slug));
-      
-      // Add click handler for navigation
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        window.location.href = this.getAttribute('data-href');
-      });
+      var link = document.createElement('a');
+      link.href = 'product.html?slug=' + encodeURIComponent(cat.slug);
+      link.setAttribute('aria-label', 'View ' + displayName + ' category');
 
       var figure = document.createElement('figure');
       figure.className = 'product-figure';
 
       var img = document.createElement('img');
       img.src = displayImg;
-      img.alt = cat.name;
+      img.alt = displayName;
 
       var caption = document.createElement('figcaption');
-      caption.textContent = cat.name;
+      caption.textContent = displayName;
+
+      var cta = document.createElement('span');
+      cta.className = 'product-card-cta';
+      cta.textContent = 'View Category';
 
       figure.appendChild(img);
       figure.appendChild(caption);
       link.appendChild(figure);
+      link.appendChild(cta);
       article.appendChild(link);
       
       // Add subproducts section for products page
@@ -265,41 +257,33 @@
           
           // Simple implementation for products page
           products.forEach(function (product) {
+          var displayName = product.slug === 'aluminum' ? 'Aluminium' : product.name;
           
           var article = document.createElement('article');
           article.className = 'card product';
           
-          var link = document.createElement('div');
-          link.style.cursor = 'pointer';
-          link.style.pointerEvents = 'auto';
-          link.style.userSelect = 'text';
-          link.style.webkitUserSelect = 'text';
-          link.style.mozUserSelect = 'text';
-          link.style.msUserSelect = 'text';
-          
-          // Store the href for navigation
-          link.setAttribute('data-href', 'product.html?slug=' + encodeURIComponent(product.slug));
-          
-          // Add click handler for navigation
-          link.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            window.location.href = this.getAttribute('data-href');
-          });
+          var link = document.createElement('a');
+          link.href = 'product.html?slug=' + encodeURIComponent(product.slug);
+          link.setAttribute('aria-label', 'View ' + displayName + ' category');
           
           var figure = document.createElement('figure');
           figure.className = 'product-figure';
           
           var img = document.createElement('img');
           img.src = product.icon || '';
-          img.alt = product.name;
+          img.alt = displayName;
           
           var caption = document.createElement('figcaption');
-          caption.textContent = product.name;
+          caption.textContent = displayName;
+
+          var cta = document.createElement('span');
+          cta.className = 'product-card-cta';
+          cta.textContent = 'View Category';
           
           figure.appendChild(img);
           figure.appendChild(caption);
           link.appendChild(figure);
+          link.appendChild(cta);
           article.appendChild(link);
           
           productsGrid.appendChild(article);
@@ -355,5 +339,4 @@
     });
   });
 })();
-
 

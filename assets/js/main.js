@@ -256,6 +256,7 @@
     let autoPlayTimer = null;
     let isHovering = false;
     let dragState = null;
+    const slideDuration = 6800;
 
     if (!totalSlides) return;
 
@@ -294,7 +295,7 @@
 
     // Set total slides count
     if (totalSlidesSpan) {
-      totalSlidesSpan.textContent = totalSlides;
+      totalSlidesSpan.textContent = String(totalSlides).padStart(2, '0');
     }
 
     // Function to show specific slide
@@ -315,14 +316,13 @@
       if (indicators[index]) {
         indicators[index].classList.add('active');
         if (!prefersReducedMotion.matches) {
-          const progressTiming = index === 0 ? '5s' : '4s';
-          indicators[index].style.animation = `progressBar ${progressTiming} linear forwards`;
+          indicators[index].style.animation = `progressBar ${slideDuration}ms linear forwards`;
         }
       }
 
       // Update counter
       if (currentSlideSpan) {
-        currentSlideSpan.textContent = index + 1;
+        currentSlideSpan.textContent = String(index + 1).padStart(2, '0');
       }
 
       currentSlide = index;
@@ -343,11 +343,10 @@
       stopAutoPlay();
       if (prefersReducedMotion.matches || document.hidden || isHovering) return;
 
-      const timing = currentSlide === 0 ? 5000 : 4200;
       autoPlayTimer = window.setTimeout(() => {
         nextSlide();
         startAutoPlay();
-      }, timing);
+      }, slideDuration);
     }
 
     // Function to stop auto-play
@@ -457,11 +456,11 @@
 
       active.style.zIndex = '3';
       active.style.opacity = String(1 - Math.min(progress * 0.24, 0.24));
-      active.style.transform = `translateX(${dx}px)`;
+      active.style.transform = 'none';
 
       target.style.zIndex = '2';
-      target.style.opacity = String(Math.min(0.18 + progress, 1));
-      target.style.transform = `translateX(${dx + direction * width}px)`;
+      target.style.opacity = String(Math.min(progress * 0.78, 0.78));
+      target.style.transform = 'none';
     }
 
     function finishDrag(shouldCommit, direction) {
@@ -472,7 +471,7 @@
       const target = slides[targetIndex];
       const transition = prefersReducedMotion.matches
         ? 'none'
-        : 'transform 340ms cubic-bezier(0.22, 1, 0.36, 1), opacity 240ms ease';
+        : 'opacity 520ms cubic-bezier(0.22, 1, 0.36, 1)';
 
       [active, target].forEach(slide => {
         if (!slide) return;
@@ -481,25 +480,25 @@
       });
 
       if (shouldCommit && target) {
-        active.style.transform = `translateX(${-direction * width}px)`;
+        active.style.transform = 'none';
         active.style.opacity = '0';
-        target.style.transform = 'translateX(0)';
+        target.style.transform = 'none';
         target.style.opacity = '1';
         window.setTimeout(() => {
           showSlide(targetIndex);
           startAutoPlay();
-        }, prefersReducedMotion.matches ? 0 : 350);
+        }, prefersReducedMotion.matches ? 0 : 520);
       } else {
-        active.style.transform = 'translateX(0)';
+        active.style.transform = 'none';
         active.style.opacity = '1';
         if (target) {
-          target.style.transform = `translateX(${direction * width}px)`;
+          target.style.transform = 'none';
           target.style.opacity = '0';
         }
         window.setTimeout(() => {
           showSlide(currentSlide);
           startAutoPlay();
-        }, prefersReducedMotion.matches ? 0 : 350);
+        }, prefersReducedMotion.matches ? 0 : 520);
       }
 
       dragState = null;
@@ -601,6 +600,46 @@
       initHeroCarousel();
     }
   });
+
+  // Homepage-only, one-time editorial reveal system.
+  function initHomepageReveals() {
+    const homeMain = document.querySelector('.home-main');
+    if (!homeMain) return;
+
+    const revealItems = Array.from(homeMain.querySelectorAll('.home-reveal'));
+    if (!revealItems.length) return;
+
+    revealItems.forEach((item) => {
+      const delay = Number.parseInt(item.dataset.revealDelay || '0', 10);
+      item.style.setProperty('--home-reveal-delay', `${Math.max(0, delay)}ms`);
+    });
+
+    homeMain.classList.add('home-motion-ready');
+
+    if (prefersReducedMotion.matches || !('IntersectionObserver' in window)) {
+      revealItems.forEach((item) => item.classList.add('is-visible'));
+      return;
+    }
+
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      });
+    }, {
+      rootMargin: '0px 0px -10% 0px',
+      threshold: 0.12
+    });
+
+    revealItems.forEach((item) => revealObserver.observe(item));
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHomepageReveals);
+  } else {
+    initHomepageReveals();
+  }
 
   // Company Highlights Carousel functionality
   function initHighlightsCarousel() {
