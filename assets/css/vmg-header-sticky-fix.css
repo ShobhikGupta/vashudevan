@@ -1,97 +1,139 @@
-/* Stable VMG header behavior.
-   Mobile: the complete header stays sticky until the footer enters the viewport.
-   Desktop: tier 1 scrolls away naturally; tier 2 pins to the viewport top until the footer enters. */
+/*
+  VMG header behavior — stable implementation.
+
+  We intentionally rely on the scroll state that already exists in main.js:
+    .site-header.is-scrolled   -> page has started scrolling
+    body.scroll-top-visible    -> page has reached the final/footer zone
+
+  This avoids the previous measured offsets / stale footer observer state.
+*/
 
 .site-header.vmg-econship-header {
-  --vmg-nav-height: 52px;
+  --vmg-nav-height: 54px;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1200 !important;
+  transform: translate3d(0, 0, 0) !important;
+  background: #fff;
+  transition: transform 340ms cubic-bezier(.22, 1, .36, 1), box-shadow 180ms ease !important;
+  will-change: transform;
 }
 
-/* Neutralize the earlier experimental state classes if an older cached script added them. */
-.site-header.vmg-econship-header.vmg-tier1-collapsed .vmg-nav-brand-row {
-  min-height: revert !important;
-  max-height: none !important;
-  margin-top: revert !important;
-  margin-bottom: revert !important;
-  opacity: 1 !important;
-  transform: none !important;
+/* Neutralize every previous experimental header state so stale JS classes cannot hide it. */
+.site-header.vmg-econship-header.vmg-tier1-collapsed,
+.site-header.vmg-econship-header.vmg-header-retreat,
+.site-header.vmg-econship-header.vmg-tier2-pinned,
+.site-header.vmg-econship-header.vmg-footer-active {
+  transform: translate3d(0, 0, 0) !important;
   pointer-events: auto !important;
 }
 
-.site-header.vmg-econship-header.vmg-header-retreat {
-  pointer-events: auto !important;
+.site-header.vmg-econship-header .site-nav {
+  transform: translate3d(0, 0, 0) !important;
 }
 
+/* =========================================================
+   MOBILE / TABLET
+   Full header stays visible throughout normal browsing.
+   ========================================================= */
 @media (max-width: 991px) {
-  /* The complete mobile header is always present while browsing. */
   .site-header.vmg-econship-header {
     position: sticky !important;
     top: 0 !important;
-    z-index: 1000 !important;
-    transform: translate3d(0, 0, 0) !important;
-    transition: transform 340ms cubic-bezier(.22, 1, .36, 1), box-shadow 180ms ease !important;
-    will-change: transform;
+    min-height: 64px !important;
   }
 
-  /* Only when the real footer begins entering the viewport does the header retreat. */
-  .site-header.vmg-econship-header.vmg-footer-active:not(:has(.site-nav.open)) {
+  .site-header.vmg-econship-header .vmg-nav-brand-row {
+    min-height: 64px !important;
+    max-height: 64px !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    opacity: 1 !important;
+    transform: translate3d(0, 0, 0) !important;
+    overflow: visible !important;
+    pointer-events: auto !important;
+  }
+
+  /* Ignore desktop/stale state classes on mobile. */
+  .site-header.vmg-econship-header.is-scrolled .vmg-nav-brand-row,
+  .site-header.vmg-econship-header.vmg-tier1-collapsed .vmg-nav-brand-row,
+  .site-header.vmg-econship-header.vmg-tier2-pinned .vmg-nav-brand-row {
+    min-height: 64px !important;
+    max-height: 64px !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* The existing main.js toggles scroll-top-visible only in the final/footer zone.
+     That makes this retreat reversible when the visitor scrolls back upward. */
+  body.scroll-top-visible:not(.menu-open) .site-header.vmg-econship-header {
     transform: translate3d(0, calc(-100% - 2px), 0) !important;
     pointer-events: none !important;
   }
 
-  /* If the mobile menu is open, keep the header/menu available regardless of footer position. */
+  /* An open mobile menu always wins: never make the menu disappear under the user. */
   body.menu-open .site-header.vmg-econship-header,
-  body.menu-open .site-header.vmg-econship-header.vmg-footer-active {
+  body.menu-open.scroll-top-visible .site-header.vmg-econship-header {
     transform: translate3d(0, 0, 0) !important;
     pointer-events: auto !important;
   }
 }
 
+/* =========================================================
+   DESKTOP
+   Tier 1 collapses; Tier 2 remains sticky.
+   ========================================================= */
 @media (min-width: 992px) {
-  /* The whole desktop header must not be sticky: tier 1 should leave naturally as the page scrolls. */
   .site-header.vmg-econship-header {
-    position: relative !important;
-    top: auto !important;
-    z-index: 1000 !important;
-    transform: none !important;
-    transition: none !important;
-    will-change: auto !important;
+    position: sticky !important;
+    top: 0 !important;
+    overflow: visible !important;
   }
 
   .site-header.vmg-econship-header .vmg-nav-brand-row {
-    max-height: none !important;
-    overflow: visible !important;
+    min-height: 82px !important;
+    max-height: 82px !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    overflow: hidden !important;
     opacity: 1 !important;
-    transform: none !important;
-    transition: none !important;
+    transform: translate3d(0, 0, 0) !important;
+    transition:
+      min-height 300ms cubic-bezier(.22, 1, .36, 1),
+      max-height 300ms cubic-bezier(.22, 1, .36, 1),
+      opacity 180ms ease,
+      transform 300ms cubic-bezier(.22, 1, .36, 1) !important;
   }
 
-  .site-header.vmg-econship-header .site-nav {
+  /* main.js adds is-scrolled as soon as the visitor moves down.
+     Collapse only Tier 1; the navy navigation band stays at viewport top. */
+  .site-header.vmg-econship-header.is-scrolled .vmg-nav-brand-row {
+    min-height: 0 !important;
+    max-height: 0 !important;
+    opacity: 0 !important;
+    transform: translate3d(0, -100%, 0) !important;
+    pointer-events: none !important;
+  }
+
+  .site-header.vmg-econship-header .site-nav,
+  .site-header.vmg-econship-header.vmg-tier2-pinned .site-nav {
     position: relative !important;
     top: auto !important;
     left: auto !important;
     right: auto !important;
     width: 100% !important;
+    z-index: 1 !important;
     transform: translate3d(0, 0, 0) !important;
-    transition: transform 320ms cubic-bezier(.22, 1, .36, 1), box-shadow 180ms ease !important;
-    will-change: transform;
+    transition: box-shadow 180ms ease !important;
   }
 
-  /* Keep the document from jumping when tier 2 changes from normal flow to fixed. */
-  .site-header.vmg-econship-header.vmg-tier2-pinned {
-    padding-bottom: var(--vmg-nav-height) !important;
-  }
-
-  .site-header.vmg-econship-header.vmg-tier2-pinned .site-nav {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    z-index: 1100 !important;
+  .site-header.vmg-econship-header.is-scrolled .site-nav {
     box-shadow: 0 8px 24px rgba(4, 12, 23, .14) !important;
   }
 
-  /* Once the footer begins, only the persistent tier 2 retreats upward. */
-  .site-header.vmg-econship-header.vmg-tier2-pinned.vmg-footer-active .site-nav {
+  /* In the final/footer zone the remaining Tier 2 retreats with the header.
+     Scrolling upward automatically restores it because main.js removes the body class. */
+  body.scroll-top-visible .site-header.vmg-econship-header {
     transform: translate3d(0, calc(-100% - 2px), 0) !important;
     pointer-events: none !important;
   }
@@ -99,6 +141,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .site-header.vmg-econship-header,
+  .site-header.vmg-econship-header .vmg-nav-brand-row,
   .site-header.vmg-econship-header .site-nav {
     transition: none !important;
   }
