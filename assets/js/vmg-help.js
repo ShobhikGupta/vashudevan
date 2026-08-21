@@ -12,7 +12,7 @@
     if (!document.querySelector('link[data-vmg-chatgpt-mobile-fixes]')) {
       var link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.href = '/assets/css/vmg-chatgpt-mobile-fixes.css?v=20260821g';
+      link.href = '/assets/css/vmg-chatgpt-mobile-fixes.css?v=20260821h';
       link.setAttribute('data-vmg-chatgpt-mobile-fixes', 'true');
       document.head.appendChild(link);
     }
@@ -20,7 +20,7 @@
     if (!document.querySelector('link[data-vmg-header-sticky-fix]')) {
       var sticky = document.createElement('link');
       sticky.rel = 'stylesheet';
-      sticky.href = '/assets/css/vmg-header-sticky-fix.css?v=20260821a';
+      sticky.href = '/assets/css/vmg-header-sticky-fix.css?v=20260821b';
       sticky.setAttribute('data-vmg-header-sticky-fix', 'true');
       document.head.appendChild(sticky);
     }
@@ -158,12 +158,15 @@
     var navStart = 0;
     var raf = 0;
     var footerObserver = null;
+    var observedFooter = null;
+    var footerMutationObserver = null;
 
     function measure() {
       header.classList.remove('vmg-tier2-pinned');
       header.style.removeProperty('--vmg-nav-height');
-      navStart = header.getBoundingClientRect().top + window.scrollY + brandRow.getBoundingClientRect().height;
-      header.style.setProperty('--vmg-nav-height', Math.round(nav.getBoundingClientRect().height) + 'px');
+      var headerTop = header.getBoundingClientRect().top + window.scrollY;
+      navStart = headerTop + brandRow.getBoundingClientRect().height;
+      header.style.setProperty('--vmg-nav-height', Math.max(1, Math.round(nav.getBoundingClientRect().height)) + 'px');
       update();
     }
 
@@ -181,30 +184,48 @@
       raf = window.requestAnimationFrame(update);
     }
 
-    function observeFooter(footerAttempt) {
-      footerAttempt = footerAttempt || 0;
+    function attachFooterObserver() {
       var footer = document.querySelector('footer.vmg-global-footer, footer.site-footer');
-      if (!footer) {
-        if (footerAttempt < 50) window.setTimeout(function () { observeFooter(footerAttempt + 1); }, 100);
-        return;
-      }
+      if (!footer || footer === observedFooter) return;
+
       if (footerObserver) footerObserver.disconnect();
+      observedFooter = footer;
+      header.classList.remove('vmg-footer-active');
+
       footerObserver = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
-          header.classList.toggle('vmg-footer-active', entry.isIntersecting);
+          if (entry.target !== observedFooter) return;
+          header.classList.toggle('vmg-footer-active', entry.isIntersecting && entry.intersectionRect.height > 0);
         });
-      }, { root: null, rootMargin: '0px', threshold: 0 });
+      }, { root: null, rootMargin: '0px', threshold: [0, 0.01] });
+
       footerObserver.observe(footer);
     }
 
+    function startFooterWatcher() {
+      attachFooterObserver();
+      footerMutationObserver = new MutationObserver(function () {
+        attachFooterObserver();
+      });
+      footerMutationObserver.observe(document.body, { childList: true, subtree: true });
+      window.setTimeout(attachFooterObserver, 250);
+      window.setTimeout(attachFooterObserver, 800);
+      window.setTimeout(attachFooterObserver, 1600);
+    }
+
     window.addEventListener('scroll', requestUpdate, { passive: true });
-    window.addEventListener('resize', function () { window.clearTimeout(window.__vmgHeaderResizeTimer); window.__vmgHeaderResizeTimer = window.setTimeout(measure, 120); }, { passive: true });
+    window.addEventListener('resize', function () {
+      window.clearTimeout(window.__vmgHeaderResizeTimer);
+      window.__vmgHeaderResizeTimer = window.setTimeout(measure, 120);
+    }, { passive: true });
+
     if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', measure);
     else if (desktopQuery.addListener) desktopQuery.addListener(measure);
 
     window.setTimeout(measure, 60);
     window.setTimeout(measure, 450);
-    observeFooter();
+    window.setTimeout(measure, 1200);
+    startFooterWatcher();
   }
 
   function closeMenu(restoreFocus) {
