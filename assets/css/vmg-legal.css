@@ -9,7 +9,7 @@
 }
 
 .legal-hero {
-  padding: clamp(58px, 7vw, 92px) 0 clamp(48px, 6vw, 76px);
+  padding: clamp(34px, 4.5vw, 54px) 0 clamp(30px, 4vw, 46px);
   background: #081a2d;
   color: #fff;
   border-bottom: 1px solid rgba(255,255,255,.08);
@@ -21,14 +21,16 @@
 }
 
 .legal-hero .legal-wrap {
-  width: min(980px, calc(100% - 40px));
+  width: min(820px, calc(100% - 40px));
+  text-align: center;
 }
 
 .legal-eyebrow {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
-  margin: 0 0 14px;
+  margin: 0 auto 10px;
   color: #d39a67;
   font-size: .72rem;
   font-weight: 800;
@@ -45,39 +47,41 @@
 
 .legal-hero h1 {
   max-width: 760px;
-  margin: 0;
+  margin: 0 auto;
   color: #fff;
-  font-size: clamp(2.35rem, 5vw, 4.7rem);
-  line-height: .98;
+  font-size: clamp(2.3rem, 4.4vw, 4rem);
+  line-height: 1;
   letter-spacing: -.045em;
 }
 
 .legal-hero .legal-lead {
   max-width: 720px;
-  margin: 22px 0 0;
+  margin: 14px auto 0;
   color: rgba(255,255,255,.72);
-  font-size: clamp(.96rem, 1.3vw, 1.08rem);
-  line-height: 1.7;
+  font-size: clamp(.9rem, 1.15vw, 1rem);
+  line-height: 1.58;
 }
 
 .legal-meta {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  justify-content: center;
   gap: 8px;
-  margin-top: 24px;
+  margin-top: 16px;
 }
 
 .legal-meta span {
   display: inline-flex;
   align-items: center;
-  min-height: 30px;
-  padding: 6px 10px;
+  min-height: 28px;
+  padding: 5px 10px;
   border: 1px solid rgba(255,255,255,.13);
   border-radius: 999px;
   color: rgba(255,255,255,.76);
   background: rgba(255,255,255,.035);
   font-size: .72rem;
   font-weight: 650;
+  white-space: nowrap;
 }
 
 .legal-content {
@@ -226,17 +230,32 @@
   }
 
   .legal-hero {
-    padding-block: 44px 40px;
+    padding: 28px 0 26px;
+  }
+
+  .legal-hero .legal-wrap {
+    width: min(100% - 28px, 820px);
   }
 
   .legal-hero h1 {
-    font-size: clamp(2.05rem, 11vw, 3.2rem);
+    font-size: clamp(2rem, 10vw, 2.75rem);
   }
 
   .legal-hero .legal-lead {
-    margin-top: 16px;
-    font-size: .9rem;
-    line-height: 1.62;
+    margin-top: 12px;
+    font-size: .86rem;
+    line-height: 1.52;
+  }
+
+  .legal-meta {
+    gap: 6px;
+    margin-top: 14px;
+  }
+
+  .legal-meta span {
+    min-height: 26px;
+    padding: 4px 8px;
+    font-size: .64rem;
   }
 
   .legal-content {
