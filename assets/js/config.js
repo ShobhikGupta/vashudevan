@@ -59,7 +59,7 @@
 
   if (!document.querySelector('script[data-vmg-analytics-script]')) {
     var analyticsScript = document.createElement('script');
-    analyticsScript.src = '/assets/js/analytics.js?v=20260822a';
+    analyticsScript.src = '/assets/js/analytics.js?v=20260822b';
     analyticsScript.defer = true;
     analyticsScript.setAttribute('data-vmg-analytics-script', 'true');
     document.head.appendChild(analyticsScript);
