@@ -1,4 +1,4 @@
-/* Focused VMG responsive fixes: hero CTA row, Trade Desk row, stable floating controls, and mobile market scrolling. */
+/* Focused VMG responsive fixes: hero CTA row, Trade Desk row, stable floating controls, legal utility links, and mobile market scrolling. */
 
 /* Keep the floating contact controls pinned to the viewport on every page. */
 .whatsapp-float {
@@ -56,6 +56,32 @@ body.vmg-help-open .whatsapp-float {
   top: auto !important;
 }
 
+/* Contact page: make both named phone contacts deliberate and easy to scan. */
+.contact-info-left .vmg-contact-person {
+  display: grid;
+  gap: 2px;
+  margin: 0 0 10px;
+}
+
+.contact-info-left .vmg-contact-person strong {
+  color: #0a1728;
+  font-size: .88rem;
+  line-height: 1.25;
+}
+
+.contact-info-left .vmg-contact-person a {
+  width: max-content;
+  max-width: 100%;
+  color: #526174;
+}
+
+.cta-join .small-note a {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 @media (max-width: 991px) {
   /* Keep FAQ + legal links together as one tidy utility line. */
   .vmg-mobile-bottom-links {
@@ -84,6 +110,7 @@ body.vmg-help-open .whatsapp-float {
     background: transparent !important;
     border: 0 !important;
     box-shadow: none !important;
+    text-decoration: none !important;
   }
 
   .vmg-mobile-bottom-links-row a:hover,
@@ -93,7 +120,7 @@ body.vmg-help-open .whatsapp-float {
     color: #fff !important;
   }
 
-  /* Dedicated premium brochure CTA sits below FAQ / Privacy / Terms. */
+  /* Dedicated premium brochure CTA sits below FAQ / Privacy / Disclaimer. */
   .vmg-mobile-brochure-cta {
     width: min(100%, 250px) !important;
     min-height: 38px !important;
