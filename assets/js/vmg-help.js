@@ -7,12 +7,23 @@
   var brochureIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h8l4 4V20.5H6z"/><path d="M14 3.5v4h4M9 12h6M9 15h6"/></svg>';
 
   function ensureFixStylesheet() {
-    if (!document.head || document.querySelector('link[data-vmg-chatgpt-mobile-fixes]')) return;
-    var link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = '/assets/css/vmg-chatgpt-mobile-fixes.css?v=20260821f';
-    link.setAttribute('data-vmg-chatgpt-mobile-fixes', 'true');
-    document.head.appendChild(link);
+    if (!document.head) return;
+
+    if (!document.querySelector('link[data-vmg-chatgpt-mobile-fixes]')) {
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = '/assets/css/vmg-chatgpt-mobile-fixes.css?v=20260821g';
+      link.setAttribute('data-vmg-chatgpt-mobile-fixes', 'true');
+      document.head.appendChild(link);
+    }
+
+    if (!document.querySelector('link[data-vmg-header-sticky-fix]')) {
+      var sticky = document.createElement('link');
+      sticky.rel = 'stylesheet';
+      sticky.href = '/assets/css/vmg-header-sticky-fix.css?v=20260821a';
+      sticky.setAttribute('data-vmg-header-sticky-fix', 'true');
+      document.head.appendChild(sticky);
+    }
   }
 
   function replaceTextNodes(element, replacements) {
@@ -23,9 +34,7 @@
     while ((node = walker.nextNode())) nodes.push(node);
     nodes.forEach(function (textNode) {
       var next = textNode.nodeValue;
-      replacements.forEach(function (pair) {
-        next = next.replace(pair[0], pair[1]);
-      });
+      replacements.forEach(function (pair) { next = next.replace(pair[0], pair[1]); });
       if (next !== textNode.nodeValue) textNode.nodeValue = next;
     });
   }
@@ -57,37 +66,14 @@
         link.href = '/disclaimer.html';
       }
     });
-
-    document.querySelectorAll('button').forEach(function (button) {
-      var text = button.textContent.trim();
-      var target = null;
-      var label = null;
-      if (/^privacy policy$/i.test(text)) {
-        target = '/privacy-policy.html';
-        label = 'Privacy Policy';
-      } else if (/^(terms\s*&\s*conditions|terms and conditions|t&c)$/i.test(text)) {
-        target = '/disclaimer.html';
-        label = 'Disclaimer';
-      }
-      if (!target || !button.parentNode) return;
-      var link = document.createElement('a');
-      link.href = target;
-      link.className = button.className;
-      link.textContent = label;
-      link.setAttribute('aria-label', label);
-      button.parentNode.replaceChild(link, button);
-    });
   }
 
   function polishMobileNavUtilityLinks(attempt) {
     attempt = attempt || 0;
     var item = document.querySelector('.vmg-mobile-bottom-links');
     var row = item && item.querySelector('.vmg-mobile-bottom-links-row');
-
     if (!item || !row) {
-      if (attempt < 25) {
-        window.setTimeout(function () { polishMobileNavUtilityLinks(attempt + 1); }, 80);
-      }
+      if (attempt < 25) window.setTimeout(function () { polishMobileNavUtilityLinks(attempt + 1); }, 80);
       return;
     }
 
@@ -115,12 +101,9 @@
     attempt = attempt || 0;
     var list = document.querySelector('.vmg-footer-mini-links');
     if (!list) {
-      if (attempt < 30) {
-        window.setTimeout(function () { polishFooterLinks(attempt + 1); }, 100);
-      }
+      if (attempt < 30) window.setTimeout(function () { polishFooterLinks(attempt + 1); }, 100);
       return;
     }
-
     list.innerHTML = [
       '<li><a href="/faq.html">FAQ</a></li>',
       '<li><a href="/privacy-policy.html">Privacy Policy</a></li>',
@@ -132,21 +115,16 @@
 
   function enhanceContactPage() {
     if (!/\/contact\.html$/.test(window.location.pathname)) return;
-
     var contactPanel = document.querySelector('.contact-info-left');
     if (contactPanel && !contactPanel.querySelector('[data-vmg-contact-person="sujit"]')) {
       var headings = Array.prototype.slice.call(contactPanel.querySelectorAll('h3'));
-      var detailsHeading = headings.find(function (heading) {
-        return heading.textContent.trim().toLowerCase() === 'contact details';
-      });
-
+      var detailsHeading = headings.find(function (heading) { return heading.textContent.trim().toLowerCase() === 'contact details'; });
       if (detailsHeading) {
         var phoneParagraph = detailsHeading.nextElementSibling;
         if (phoneParagraph && phoneParagraph.querySelector('a[href^="tel:"]')) {
           phoneParagraph.className = 'vmg-contact-person';
           phoneParagraph.setAttribute('data-vmg-contact-person', 'sujit');
           phoneParagraph.innerHTML = '<strong>Sujit Gupta</strong><a href="tel:+919879208178">+91 9879208178</a>';
-
           var shobhik = document.createElement('p');
           shobhik.className = 'vmg-contact-person';
           shobhik.setAttribute('data-vmg-contact-person', 'shobhik');
@@ -158,61 +136,75 @@
 
     var privacyLink = document.querySelector('.privacy-link');
     if (privacyLink) privacyLink.href = '/privacy-policy.html';
-
     var smallNote = document.querySelector('.cta-join .small-note');
-    if (smallNote) {
-      smallNote.innerHTML = 'Learn about our <a href="/privacy-policy.html">Privacy Policy</a> &amp; <a href="/disclaimer.html">Disclaimer</a>';
-    }
+    if (smallNote) smallNote.innerHTML = 'Learn about our <a href="/privacy-policy.html">Privacy Policy</a> &amp; <a href="/disclaimer.html">Disclaimer</a>';
   }
 
-  function initHeaderScrollBehavior(attempt) {
+  function initHeaderStickyBehavior(attempt) {
     attempt = attempt || 0;
     var header = document.querySelector('.site-header.vmg-econship-header, .site-header');
-    if (!header) {
-      if (attempt < 25) window.setTimeout(function () { initHeaderScrollBehavior(attempt + 1); }, 100);
+    var nav = header && header.querySelector('.site-nav');
+    var brandRow = header && header.querySelector('.vmg-nav-brand-row');
+    if (!header || !nav || !brandRow) {
+      if (attempt < 30) window.setTimeout(function () { initHeaderStickyBehavior(attempt + 1); }, 100);
       return;
     }
-    if (header.dataset.vmgScrollBehavior === 'true') return;
-    header.dataset.vmgScrollBehavior = 'true';
+    if (header.dataset.vmgStickyFix === 'true') return;
+    header.dataset.vmgStickyFix = 'true';
+
+    header.classList.remove('vmg-tier1-collapsed', 'vmg-header-retreat', 'vmg-tier2-pinned', 'vmg-footer-active');
 
     var desktopQuery = window.matchMedia('(min-width: 992px)');
-    var ticking = false;
+    var navStart = 0;
+    var raf = 0;
+    var footerObserver = null;
 
-    function updateTierState() {
-      ticking = false;
-      var shouldCollapseTierOne = desktopQuery.matches && window.scrollY > 110;
-      header.classList.toggle('vmg-tier1-collapsed', shouldCollapseTierOne);
+    function measure() {
+      header.classList.remove('vmg-tier2-pinned');
+      header.style.removeProperty('--vmg-nav-height');
+      navStart = header.getBoundingClientRect().top + window.scrollY + brandRow.getBoundingClientRect().height;
+      header.style.setProperty('--vmg-nav-height', Math.round(nav.getBoundingClientRect().height) + 'px');
+      update();
     }
 
-    function onScroll() {
-      if (ticking) return;
-      ticking = true;
-      window.requestAnimationFrame(updateTierState);
+    function update() {
+      raf = 0;
+      if (desktopQuery.matches) {
+        header.classList.toggle('vmg-tier2-pinned', window.scrollY >= navStart - 1);
+      } else {
+        header.classList.remove('vmg-tier2-pinned');
+      }
     }
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', updateTierState);
-    else if (desktopQuery.addListener) desktopQuery.addListener(updateTierState);
-    updateTierState();
+    function requestUpdate() {
+      if (raf) return;
+      raf = window.requestAnimationFrame(update);
+    }
 
-    function observeFinalFooter(footerAttempt) {
+    function observeFooter(footerAttempt) {
       footerAttempt = footerAttempt || 0;
       var footer = document.querySelector('footer.vmg-global-footer, footer.site-footer');
       if (!footer) {
-        if (footerAttempt < 40) window.setTimeout(function () { observeFinalFooter(footerAttempt + 1); }, 100);
+        if (footerAttempt < 50) window.setTimeout(function () { observeFooter(footerAttempt + 1); }, 100);
         return;
       }
-
-      var observer = new IntersectionObserver(function (entries) {
+      if (footerObserver) footerObserver.disconnect();
+      footerObserver = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
-          header.classList.toggle('vmg-header-retreat', entry.isIntersecting);
+          header.classList.toggle('vmg-footer-active', entry.isIntersecting);
         });
-      }, { root: null, threshold: 0.01 });
-
-      observer.observe(footer);
+      }, { root: null, rootMargin: '0px', threshold: 0 });
+      footerObserver.observe(footer);
     }
 
-    observeFinalFooter();
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', function () { window.clearTimeout(window.__vmgHeaderResizeTimer); window.__vmgHeaderResizeTimer = window.setTimeout(measure, 120); }, { passive: true });
+    if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', measure);
+    else if (desktopQuery.addListener) desktopQuery.addListener(measure);
+
+    window.setTimeout(measure, 60);
+    window.setTimeout(measure, 450);
+    observeFooter();
   }
 
   function closeMenu(restoreFocus) {
@@ -233,10 +225,7 @@
     document.body.classList.add('vmg-help-open');
     trigger.setAttribute('aria-expanded', 'true');
     root.querySelector('.vmg-help-menu').setAttribute('aria-hidden', 'false');
-    window.setTimeout(function () {
-      var first = root.querySelector('.vmg-help-menu a');
-      if (first) first.focus();
-    }, 20);
+    window.setTimeout(function () { var first = root.querySelector('.vmg-help-menu a'); if (first) first.focus(); }, 20);
   }
 
   function createHelp() {
@@ -245,8 +234,7 @@
     polishFooterLinks();
     enhanceContactPage();
     normalizeLegalAndBrochureLabels();
-    initHeaderScrollBehavior();
-
+    initHeaderStickyBehavior();
     window.setTimeout(normalizeLegalAndBrochureLabels, 350);
     window.setTimeout(normalizeLegalAndBrochureLabels, 1200);
 
@@ -272,32 +260,13 @@
     ].join('');
 
     document.body.appendChild(root);
-
     var trigger = root.querySelector('.vmg-help-trigger');
-    trigger.addEventListener('click', function () {
-      if (root.classList.contains('is-open')) closeMenu(false);
-      else openMenu(trigger);
-    });
-
-    root.querySelectorAll('.vmg-help-menu a').forEach(function (link) {
-      link.addEventListener('click', function () { closeMenu(false); });
-    });
-
-    document.addEventListener('pointerdown', function (event) {
-      if (!root.contains(event.target)) closeMenu(false);
-    });
-
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape' && root.classList.contains('is-open')) {
-        event.preventDefault();
-        closeMenu(true);
-      }
-    });
+    trigger.addEventListener('click', function () { if (root.classList.contains('is-open')) closeMenu(false); else openMenu(trigger); });
+    root.querySelectorAll('.vmg-help-menu a').forEach(function (link) { link.addEventListener('click', function () { closeMenu(false); }); });
+    document.addEventListener('pointerdown', function (event) { if (!root.contains(event.target)) closeMenu(false); });
+    document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && root.classList.contains('is-open')) { event.preventDefault(); closeMenu(true); } });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', createHelp, { once: true });
-  } else {
-    createHelp();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', createHelp, { once: true });
+  else createHelp();
 })();
