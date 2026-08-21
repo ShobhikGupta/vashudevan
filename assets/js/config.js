@@ -10,7 +10,7 @@
   if (!document || !document.head) return;
 
   var stickyLink = document.querySelector('link[data-vmg-header-sticky-fix]');
-  if (stickyLink) stickyLink.href = '/assets/css/vmg-header-sticky-fix.css?v=20260822f';
+  if (stickyLink) stickyLink.href = '/assets/css/vmg-header-sticky-fix.css?v=20260822g';
 
   function loadStylesheet(href, marker) {
     if (document.querySelector('link[' + marker + ']')) return;
@@ -31,8 +31,9 @@
   }
 
   loadStylesheet('/assets/css/vmg-market-polish.css', 'data-vmg-market-polish');
-  loadScript('/assets/js/vmg-feedback.js?v=20260822f', 'data-vmg-feedback-script');
-  loadScript('/assets/js/vmg-help.js?v=20260822f', 'data-vmg-help-script');
+  loadStylesheet('/assets/css/vmg-header-layout-fix.css?v=20260822a', 'data-vmg-header-layout-fix');
+  loadScript('/assets/js/vmg-feedback.js?v=20260822g', 'data-vmg-feedback-script');
+  loadScript('/assets/js/vmg-help.js?v=20260822g', 'data-vmg-help-script');
 })();
 
 (function () {
@@ -132,21 +133,26 @@
 
     var desktopQuery = window.matchMedia('(min-width: 992px)');
     var raf = 0;
+    var navParent = nav.parentNode;
+    if (!navParent) return;
 
-    var sentinel = header.querySelector('.vmg-tier2-sentinel');
+    // These markers MUST be siblings of the nav. Previously they were inserted
+    // on the header itself, even though nav lives inside .header-inner, which
+    // threw NotFoundError and aborted all sticky/footer synchronization.
+    var sentinel = navParent.querySelector('.vmg-tier2-sentinel');
     if (!sentinel) {
       sentinel = document.createElement('span');
       sentinel.className = 'vmg-tier2-sentinel';
       sentinel.setAttribute('aria-hidden', 'true');
-      header.insertBefore(sentinel, nav);
+      navParent.insertBefore(sentinel, nav);
     }
 
-    var spacer = header.querySelector('.vmg-tier2-spacer');
+    var spacer = navParent.querySelector('.vmg-tier2-spacer');
     if (!spacer) {
       spacer = document.createElement('div');
       spacer.className = 'vmg-tier2-spacer';
       spacer.setAttribute('aria-hidden', 'true');
-      header.insertBefore(spacer, nav);
+      navParent.insertBefore(spacer, nav);
     }
 
     function isMenuOpen() {
