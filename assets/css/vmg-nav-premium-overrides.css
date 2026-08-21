@@ -12,47 +12,51 @@
     box-shadow: 0 1px 0 rgba(15, 23, 42, .06);
   }
 
-  /* Use almost the full header width while keeping the brand truly centered. */
+  /* Stable three-column Tier 1. Equal side columns keep the VMG lockup truly centered. */
   .vmg-nav-brand-row {
-    width: min(1480px, calc(100% - 40px));
+    width: min(1400px, calc(100% - 72px));
     min-height: 82px;
-    grid-template-columns: minmax(410px, 1fr) auto minmax(410px, 1fr);
-    gap: 28px;
+    grid-template-columns: minmax(360px, 1fr) auto minmax(360px, 1fr);
+    gap: 20px;
     border: 0;
   }
 
-  /* Compact, quieter shipment utility */
+  /* Compact, fixed-size shipment utility so it never shifts as other assets load. */
   .vmg-track-shipment {
     justify-self: start;
-    max-width: 430px;
-    gap: 10px;
+    width: 350px;
+    max-width: 350px;
+    gap: 8px;
   }
 
   .vmg-track-title {
+    flex: 0 0 88px;
     color: #0a1728;
-    font-size: .84rem;
-    font-weight: 720;
-    letter-spacing: -.01em;
+    font-size: .75rem;
+    font-weight: 740;
+    letter-spacing: 0;
   }
 
   .vmg-track-form {
-    grid-template-columns: minmax(165px, 210px) auto;
-    border: 1px solid #d8dee6;
-    border-radius: 8px;
-    background: #fff;
-    box-shadow: none;
+    width: 254px;
+    grid-template-columns: minmax(0, 1fr) 56px;
+    border: 1px solid #d9e0e7;
+    border-radius: 9px;
+    background: #fbfcfe;
+    box-shadow: 0 2px 8px rgba(10, 23, 40, .025);
   }
 
   .vmg-track-form:focus-within {
-    border-color: rgba(184, 121, 67, .65);
-    box-shadow: 0 0 0 3px rgba(184, 121, 67, .08);
+    border-color: rgba(184, 121, 67, .62);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(184, 121, 67, .075);
   }
 
   .vmg-track-input {
-    height: 38px;
-    padding-inline: 12px;
+    height: 36px;
+    padding-inline: 11px;
     color: #0f172a;
-    font-size: .78rem;
+    font-size: .75rem;
   }
 
   .vmg-track-input::placeholder {
@@ -60,12 +64,12 @@
   }
 
   .vmg-track-button {
-    min-width: 66px;
-    padding-inline: 13px;
+    min-width: 56px;
+    padding-inline: 10px;
     border-left: 1px solid rgba(184, 121, 67, .18);
     background: #b87943;
     color: #fff;
-    font-size: .79rem;
+    font-size: .76rem;
     font-weight: 760;
   }
 
@@ -74,7 +78,7 @@
     background: #9f693b;
   }
 
-  /* Strong centered VMG identity: logo + eye-catching wordmark. */
+  /* Strong centered VMG identity. */
   .vmg-econship-header .logo {
     grid-column: 2;
     position: relative;
@@ -90,10 +94,10 @@
   }
 
   .vmg-econship-header .logo img.vmg-updated-header-logo {
-    width: 38px !important;
-    height: 60px !important;
+    width: 46px !important;
+    height: 68px !important;
     object-fit: contain !important;
-    flex: 0 0 38px;
+    flex: 0 0 46px;
     border-radius: 0;
   }
 
@@ -119,12 +123,13 @@
     letter-spacing: -.028em;
   }
 
-  /* Same VMG social profiles, visually restrained */
+  /* Same VMG social profiles, visually restrained. */
   .vmg-nav-socials {
     grid-column: 3;
     justify-self: end;
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 7px;
   }
 
@@ -151,9 +156,10 @@
     outline: none;
   }
 
-  .vmg-social-link svg {
-    width: 16px;
-    height: 16px;
+  .vmg-social-link svg,
+  .vmg-social-link .vmg-social-icon-img {
+    width: 20px;
+    height: 20px;
     display: block;
   }
 
@@ -231,7 +237,7 @@
     opacity: 1;
   }
 
-  /* About Us dropdown: restrained corporate panel */
+  /* About Us dropdown: restrained corporate panel. */
   .vmg-econship-header .site-nav .submenu,
   .vmg-econship-header .site-nav .has-submenu:hover .submenu {
     top: calc(100% + 1px);
@@ -286,14 +292,37 @@
 
 @media (max-width: 1320px) and (min-width: 992px) {
   .vmg-nav-brand-row {
-    width: calc(100% - 30px);
+    width: calc(100% - 48px);
     grid-template-columns: minmax(280px, 1fr) auto minmax(280px, 1fr);
     gap: 16px;
   }
 
-  .vmg-track-shipment { gap: 7px; }
-  .vmg-track-title { font-size: .76rem; }
-  .vmg-track-form { grid-template-columns: minmax(135px, 168px) auto; }
+  .vmg-track-shipment {
+    width: 292px;
+    max-width: 292px;
+    gap: 7px;
+  }
+
+  .vmg-track-title {
+    flex-basis: 78px;
+    font-size: .72rem;
+  }
+
+  .vmg-track-form {
+    width: 207px;
+    grid-template-columns: minmax(0, 1fr) 52px;
+  }
+
+  .vmg-track-input {
+    font-size: .72rem;
+  }
+
+  .vmg-track-button {
+    min-width: 52px;
+    padding-inline: 8px;
+    font-size: .72rem;
+  }
+
   .vmg-nav-socials { gap: 5px; }
   .vmg-social-link { width: 32px; height: 32px; }
 
@@ -304,9 +333,9 @@
   }
 
   .vmg-econship-header .logo img.vmg-updated-header-logo {
-    width: 32px !important;
-    height: 50px !important;
-    flex-basis: 32px;
+    width: 40px !important;
+    height: 58px !important;
+    flex-basis: 40px;
   }
 
   .vmg-econship-header .logo span::after {
@@ -324,10 +353,10 @@
   }
 
   .vmg-econship-header .logo img.vmg-updated-header-logo {
-    width: 25px !important;
-    height: 40px !important;
+    width: 30px !important;
+    height: 46px !important;
     object-fit: contain !important;
-    flex: 0 0 25px;
+    flex: 0 0 30px;
     border-radius: 0;
   }
 
@@ -393,9 +422,10 @@
     outline: none;
   }
 
-  .vmg-mobile-socials .vmg-social-link svg {
-    width: 16px;
-    height: 16px;
+  .vmg-mobile-socials .vmg-social-link svg,
+  .vmg-mobile-socials .vmg-social-link .vmg-social-icon-img {
+    width: 22px;
+    height: 22px;
   }
 }
 
