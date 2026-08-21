@@ -90,6 +90,12 @@
   }
 
   loadStylesheet('/assets/css/vmg-market-polish.css', 'data-vmg-market-polish');
+
+  // Claim header scroll-state ownership before vmg-help.js loads.
+  // vmg-help.js respects this marker and skips its older competing controller.
+  var shellHeader = document.querySelector('.site-header.vmg-econship-header');
+  if (shellHeader) shellHeader.dataset.vmgStickyFix = 'true';
+
   loadScript('/assets/js/vmg-feedback.js?v=20260822j', 'data-vmg-feedback-script');
   loadScript('/assets/js/vmg-help.js?v=20260822j', 'data-vmg-help-script');
 })();
@@ -186,108 +192,141 @@
     var header = document.querySelector('.site-header.vmg-econship-header');
     var brandRow = header && header.querySelector('.vmg-nav-brand-row');
     var nav = header && header.querySelector('.site-nav');
-    var footer = document.querySelector('footer.vmg-global-footer, footer.site-footer');
+    var footer = document.querySelector('footer.site-footer.vmg-global-footer[data-vmg-static-footer="true"]');
     var backToTop = document.getElementById('back-to-top');
+    var navToggle = header && header.querySelector('.nav-toggle');
 
     if (!header || !brandRow || !nav || !footer) return;
 
-    var desktopQuery = window.matchMedia('(min-width: 992px)');
-    var rafId = 0;
-    var navParent = nav.parentNode;
-    var spacer = navParent && navParent.querySelector('.vmg-tier2-spacer');
+    // Keep this as the only header/footer controller. vmg-help.js checks this marker.
+    header.dataset.vmgStickyFix = 'true';
 
-    if (!spacer && navParent) {
+    var desktopQuery = window.matchMedia('(min-width: 992px)');
+    var reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    var navParent = nav.parentNode;
+    if (!navParent) return;
+
+    var sentinel = navParent.querySelector('.vmg-tier2-sentinel');
+    if (!sentinel) {
+      sentinel = document.createElement('span');
+      sentinel.className = 'vmg-tier2-sentinel';
+      sentinel.setAttribute('aria-hidden', 'true');
+      navParent.insertBefore(sentinel, nav);
+    }
+
+    var spacer = navParent.querySelector('.vmg-tier2-spacer');
+    if (!spacer) {
       spacer = document.createElement('div');
       spacer.className = 'vmg-tier2-spacer';
       spacer.setAttribute('aria-hidden', 'true');
       navParent.insertBefore(spacer, nav);
     }
 
-    var oldSentinel = navParent && navParent.querySelector('.vmg-tier2-sentinel');
-    if (oldSentinel) oldSentinel.remove();
+    var isFooterVisible = false;
+    var isMobileMenuOpen = false;
+    var isTier2Pinned = false;
+    var rafId = 0;
 
-    function isMenuOpen() {
-      return document.body.classList.contains('menu-open') || nav.classList.contains('open');
+    function readMobileMenuState() {
+      if (desktopQuery.matches) return false;
+      return (
+        document.body.classList.contains('menu-open') ||
+        nav.classList.contains('open') ||
+        (navToggle && navToggle.getAttribute('aria-expanded') === 'true')
+      );
     }
 
-    function footerIsVisible() {
-      var rect = footer.getBoundingClientRect();
-      return rect.top < window.innerHeight && rect.bottom > 0;
-    }
-
-    function desktopTier2Threshold() {
-      var headerDocTop = header.getBoundingClientRect().top + window.scrollY;
-      return headerDocTop + brandRow.getBoundingClientRect().height;
-    }
-
-    function setPinned(desktop) {
-      if (!desktop) {
+    function setTier2PinnedState() {
+      if (!desktopQuery.matches) {
+        isTier2Pinned = false;
         header.classList.remove('vmg-tier2-pinned');
-        if (spacer) spacer.style.height = '0px';
-        return false;
+        nav.classList.remove('tier2-retreat');
+        spacer.style.height = '0px';
+        return;
       }
 
-      var threshold = desktopTier2Threshold();
-      var shouldPin = window.scrollY >= Math.max(0, threshold - 0.5);
+      var shouldPin = sentinel.getBoundingClientRect().top <= 0;
       var navHeight = Math.max(1, Math.round(nav.getBoundingClientRect().height));
 
+      isTier2Pinned = shouldPin;
       header.classList.toggle('vmg-tier2-pinned', shouldPin);
       header.style.setProperty('--vmg-tier2-height', navHeight + 'px');
-      if (spacer) spacer.style.height = shouldPin ? navHeight + 'px' : '0px';
-
-      return shouldPin;
+      spacer.style.height = shouldPin ? navHeight + 'px' : '0px';
     }
 
-    function applyState() {
+    function updateHeaderFooterState() {
       rafId = 0;
+      isMobileMenuOpen = readMobileMenuState();
+      setTier2PinnedState();
 
-      var desktop = desktopQuery.matches;
-      var pinned = setPinned(desktop);
-      var footerVisible = footerIsVisible();
-      var menuOpen = isMenuOpen();
-      var retreat = footerVisible && !menuOpen && (!desktop || pinned);
+      var mobileRetreated = !desktopQuery.matches && isFooterVisible && !isMobileMenuOpen;
+      var desktopRetreated = desktopQuery.matches && isFooterVisible && isTier2Pinned;
+      var activeHeaderHasRetreated = mobileRetreated || desktopRetreated;
+      var goToTopVisible = activeHeaderHasRetreated && !isMobileMenuOpen;
 
-      header.classList.toggle('vmg-footer-in-view', footerVisible);
-      header.classList.toggle('vmg-menu-open', menuOpen);
-      document.body.classList.toggle('vmg-footer-visible', footerVisible);
-      document.body.classList.toggle('vmg-header-retreated', retreat);
+      document.body.classList.toggle('footer-visible', isFooterVisible);
+      header.classList.toggle('footer-visible', isFooterVisible);
+      header.classList.toggle('header-retreat', mobileRetreated);
+      nav.classList.toggle('tier2-retreat', desktopRetreated);
+
+      // Remove legacy state classes so old CSS cannot become a second source of truth.
+      header.classList.remove('vmg-footer-in-view', 'vmg-menu-open', 'vmg-header-retreat', 'vmg-footer-active', 'vmg-tier1-collapsed');
+      document.body.classList.remove('vmg-header-retreated');
 
       if (backToTop) {
-        backToTop.classList.toggle('visible', retreat);
-        backToTop.setAttribute('aria-hidden', retreat ? 'false' : 'true');
+        backToTop.classList.toggle('vmg-retreat-visible', goToTopVisible);
+        backToTop.setAttribute('aria-hidden', goToTopVisible ? 'false' : 'true');
       }
     }
 
-    function requestState() {
+    function requestStateUpdate() {
       if (rafId) return;
-      rafId = window.requestAnimationFrame(applyState);
+      rafId = window.requestAnimationFrame(updateHeaderFooterState);
     }
 
-    window.addEventListener('scroll', requestState, { passive: true });
-    window.addEventListener('resize', requestState, { passive: true });
+    // Scroll is used only to determine when desktop Tier 2 reaches the viewport top.
+    window.addEventListener('scroll', requestStateUpdate, { passive: true });
+    window.addEventListener('resize', requestStateUpdate, { passive: true });
+    window.addEventListener('orientationchange', requestStateUpdate, { passive: true });
 
     if (desktopQuery.addEventListener) {
-      desktopQuery.addEventListener('change', requestState);
+      desktopQuery.addEventListener('change', requestStateUpdate);
     } else if (desktopQuery.addListener) {
-      desktopQuery.addListener(requestState);
+      desktopQuery.addListener(requestStateUpdate);
     }
 
-    var menuObserver = new MutationObserver(requestState);
+    var menuObserver = new MutationObserver(function () {
+      updateHeaderFooterState();
+    });
     menuObserver.observe(nav, { attributes: true, attributeFilter: ['class'] });
     menuObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    if (navToggle) {
+      menuObserver.observe(navToggle, { attributes: true, attributeFilter: ['aria-expanded', 'class'] });
+    }
 
+    // The actual final site footer is the sole footer-visibility trigger.
     if ('IntersectionObserver' in window) {
-      var footerObserver = new IntersectionObserver(requestState, {
+      var footerObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.target !== footer) return;
+          isFooterVisible = entry.isIntersecting && entry.intersectionRect.height > 0;
+          updateHeaderFooterState();
+        });
+      }, {
         root: null,
-        threshold: [0, 0.001, 0.05]
+        rootMargin: '0px',
+        threshold: [0, 0.001]
       });
       footerObserver.observe(footer);
     }
 
-    applyState();
-    window.setTimeout(requestState, 80);
-    window.setTimeout(requestState, 250);
-    window.setTimeout(requestState, 800);
+    // The existing main.js owns the click handler. It already uses reduced-motion
+    // aware smooth/instant scrolling; visibility is owned exclusively here/CSS.
+    if (backToTop && reducedMotionQuery.matches) {
+      backToTop.setAttribute('data-vmg-reduced-motion', 'true');
+    }
+
+    updateHeaderFooterState();
   }
 
   function init() {
