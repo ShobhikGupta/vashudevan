@@ -5,12 +5,13 @@
   window.AppConfig.contactEndpoint = window.AppConfig.contactEndpoint || '';
 })();
 
-// Shared behavior only. This file no longer creates or replaces header/footer markup.
+// Shared behavior only. This file never creates or replaces header/footer markup.
 (function () {
   if (!document || !document.head) return;
 
-  var staticHeader = document.querySelector('.site-header[data-vmg-static-header="true"]');
-  if (staticHeader) staticHeader.dataset.vmgStickyFix = 'true';
+  // Always use the latest shell behavior CSS even when older HTML has a cached query string.
+  var stickyLink = document.querySelector('link[data-vmg-header-sticky-fix]');
+  if (stickyLink) stickyLink.href = '/assets/css/vmg-header-sticky-fix.css?v=20260822e';
 
   function loadStylesheet(href, marker) {
     if (document.querySelector('link[' + marker + ']')) return;
@@ -31,8 +32,8 @@
   }
 
   loadStylesheet('/assets/css/vmg-market-polish.css', 'data-vmg-market-polish');
-  loadScript('/assets/js/vmg-feedback.js?v=20260822c', 'data-vmg-feedback-script');
-  loadScript('/assets/js/vmg-help.js?v=20260822c', 'data-vmg-help-script');
+  loadScript('/assets/js/vmg-feedback.js?v=20260822e', 'data-vmg-feedback-script');
+  loadScript('/assets/js/vmg-help.js?v=20260822e', 'data-vmg-help-script');
 })();
 
 (function () {
@@ -87,40 +88,83 @@
     var header = document.querySelector('.site-header.vmg-econship-header');
     var brandRow = header && header.querySelector('.vmg-nav-brand-row');
     var nav = header && header.querySelector('.site-nav');
+    var footer = document.querySelector('footer.vmg-global-footer, footer.site-footer');
+    var backToTop = document.getElementById('back-to-top');
     if (!header || !brandRow || !nav) return;
 
     header.dataset.vmgStickyFix = 'true';
 
     var desktopQuery = window.matchMedia('(min-width: 992px)');
-    var navStart = 0;
     var raf = 0;
+    var footerObserver = null;
 
-    function measure() {
-      header.classList.remove('vmg-tier2-pinned');
-      header.style.removeProperty('--vmg-tier2-height');
-      var headerTop = header.getBoundingClientRect().top + window.scrollY;
-      navStart = headerTop + brandRow.getBoundingClientRect().height;
-      header.style.setProperty('--vmg-tier2-height', Math.max(1, Math.round(nav.getBoundingClientRect().height)) + 'px');
-      update();
+    // A permanent zero-height marker gives us the exact original position of Tier 2.
+    var sentinel = header.querySelector('.vmg-tier2-sentinel');
+    if (!sentinel) {
+      sentinel = document.createElement('span');
+      sentinel.className = 'vmg-tier2-sentinel';
+      sentinel.setAttribute('aria-hidden', 'true');
+      header.insertBefore(sentinel, nav);
     }
 
-    function footerInView() {
-      var footer = document.querySelector('footer.vmg-global-footer, footer.site-footer');
+    // The spacer occupies Tier 2's original height while Tier 2 is fixed.
+    var spacer = header.querySelector('.vmg-tier2-spacer');
+    if (!spacer) {
+      spacer = document.createElement('div');
+      spacer.className = 'vmg-tier2-spacer';
+      spacer.setAttribute('aria-hidden', 'true');
+      header.insertBefore(spacer, nav);
+    }
+
+    function isMenuOpen() {
+      return document.body.classList.contains('menu-open') || nav.classList.contains('open');
+    }
+
+    function isFooterActuallyVisible() {
+      if (!footer || !footer.isConnected) {
+        footer = document.querySelector('footer.vmg-global-footer, footer.site-footer');
+      }
       if (!footer) return false;
       var rect = footer.getBoundingClientRect();
-      return rect.top < window.innerHeight && rect.bottom > 0;
+      // Require positive visible area. Merely touching the viewport edge is not enough.
+      return rect.top < window.innerHeight && rect.bottom > 0 && Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0) > 1;
+    }
+
+    function syncFooterState(footerVisible, menuOpen) {
+      var retreat = footerVisible && !menuOpen;
+      header.classList.toggle('vmg-footer-in-view', retreat);
+      header.classList.toggle('vmg-menu-open', menuOpen);
+      document.body.classList.toggle('vmg-footer-visible', footerVisible);
+
+      // The go-to-top control is intentionally synchronized to the exact same footer state.
+      if (backToTop) {
+        backToTop.classList.toggle('visible', retreat);
+        backToTop.setAttribute('aria-hidden', retreat ? 'false' : 'true');
+      }
+    }
+
+    function syncDesktopTier2(desktop) {
+      if (!desktop) {
+        header.classList.remove('vmg-tier2-pinned');
+        spacer.style.height = '0px';
+        return;
+      }
+
+      var shouldPin = sentinel.getBoundingClientRect().top <= 0;
+      var navHeight = Math.max(1, Math.round(nav.getBoundingClientRect().height));
+      header.style.setProperty('--vmg-tier2-height', navHeight + 'px');
+      header.classList.toggle('vmg-tier2-pinned', shouldPin);
+      spacer.style.height = shouldPin ? navHeight + 'px' : '0px';
     }
 
     function update() {
       raf = 0;
       var desktop = desktopQuery.matches;
-      var menuOpen = document.body.classList.contains('menu-open') || nav.classList.contains('open');
+      var menuOpen = isMenuOpen();
+      var footerVisible = isFooterActuallyVisible();
 
-      header.classList.toggle('vmg-menu-open', menuOpen);
-      header.classList.toggle('vmg-footer-in-view', footerInView() && !menuOpen);
-
-      if (desktop) header.classList.toggle('vmg-tier2-pinned', window.scrollY >= navStart - 1);
-      else header.classList.remove('vmg-tier2-pinned');
+      syncDesktopTier2(desktop);
+      syncFooterState(footerVisible, menuOpen);
     }
 
     function requestUpdate() {
@@ -128,19 +172,31 @@
       raf = window.requestAnimationFrame(update);
     }
 
+    // Scroll/resize is the authoritative fallback and makes the state reversible immediately.
     window.addEventListener('scroll', requestUpdate, { passive: true });
-    window.addEventListener('resize', function () {
-      window.clearTimeout(window.__vmgHeaderMeasureTimer);
-      window.__vmgHeaderMeasureTimer = window.setTimeout(measure, 100);
-    }, { passive: true });
+    window.addEventListener('resize', requestUpdate, { passive: true });
+
+    // Menu state can change without a scroll.
     document.addEventListener('click', function () { window.setTimeout(requestUpdate, 0); });
+    document.addEventListener('keydown', function () { window.setTimeout(requestUpdate, 0); });
 
-    if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', measure);
-    else if (desktopQuery.addListener) desktopQuery.addListener(measure);
+    if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', requestUpdate);
+    else if (desktopQuery.addListener) desktopQuery.addListener(requestUpdate);
 
-    measure();
-    window.setTimeout(measure, 150);
-    window.setTimeout(measure, 700);
+    // Because the footer is now hardcoded, IntersectionObserver is stable and fires on BOTH
+    // entry and exit. Scroll fallback above still verifies the geometry on every frame.
+    if (footer && 'IntersectionObserver' in window) {
+      footerObserver = new IntersectionObserver(function () {
+        requestUpdate();
+      }, { root: null, threshold: [0, 0.001, 0.05] });
+      footerObserver.observe(footer);
+    }
+
+    // Re-measure after fonts/layout settle.
+    update();
+    window.setTimeout(requestUpdate, 80);
+    window.setTimeout(requestUpdate, 300);
+    window.setTimeout(requestUpdate, 900);
   }
 
   function init() {
