@@ -1,0 +1,14 @@
+/assets/js/config.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/assets/css/vmg-header-sticky-fix.css
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/assets/css/vmg-nav-premium-overrides.css
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/assets/css/vmg-header-layout-fix.css
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/*.html
+  Cache-Control: no-cache, no-store, must-revalidate

@@ -1,0 +1,328 @@
+/* Focused VMG responsive fixes: hero CTA row, Trade Desk row, stable floating controls, legal utility links, and mobile market scrolling. */
+
+/* Keep the floating contact controls pinned to the viewport on every page. */
+.whatsapp-float {
+  position: fixed !important;
+  left: calc(14px + env(safe-area-inset-left)) !important;
+  right: auto !important;
+  bottom: calc(56px + max(12px, env(safe-area-inset-bottom))) !important;
+  top: auto !important;
+  z-index: 2002 !important;
+  transition: opacity .16s ease, visibility .16s ease, transform .16s ease !important;
+}
+
+body.vmg-help-open .whatsapp-float {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: scale(.9) !important;
+}
+
+.vmg-help {
+  position: fixed !important;
+  left: calc(14px + env(safe-area-inset-left)) !important;
+  right: auto !important;
+  bottom: max(12px, env(safe-area-inset-bottom)) !important;
+  top: auto !important;
+  justify-items: start !important;
+  z-index: 2003 !important;
+}
+
+.vmg-help-trigger {
+  min-height: 32px !important;
+  padding: 0 10px !important;
+  gap: 5px !important;
+  font-size: .66rem !important;
+  white-space: nowrap;
+}
+
+.vmg-help-trigger svg {
+  width: 14px !important;
+  height: 14px !important;
+  flex: 0 0 14px !important;
+}
+
+.vmg-help-menu {
+  transform-origin: bottom left !important;
+  z-index: 2004 !important;
+}
+
+.back-to-top {
+  position: fixed !important;
+  left: auto !important;
+  right: calc(14px + env(safe-area-inset-right)) !important;
+  bottom: max(12px, env(safe-area-inset-bottom)) !important;
+  top: auto !important;
+}
+
+/* Contact page: make both named phone contacts deliberate and easy to scan. */
+.contact-info-left .vmg-contact-person {
+  display: grid;
+  gap: 2px;
+  margin: 0 0 10px;
+}
+.contact-info-left .vmg-contact-person strong {
+  color: #0a1728;
+  font-size: .88rem;
+  line-height: 1.25;
+}
+.contact-info-left .vmg-contact-person a {
+  width: max-content;
+  max-width: 100%;
+  color: #526174;
+}
+.cta-join .small-note a {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Premium header motion system.
+   Mobile: header remains present while browsing, then retreats when footer enters.
+   Desktop: tier 1 collapses after scroll, tier 2 remains sticky, then whole header retreats at footer. */
+.site-header.vmg-econship-header {
+  transform: translateY(0);
+  transition: transform 360ms cubic-bezier(.22,1,.36,1), box-shadow 220ms ease !important;
+  will-change: transform;
+}
+
+.site-header.vmg-econship-header.vmg-header-retreat {
+  transform: translateY(calc(-100% - 4px)) !important;
+  pointer-events: none;
+}
+
+@media (min-width: 992px) {
+  .site-header.vmg-econship-header .vmg-nav-brand-row {
+    max-height: 82px;
+    overflow: hidden;
+    opacity: 1;
+    transform: translateY(0);
+    transition: max-height 320ms cubic-bezier(.22,1,.36,1), min-height 320ms cubic-bezier(.22,1,.36,1), opacity 180ms ease, transform 280ms cubic-bezier(.22,1,.36,1), margin 280ms ease !important;
+  }
+
+  .site-header.vmg-econship-header.vmg-tier1-collapsed .vmg-nav-brand-row {
+    min-height: 0 !important;
+    max-height: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    opacity: 0;
+    transform: translateY(-14px);
+    pointer-events: none;
+  }
+
+  .site-header.vmg-econship-header.vmg-tier1-collapsed .site-nav {
+    box-shadow: 0 8px 24px rgba(4,12,23,.14) !important;
+  }
+}
+
+@media (max-width: 991px) {
+  /* Keep FAQ + Privacy + Disclaimer on one single premium utility line. */
+  .vmg-mobile-bottom-links {
+    display: grid !important;
+    gap: 10px !important;
+    padding: 10px 8px 12px !important;
+  }
+
+  .vmg-mobile-bottom-links-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: clamp(7px, 2.3vw, 12px) !important;
+    width: 100% !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+  }
+
+  .vmg-mobile-bottom-links-row a,
+  .vmg-mobile-bottom-links-row button {
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
+    min-height: 22px !important;
+    padding: 1px 0 !important;
+    font-size: clamp(.50rem, 1.65vw, .60rem) !important;
+    line-height: 1.05 !important;
+    color: rgba(255,255,255,.68) !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    text-decoration: none !important;
+    letter-spacing: .01em !important;
+  }
+
+  .vmg-mobile-bottom-links-row a:hover,
+  .vmg-mobile-bottom-links-row a:focus-visible,
+  .vmg-mobile-bottom-links-row button:hover,
+  .vmg-mobile-bottom-links-row button:focus-visible {
+    color: #fff !important;
+  }
+
+  /* Dedicated premium brochure CTA sits below FAQ / Privacy / Disclaimer. */
+  .vmg-mobile-brochure-cta {
+    width: min(100%, 250px) !important;
+    min-height: 38px !important;
+    margin: 0 auto !important;
+    padding: 0 13px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    border: 1px solid rgba(211,163,120,.55) !important;
+    border-radius: 8px !important;
+    background: rgba(211,163,120,.09) !important;
+    color: #f6e5d5 !important;
+    text-decoration: none !important;
+    font-size: .68rem !important;
+    font-weight: 800 !important;
+    letter-spacing: .08em !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.04) !important;
+    transition: background-color .16s ease, border-color .16s ease, color .16s ease !important;
+  }
+  .vmg-mobile-brochure-cta:hover,
+  .vmg-mobile-brochure-cta:focus-visible {
+    background: rgba(211,163,120,.16) !important;
+    border-color: #d3a378 !important;
+    color: #fff !important;
+    outline: none !important;
+  }
+  .vmg-mobile-brochure-cta svg {
+    width: 15px !important;
+    height: 15px !important;
+    flex: 0 0 15px !important;
+    color: #d3a378 !important;
+  }
+  .vmg-mobile-brochure-arrow {
+    margin-left: 2px !important;
+    font-size: .78rem !important;
+    color: #d3a378 !important;
+  }
+
+  /* Keep social circles exactly the same size, but make the symbols easier to see. */
+  .vmg-mobile-socials .vmg-social-link {
+    width: 37px !important;
+    height: 37px !important;
+  }
+  .vmg-mobile-socials .vmg-social-link svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-view .home-main .home-hero .overlay-ctas {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    width: max-content !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    gap: 6px !important;
+    text-align: left !important;
+  }
+  .home-view .home-main .home-hero .hero-btn {
+    flex: 0 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: 34px !important;
+    padding: .48rem .58rem !important;
+    font-size: clamp(.58rem, 1.8vw, .72rem) !important;
+    line-height: 1.15 !important;
+    white-space: nowrap !important;
+  }
+
+  .home-view .home-main .home-trade-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-auto-flow: column !important;
+    row-gap: 0 !important;
+    column-gap: 0 !important;
+    align-items: stretch !important;
+  }
+  .home-view .home-main .home-trade-item,
+  .home-view .home-main .home-trade-item:first-child,
+  .home-view .home-main .home-trade-item:last-child {
+    grid-column: auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    justify-self: stretch !important;
+    padding: 10px clamp(7px, 2vw, 14px) !important;
+  }
+  .home-view .home-main .home-trade-item:last-child::before { display: block !important; }
+  .home-view .home-main .home-trade-item h3 { font-size: clamp(.82rem, 2.8vw, 1.08rem) !important; }
+  .home-view .home-main .home-trade-item > p:not(.home-trade-label) {
+    font-size: clamp(.58rem, 1.65vw, .7rem) !important;
+    line-height: 1.38 !important;
+  }
+  .home-view .home-main .home-trade-label,
+  .home-view .home-main .home-trade-item .home-panel-number,
+  .home-view .home-main .home-trade-item > a { font-size: clamp(.54rem, 1.5vw, .66rem) !important; }
+
+  .whatsapp-float {
+    left: calc(10px + env(safe-area-inset-left)) !important;
+    bottom: calc(50px + max(10px, env(safe-area-inset-bottom))) !important;
+    width: 46px !important;
+    height: 46px !important;
+  }
+  .vmg-help {
+    left: calc(10px + env(safe-area-inset-left)) !important;
+    bottom: max(10px, env(safe-area-inset-bottom)) !important;
+  }
+  .vmg-help-trigger {
+    min-height: 30px !important;
+    padding-inline: 9px !important;
+    font-size: .62rem !important;
+  }
+  .back-to-top {
+    right: calc(10px + env(safe-area-inset-right)) !important;
+    bottom: max(10px, env(safe-area-inset-bottom)) !important;
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 16px !important;
+  }
+
+  .market-page .market-overview-shell,
+  .market-page #market-data-panel {
+    touch-action: pan-y !important;
+    overscroll-behavior: auto !important;
+  }
+  .market-page #market-data-panel,
+  .market-page #market-data-panel *,
+  .market-page .market-overview-shell iframe,
+  .market-page .market-overview-shell .tradingview-widget-container,
+  .market-page .market-overview-shell .tradingview-widget-container__widget {
+    pointer-events: none !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .home-view .home-main .home-hero .overlay-ctas { gap: 5px !important; }
+  .home-view .home-main .home-hero .hero-btn {
+    min-height: 31px !important;
+    padding: .42rem .48rem !important;
+    font-size: clamp(.54rem, 2.35vw, .64rem) !important;
+  }
+  .home-view .home-main .home-trade-item,
+  .home-view .home-main .home-trade-item:first-child,
+  .home-view .home-main .home-trade-item:last-child { padding-inline: 6px !important; }
+  .home-view .home-main .home-trade-item h3 { font-size: clamp(.76rem, 3vw, .94rem) !important; }
+  .home-view .home-main .home-trade-item > p:not(.home-trade-label) { font-size: clamp(.54rem, 2vw, .64rem) !important; }
+}
+
+@media (max-width: 360px) {
+  .home-view .home-main .home-hero .hero-btn { padding-inline: .4rem !important; font-size: .52rem !important; }
+  .home-view .home-main .home-trade-item,
+  .home-view .home-main .home-trade-item:first-child,
+  .home-view .home-main .home-trade-item:last-child { padding-inline: 5px !important; }
+  .home-view .home-main .home-trade-item > p:not(.home-trade-label) { font-size: .52rem !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header.vmg-econship-header,
+  .site-header.vmg-econship-header .vmg-nav-brand-row {
+    transition: none !important;
+  }
+}

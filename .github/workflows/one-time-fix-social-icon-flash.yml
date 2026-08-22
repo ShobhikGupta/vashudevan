@@ -1,0 +1,55 @@
+name: One-time fix social icon flash
+
+on:
+  push:
+    branches:
+      - chatgpt/mobile-fixes-21aug
+    paths:
+      - .github/workflows/one-time-fix-social-icon-flash.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: chatgpt/mobile-fixes-21aug
+          fetch-depth: 0
+
+      - name: Add intrinsic social icon sizing before dynamic CSS arrives
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('assets/js/config.js')
+          s = path.read_text()
+
+          # Prevent the browser default 300x150 SVG size from flashing before
+          # the dynamically loaded navigation stylesheet has finished loading.
+          s = s.replace("icon: '<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\">", "icon: '<svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" aria-hidden=\"true\">")
+
+          old = """      link.className = 'vmg-social-link';\n      link.href = social.href;"""
+          new = """      link.className = 'vmg-social-link';\n      link.style.cssText = 'display:inline-flex;width:38px;height:38px;flex:0 0 38px;align-items:center;justify-content:center;box-sizing:border-box;';\n      link.href = social.href;"""
+          if old not in s:
+              raise SystemExit('createSocialLinks anchor block not found')
+          s = s.replace(old, new, 1)
+
+          old = """    var wrapper = document.createElement('div');\n    wrapper.className = className;"""
+          new = """    var wrapper = document.createElement('div');\n    wrapper.className = className;\n    wrapper.style.cssText = 'display:flex;align-items:center;gap:8px;min-width:0;';"""
+          if old not in s:
+              raise SystemExit('createSocialLinks wrapper block not found')
+          s = s.replace(old, new, 1)
+
+          path.write_text(s)
+          PY
+
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/js/config.js
+          git diff --cached --check
+          git commit -m "Prevent social icon flash before nav CSS loads"
+          git push origin HEAD:chatgpt/mobile-fixes-21aug

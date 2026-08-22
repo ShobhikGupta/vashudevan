@@ -1,0 +1,67 @@
+/* VMG social icons — render uploaded assets from first CSS paint. */
+.vmg-social-link,
+.vmg-footer-socials a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  color: transparent !important;
+}
+
+/* Never expose legacy SVG/text placeholders while the custom asset is loading. */
+.vmg-social-link > *,
+.vmg-footer-socials a > * {
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+.vmg-social-link::before,
+.vmg-footer-socials a::before {
+  content: "";
+  display: block;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.vmg-footer-socials a::before {
+  width: 18px;
+  height: 18px;
+  flex-basis: 18px;
+}
+
+.vmg-social-link[aria-label*="WhatsApp" i]::before,
+.vmg-footer-socials a[aria-label*="WhatsApp" i]::before {
+  background-image: url('/assets/img/social/whatsapp.svg');
+}
+.vmg-social-link[aria-label*="Facebook" i]::before,
+.vmg-footer-socials a[aria-label*="Facebook" i]::before {
+  background-image: url('/assets/img/social/facebook.svg');
+}
+.vmg-social-link[aria-label*="LinkedIn" i]::before,
+.vmg-footer-socials a[aria-label*="LinkedIn" i]::before {
+  background-image: url('/assets/img/social/linkedin.svg');
+}
+.vmg-social-link[aria-label*="Instagram" i]::before,
+.vmg-footer-socials a[aria-label*="Instagram" i]::before {
+  background-image: url('/assets/img/social/instagram.svg');
+}
+
+.vmg-mobile-socials {
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+@media (max-width: 991px) {
+  .vmg-mobile-socials .vmg-social-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}

@@ -1,0 +1,445 @@
+@import url('/assets/css/vmg-header-sticky-fix.css?v=20260822h');
+@import url('/assets/css/vmg-header-layout-fix.css?v=20260822c');
+
+/* Premium refinements for the VMG two-tier navigation */
+
+/* Remove the experimental third utility tier entirely. */
+.vmg-utility-strip,
+.vmg-mobile-utility-item {
+  display: none !important;
+}
+
+@media (min-width: 992px) {
+  .vmg-econship-header {
+    background: #fff;
+    box-shadow: 0 1px 0 rgba(15, 23, 42, .06);
+  }
+
+  /* Stable three-column Tier 1. Equal side columns keep the VMG lockup truly centered. */
+  .vmg-nav-brand-row {
+    width: min(1400px, calc(100% - 72px));
+    min-height: 82px;
+    grid-template-columns: minmax(360px, 1fr) auto minmax(360px, 1fr);
+    gap: 20px;
+    border: 0;
+  }
+
+  /* Compact, fixed-size shipment utility so it never shifts as other assets load. */
+  .vmg-track-shipment {
+    justify-self: start;
+    width: 350px;
+    max-width: 350px;
+    gap: 8px;
+  }
+
+  .vmg-track-title {
+    flex: 0 0 88px;
+    color: #0a1728;
+    font-size: .75rem;
+    font-weight: 740;
+    letter-spacing: 0;
+  }
+
+  .vmg-track-form {
+    width: 254px;
+    grid-template-columns: minmax(0, 1fr) 56px;
+    border: 1px solid #d9e0e7;
+    border-radius: 9px;
+    background: #fbfcfe;
+    box-shadow: 0 2px 8px rgba(10, 23, 40, .025);
+  }
+
+  .vmg-track-form:focus-within {
+    border-color: rgba(184, 121, 67, .62);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(184, 121, 67, .075);
+  }
+
+  .vmg-track-input {
+    height: 36px;
+    padding-inline: 11px;
+    color: #0f172a;
+    font-size: .75rem;
+  }
+
+  .vmg-track-input::placeholder {
+    color: #9aa5b4;
+  }
+
+  .vmg-track-button {
+    min-width: 56px;
+    padding-inline: 10px;
+    border-left: 1px solid rgba(184, 121, 67, .18);
+    background: #b87943;
+    color: #fff;
+    font-size: .76rem;
+    font-weight: 760;
+  }
+
+  .vmg-track-button:hover,
+  .vmg-track-button:focus-visible {
+    background: #9f693b;
+  }
+
+  /* Strong centered VMG identity. */
+  .vmg-econship-header .logo {
+    grid-column: 2;
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 13px;
+    min-width: 390px;
+    max-width: 560px;
+    padding: 5px 18px;
+    color: #050b14;
+  }
+
+  .vmg-econship-header .logo img.vmg-updated-header-logo {
+    width: 46px !important;
+    height: 68px !important;
+    object-fit: contain !important;
+    flex: 0 0 46px;
+    border-radius: 0;
+  }
+
+  .vmg-econship-header .logo span {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    color: #050b14;
+    font-size: 0 !important;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -.025em;
+  }
+
+  .vmg-econship-header .logo span::after {
+    content: 'Vashudevan MetGlobal LLP';
+    display: inline-block;
+    color: #050b14;
+    font-size: 1.22rem;
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -.028em;
+  }
+
+  .vmg-nav-socials {
+    grid-column: 3;
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 7px;
+  }
+
+  .vmg-social-link {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dce3ea;
+    border-radius: 50%;
+    color: #425166;
+    background: #fff;
+    box-shadow: none;
+    transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+  }
+
+  .vmg-social-link:hover,
+  .vmg-social-link:focus-visible {
+    color: #9e6739;
+    border-color: rgba(184, 121, 67, .45);
+    background: #faf7f3;
+    transform: translateY(-2px);
+    outline: none;
+  }
+
+  .vmg-social-link svg,
+  .vmg-social-link .vmg-social-icon-img {
+    width: 20px;
+    height: 20px;
+    display: block;
+  }
+
+  .vmg-econship-header .site-nav {
+    background: #0a1728;
+    border-top: 1px solid rgba(255, 255, 255, .035);
+    border-bottom: 1px solid rgba(3, 10, 19, .28);
+    box-shadow: 0 5px 14px rgba(10, 23, 40, .09);
+  }
+
+  .vmg-econship-header .site-nav > ul {
+    width: min(1200px, calc(100% - 56px));
+    min-height: 52px;
+  }
+
+  .vmg-econship-header .site-nav > ul > li > a {
+    position: relative;
+    min-height: 52px;
+    padding: 0 14px;
+    color: rgba(255, 255, 255, .8);
+    background: transparent !important;
+    box-shadow: none !important;
+    font-size: .92rem;
+    font-weight: 620;
+    letter-spacing: .004em;
+  }
+
+  .vmg-econship-header .site-nav > ul > li > a::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    transform: translateX(-50%);
+    border-radius: 2px 2px 0 0;
+    background: #c78c57;
+    transition: width 180ms ease;
+  }
+
+  .vmg-econship-header .site-nav > ul > li > a:hover,
+  .vmg-econship-header .site-nav > ul > li > a:focus-visible {
+    color: #fff;
+    background: rgba(255, 255, 255, .025) !important;
+    outline: none;
+  }
+
+  .vmg-econship-header .site-nav > ul > li > a:hover::before,
+  .vmg-econship-header .site-nav > ul > li > a:focus-visible::before,
+  .vmg-econship-header .site-nav > ul > li > a[aria-current="page"]::before {
+    width: 34px;
+  }
+
+  .vmg-econship-header .site-nav > ul > li > a[aria-current="page"] {
+    color: #fff;
+    background: rgba(255, 255, 255, .025) !important;
+  }
+
+  .vmg-econship-header .site-nav .has-submenu > a::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    margin-left: 9px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: translateY(-2px) rotate(45deg);
+    opacity: .64;
+    transition: transform 180ms ease, opacity 180ms ease;
+  }
+
+  .vmg-econship-header .site-nav .has-submenu:hover > a::after,
+  .vmg-econship-header .site-nav .has-submenu:focus-within > a::after {
+    transform: translateY(1px) rotate(225deg);
+    opacity: 1;
+  }
+
+  .vmg-econship-header .site-nav .submenu,
+  .vmg-econship-header .site-nav .has-submenu:hover .submenu {
+    top: calc(100% + 1px);
+    min-width: 232px;
+    padding: 7px;
+    transform: translate(-50%, -6px) scale(.99);
+    background: #fff;
+    border: 1px solid #dfe5ec;
+    border-top: 2px solid #b87943;
+    border-radius: 0 0 11px 11px;
+    box-shadow: 0 18px 38px rgba(10, 23, 40, .13);
+    transition: opacity 160ms ease, transform 190ms cubic-bezier(.22,1,.36,1), visibility 160ms ease;
+  }
+
+  .vmg-econship-header .site-nav .has-submenu:hover .submenu,
+  .vmg-econship-header .site-nav .has-submenu:focus-within .submenu {
+    transform: translate(-50%, 0) scale(1);
+  }
+
+  .vmg-econship-header .site-nav .submenu::before {
+    display: none;
+  }
+
+  .vmg-econship-header .site-nav .submenu a {
+    min-height: 41px;
+    display: flex;
+    align-items: center;
+    padding: 9px 12px;
+    border-radius: 7px;
+    color: #334155;
+    font-size: .88rem;
+    font-weight: 640;
+    transition: color 150ms ease, background-color 150ms ease, transform 150ms ease;
+  }
+
+  .vmg-econship-header .site-nav .submenu a::before {
+    display: none;
+  }
+
+  .vmg-econship-header .site-nav .submenu a:hover,
+  .vmg-econship-header .site-nav .submenu a:focus-visible {
+    padding-left: 12px;
+    color: #0a1728;
+    background: #f7f4f0;
+    transform: translateX(2px);
+  }
+}
+
+.vmg-mobile-socials-item {
+  display: none;
+}
+
+@media (max-width: 1320px) and (min-width: 992px) {
+  .vmg-nav-brand-row {
+    width: calc(100% - 48px);
+    grid-template-columns: minmax(280px, 1fr) auto minmax(280px, 1fr);
+    gap: 16px;
+  }
+
+  .vmg-track-shipment {
+    width: 292px;
+    max-width: 292px;
+    gap: 7px;
+  }
+
+  .vmg-track-title {
+    flex-basis: 78px;
+    font-size: .72rem;
+  }
+
+  .vmg-track-form {
+    width: 207px;
+    grid-template-columns: minmax(0, 1fr) 52px;
+  }
+
+  .vmg-track-input {
+    font-size: .72rem;
+  }
+
+  .vmg-track-button {
+    min-width: 52px;
+    padding-inline: 8px;
+    font-size: .72rem;
+  }
+
+  .vmg-nav-socials { gap: 5px; }
+  .vmg-social-link { width: 32px; height: 32px; }
+
+  .vmg-econship-header .logo {
+    min-width: 330px;
+    padding-inline: 10px;
+    gap: 10px;
+  }
+
+  .vmg-econship-header .logo img.vmg-updated-header-logo {
+    width: 40px !important;
+    height: 58px !important;
+    flex-basis: 40px;
+  }
+
+  .vmg-econship-header .logo span::after {
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 991px) {
+  .vmg-nav-socials {
+    display: none;
+  }
+
+  .vmg-econship-header .logo {
+    gap: 8px;
+  }
+
+  .vmg-econship-header .logo img.vmg-updated-header-logo {
+    width: 30px !important;
+    height: 46px !important;
+    object-fit: contain !important;
+    flex: 0 0 30px;
+    border-radius: 0;
+  }
+
+  .vmg-econship-header .logo span {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    color: #050b14;
+    font-size: 0 !important;
+    font-weight: 860;
+    line-height: 1;
+  }
+
+  .vmg-econship-header .logo span::after {
+    content: 'Vashudevan MetGlobal LLP';
+    color: #050b14;
+    font-size: .88rem;
+    font-weight: 860;
+    line-height: 1.05;
+    letter-spacing: -.02em;
+  }
+
+  .vmg-mobile-socials-item {
+    display: block;
+    width: 100%;
+    padding: 14px 12px 8px;
+    border-top: 1px solid rgba(255, 255, 255, .08);
+  }
+
+  .vmg-mobile-socials-label {
+    display: block;
+    margin-bottom: 10px;
+    color: rgba(255, 255, 255, .46);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  .vmg-mobile-socials {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+
+  .vmg-mobile-socials .vmg-social-link {
+    width: 37px;
+    height: 37px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, .14);
+    border-radius: 50%;
+    color: rgba(255, 255, 255, .82);
+    background: rgba(255, 255, 255, .035);
+  }
+
+  .vmg-mobile-socials .vmg-social-link:hover,
+  .vmg-mobile-socials .vmg-social-link:focus-visible {
+    color: #fff;
+    border-color: rgba(211, 163, 120, .5);
+    background: rgba(211, 163, 120, .08);
+    outline: none;
+  }
+
+  .vmg-mobile-socials .vmg-social-link svg,
+  .vmg-mobile-socials .vmg-social-link .vmg-social-icon-img {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vmg-social-link,
+  .vmg-econship-header .site-nav > ul > li > a::before,
+  .vmg-econship-header .site-nav .has-submenu > a::after,
+  .vmg-econship-header .site-nav .submenu {
+    transition: none;
+  }
+
+  .vmg-social-link:hover,
+  .vmg-social-link:focus-visible,
+  .vmg-econship-header .site-nav .submenu a:hover,
+  .vmg-econship-header .site-nav .submenu a:focus-visible {
+    transform: none;
+  }
+}

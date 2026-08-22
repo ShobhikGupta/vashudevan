@@ -1,0 +1,404 @@
+/* Premium VMG feedback drawer */
+.vmg-feedback-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 15px;
+  border: 1px solid #0a1728;
+  border-radius: 9px;
+  background: #0a1728;
+  color: #fff;
+  font: inherit;
+  font-size: .78rem;
+  font-weight: 760;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.vmg-feedback-trigger:hover,
+.vmg-feedback-trigger:focus-visible {
+  background: #13243a;
+  border-color: #13243a;
+  transform: translateY(-1px);
+  box-shadow: 0 7px 16px rgba(10, 23, 40, .14);
+  outline: none;
+}
+
+.vmg-feedback-trigger svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+}
+
+.vmg-nav-socials .vmg-feedback-trigger {
+  margin-right: 7px;
+}
+
+.vmg-feedback-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(4, 12, 23, .58);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
+  transition: opacity 200ms ease, visibility 200ms ease;
+}
+
+.vmg-feedback-drawer {
+  position: fixed;
+  z-index: 1201;
+  top: 18px;
+  right: 18px;
+  width: min(410px, calc(100vw - 36px));
+  max-height: calc(100dvh - 36px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 22px 22px 20px;
+  border: 1px solid rgba(211, 163, 120, .34);
+  border-radius: 16px;
+  background: #0a1728;
+  color: #fff;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, .34), inset 0 1px 0 rgba(255, 255, 255, .045);
+  transform: translateX(calc(100% + 34px));
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 260ms cubic-bezier(.22, 1, .36, 1), opacity 180ms ease, visibility 260ms ease;
+}
+
+body.vmg-feedback-open {
+  overflow: hidden;
+}
+
+body.vmg-feedback-open .vmg-feedback-backdrop {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+body.vmg-feedback-open .vmg-feedback-drawer {
+  transform: translateX(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.vmg-feedback-drawer-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: start;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, .095);
+}
+
+.vmg-feedback-eyebrow {
+  margin: 0 0 7px;
+  color: #d3a378;
+  font-size: .69rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.vmg-feedback-title {
+  margin: 0;
+  color: #fff;
+  font-size: 1.42rem;
+  font-weight: 820;
+  letter-spacing: -.025em;
+}
+
+.vmg-feedback-intro {
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, .64);
+  font-size: .86rem;
+  line-height: 1.55;
+}
+
+.vmg-feedback-close {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, .13);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, .035);
+  color: rgba(255, 255, 255, .82);
+  cursor: pointer;
+  transition: color 150ms ease, border-color 150ms ease, background-color 150ms ease;
+}
+
+.vmg-feedback-close:hover,
+.vmg-feedback-close:focus-visible {
+  color: #fff;
+  border-color: rgba(211, 163, 120, .45);
+  background: rgba(211, 163, 120, .08);
+  outline: none;
+}
+
+.vmg-feedback-close svg {
+  width: 16px;
+  height: 16px;
+}
+
+.vmg-feedback-form {
+  display: grid;
+  gap: 17px;
+  margin-top: 20px;
+}
+
+.vmg-feedback-group {
+  display: grid;
+  gap: 8px;
+}
+
+.vmg-feedback-label,
+.vmg-feedback-rating-label {
+  color: rgba(255, 255, 255, .88);
+  font-size: .79rem;
+  font-weight: 700;
+}
+
+.vmg-feedback-rating-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
+.vmg-feedback-rating {
+  appearance: none;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 0 13px;
+  border: 1px solid rgba(255, 255, 255, .13);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .035);
+  color: rgba(255, 255, 255, .72);
+  font: inherit;
+  font-size: .78rem;
+  font-weight: 680;
+  text-align: left;
+  cursor: pointer;
+  transition: color 150ms ease, border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+}
+
+.vmg-feedback-rating:hover,
+.vmg-feedback-rating:focus-visible {
+  color: #fff;
+  border-color: rgba(211, 163, 120, .38);
+  background: rgba(255, 255, 255, .055);
+  outline: none;
+}
+
+.vmg-feedback-rating[aria-pressed="true"] {
+  color: #fff;
+  border-color: #c18a58;
+  background: rgba(193, 138, 88, .13);
+  box-shadow: inset 3px 0 0 #c18a58;
+}
+
+.vmg-feedback-rating svg {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  color: #d3a378;
+}
+
+.vmg-feedback-input,
+.vmg-feedback-textarea {
+  width: 100%;
+  border: 1px solid #cfd7e1;
+  border-radius: 9px;
+  background: #fff;
+  color: #0f172a;
+  font: inherit;
+  font-size: .84rem;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.vmg-feedback-input {
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+.vmg-feedback-textarea {
+  min-height: 126px;
+  padding: 11px 12px;
+  resize: vertical;
+  line-height: 1.48;
+}
+
+.vmg-feedback-input::placeholder,
+.vmg-feedback-textarea::placeholder {
+  color: #929dab;
+}
+
+.vmg-feedback-input:focus,
+.vmg-feedback-textarea:focus {
+  border-color: #c18a58;
+  box-shadow: 0 0 0 3px rgba(193, 138, 88, .12);
+}
+
+.vmg-feedback-required {
+  color: #d3a378;
+}
+
+.vmg-feedback-submit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-top: 2px;
+}
+
+.vmg-feedback-submit {
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid #c18a58;
+  border-radius: 9px;
+  background: #c18a58;
+  color: #fff;
+  font: inherit;
+  font-size: .8rem;
+  font-weight: 780;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+
+.vmg-feedback-submit:hover,
+.vmg-feedback-submit:focus-visible {
+  background: #a66f40;
+  border-color: #a66f40;
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.vmg-feedback-submit:disabled {
+  opacity: .62;
+  cursor: wait;
+  transform: none;
+}
+
+.vmg-feedback-status {
+  min-height: 18px;
+  margin: 0;
+  color: rgba(255, 255, 255, .62);
+  font-size: .74rem;
+  line-height: 1.4;
+  text-align: right;
+}
+
+.vmg-feedback-status.is-success {
+  color: #a9d5b7;
+}
+
+.vmg-feedback-status.is-error {
+  color: #f1b4a9;
+}
+
+.vmg-mobile-feedback-item {
+  display: none;
+}
+
+@media (max-width: 1320px) and (min-width: 992px) {
+  .vmg-nav-socials .vmg-feedback-trigger {
+    padding-inline: 11px;
+    margin-right: 4px;
+    font-size: .72rem;
+  }
+}
+
+@media (max-width: 991px) {
+  .vmg-nav-socials .vmg-feedback-trigger {
+    display: none;
+  }
+
+  .vmg-mobile-feedback-item {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border-top: 1px solid rgba(255, 255, 255, .08);
+  }
+
+  .vmg-mobile-feedback-item .vmg-feedback-trigger {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+    border-color: rgba(211, 163, 120, .35);
+    background: rgba(211, 163, 120, .08);
+    color: #fff;
+  }
+
+  .vmg-feedback-drawer {
+    top: 10px;
+    right: 10px;
+    width: calc(100vw - 20px);
+    max-width: 420px;
+    max-height: calc(100dvh - 20px);
+    padding: 20px 18px 18px;
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 430px) {
+  .vmg-feedback-drawer {
+    top: 0;
+    right: 0;
+    width: 100vw;
+    max-width: none;
+    height: 100dvh;
+    max-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+    padding: 20px 16px 18px;
+  }
+
+  .vmg-feedback-title {
+    font-size: 1.3rem;
+  }
+
+  .vmg-feedback-rating-options {
+    grid-template-columns: 1fr;
+  }
+
+  .vmg-feedback-submit-row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .vmg-feedback-submit {
+    width: 100%;
+  }
+
+  .vmg-feedback-status {
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vmg-feedback-trigger,
+  .vmg-feedback-backdrop,
+  .vmg-feedback-drawer,
+  .vmg-feedback-close,
+  .vmg-feedback-rating,
+  .vmg-feedback-submit {
+    transition: none;
+  }
+
+  .vmg-feedback-trigger:hover,
+  .vmg-feedback-trigger:focus-visible,
+  .vmg-feedback-submit:hover,
+  .vmg-feedback-submit:focus-visible {
+    transform: none;
+  }
+}

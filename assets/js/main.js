@@ -1,14 +1,51 @@
 (function () {
   const toggle = document.querySelector('.nav-toggle');
   const nav = document.getElementById('site-nav');
+  const header = document.querySelector('.site-header');
   const submenuParents = document.querySelectorAll('.site-nav .has-submenu');
   const yearEl = document.getElementById('year');
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    if (yearEl) {
+  if (yearEl) {
     yearEl.textContent = new Date().getFullYear().toString();
   }
 
+  function closeMenu() {
+    if (!nav || !toggle) return;
+    nav.classList.remove('open');
+    toggle.classList.remove('open');
+    document.body.classList.remove('menu-open');
+    toggle.setAttribute('aria-expanded', 'false');
+    submenuParents.forEach(function (parent) {
+      parent.classList.remove('open');
+      const link = parent.querySelector(':scope > a');
+      const submenu = parent.querySelector('.submenu');
+      if (link) link.setAttribute('aria-expanded', 'false');
+      if (submenu) submenu.style.maxHeight = '';
+    });
+  }
+
+  function updateHeaderState() {
+    if (!header) return;
+    header.classList.toggle('is-scrolled', window.scrollY > 4);
+  }
+
+  updateHeaderState();
+  window.addEventListener('scroll', updateHeaderState, { passive: true });
+
   if (toggle && nav) {
+    toggle.addEventListener('pointerdown', function () {
+      toggle.classList.add('is-pressed');
+    });
+
+    toggle.addEventListener('pointerup', function () {
+      toggle.classList.remove('is-pressed');
+    });
+
+    toggle.addEventListener('pointercancel', function () {
+      toggle.classList.remove('is-pressed');
+    });
+
     toggle.addEventListener('click', function () {
       const isOpen = nav.classList.toggle('open');
       toggle.classList.toggle('open');
@@ -19,15 +56,18 @@
 
   // Close menu when clicking on overlay background or outside drawer
   document.addEventListener('click', function (e) {
-    if (nav.classList.contains('open')) {
+    if (nav && toggle && nav.classList.contains('open')) {
       // If clicking exactly the nav (which now has the ::before overlay) 
       // or if clicking outside both the nav and the toggle
       if (e.target === nav || (!nav.contains(e.target) && !toggle.contains(e.target))) {
-        nav.classList.remove('open');
-        toggle.classList.remove('open');
-        document.body.classList.remove('menu-open');
-        toggle.setAttribute('aria-expanded', 'false');
+        closeMenu();
       }
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      closeMenu();
     }
   });
 
@@ -37,13 +77,17 @@
     const submenu = parent.querySelector('.submenu');
     
     if (link && submenu) {
+      link.setAttribute('aria-haspopup', 'true');
+      link.setAttribute('aria-expanded', 'false');
+
       link.addEventListener('click', function (e) {
-        if (window.matchMedia('(max-width: 768px)').matches) {
+        if (window.matchMedia('(max-width: 991px)').matches) {
           e.preventDefault();
           
           // Toggle the open class
           const isOpening = !parent.classList.contains('open');
           parent.classList.toggle('open');
+          link.setAttribute('aria-expanded', isOpening ? 'true' : 'false');
           
           // Remove any active state from parent link when submenu opens
           if (isOpening) {
@@ -96,11 +140,7 @@
         if (targetElement) {
           e.preventDefault();
           
-          // Close mobile menu if open
-          if (nav && nav.classList.contains('open')) {
-            nav.classList.remove('open');
-            toggle.setAttribute('aria-expanded', 'false');
-          }
+          closeMenu();
           
           // Calculate offset for sticky header
           const headerHeight = 80; // Approximate header height
@@ -109,7 +149,7 @@
           // Smooth scroll to target
           window.scrollTo({
             top: targetPosition,
-            behavior: 'smooth'
+            behavior: prefersReducedMotion.matches ? 'auto' : 'smooth'
           });
         }
       });
@@ -133,7 +173,7 @@
               const targetPosition = targetElement.offsetTop - headerHeight;
               window.scrollTo({
                 top: targetPosition,
-                behavior: 'smooth'
+                behavior: prefersReducedMotion.matches ? 'auto' : 'smooth'
               });
             }
           }
@@ -163,10 +203,7 @@
       
       if (window.scrollY > threshold) {
         backToTopButton.classList.add('visible');
-        // Add a small delay to make animation more noticeable
-        setTimeout(() => {
-          document.body.classList.add('scroll-top-visible');
-        }, 200);
+        document.body.classList.add('scroll-top-visible');
       } else {
         backToTopButton.classList.remove('visible');
         // Remove class immediately when scrolling up past footer
@@ -178,12 +215,12 @@
     backToTopButton.addEventListener('click', function() {
       window.scrollTo({
         top: 0,
-        behavior: 'smooth'
+        behavior: prefersReducedMotion.matches ? 'auto' : 'smooth'
       });
     });
 
     // Listen for scroll events
-    window.addEventListener('scroll', toggleBackToTop);
+    window.addEventListener('scroll', toggleBackToTop, { passive: true });
     
     // Initial check
     toggleBackToTop();
@@ -203,13 +240,12 @@
     
     // Prevent multiple initializations
     if (carousel.dataset.initialized === 'true') {
-      console.log('Hero carousel already initialized, skipping...');
       return;
     }
     carousel.dataset.initialized = 'true';
 
-    const slides = carousel.querySelectorAll('.carousel-slide');
-    const indicators = carousel.querySelectorAll('.indicator');
+    const slides = Array.from(carousel.querySelectorAll('.carousel-slide'));
+    const indicators = Array.from(carousel.querySelectorAll('.indicator'));
     const prevBtn = carousel.querySelector('.carousel-prev');
     const nextBtn = carousel.querySelector('.carousel-next');
     const currentSlideSpan = carousel.querySelector('.current-slide');
@@ -217,52 +253,76 @@
 
     let currentSlide = 0;
     const totalSlides = slides.length;
-    let autoPlayInterval;
+    let autoPlayTimer = null;
+    let isHovering = false;
+    let dragState = null;
+    const slideDuration = 6800;
+
+    if (!totalSlides) return;
+
+    function getLoopedIndex(index) {
+      return (index + totalSlides) % totalSlides;
+    }
+
+    function resetSlideStyle(slide) {
+      slide.classList.remove('is-dragging');
+      slide.style.opacity = '';
+      slide.style.transform = '';
+      slide.style.transition = '';
+      slide.style.zIndex = '';
+    }
+
+    function resetIndicator(indicator) {
+      indicator.classList.remove('active');
+      indicator.style.animation = 'none';
+      indicator.offsetHeight;
+      indicator.style.animation = '';
+    }
+
+    function animateHeroButtons(slide) {
+      if (prefersReducedMotion.matches) return;
+      const heroBtns = slide.querySelectorAll('.hero-btn');
+      heroBtns.forEach((btn, btnIndex) => {
+        btn.classList.remove('animate');
+        btn.offsetHeight;
+        setTimeout(() => {
+          if (slide.classList.contains('active')) {
+            btn.classList.add('animate');
+          }
+        }, 180 + (btnIndex * 90));
+      });
+    }
 
     // Set total slides count
     if (totalSlidesSpan) {
-      totalSlidesSpan.textContent = totalSlides;
+      totalSlidesSpan.textContent = String(totalSlides).padStart(2, '0');
     }
 
     // Function to show specific slide
     function showSlide(index) {
-      // Remove active class from all slides and indicators
-      slides.forEach(slide => slide.classList.remove('active'));
-      indicators.forEach(indicator => {
-        indicator.classList.remove('active');
-        // Reset the progress bar animation
-        indicator.style.animation = 'none';
-        indicator.offsetHeight; // Trigger reflow
-        indicator.style.animation = null;
+      index = getLoopedIndex(index);
+
+      slides.forEach(slide => {
+        slide.classList.remove('active');
+        resetSlideStyle(slide);
       });
+      indicators.forEach(resetIndicator);
 
       // Add active class to current slide and indicator
       if (slides[index]) {
         slides[index].classList.add('active');
-        
-        // Trigger hero button animation if present
-        const heroBtns = slides[index].querySelectorAll('.hero-btn');
-        heroBtns.forEach((btn, btnIndex) => {
-          // Remove animation class first to reset
-          btn.classList.remove('animate');
-          // Force reflow
-          btn.offsetHeight;
-          // Add animation class with a staggered delay
-          setTimeout(() => {
-            btn.classList.add('animate');
-          }, 300 + (btnIndex * 200));
-        });
+        animateHeroButtons(slides[index]);
       }
       if (indicators[index]) {
         indicators[index].classList.add('active');
-        // Start the progress bar animation with appropriate timing
-        const progressTiming = index === 0 ? '5s' : '4s';
-        indicators[index].style.animation = `progressBar ${progressTiming} linear forwards`;
+        if (!prefersReducedMotion.matches) {
+          indicators[index].style.animation = `progressBar ${slideDuration}ms linear forwards`;
+        }
       }
 
       // Update counter
       if (currentSlideSpan) {
-        currentSlideSpan.textContent = index + 1;
+        currentSlideSpan.textContent = String(index + 1).padStart(2, '0');
       }
 
       currentSlide = index;
@@ -270,56 +330,50 @@
 
     // Function to go to next slide
     function nextSlide() {
-      const nextIndex = (currentSlide + 1) % totalSlides;
-      console.log('Hero carousel advancing to slide:', nextIndex + 1);
-      showSlide(nextIndex);
+      showSlide(currentSlide + 1);
     }
 
     // Function to go to previous slide
     function prevSlide() {
-      const prevIndex = (currentSlide - 1 + totalSlides) % totalSlides;
-      showSlide(prevIndex);
+      showSlide(currentSlide - 1);
     }
 
     // Function to start auto-play
     function startAutoPlay() {
-      if (autoPlayInterval) {
-        clearInterval(autoPlayInterval);
-      }
-      
-      // Determine timing based on current slide
-      const timing = currentSlide === 0 ? 5000 : 4000; // 5 seconds for slide 1, 4 seconds for others
-      
-      autoPlayInterval = setInterval(() => {
-        console.log('Hero carousel auto-advancing from slide', currentSlide + 1);
+      stopAutoPlay();
+      if (prefersReducedMotion.matches || document.hidden || isHovering) return;
+
+      autoPlayTimer = window.setTimeout(() => {
         nextSlide();
-      }, timing);
-      console.log('Hero carousel auto-play started with', timing, 'ms timing for slide', currentSlide + 1);
+        startAutoPlay();
+      }, slideDuration);
     }
 
     // Function to stop auto-play
     function stopAutoPlay() {
-      if (autoPlayInterval) {
-        clearInterval(autoPlayInterval);
-        autoPlayInterval = null;
-        console.log('Hero carousel auto-play stopped');
+      if (autoPlayTimer) {
+        window.clearTimeout(autoPlayTimer);
+        autoPlayTimer = null;
       }
+    }
+
+    function restartAutoPlay() {
+      stopAutoPlay();
+      startAutoPlay();
     }
 
     // Event listeners for navigation buttons
     if (nextBtn) {
       nextBtn.addEventListener('click', () => {
         nextSlide();
-        stopAutoPlay();
-        startAutoPlay(); // Restart auto-play after manual navigation
+        restartAutoPlay();
       });
     }
 
     if (prevBtn) {
       prevBtn.addEventListener('click', () => {
         prevSlide();
-        stopAutoPlay();
-        startAutoPlay(); // Restart auto-play after manual navigation
+        restartAutoPlay();
       });
     }
 
@@ -327,8 +381,7 @@
     indicators.forEach((indicator, index) => {
       indicator.addEventListener('click', () => {
         showSlide(index);
-        stopAutoPlay();
-        startAutoPlay(); // Restart auto-play after manual navigation
+        restartAutoPlay();
       });
     });
 
@@ -336,18 +389,22 @@
     carousel.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowLeft') {
         prevSlide();
-        stopAutoPlay();
-        startAutoPlay();
+        restartAutoPlay();
       } else if (e.key === 'ArrowRight') {
         nextSlide();
-        stopAutoPlay();
-        startAutoPlay();
+        restartAutoPlay();
       }
     });
 
     // Pause auto-play on hover
-    carousel.addEventListener('mouseenter', stopAutoPlay);
-    carousel.addEventListener('mouseleave', startAutoPlay);
+    carousel.addEventListener('mouseenter', () => {
+      isHovering = true;
+      stopAutoPlay();
+    });
+    carousel.addEventListener('mouseleave', () => {
+      isHovering = false;
+      startAutoPlay();
+    });
 
     // Only pause auto-play when page is not visible (tab switch), not when scrolling
     document.addEventListener('visibilitychange', () => {
@@ -358,52 +415,166 @@
       }
     });
 
-    // Touch/swipe support for mobile
-    let touchStartX = 0;
-    let touchEndX = 0;
-
-    carousel.addEventListener('touchstart', (e) => {
-      touchStartX = e.changedTouches[0].screenX;
-    });
-
-    carousel.addEventListener('touchend', (e) => {
-      touchEndX = e.changedTouches[0].screenX;
-      handleSwipe();
-    });
-
-    function handleSwipe() {
-      const swipeThreshold = 50;
-      const diff = touchStartX - touchEndX;
-
-      if (Math.abs(diff) > swipeThreshold) {
-        if (diff > 0) {
-          // Swipe left - next slide
-          nextSlide();
-        } else {
-          // Swipe right - previous slide
-          prevSlide();
-        }
-        stopAutoPlay();
-        startAutoPlay();
-      }
+    function projectVelocity(initialVelocity, decelerationRate = 0.992) {
+      return (initialVelocity / 1000) * decelerationRate / (1 - decelerationRate);
     }
 
+    function getReleaseVelocity(history) {
+      const now = performance.now();
+      const recent = history.filter(point => now - point.t < 140);
+      const points = recent.length >= 2 ? recent : history;
+      const first = points[0];
+      const last = points[points.length - 1];
+      if (!first || !last || first.t === last.t) return 0;
+      return ((last.x - first.x) / (last.t - first.t)) * 1000;
+    }
+
+    function prepareDragSlide(slide) {
+      slide.classList.add('is-dragging');
+      slide.style.transition = 'none';
+    }
+
+    function updateDragFrame(dx) {
+      if (!dragState) return;
+      const width = dragState.width || carousel.clientWidth || 1;
+      const absDx = Math.abs(dx);
+      const direction = dx < 0 ? 1 : -1;
+      const targetIndex = getLoopedIndex(currentSlide + direction);
+      const active = slides[currentSlide];
+      const target = slides[targetIndex];
+      const progress = Math.min(absDx / width, 1);
+
+      if (dragState.targetIndex !== targetIndex) {
+        if (typeof dragState.targetIndex === 'number') {
+          resetSlideStyle(slides[dragState.targetIndex]);
+        }
+        dragState.targetIndex = targetIndex;
+      }
+
+      prepareDragSlide(active);
+      prepareDragSlide(target);
+
+      active.style.zIndex = '3';
+      active.style.opacity = String(1 - Math.min(progress * 0.24, 0.24));
+      active.style.transform = 'none';
+
+      target.style.zIndex = '2';
+      target.style.opacity = String(Math.min(progress * 0.78, 0.78));
+      target.style.transform = 'none';
+    }
+
+    function finishDrag(shouldCommit, direction) {
+      if (!dragState) return;
+      const width = dragState.width || carousel.clientWidth || 1;
+      const active = slides[currentSlide];
+      const targetIndex = getLoopedIndex(currentSlide + direction);
+      const target = slides[targetIndex];
+      const transition = prefersReducedMotion.matches
+        ? 'none'
+        : 'opacity 520ms cubic-bezier(0.22, 1, 0.36, 1)';
+
+      [active, target].forEach(slide => {
+        if (!slide) return;
+        slide.classList.remove('is-dragging');
+        slide.style.transition = transition;
+      });
+
+      if (shouldCommit && target) {
+        active.style.transform = 'none';
+        active.style.opacity = '0';
+        target.style.transform = 'none';
+        target.style.opacity = '1';
+        window.setTimeout(() => {
+          showSlide(targetIndex);
+          startAutoPlay();
+        }, prefersReducedMotion.matches ? 0 : 520);
+      } else {
+        active.style.transform = 'none';
+        active.style.opacity = '1';
+        if (target) {
+          target.style.transform = 'none';
+          target.style.opacity = '0';
+        }
+        window.setTimeout(() => {
+          showSlide(currentSlide);
+          startAutoPlay();
+        }, prefersReducedMotion.matches ? 0 : 520);
+      }
+
+      dragState = null;
+    }
+
+    carousel.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (e.target.closest('a, button, input, select, textarea')) return;
+
+      stopAutoPlay();
+      dragState = {
+        pointerId: e.pointerId,
+        startX: e.clientX,
+        currentX: e.clientX,
+        width: carousel.clientWidth || 1,
+        history: [{ x: e.clientX, t: performance.now() }],
+        targetIndex: null,
+        hasMoved: false
+      };
+      carousel.setPointerCapture(e.pointerId);
+    });
+
+    carousel.addEventListener('pointermove', (e) => {
+      if (!dragState || dragState.pointerId !== e.pointerId) return;
+      const dx = e.clientX - dragState.startX;
+      dragState.currentX = e.clientX;
+      dragState.history.push({ x: e.clientX, t: performance.now() });
+      dragState.history = dragState.history.slice(-8);
+
+      if (Math.abs(dx) > 8) {
+        dragState.hasMoved = true;
+        e.preventDefault();
+      }
+
+      if (dragState.hasMoved) {
+        updateDragFrame(dx);
+      }
+    });
+
+    function handlePointerEnd(e) {
+      if (!dragState || dragState.pointerId !== e.pointerId) return;
+      const dx = dragState.currentX - dragState.startX;
+      const width = dragState.width || carousel.clientWidth || 1;
+      const velocity = getReleaseVelocity(dragState.history);
+      const projected = dx + projectVelocity(velocity);
+      const direction = projected < 0 ? 1 : -1;
+      const shouldCommit = Math.abs(projected) > width * 0.24 || Math.abs(dx) > width * 0.34;
+
+      try {
+        carousel.releasePointerCapture(e.pointerId);
+      } catch (_) {}
+
+      if (!dragState.hasMoved) {
+        dragState = null;
+        startAutoPlay();
+        return;
+      }
+
+      finishDrag(shouldCommit, direction);
+    }
+
+    carousel.addEventListener('pointerup', handlePointerEnd);
+    carousel.addEventListener('pointercancel', (e) => {
+      if (!dragState || dragState.pointerId !== e.pointerId) return;
+      finishDrag(false, dragState.currentX - dragState.startX < 0 ? 1 : -1);
+    });
+
     // Initialize carousel
-    console.log('Initializing hero carousel with', totalSlides, 'slides');
     showSlide(0);
     
     // Start auto-play with a small delay to ensure everything is ready
-    setTimeout(() => {
-      startAutoPlay();
-    }, 100);
-    
-    // Ensure auto-play continues even if interrupted
-    setInterval(() => {
-      if (!autoPlayInterval) {
-        console.log('Hero carousel auto-play was interrupted, restarting...');
+    window.setTimeout(() => {
+      if (!isHovering) {
         startAutoPlay();
       }
-    }, 1000);
+    }, 120);
 
     // Make carousel focusable for keyboard navigation
     carousel.setAttribute('tabindex', '0');
@@ -429,6 +600,46 @@
       initHeroCarousel();
     }
   });
+
+  // Homepage-only, one-time editorial reveal system.
+  function initHomepageReveals() {
+    const homeMain = document.querySelector('.home-main');
+    if (!homeMain) return;
+
+    const revealItems = Array.from(homeMain.querySelectorAll('.home-reveal'));
+    if (!revealItems.length) return;
+
+    revealItems.forEach((item) => {
+      const delay = Number.parseInt(item.dataset.revealDelay || '0', 10);
+      item.style.setProperty('--home-reveal-delay', `${Math.max(0, delay)}ms`);
+    });
+
+    homeMain.classList.add('home-motion-ready');
+
+    if (prefersReducedMotion.matches || !('IntersectionObserver' in window)) {
+      revealItems.forEach((item) => item.classList.add('is-visible'));
+      return;
+    }
+
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      });
+    }, {
+      rootMargin: '0px 0px -10% 0px',
+      threshold: 0.12
+    });
+
+    revealItems.forEach((item) => revealObserver.observe(item));
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHomepageReveals);
+  } else {
+    initHomepageReveals();
+  }
 
   // Company Highlights Carousel functionality
   function initHighlightsCarousel() {
@@ -475,6 +686,8 @@
 
     // Function to start auto-play
     function startAutoPlay() {
+      stopAutoPlay();
+      if (prefersReducedMotion.matches || document.hidden) return;
       autoPlayInterval = setInterval(nextSlide, 3000); // Change slide every 3 seconds
     }
 
@@ -1136,7 +1349,7 @@
       
       // Ensure the element is visible
       subproductElement.scrollIntoView({ 
-        behavior: 'smooth', 
+        behavior: prefersReducedMotion.matches ? 'auto' : 'smooth',
         block: 'center',
         inline: 'nearest'
       });
@@ -1148,7 +1361,7 @@
         
         window.scrollTo({
           top: Math.max(0, elementTop),
-          behavior: 'smooth'
+          behavior: prefersReducedMotion.matches ? 'auto' : 'smooth'
         });
       }, 100);
 
@@ -1425,52 +1638,19 @@
     observer.observe(document.documentElement || document.body, { childList: true, subtree: true });
   });
 
-  // NUCLEAR OPTION: Completely disable tooltips and replace links with clickable divs
+  // Keep product cards as real links; remove only tooltip-causing attributes.
   function disableProductTooltips() {
     function processProductCards() {
       const productLinks = document.querySelectorAll('.card.product a[href]');
       productLinks.forEach(link => {
-        // Get the href before we destroy the link
-        const href = link.getAttribute('href');
-        
-        // Create a new div to replace the link
-        const clickableDiv = document.createElement('div');
-        clickableDiv.style.cursor = 'pointer';
-        clickableDiv.style.pointerEvents = 'auto';
-        clickableDiv.style.userSelect = 'text';
-        clickableDiv.style.webkitUserSelect = 'text';
-        clickableDiv.style.mozUserSelect = 'text';
-        clickableDiv.style.msUserSelect = 'text';
-        
-        // Move all children from link to div
-        while (link.firstChild) {
-          clickableDiv.appendChild(link.firstChild);
-        }
-        
-        // Add click handler to navigate
-        clickableDiv.addEventListener('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          window.location.href = href;
-        });
-        
-        // Replace the link with the div
-        link.parentNode.replaceChild(clickableDiv, link);
+        link.removeAttribute('title');
+        link.style.pointerEvents = '';
+        link.style.cursor = '';
       });
       
-      // Make all figcaptions fully selectable
       const figcaptions = document.querySelectorAll('.card.product figcaption');
       figcaptions.forEach(caption => {
-        caption.style.pointerEvents = 'auto';
-        caption.style.cursor = 'text';
-        caption.style.userSelect = 'text';
-        caption.style.webkitUserSelect = 'text';
-        caption.style.mozUserSelect = 'text';
-        caption.style.msUserSelect = 'text';
-        
-        // Remove any attributes that could cause tooltips
         caption.removeAttribute('title');
-        caption.removeAttribute('aria-label');
       });
     }
     
@@ -1482,7 +1662,6 @@
       mutations.forEach(function(mutation) {
         mutation.addedNodes.forEach(function(node) {
           if (node.nodeType === 1) { // Element node
-            // Check if this node or its children contain product cards
             if (node.classList && node.classList.contains('card') && node.classList.contains('product')) {
               processProductCards();
             } else if (node.querySelectorAll) {
@@ -2831,5 +3010,3 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(createPopup, SHOW_DELAY_MS);
   };
 })();
-
-

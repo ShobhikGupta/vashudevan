@@ -1,0 +1,453 @@
+name: One-time hardcode VMG shell and legal hero
+
+on:
+  push:
+    branches:
+      - chatgpt/mobile-fixes-21aug
+    paths:
+      - .github/workflows/one-time-hardcode-vmg-shell.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: chatgpt/mobile-fixes-21aug
+          fetch-depth: 0
+
+      - name: Hardcode approved header and footer on every HTML page
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          repo = Path('.')
+
+          whatsapp_svg = '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2C6.56 2 2.1 6.42 2.1 11.86c0 1.74.46 3.43 1.34 4.92L2 22l5.39-1.41a9.98 9.98 0 0 0 4.65 1.18h.01c5.48 0 9.94-4.42 9.94-9.86C22 6.42 17.53 2 12.04 2Zm0 17.98h-.01a8.18 8.18 0 0 1-4.17-1.14l-.3-.18-3.2.84.86-3.1-.2-.32a8.05 8.05 0 0 1-1.26-4.22c0-4.46 3.71-8.08 8.28-8.08 4.57 0 8.29 3.62 8.29 8.08 0 4.46-3.72 8.12-8.29 8.12Z"/></svg>'
+          facebook_svg = '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.5 22v-9h3l.45-3.5H13.5V7.25c0-1.01.28-1.7 1.73-1.7H17V2.42c-.31-.04-1.37-.13-2.61-.13-2.58 0-4.35 1.58-4.35 4.48V9.5H7.12V13h2.92v9h3.46Z"/></svg>'
+          linkedin_svg = '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5.4 7.9H2.2V22h3.2V7.9ZM3.8 2A1.9 1.9 0 1 0 3.8 5.8 1.9 1.9 0 0 0 3.8 2ZM22 13.9c0-4.25-2.27-6.23-5.3-6.23-2.45 0-3.54 1.34-4.15 2.28V7.9H9.36V22h3.19v-6.98c0-1.84.35-3.62 2.63-3.62 2.25 0 2.28 2.1 2.28 3.74V22H22v-8.1Z"/></svg>'
+          instagram_svg = '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7.8 2h8.4A5.8 5.8 0 0 1 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8A5.8 5.8 0 0 1 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2Zm0 2A3.8 3.8 0 0 0 4 7.8v8.4A3.8 3.8 0 0 0 7.8 20h8.4a3.8 3.8 0 0 0 3.8-3.8V7.8A3.8 3.8 0 0 0 16.2 4H7.8Zm8.7 1.5a1.35 1.35 0 1 1 0 2.7 1.35 1.35 0 0 1 0-2.7ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg>'
+          feedback_svg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5h16v10H9l-5 4v-14Z"/><path d="M8 9h8M8 12h5"/></svg>'
+          brochure_svg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h8l4 4V20.5H6z"/><path d="M14 3.5v4h4M9 12h6M9 15h6"/></svg>'
+
+          def social_links(cls):
+              return f'''<div class="{cls}">
+                <a class="vmg-social-link" href="https://wa.me/919879208178" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">{whatsapp_svg}</a>
+                <a class="vmg-social-link" href="https://www.facebook.com/profile.php?id=61577681908111" target="_blank" rel="noopener noreferrer" aria-label="Facebook">{facebook_svg}</a>
+                <a class="vmg-social-link" href="https://www.linkedin.com/company/109161337/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">{linkedin_svg}</a>
+                <a class="vmg-social-link" href="https://www.instagram.com/vashudevan_metglobal_llp?igsh=NWJrZjQ3MTNqdTU4&utm_source=qr" target="_blank" rel="noopener noreferrer" aria-label="Instagram">{instagram_svg}</a>
+              </div>'''
+
+          desktop_socials = social_links('vmg-nav-social-icons')
+          mobile_socials = social_links('vmg-mobile-socials')
+
+          header = f'''<header class="site-header vmg-econship-header" data-vmg-static-header="true">
+      <div class="container header-inner">
+        <div class="vmg-nav-brand-row">
+          <div class="vmg-track-shipment">
+            <span class="vmg-track-title">Track Shipment</span>
+            <form class="vmg-track-form" data-vmg-track-form="true" aria-label="Track shipment">
+              <input class="vmg-track-input" type="text" autocomplete="off" placeholder="BL / Container / CTO No." aria-label="BL, container or CTO number">
+              <button class="vmg-track-button" type="submit">Track</button>
+            </form>
+          </div>
+          <a class="logo" href="/index.html" aria-label="Vashudevan MetGlobal LLP home">
+            <img class="vmg-updated-header-logo" src="/assets/img/vmg-header-logo.svg" alt="Vashudevan MetGlobal LLP logo" width="48" height="64">
+            <span>Vashudevan MetGlobal LLP</span>
+          </a>
+          <div class="vmg-nav-socials">
+            <button class="vmg-feedback-trigger vmg-feedback-trigger-desktop" type="button" aria-controls="vmg-feedback-drawer" aria-expanded="false">{feedback_svg}<span>Give Feedback</span></button>
+            {desktop_socials}
+          </div>
+          <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+        </div>
+        <nav id="site-nav" class="site-nav" aria-label="Primary navigation">
+          <ul>
+            <li class="vmg-mobile-tracker-item">
+              <div class="vmg-track-shipment">
+                <span class="vmg-track-title">Track Shipment</span>
+                <form class="vmg-track-form" data-vmg-track-form="true" aria-label="Track shipment">
+                  <input class="vmg-track-input" type="text" autocomplete="off" placeholder="BL / Container / CTO No." aria-label="BL, container or CTO number">
+                  <button class="vmg-track-button" type="submit">Track</button>
+                </form>
+              </div>
+            </li>
+            <li><a href="/index.html" data-vmg-nav-path="home">Home</a></li>
+            <li class="has-submenu"><a href="javascript:void(0)" aria-haspopup="true" aria-expanded="false">About Us</a><ul class="submenu"><li><a href="/who-we-are.html">Who We Are</a></li><li><a href="/our-impact.html">Our Impact</a></li></ul></li>
+            <li><a href="/products.html" data-vmg-nav-path="products">Products</a></li>
+            <li><a href="/market-prices" data-vmg-nav-path="market">Market</a></li>
+            <li><a href="/resources.html" data-vmg-nav-path="resources">Resources</a></li>
+            <li><a href="/contact.html" data-vmg-nav-path="contact">Contact Us</a></li>
+            <li class="vmg-mobile-feedback-item"><button class="vmg-feedback-trigger vmg-feedback-trigger-mobile" type="button" aria-controls="vmg-feedback-drawer" aria-expanded="false">{feedback_svg}<span>Give Feedback</span></button></li>
+            <li class="vmg-mobile-socials-item"><span class="vmg-mobile-socials-label">Follow VMG</span>{mobile_socials}</li>
+            <li class="vmg-mobile-bottom-links">
+              <div class="vmg-mobile-bottom-links-row" aria-label="FAQ and legal links"><a href="/faq.html">FAQ</a><a href="/privacy-policy.html">Privacy Policy</a><a href="/disclaimer.html">Disclaimer</a></div>
+              <a class="vmg-mobile-brochure-cta" href="/Vashudevan-MetGlobal-Company-Profile.pdf" target="_blank" rel="noopener noreferrer" aria-label="View VMG brochure">{brochure_svg}<span>VMG BROCHURE</span><span class="vmg-mobile-brochure-arrow" aria-hidden="true">↗</span></a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>'''
+
+          footer = f'''<footer class="site-footer vmg-global-footer" data-vmg-static-footer="true">
+      <div class="vmg-footer-trust-zone">
+        <div class="vmg-footer-wrap">
+          <h2 class="vmg-footer-section-title">Proud Member Of</h2>
+          <div class="vmg-footer-member-grid">
+            <div class="vmg-footer-trust-card" data-logo-key="mrai"><div class="vmg-footer-trust-logo"><img src="/assets/img/footer-logos/mrai.png" alt="MRAI logo" loading="lazy"></div><div class="vmg-footer-trust-copy"><strong>MRAI</strong><span>Member</span></div></div>
+            <div class="vmg-footer-trust-card" data-logo-key="bir"><div class="vmg-footer-trust-logo"><img src="/assets/img/footer-logos/bir.png" alt="BIR logo" loading="lazy"></div><div class="vmg-footer-trust-copy"><strong>BIR</strong><span>Member</span></div></div>
+            <div class="vmg-footer-trust-card" data-logo-key="recycleinme"><div class="vmg-footer-trust-logo"><img src="/assets/img/footer-logos/recycleinme.png" alt="RecycleInMe logo" loading="lazy"></div><div class="vmg-footer-trust-copy"><strong>RecycleInMe</strong><span>Premium Member</span></div></div>
+          </div>
+          <h2 class="vmg-footer-section-title vmg-footer-verified-title">Verified &amp; Registered</h2>
+          <div class="vmg-footer-verify-grid">
+            <a class="vmg-footer-trust-card" data-logo-key="duns" href="https://www.dnb.com/business-directory/company-profiles.vashudevan_metglobal_llp.136a46a739ed77d5feca2ac7ba44975f.html" target="_blank" rel="noopener noreferrer" aria-label="Verify D-U-N-S externally"><div class="vmg-footer-trust-logo"><img src="/assets/img/footer-logos/duns.png" alt="D-U-N-S logo" loading="lazy"></div><div class="vmg-footer-trust-copy"><strong>D-U-N-S</strong><span>861572919</span><span class="vmg-footer-external">Verify externally ↗</span></div></a>
+            <div class="vmg-footer-trust-card" data-logo-key="iec"><div class="vmg-footer-trust-logo"><img src="/assets/img/footer-logos/iec.png" alt="IEC logo" loading="lazy"></div><div class="vmg-footer-trust-copy"><strong>IEC</strong><span>IEC Registered</span></div></div>
+            <div class="vmg-footer-trust-card" data-logo-key="gst"><div class="vmg-footer-trust-logo"><img src="/assets/img/footer-logos/gst.png" alt="GST logo" loading="lazy"></div><div class="vmg-footer-trust-copy"><strong>GST</strong><span>GSTIN 24AARFV7153Q1Z7</span></div></div>
+            <div class="vmg-footer-trust-card" data-logo-key="msme"><div class="vmg-footer-trust-logo"><img src="/assets/img/footer-logos/msme.png" alt="MSME logo" loading="lazy"></div><div class="vmg-footer-trust-copy"><strong>MSME</strong><span>MSME Registered</span></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="vmg-footer-main">
+        <div class="vmg-footer-wrap vmg-footer-main-inner">
+          <ul class="vmg-footer-mini-links" aria-label="Footer links"><li><a href="/faq.html">FAQ</a></li><li><a href="/privacy-policy.html">Privacy Policy</a></li><li><a href="/disclaimer.html">Disclaimer</a></li><li><a href="/Vashudevan-MetGlobal-Company-Profile.pdf" target="_blank" rel="noopener">VMG Brochure</a></li><li><a href="/contact.html">Contact Us</a></li></ul>
+          <div class="vmg-footer-subscribe-row"><div class="vmg-footer-subscribe-copy"><strong>VMG Trade Updates</strong><span>Occasional recyclable-metal market updates.</span></div><form class="vmg-footer-subscribe-form" data-vmg-subscribe-form novalidate><div class="vmg-footer-subscribe-controls"><input class="vmg-footer-subscribe-input" type="email" name="email" autocomplete="email" placeholder="Business email address" aria-label="Business email address" aria-describedby="vmg-footer-subscribe-status" aria-invalid="false" required><button class="vmg-footer-subscribe-button" type="submit">Subscribe</button></div><p class="vmg-footer-subscribe-status" id="vmg-footer-subscribe-status" role="status" aria-live="polite"></p></form></div>
+          <div class="vmg-footer-bottom"><a class="vmg-footer-brand-lockup" href="/index.html"><strong>Vashudevan MetGlobal LLP</strong></a><span class="vmg-footer-copyright">© 2026 Vashudevan MetGlobal LLP. All rights reserved.</span><div class="vmg-footer-socials"><a href="https://wa.me/919879208178" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">{whatsapp_svg}</a><a href="https://www.facebook.com/profile.php?id=61577681908111" target="_blank" rel="noopener noreferrer" aria-label="Facebook">{facebook_svg}</a><a href="https://www.linkedin.com/company/109161337/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">{linkedin_svg}</a><a href="https://www.instagram.com/vashudevan_metglobal_llp?igsh=NWJrZjQ3MTNqdTU4&utm_source=qr" target="_blank" rel="noopener noreferrer" aria-label="Instagram">{instagram_svg}</a></div></div>
+        </div>
+      </div>
+    </footer>'''
+
+          style_block = '''
+    <link rel="stylesheet" href="/assets/css/vmg-trade-nav.css" data-vmg-trade-nav="true">
+    <link rel="stylesheet" href="/assets/css/vmg-nav-premium-overrides.css" data-vmg-nav-premium="true">
+    <link rel="stylesheet" href="/assets/css/vmg-feedback.css" data-vmg-feedback-style="true">
+    <link rel="stylesheet" href="/assets/css/vmg-footer.css" data-vmg-footer-style="true">
+    <link rel="stylesheet" href="/assets/css/vmg-responsive-polish.css?v=20260821g" data-vmg-responsive-polish="true">
+    <link rel="stylesheet" href="/assets/css/vmg-header-sticky-fix.css?v=20260822a" data-vmg-header-sticky-fix="true">'''
+
+          pages = sorted(repo.glob('*.html'))
+          market_page = repo / 'market-prices' / 'index.html'
+          if market_page.exists(): pages.append(market_page)
+
+          for path in pages:
+              text = path.read_text()
+              original = text
+
+              # Hardcode shell CSS in <head> so the approved design exists on the very first paint.
+              if 'data-vmg-trade-nav="true"' not in text:
+                  text = text.replace('</head>', style_block + '\n  </head>', 1)
+
+              text, hc = re.subn(r'<header\b[^>]*class="[^"]*site-header[^"]*"[^>]*>.*?</header>', header, text, count=1, flags=re.S | re.I)
+              if hc != 1:
+                  print('WARN header not replaced:', path)
+
+              text, fc = re.subn(r'<footer\b[^>]*class="[^"]*site-footer[^"]*"[^>]*>.*?</footer>', footer, text, count=1, flags=re.S | re.I)
+              if fc != 1:
+                  print('WARN footer not replaced:', path)
+
+              # Use the same brochure terminology everywhere visible.
+              text = text.replace('Preview Company Profile', 'Preview VMG Brochure')
+              text = text.replace('Download Company Profile', 'Download VMG Brochure')
+              text = text.replace('View Company Profile', 'View VMG Brochure')
+
+              # Force fresh shell loader after this structural change.
+              text = re.sub(r'assets/js/config\.js(?:\?v=[^"\']+)?', '/assets/js/config.js?v=20260822a', text)
+
+              if text != original:
+                  path.write_text(text)
+
+          # Rewrite config.js: it may bind behavior but must NEVER rebuild the shell again.
+          config = repo / 'assets/js/config.js'
+          config.write_text(r'''// VMG static-site client configuration. Header/footer markup is hardcoded in HTML.
+(function(){
+  window.AppConfig = window.AppConfig || {};
+  window.AppConfig.googleScriptUrl = 'https://script.google.com/macros/s/AKfycbxsmNbhUkhWY3hEmYof4dGi7cOEYEbMDoBSFe3erSciipp-_-tI1RKuQ7P3ms9gyYYR/exec';
+  window.AppConfig.contactEndpoint = window.AppConfig.contactEndpoint || '';
+})();
+
+(function(){
+  if (!document || !document.head) return;
+  function loadScript(src, marker){
+    if (document.querySelector('script[' + marker + ']')) return;
+    var script = document.createElement('script');
+    script.src = src;
+    script.async = false;
+    script.setAttribute(marker, 'true');
+    document.head.appendChild(script);
+  }
+  loadScript('/assets/js/vmg-feedback.js?v=20260822a', 'data-vmg-feedback-script');
+  loadScript('/assets/js/vmg-help.js?v=20260822a', 'data-vmg-help-script');
+})();
+
+(function(){
+  'use strict';
+
+  function ensureToast(){
+    var toast = document.querySelector('.vmg-track-toast');
+    if (toast) return toast;
+    toast = document.createElement('div');
+    toast.className = 'vmg-track-toast';
+    toast.setAttribute('role','status');
+    toast.setAttribute('aria-live','polite');
+    document.body.appendChild(toast);
+    return toast;
+  }
+
+  function bindTrackForms(){
+    var toast = ensureToast();
+    var timer = null;
+    document.querySelectorAll('[data-vmg-track-form]').forEach(function(form){
+      if (form.dataset.bound === 'true') return;
+      form.dataset.bound = 'true';
+      form.addEventListener('submit', function(event){
+        event.preventDefault();
+        var input = form.querySelector('.vmg-track-input');
+        toast.textContent = input && input.value.trim()
+          ? 'Shipment tracking portal is coming soon. Your reference has not been submitted.'
+          : 'Shipment tracking portal is coming soon.';
+        toast.classList.add('is-visible');
+        window.clearTimeout(timer);
+        timer = window.setTimeout(function(){ toast.classList.remove('is-visible'); }, 3200);
+      });
+    });
+  }
+
+  function setActiveNav(){
+    var path = (window.location.pathname || '/').replace(/\/$/, '') || '/';
+    document.querySelectorAll('#site-nav > ul > li > a[data-vmg-nav-path]').forEach(function(link){
+      link.removeAttribute('aria-current');
+      var key = link.getAttribute('data-vmg-nav-path');
+      var match =
+        (key === 'home' && (path === '/' || path === '/index.html')) ||
+        (key === 'products' && (path === '/products.html' || path === '/product.html')) ||
+        (key === 'market' && (path === '/market-prices' || path === '/market-prices/index.html')) ||
+        (key === 'resources' && (path === '/resources.html' || path === '/faq.html')) ||
+        (key === 'contact' && path === '/contact.html');
+      if (match) link.setAttribute('aria-current','page');
+    });
+  }
+
+  function updateHeader(){
+    var header = document.querySelector('.site-header.vmg-econship-header');
+    if (!header) return;
+    var footer = document.querySelector('footer.vmg-global-footer');
+    var nav = document.getElementById('site-nav');
+    var desktop = window.matchMedia('(min-width: 992px)').matches;
+    var menuOpen = document.body.classList.contains('menu-open') || (nav && nav.classList.contains('open'));
+    header.classList.toggle('vmg-desktop-tier1-hidden', desktop && window.scrollY > 8);
+    var footerVisible = false;
+    if (footer) {
+      var rect = footer.getBoundingClientRect();
+      footerVisible = rect.top < window.innerHeight && rect.bottom > 0;
+    }
+    header.classList.toggle('vmg-footer-in-view', footerVisible && !menuOpen);
+  }
+
+  function init(){
+    bindTrackForms();
+    setActiveNav();
+    updateHeader();
+    var raf = 0;
+    function requestUpdate(){
+      if (raf) return;
+      raf = window.requestAnimationFrame(function(){ raf = 0; updateHeader(); });
+    }
+    window.addEventListener('scroll', requestUpdate, {passive:true});
+    window.addEventListener('resize', requestUpdate, {passive:true});
+    document.addEventListener('click', function(){ window.setTimeout(requestUpdate, 0); });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
+  else init();
+})();
+''')
+
+          # Footer JS becomes behavior-only. It must never replace hardcoded markup.
+          footer_js = repo / 'assets/js/vmg-footer.js'
+          footer_js.write_text(r'''(function(){
+  'use strict';
+  function bindSubscribe(footer){
+    var form = footer && footer.querySelector('[data-vmg-subscribe-form]');
+    if (!form || form.dataset.bound === 'true') return;
+    form.dataset.bound = 'true';
+    var input = form.querySelector('.vmg-footer-subscribe-input');
+    var button = form.querySelector('.vmg-footer-subscribe-button');
+    var status = form.querySelector('.vmg-footer-subscribe-status');
+    function clear(){ status.textContent=''; status.className='vmg-footer-subscribe-status'; input.setAttribute('aria-invalid','false'); }
+    input.addEventListener('input', clear);
+    form.addEventListener('submit', function(event){
+      event.preventDefault(); clear();
+      var email = (input.value || '').trim();
+      if (!email || !input.checkValidity()) {
+        status.textContent = email ? 'Please enter a valid business email.' : 'Please enter your business email.';
+        status.classList.add('is-error'); input.setAttribute('aria-invalid','true'); input.focus(); return;
+      }
+      var endpoint = window.AppConfig && window.AppConfig.googleScriptUrl;
+      if (!endpoint) { status.textContent='Subscription is temporarily unavailable.'; status.classList.add('is-error'); return; }
+      button.disabled=true; button.textContent='Sending…'; status.textContent='Sending subscription request…';
+      fetch(endpoint,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({source:'trade-updates-subscription',type:'Trade Updates Subscription',email:email,'MAIL ID':email,page:window.location.href,submittedAt:new Date().toISOString()})})
+        .then(function(){ status.textContent='Thank you. Your subscription request was sent.'; status.classList.add('is-success'); form.reset(); })
+        .catch(function(){ status.textContent='Could not send the request. Please try again.'; status.classList.add('is-error'); })
+        .finally(function(){ button.disabled=false; button.textContent='Subscribe'; });
+    });
+  }
+  function init(){ bindSubscribe(document.querySelector('footer.vmg-global-footer')); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
+})();
+''')
+
+          # Static feedback buttons are already in HTML. Bind them instead of injecting replacements.
+          fb = repo / 'assets/js/vmg-feedback.js'
+          f = fb.read_text()
+          f = re.sub(r"^\(function\(\)\{.*?\}\)\(\);\n\n", "", f, count=1, flags=re.S)
+          f = f.replace(
+              "  function createTrigger(extraClass) {\n    var button = document.createElement('button');",
+              "  function bindTrigger(button) {\n    if (!button || button.dataset.vmgFeedbackBound === 'true') return button;\n    button.dataset.vmgFeedbackBound = 'true';\n    button.addEventListener('click', function () {\n      if (window.innerWidth <= 991) {\n        var nav = document.getElementById('site-nav');\n        var toggle = document.querySelector('.nav-toggle');\n        if (nav && nav.classList.contains('open') && toggle) {\n          toggle.click();\n          window.setTimeout(function () { openDrawer(button); }, 170);\n          return;\n        }\n      }\n      openDrawer(button);\n    });\n    return button;\n  }\n\n  function createTrigger(extraClass) {\n    var button = document.createElement('button');"
+          )
+          # Remove the original duplicated click handler inside createTrigger and return via binder.
+          f = re.sub(r"\n    button\.addEventListener\('click', function \(\) \{.*?\n    \}\);\n    return button;", "\n    return bindTrigger(button);", f, count=1, flags=re.S)
+          f = f.replace("  function addTriggers() {\n", "  function addTriggers() {\n    document.querySelectorAll('.vmg-feedback-trigger').forEach(bindTrigger);\n")
+          # Load footer behavior only; structure is static.
+          f = "(function(){ if(document && document.head && !document.querySelector('script[data-vmg-footer-script]')){ var s=document.createElement('script'); s.src='/assets/js/vmg-footer.js?v=20260822a'; s.async=false; s.setAttribute('data-vmg-footer-script','true'); document.head.appendChild(s); }})();\n\n" + f
+          fb.write_text(f)
+
+          # Final static header CSS: no offset calculations, no observer, no competing fixed nav.
+          shell_css = repo / 'assets/css/vmg-header-sticky-fix.css'
+          shell_css.write_text(r'''/* VMG hardcoded shell behavior — 22 Aug 2026 */
+.site-header.vmg-econship-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1200 !important;
+  transform: translate3d(0,0,0) !important;
+  transition: transform 320ms cubic-bezier(.22,1,.36,1), box-shadow 180ms ease !important;
+  background: #fff;
+}
+.site-header.vmg-econship-header .site-nav { transform: none !important; }
+
+@media (min-width: 992px) {
+  .site-header.vmg-econship-header .vmg-nav-brand-row {
+    max-height: 82px !important;
+    min-height: 82px !important;
+    overflow: hidden !important;
+    opacity: 1 !important;
+    transform: translate3d(0,0,0) !important;
+    transition: max-height 280ms cubic-bezier(.22,1,.36,1), min-height 280ms cubic-bezier(.22,1,.36,1), opacity 180ms ease, transform 280ms cubic-bezier(.22,1,.36,1), margin 280ms cubic-bezier(.22,1,.36,1) !important;
+  }
+  .site-header.vmg-econship-header.vmg-desktop-tier1-hidden .vmg-nav-brand-row {
+    max-height: 0 !important;
+    min-height: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    opacity: 0 !important;
+    transform: translate3d(0,-100%,0) !important;
+    pointer-events: none !important;
+  }
+  .site-header.vmg-econship-header.vmg-desktop-tier1-hidden .site-nav { box-shadow: 0 8px 24px rgba(4,12,23,.14) !important; }
+}
+
+@media (max-width: 991px) {
+  .site-header.vmg-econship-header .vmg-nav-brand-row {
+    min-height: 64px !important;
+    max-height: 64px !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+.site-header.vmg-econship-header.vmg-footer-in-view:not(:has(.site-nav.open)) {
+  transform: translate3d(0,calc(-100% - 2px),0) !important;
+  pointer-events: none !important;
+}
+body.menu-open .site-header.vmg-econship-header.vmg-footer-in-view {
+  transform: translate3d(0,0,0) !important;
+  pointer-events: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header.vmg-econship-header,
+  .site-header.vmg-econship-header .vmg-nav-brand-row { transition: none !important; }
+}
+''')
+
+          # Legal hero: centered, much slimmer, metadata pills remain on one line.
+          legal = repo / 'assets/css/vmg-legal.css'
+          if legal.exists():
+              css = legal.read_text()
+              css += r'''
+
+/* 22 Aug legal hero refinement */
+.legal-hero {
+  padding: clamp(34px, 4.5vw, 54px) 0 clamp(30px, 4vw, 46px) !important;
+}
+.legal-hero .legal-wrap {
+  width: min(820px, calc(100% - 40px)) !important;
+  text-align: center !important;
+}
+.legal-eyebrow {
+  justify-content: center !important;
+  margin: 0 auto 10px !important;
+}
+.legal-hero h1 {
+  max-width: 760px !important;
+  margin: 0 auto !important;
+  font-size: clamp(2.3rem, 4.4vw, 4rem) !important;
+  line-height: 1 !important;
+}
+.legal-hero .legal-lead {
+  max-width: 720px !important;
+  margin: 14px auto 0 !important;
+  font-size: clamp(.9rem, 1.15vw, 1rem) !important;
+  line-height: 1.58 !important;
+}
+.legal-meta {
+  justify-content: center !important;
+  flex-wrap: nowrap !important;
+  margin-top: 16px !important;
+  gap: 8px !important;
+}
+.legal-meta span {
+  white-space: nowrap !important;
+  min-height: 28px !important;
+  padding: 5px 10px !important;
+}
+@media (max-width: 700px) {
+  .legal-hero { padding: 28px 0 26px !important; }
+  .legal-hero .legal-wrap { width: min(100% - 28px, 820px) !important; }
+  .legal-hero h1 { font-size: clamp(2rem, 10vw, 2.75rem) !important; }
+  .legal-hero .legal-lead { margin-top: 12px !important; font-size: .86rem !important; line-height: 1.52 !important; }
+  .legal-meta { gap: 6px !important; margin-top: 14px !important; }
+  .legal-meta span { min-height: 26px !important; padding: 4px 8px !important; font-size: .64rem !important; }
+}
+'''
+              legal.write_text(css)
+          PY
+
+      - name: Validate HTML shell and JS syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          pages=list(Path('.').glob('*.html'))+[Path('market-prices/index.html')]
+          for p in pages:
+            if not p.exists(): continue
+            s=p.read_text()
+            assert s.count('data-vmg-static-header="true"') == 1, p
+            assert s.count('data-vmg-static-footer="true"') == 1, p
+            assert 'data-vmg-trade-nav="true"' in s, p
+          print('Validated', len([p for p in pages if p.exists()]), 'HTML pages')
+          PY
+          node --check assets/js/config.js
+          node --check assets/js/vmg-feedback.js
+          node --check assets/js/vmg-footer.js
+          git diff --check
+
+      - name: Commit hardcoded shell
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Hardcode premium VMG header footer and slim legal heroes"
+          git push origin HEAD:chatgpt/mobile-fixes-21aug
