@@ -90,6 +90,7 @@
   }
 
   loadStylesheet('/assets/css/vmg-market-polish.css', 'data-vmg-market-polish');
+  loadScript('/assets/js/skeleton-loader.js?v=20260822a', 'data-vmg-skeleton-loader-script');
   loadScript('/assets/js/vmg-feedback.js?v=20260822j', 'data-vmg-feedback-script');
   loadScript('/assets/js/vmg-help.js?v=20260822j', 'data-vmg-help-script');
 })();
@@ -118,16 +119,10 @@
       var key = socialKey(link);
       if (!key || !SOCIAL_ASSETS[key]) return;
 
-      var img = document.createElement('img');
-      img.src = SOCIAL_ASSETS[key];
-      img.alt = '';
-      img.width = link.closest('.vmg-footer-socials') ? 18 : 22;
-      img.height = link.closest('.vmg-footer-socials') ? 18 : 22;
-      img.decoding = 'async';
-      img.setAttribute('aria-hidden', 'true');
-      img.setAttribute('data-vmg-social-asset', 'true');
-      img.className = link.closest('.vmg-footer-socials') ? 'vmg-footer-social-img' : 'vmg-social-icon-img';
-      link.replaceChildren(img);
+      // The uploaded icon itself is rendered from first CSS paint by
+      // vmg-social-icons.css. Do not replace placeholder markup after load.
+      link.setAttribute('aria-label', 'Open VMG ' + key.charAt(0).toUpperCase() + key.slice(1));
+      link.setAttribute('data-vmg-social-asset', SOCIAL_ASSETS[key]);
     });
   }
 
