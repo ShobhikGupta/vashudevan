@@ -198,7 +198,7 @@
   </div>
 </footer>
 
-    <script src="//assets/js/config.js?v=20260822b"></script>
+    <script src="/assets/js/config.js?v=20260822b"></script>
     <script src="/assets/js/main.js"></script>
     <script>
       const VASHUDEVAN_MARKET_GROUPS = {
@@ -267,6 +267,20 @@
           quoteBasis.innerHTML = '<strong>Quote Basis:</strong> Displayed metal quotes follow the native quote basis supplied by each TradingView data provider.';
         }
 
+        function appendTradingViewScriptWhenSized(host, script) {
+          let attempts = 0;
+          function appendWhenReady() {
+            attempts += 1;
+            const rect = host.getBoundingClientRect();
+            if ((rect.width > 0 && rect.height > 0) || attempts >= 10) {
+              if (host.isConnected && !script.isConnected) host.appendChild(script);
+              return;
+            }
+            window.requestAnimationFrame(appendWhenReady);
+          }
+          window.requestAnimationFrame(appendWhenReady);
+        }
+
         function renderMarketData(groupKey) {
           if (!marketPanel) return;
           const group = VASHUDEVAN_MARKET_GROUPS[groupKey] || VASHUDEVAN_MARKET_GROUPS.metals;
@@ -308,8 +322,8 @@
             ]
           }, null, 2);
 
-          container.appendChild(script);
           marketPanel.appendChild(container);
+          appendTradingViewScriptWhenSized(container, script);
         }
 
         function tradingViewSymbolUrl(symbol) {
@@ -370,7 +384,8 @@
           script.onerror = function () {
             chartMount.classList.remove('is-loaded');
           };
-          chartMount.querySelector('.tradingview-widget-container').appendChild(script);
+          const chartContainer = chartMount.querySelector('.tradingview-widget-container');
+          if (chartContainer) appendTradingViewScriptWhenSized(chartContainer, script);
         }
 
         function closeBenchmarkDropdown() {
