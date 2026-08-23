@@ -1,0 +1,222 @@
+/* Production UI hotfixes — scoped to the issues approved on 24 Aug 2026. */
+
+/* 1) Keep TradingView host containers measurable and responsive. */
+.market-ticker-widget,
+.market-ticker-tradingview,
+.market-ticker-tradingview .tradingview-widget-container__widget,
+.market-page .market-widget-panel,
+.market-page .market-chart-widget,
+.market-page .tradingview-widget-container,
+.market-page .tradingview-widget-container__widget {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.market-ticker-tradingview {
+  width: 100% !important;
+  height: auto !important;
+  visibility: visible !important;
+}
+
+/* 2) Mobile Locations: only the country strip moves; the map/layout is untouched. */
+@media (max-width: 768px) {
+  .country-ticker-wrap,
+  .country-ticker {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .country-ticker-track {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    width: max-content !important;
+    max-width: none !important;
+    animation: locationsTickerScroll var(--locations-ticker-duration, 29.8s) linear infinite !important;
+    animation-play-state: running !important;
+    will-change: transform;
+  }
+
+  /* Touch browsers can leave :hover latched; never let that freeze the mobile strip. */
+  .country-ticker:hover .country-ticker-track,
+  .country-ticker:active .country-ticker-track {
+    animation-play-state: running !important;
+  }
+
+  .country-ticker-group {
+    flex: 0 0 auto !important;
+  }
+}
+
+/* 3) Opening popup must sit above the complete website shell and floating utilities. */
+.opening-popup-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  min-height: 100vh !important;
+  z-index: 99990 !important;
+  isolation: isolate;
+  background: rgba(7, 20, 34, .52) !important;
+  backdrop-filter: blur(12px) saturate(125%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(125%) !important;
+  pointer-events: auto !important;
+}
+
+.opening-popup-overlay .opening-popup-card {
+  position: relative;
+  z-index: 1 !important;
+}
+
+/* Shared floating controls remain under the popup backdrop. */
+.whatsapp-float,
+.vmg-help,
+.back-to-top {
+  z-index: 2200 !important;
+}
+
+/* 4/5) Desktop social icons: one stable row with identical hit areas. */
+@media (min-width: 992px) {
+  .vmg-nav-socials,
+  .vmg-nav-social-icons {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .vmg-nav-socials {
+    justify-content: flex-end !important;
+  }
+
+  .vmg-nav-social-icons {
+    justify-content: center !important;
+    gap: 7px !important;
+    line-height: 0 !important;
+  }
+
+  .vmg-nav-social-icons .vmg-social-link {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    flex: 0 0 34px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-self: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 0 !important;
+  }
+
+  .vmg-nav-social-icons .vmg-social-link::before {
+    width: 20px !important;
+    height: 20px !important;
+    flex: 0 0 20px !important;
+    margin: 0 !important;
+  }
+}
+
+/* 6) Keep the mobile drawer content compact while retaining the full-screen outside-click backdrop. */
+@media (max-width: 991px) {
+  .vmg-econship-header .site-nav > ul {
+    max-height: min(75dvh, calc(100dvh - 64px)) !important;
+    padding: 6px 12px 8px !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+  }
+
+  .vmg-mobile-tracker-item {
+    padding: 5px 4px 7px !important;
+  }
+
+  .vmg-mobile-tracker-item .vmg-track-title {
+    margin: 0 0 4px !important;
+    font-size: .7rem !important;
+    line-height: 1.15 !important;
+  }
+
+  .vmg-mobile-tracker-item .vmg-track-input {
+    height: 34px !important;
+    font-size: .75rem !important;
+  }
+
+  .vmg-mobile-tracker-item .vmg-track-button {
+    min-height: 34px !important;
+    padding: 0 10px !important;
+    font-size: .74rem !important;
+  }
+
+  .vmg-econship-header .site-nav > ul > li:not(.vmg-mobile-tracker-item):not(.vmg-mobile-feedback-item):not(.vmg-mobile-socials-item):not(.vmg-mobile-bottom-links) > a {
+    min-height: 42px !important;
+    padding: 0 10px !important;
+    font-size: .92rem !important;
+  }
+
+  .vmg-econship-header .site-nav .submenu a {
+    min-height: 38px !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  .vmg-mobile-feedback-item {
+    padding: 4px 0 !important;
+  }
+
+  .vmg-mobile-feedback-item .vmg-feedback-trigger {
+    min-height: 34px !important;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+  }
+
+  .vmg-mobile-socials-item {
+    padding: 6px 10px 5px !important;
+  }
+
+  .vmg-mobile-socials-label {
+    margin-bottom: 5px !important;
+  }
+
+  .vmg-mobile-socials {
+    justify-content: center !important;
+    gap: 8px !important;
+  }
+
+  .vmg-mobile-socials .vmg-social-link {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+  }
+
+  .vmg-mobile-socials .vmg-social-link::before {
+    width: 19px !important;
+    height: 19px !important;
+    flex-basis: 19px !important;
+  }
+
+  .vmg-mobile-bottom-links {
+    gap: 5px !important;
+    padding: 5px 4px 6px !important;
+  }
+
+  .vmg-mobile-bottom-links-row a,
+  .vmg-mobile-bottom-links-row button {
+    min-height: 18px !important;
+    padding: 0 !important;
+  }
+
+  .vmg-mobile-brochure-cta {
+    min-height: 34px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* Maintain a clean safe-area vertical stack on the left. */
+  .vmg-help {
+    bottom: max(10px, env(safe-area-inset-bottom)) !important;
+  }
+
+  .whatsapp-float {
+    bottom: calc(52px + max(10px, env(safe-area-inset-bottom))) !important;
+  }
+}
