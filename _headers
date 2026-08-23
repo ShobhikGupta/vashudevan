@@ -10,5 +10,14 @@
 /assets/css/vmg-header-layout-fix.css
   Cache-Control: no-cache, no-store, must-revalidate
 
+/assets/js/skeleton-loader.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/assets/css/skeleton-loader.css
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/assets/css/production-hotfix.css
+  Cache-Control: no-cache, no-store, must-revalidate
+
 /*.html
   Cache-Control: no-cache, no-store, must-revalidate
