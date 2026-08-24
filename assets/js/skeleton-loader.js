@@ -3,7 +3,7 @@
 
   var PUBLIC_PATHS = [
     '/', '/index.html', '/who-we-are.html', '/our-impact.html', '/products.html',
-    '/product.html', '/resources.html', '/faq.html', '/contact.html',
+    '/product.html', '/resources.html', '/faq.html', '/contact.html', '/contact', '/contact/',
     '/privacy-policy.html', '/disclaimer.html', '/market-prices',
     '/market-prices/', '/market-prices/index.html'
   ];
@@ -62,26 +62,102 @@
 (function () {
   'use strict';
 
-  function syncMobileCountryTicker() {
+  var CONTACT_PATH_RE = /^\/contact(?:\.html)?\/?$/;
+  var HOME_TICKER_SYMBOLS = [
+    'CAPITALCOM:ALUMINUM',
+    'CAPITALCOM:MCU3',
+    'PEPPERSTONE:ZINC',
+    'CAPITALCOM:LEAD',
+    'PEPPERSTONE:NICKEL',
+    'CAPITALCOM:TSI',
+    'CAPITALCOM:XAUUSD',
+    'CAPITALCOM:XAGUSD',
+    'PEPPERSTONE:XPTUSD',
+    'FX_IDC:USDINR',
+    'FX_IDC:GBPINR',
+    'FX_IDC:EURINR'
+  ];
+
+  function normalizeContactRouting() {
+    document.querySelectorAll('a[href]').forEach(function (link) {
+      var rawHref = link.getAttribute('href');
+      if (!rawHref || /^(mailto:|tel:|javascript:|#)/i.test(rawHref)) return;
+
+      var label = (link.textContent || '').replace(/\s+/g, ' ').trim();
+      var url;
+
+      try {
+        url = new URL(rawHref, window.location.href);
+      } catch (error) {
+        return;
+      }
+
+      if (url.origin !== window.location.origin) return;
+
+      var isContactDestination =
+        CONTACT_PATH_RE.test(url.pathname) ||
+        url.pathname === '/contact-backup.html' ||
+        /^(Contact Us|Contact VMG Desk)$/i.test(label);
+
+      if (!isContactDestination) return;
+
+      link.setAttribute('href', '/contact.html' + (url.hash || ''));
+    });
+
+    var currentPath = window.location.pathname || '/';
+    if (currentPath === '/contact' || currentPath === '/contact/') {
+      window.history.replaceState(
+        window.history.state,
+        '',
+        '/contact.html' + window.location.search + window.location.hash
+      );
+      currentPath = '/contact.html';
+    }
+
+    if (currentPath === '/contact.html') {
+      var canonical = document.querySelector('link[rel="canonical"]');
+      if (!canonical) {
+        canonical = document.createElement('link');
+        canonical.rel = 'canonical';
+        document.head.appendChild(canonical);
+      }
+      canonical.href = 'https://vashudevan.com/contact.html';
+    }
+  }
+
+  function syncCountryTicker() {
     var track = document.getElementById('country-ticker-track');
     if (!track) return;
 
-    var mobile = window.matchMedia('(max-width: 768px)').matches;
-    var clone = track.querySelector('.vmg-country-ticker-clone');
-    var source = track.querySelector('.country-ticker-group:not(.vmg-country-ticker-clone)');
+    var groups = Array.prototype.slice.call(track.querySelectorAll('.country-ticker-group'));
+    if (!groups.length) return;
 
-    if (mobile && source && !clone) {
+    var source = groups.find(function (group) {
+      return !group.classList.contains('vmg-country-ticker-clone');
+    }) || groups[0];
+
+    groups.forEach(function (group) {
+      if (group !== source && !group.classList.contains('vmg-country-ticker-clone')) {
+        group.remove();
+      }
+    });
+
+    var clones = Array.prototype.slice.call(track.querySelectorAll('.vmg-country-ticker-clone'));
+    clones.slice(1).forEach(function (clone) { clone.remove(); });
+
+    var clone = track.querySelector('.vmg-country-ticker-clone');
+    if (!clone) {
       clone = source.cloneNode(true);
       clone.classList.add('vmg-country-ticker-clone');
       clone.setAttribute('aria-hidden', 'true');
       track.appendChild(clone);
-    } else if (!mobile && clone) {
-      clone.remove();
     }
+
+    source.removeAttribute('aria-hidden');
   }
 
   function ensureContactPeople() {
-    if (!/\/contact\.html$/.test(window.location.pathname)) return;
+    if (!CONTACT_PATH_RE.test(window.location.pathname || '')) return;
 
     var panel = document.querySelector('.contact-info-left');
     if (!panel || panel.querySelector('[data-vmg-contact-person="sujit"]')) return;
@@ -104,6 +180,44 @@
     shobhik.setAttribute('data-vmg-contact-person', 'shobhik');
     shobhik.innerHTML = '<strong>Shobhik Gupta</strong><a href="tel:+919316571362">+91 9316571362</a>';
     existingPhone.insertAdjacentElement('afterend', shobhik);
+  }
+
+  function migrateHomepageTickerTape() {
+    var path = window.location.pathname || '/';
+    if (path !== '/' && path !== '/index.html') return;
+
+    var host = document.querySelector('.market-ticker-tradingview');
+    if (!host || host.querySelector('tv-ticker-tape[data-vmg-modern-ticker="true"]')) return;
+
+    var attribution = host.querySelector('.tradingview-widget-copyright');
+    if (attribution) attribution.remove();
+
+    host.querySelectorAll('script[src*="embed-widget-ticker-tape.js"]').forEach(function (script) {
+      script.remove();
+    });
+
+    var ticker = document.createElement('tv-ticker-tape');
+    ticker.setAttribute('symbols', HOME_TICKER_SYMBOLS.join(','));
+    ticker.setAttribute('item-size', 'compact');
+    ticker.setAttribute('direction', 'horizontal');
+    ticker.setAttribute('theme', 'light');
+    ticker.setAttribute('data-vmg-modern-ticker', 'true');
+
+    var fallback = document.createElement('div');
+    fallback.className = 'market-ticker-fallback';
+    fallback.textContent = 'Market data temporarily unavailable.';
+    ticker.appendChild(fallback);
+
+    host.replaceChildren(ticker);
+    if (attribution) host.appendChild(attribution);
+
+    if (!document.querySelector('script[data-vmg-tv-ticker-component]')) {
+      var moduleScript = document.createElement('script');
+      moduleScript.type = 'module';
+      moduleScript.src = 'https://widgets.tradingview-widget.com/w/en/tv-ticker-tape.js';
+      moduleScript.setAttribute('data-vmg-tv-ticker-component', 'true');
+      document.head.appendChild(moduleScript);
+    }
   }
 
   function bindExistingFeedbackTriggers() {
@@ -175,15 +289,51 @@
     window.requestAnimationFrame(check);
   }
 
+  function syncFloatingStack() {
+    var trigger = document.querySelector('.vmg-help-trigger');
+    if (!trigger) return false;
+
+    var height = Math.ceil(trigger.getBoundingClientRect().height);
+    if (height > 0) {
+      document.documentElement.style.setProperty('--vmg-help-trigger-height', height + 'px');
+    }
+    return height > 0;
+  }
+
+  function scheduleFloatingStack() {
+    var attempts = 0;
+    function measure() {
+      attempts += 1;
+      if (!syncFloatingStack() && attempts < 24) {
+        window.setTimeout(measure, 100);
+      }
+    }
+    measure();
+    window.setTimeout(syncFloatingStack, 400);
+    window.setTimeout(syncFloatingStack, 1200);
+    window.addEventListener('resize', syncFloatingStack, { passive: true });
+    window.addEventListener('orientationchange', syncFloatingStack, { passive: true });
+  }
+
   function init() {
-    syncMobileCountryTicker();
+    normalizeContactRouting();
+    syncCountryTicker();
     ensureContactPeople();
+    migrateHomepageTickerTape();
     scheduleFeedbackBinding();
     stabilizeTradingViewHosts();
+    scheduleFloatingStack();
 
-    window.addEventListener('resize', syncMobileCountryTicker, { passive: true });
-    window.addEventListener('orientationchange', syncMobileCountryTicker, { passive: true });
-    document.addEventListener('vmg:loader-hidden', stabilizeTradingViewHosts);
+    window.addEventListener('resize', syncCountryTicker, { passive: true });
+    window.addEventListener('orientationchange', syncCountryTicker, { passive: true });
+    document.addEventListener('vmg:loader-hidden', function () {
+      stabilizeTradingViewHosts();
+      syncFloatingStack();
+    });
+
+    /* Re-normalize after shared shell helpers finish any delayed DOM work. */
+    window.setTimeout(normalizeContactRouting, 350);
+    window.setTimeout(normalizeContactRouting, 1200);
   }
 
   if (document.readyState === 'loading') {
