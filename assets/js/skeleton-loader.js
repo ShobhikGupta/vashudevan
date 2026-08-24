@@ -180,6 +180,27 @@
     });
   }
 
+  function guardHomepageTickerInstance() {
+    var path = window.location.pathname || '/';
+    if (path !== '/' && path !== '/index.html') return;
+
+    var host = document.querySelector('.market-ticker-tradingview');
+    if (!host) return;
+
+    var embedScripts = Array.prototype.slice.call(
+      host.querySelectorAll('script[src*="embed-widget-ticker-tape.js"]')
+    );
+    embedScripts.slice(1).forEach(function (script) { script.remove(); });
+
+    var widgetRoot = host.querySelector('.tradingview-widget-container__widget');
+    if (!widgetRoot) return;
+
+    var frames = Array.prototype.slice.call(widgetRoot.children).filter(function (child) {
+      return child.tagName === 'IFRAME';
+    });
+    frames.slice(1).forEach(function (frame) { frame.remove(); });
+  }
+
   function ensureContactPeople() {
     if (!CONTACT_PATH_RE.test(window.location.pathname || '')) return;
 
@@ -304,6 +325,7 @@
   function init() {
     normalizeContactRouting();
     scheduleCountryTickerSync();
+    guardHomepageTickerInstance();
     ensureContactPeople();
     scheduleFeedbackBinding();
     stabilizeTradingViewHosts();
@@ -314,6 +336,7 @@
     window.addEventListener('orientationchange', scheduleCountryTickerSync, { passive: true });
     document.addEventListener('vmg:loader-hidden', function () {
       scheduleCountryTickerSync();
+      guardHomepageTickerInstance();
       stabilizeTradingViewHosts();
       syncFloatingStack();
     });
@@ -325,6 +348,8 @@
     /* Re-normalize after shared shell helpers finish any delayed DOM work. */
     window.setTimeout(normalizeContactRouting, 350);
     window.setTimeout(normalizeContactRouting, 1200);
+    window.setTimeout(guardHomepageTickerInstance, 350);
+    window.setTimeout(guardHomepageTickerInstance, 1200);
   }
 
   if (document.readyState === 'loading') {
