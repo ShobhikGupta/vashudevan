@@ -63,6 +63,7 @@
   'use strict';
 
   var CONTACT_PATH_RE = /^\/contact(?:\.html)?\/?$/;
+  var countryTickerFrame = 0;
 
   function normalizeContactRouting() {
     document.querySelectorAll('a[href]').forEach(function (link) {
@@ -111,63 +112,19 @@
     }
   }
 
-  function ensureTargetedRoundStyles() {
-    if (!document.head || document.getElementById('vmg-pr12-targeted-round-styles')) return;
+  function measureCountryTicker(track, source, clone) {
+    if (!track || !source || !clone) return;
 
-    var style = document.createElement('style');
-    style.id = 'vmg-pr12-targeted-round-styles';
-    style.textContent = [
-      '@property --vmg-country-ticker-shift {',
-      '  syntax: "<percentage>";',
-      '  inherits: false;',
-      '  initial-value: 0%;',
-      '}',
-      '@keyframes locationsTickerScroll {',
-      '  from { --vmg-country-ticker-shift: 0%; }',
-      '  to { --vmg-country-ticker-shift: -50%; }',
-      '}',
-      '.country-ticker-track {',
-      '  transform: translate3d(var(--vmg-country-ticker-shift), 0, 0) !important;',
-      '  animation: locationsTickerScroll var(--locations-ticker-duration, 29.8s) linear infinite !important;',
-      '  animation-play-state: running !important;',
-      '  will-change: transform;',
-      '}',
-      '.country-ticker:hover .country-ticker-track,',
-      '.country-ticker:active .country-ticker-track {',
-      '  animation-play-state: running !important;',
-      '}',
-      '@media (prefers-reduced-motion: reduce) {',
-      '  .country-ticker-track {',
-      '    animation: locationsTickerScroll 42s linear infinite !important;',
-      '    animation-play-state: running !important;',
-      '    transform: translate3d(var(--vmg-country-ticker-shift), 0, 0) !important;',
-      '  }',
-      '}',
-      '.vmg-parent-category-arrow-enabled .product-card-cta {',
-      '  display: inline-flex;',
-      '  align-items: center;',
-      '  justify-content: center;',
-      '  gap: 7px;',
-      '}',
-      '.vmg-parent-category-arrow-enabled .product-card-cta-arrow {',
-      '  display: inline-block;',
-      '  color: currentColor;',
-      '  transition: transform 180ms ease;',
-      '}',
-      '@media (hover: hover) and (pointer: fine) {',
-      '  .vmg-parent-category-arrow-enabled .home-products-grid .home-product-tile a:hover .product-card-cta-arrow,',
-      '  .vmg-parent-category-arrow-enabled #main-products-grid .card.product > a:hover .product-card-cta-arrow {',
-      '    transform: translateX(3px);',
-      '  }',
-      '}',
-      '@media (prefers-reduced-motion: reduce) {',
-      '  .vmg-parent-category-arrow-enabled .product-card-cta-arrow {',
-      '    transition: none !important;',
-      '    transform: none !important;',
-      '  }',
-      '}'
-    ].join('\n');
-    document.head.appendChild(style);
+    var sourceWidth = source.getBoundingClientRect().width;
+    var loopDistance = clone.offsetLeft - source.offsetLeft;
+
+    if (sourceWidth > 0) {
+      track.style.setProperty('--vmg-country-group-width', sourceWidth.toFixed(3) + 'px');
+    }
+    if (loopDistance > 0) {
+      track.style.setProperty('--vmg-country-loop-distance', (-loopDistance).toFixed(3) + 'px');
+      track.setAttribute('data-vmg-country-loop-distance', loopDistance.toFixed(3));
+    }
   }
 
   function syncCountryTicker() {
@@ -178,56 +135,41 @@
     if (!groups.length) return;
 
     var source = groups.find(function (group) {
-      return !group.classList.contains('vmg-country-ticker-clone');
+      return group.getAttribute('aria-hidden') !== 'true' &&
+        !group.classList.contains('vmg-country-ticker-clone');
     }) || groups[0];
 
-    groups.forEach(function (group) {
-      if (group !== source && !group.classList.contains('vmg-country-ticker-clone')) {
-        group.remove();
-      }
+    var clone = groups.find(function (group) {
+      return group !== source && (
+        group.classList.contains('vmg-country-ticker-clone') ||
+        group.getAttribute('aria-hidden') === 'true'
+      );
     });
 
-    var clones = Array.prototype.slice.call(track.querySelectorAll('.vmg-country-ticker-clone'));
-    clones.slice(1).forEach(function (clone) { clone.remove(); });
+    groups.forEach(function (group) {
+      if (group !== source && group !== clone) group.remove();
+    });
 
-    var clone = track.querySelector('.vmg-country-ticker-clone');
     if (!clone) {
       clone = source.cloneNode(true);
-      clone.classList.add('vmg-country-ticker-clone');
-      clone.setAttribute('aria-hidden', 'true');
       track.appendChild(clone);
     }
 
     source.removeAttribute('aria-hidden');
+    source.classList.remove('vmg-country-ticker-clone');
+    clone.classList.add('vmg-country-ticker-clone');
+    clone.setAttribute('aria-hidden', 'true');
+
+    measureCountryTicker(track, source, clone);
   }
 
-  function enhanceParentCategoryCtas() {
-    var path = window.location.pathname || '/';
-    var selector = '';
-
-    if (path === '/' || path === '/index.html') {
-      selector = '.home-products-grid .home-product-tile .product-card-cta';
-    } else if (path === '/products.html') {
-      selector = '#main-products-grid .card.product .product-card-cta';
-    } else {
-      return;
-    }
-
-    document.documentElement.classList.add('vmg-parent-category-arrow-enabled');
-
-    document.querySelectorAll(selector).forEach(function (cta) {
-      if (cta.querySelector('.product-card-cta-arrow')) return;
-      if ((cta.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase() !== 'view category') return;
-
-      var label = document.createElement('span');
-      label.textContent = 'View Category';
-
-      var arrow = document.createElement('span');
-      arrow.className = 'product-card-cta-arrow';
-      arrow.setAttribute('aria-hidden', 'true');
-      arrow.textContent = '\u2192';
-
-      cta.replaceChildren(label, arrow);
+  function scheduleCountryTickerSync() {
+    if (countryTickerFrame) window.cancelAnimationFrame(countryTickerFrame);
+    countryTickerFrame = window.requestAnimationFrame(function () {
+      countryTickerFrame = window.requestAnimationFrame(function () {
+        countryTickerFrame = 0;
+        syncCountryTicker();
+      });
     });
   }
 
@@ -353,26 +295,29 @@
   }
 
   function init() {
-    ensureTargetedRoundStyles();
     normalizeContactRouting();
-    syncCountryTicker();
-    enhanceParentCategoryCtas();
+    scheduleCountryTickerSync();
     ensureContactPeople();
     scheduleFeedbackBinding();
     stabilizeTradingViewHosts();
     scheduleFloatingStack();
 
-    window.addEventListener('resize', syncCountryTicker, { passive: true });
-    window.addEventListener('orientationchange', syncCountryTicker, { passive: true });
+    window.addEventListener('load', scheduleCountryTickerSync, { once: true });
+    window.addEventListener('resize', scheduleCountryTickerSync, { passive: true });
+    window.addEventListener('orientationchange', scheduleCountryTickerSync, { passive: true });
     document.addEventListener('vmg:loader-hidden', function () {
+      scheduleCountryTickerSync();
       stabilizeTradingViewHosts();
       syncFloatingStack();
     });
 
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(scheduleCountryTickerSync).catch(function () {});
+    }
+
     /* Re-normalize after shared shell helpers finish any delayed DOM work. */
     window.setTimeout(normalizeContactRouting, 350);
     window.setTimeout(normalizeContactRouting, 1200);
-    window.setTimeout(enhanceParentCategoryCtas, 350);
   }
 
   if (document.readyState === 'loading') {
