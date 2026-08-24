@@ -1,9 +1,17 @@
 /* Production UI hotfixes — scoped to the issues approved on 24 Aug 2026. */
 
+:root {
+  --vmg-float-left: 14px;
+  --vmg-float-base: 12px;
+  --vmg-float-gap: 10px;
+  --vmg-help-trigger-height: 32px;
+}
+
 /* 1) Keep TradingView host containers measurable and responsive. */
 .market-ticker-widget,
 .market-ticker-tradingview,
 .market-ticker-tradingview .tradingview-widget-container__widget,
+.market-ticker-tradingview tv-ticker-tape,
 .market-page .market-widget-panel,
 .market-page .market-chart-widget,
 .market-page .tradingview-widget-container,
@@ -16,15 +24,33 @@
   width: 100% !important;
   height: auto !important;
   visibility: visible !important;
+  overflow: hidden !important;
 }
 
-/* 2) Mobile Locations: only the country strip moves; the map/layout is untouched. */
+.market-ticker-tradingview tv-ticker-tape {
+  display: block !important;
+  width: 100% !important;
+}
+
+/* 2) Locations ticker: two equal groups translate exactly one group width for a seamless loop. */
+@keyframes locationsTickerScroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
 @media (max-width: 768px) {
   .country-ticker-wrap,
   .country-ticker {
+    display: block !important;
     max-width: 100% !important;
     overflow: hidden !important;
     overflow-x: clip !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     contain: paint;
   }
 
@@ -36,6 +62,8 @@
     animation: locationsTickerScroll var(--locations-ticker-duration, 29.8s) linear infinite !important;
     animation-play-state: running !important;
     will-change: transform;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 
   /* Touch browsers can leave :hover latched; never let that freeze the mobile strip. */
@@ -45,6 +73,12 @@
   }
 
   .country-ticker-group {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    flex: 0 0 auto !important;
+  }
+
+  .country-ticker-group span {
     flex: 0 0 auto !important;
   }
 }
@@ -74,6 +108,26 @@
 .vmg-help,
 .back-to-top {
   z-index: 2200 !important;
+}
+
+/* WhatsApp and Need Help use one shared left/bottom/gap geometry on every public page. */
+.vmg-help,
+.whatsapp-float {
+  left: calc(var(--vmg-float-left) + env(safe-area-inset-left)) !important;
+  right: auto !important;
+}
+
+.vmg-help {
+  bottom: calc(var(--vmg-float-base) + env(safe-area-inset-bottom)) !important;
+}
+
+.whatsapp-float {
+  bottom: calc(
+    var(--vmg-float-base)
+    + env(safe-area-inset-bottom)
+    + var(--vmg-help-trigger-height)
+    + var(--vmg-float-gap)
+  ) !important;
 }
 
 /* 4/5) Desktop social icons: one stable row with identical hit areas. */
@@ -118,21 +172,27 @@
   }
 }
 
-/* 6) Keep the mobile drawer content compact while retaining the full-screen outside-click backdrop. */
+/* 6) Mobile drawer uses the real viewport available below the 64px mobile header. */
 @media (max-width: 991px) {
+  :root {
+    --vmg-float-left: 10px;
+    --vmg-float-base: 10px;
+    --vmg-float-gap: 10px;
+  }
+
   .vmg-econship-header .site-nav > ul {
-    max-height: min(75dvh, calc(100dvh - 64px)) !important;
-    padding: 6px 12px 8px !important;
-    overflow-y: auto !important;
+    max-height: calc(100dvh - 64px - 4px) !important;
+    padding: 4px 12px 6px !important;
+    overflow-y: visible !important;
     overscroll-behavior: contain !important;
   }
 
   .vmg-mobile-tracker-item {
-    padding: 5px 4px 7px !important;
+    padding: 4px 4px 6px !important;
   }
 
   .vmg-mobile-tracker-item .vmg-track-title {
-    margin: 0 0 4px !important;
+    margin: 0 0 3px !important;
     font-size: .7rem !important;
     line-height: 1.15 !important;
   }
@@ -149,7 +209,7 @@
   }
 
   .vmg-econship-header .site-nav > ul > li:not(.vmg-mobile-tracker-item):not(.vmg-mobile-feedback-item):not(.vmg-mobile-socials-item):not(.vmg-mobile-bottom-links) > a {
-    min-height: 42px !important;
+    min-height: 40px !important;
     padding: 0 10px !important;
     font-size: .92rem !important;
   }
@@ -161,21 +221,21 @@
   }
 
   .vmg-mobile-feedback-item {
-    padding: 4px 0 !important;
+    padding: 3px 0 !important;
   }
 
   .vmg-mobile-feedback-item .vmg-feedback-trigger {
     min-height: 34px !important;
-    padding-top: 5px !important;
-    padding-bottom: 5px !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
   }
 
   .vmg-mobile-socials-item {
-    padding: 6px 10px 5px !important;
+    padding: 5px 10px 4px !important;
   }
 
   .vmg-mobile-socials-label {
-    margin-bottom: 5px !important;
+    margin-bottom: 4px !important;
   }
 
   .vmg-mobile-socials {
@@ -197,8 +257,8 @@
   }
 
   .vmg-mobile-bottom-links {
-    gap: 5px !important;
-    padding: 5px 4px 6px !important;
+    gap: 4px !important;
+    padding: 4px 4px 5px !important;
   }
 
   .vmg-mobile-bottom-links-row a,
@@ -209,16 +269,16 @@
 
   .vmg-mobile-brochure-cta {
     min-height: 34px !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
   }
+}
 
-  /* Maintain a clean safe-area vertical stack on the left. */
-  .vmg-help {
-    bottom: max(10px, env(safe-area-inset-bottom)) !important;
-  }
-
-  .whatsapp-float {
-    bottom: calc(52px + max(10px, env(safe-area-inset-bottom))) !important;
+/* Only unusually short displays get an internal menu scrollbar. */
+@media (max-width: 991px) and (max-height: 650px) {
+  .vmg-econship-header .site-nav > ul {
+    overflow-y: auto !important;
   }
 }
