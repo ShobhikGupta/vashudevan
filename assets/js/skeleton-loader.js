@@ -113,23 +113,28 @@
   }
 
   function measureCountryTicker(track, source, clone) {
-    if (!track || !source || !clone) return;
+    if (!track || !source || !clone) return false;
 
     var sourceWidth = source.getBoundingClientRect().width;
     var loopDistance = clone.offsetLeft - source.offsetLeft;
 
-    if (sourceWidth > 0) {
-      track.style.setProperty('--vmg-country-group-width', sourceWidth.toFixed(3) + 'px');
+    if (sourceWidth <= 0 || loopDistance <= 0) {
+      track.removeAttribute('data-vmg-country-ready');
+      return false;
     }
-    if (loopDistance > 0) {
-      track.style.setProperty('--vmg-country-loop-distance', (-loopDistance).toFixed(3) + 'px');
-      track.setAttribute('data-vmg-country-loop-distance', loopDistance.toFixed(3));
-    }
+
+    track.style.setProperty('--vmg-country-group-width', sourceWidth.toFixed(3) + 'px');
+    track.style.setProperty('--vmg-country-loop-distance', (-loopDistance).toFixed(3) + 'px');
+    track.setAttribute('data-vmg-country-loop-distance', loopDistance.toFixed(3));
+    track.setAttribute('data-vmg-country-ready', 'true');
+    return true;
   }
 
   function syncCountryTicker() {
     var track = document.getElementById('country-ticker-track');
     if (!track) return;
+
+    track.removeAttribute('data-vmg-country-ready');
 
     var groups = Array.prototype.slice.call(track.querySelectorAll('.country-ticker-group'));
     if (!groups.length) return;
@@ -160,7 +165,9 @@
     clone.classList.add('vmg-country-ticker-clone');
     clone.setAttribute('aria-hidden', 'true');
 
-    measureCountryTicker(track, source, clone);
+    if (!measureCountryTicker(track, source, clone)) {
+      window.setTimeout(scheduleCountryTickerSync, 120);
+    }
   }
 
   function scheduleCountryTickerSync() {
