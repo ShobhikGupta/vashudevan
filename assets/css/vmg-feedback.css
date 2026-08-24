@@ -88,12 +88,17 @@ body.vmg-feedback-open .vmg-feedback-drawer {
 }
 
 .vmg-feedback-drawer-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 14px;
-  align-items: start;
-  padding-bottom: 18px;
+  position: relative;
+  display: block;
+  min-height: 36px;
+  padding: 0 44px 18px;
   border-bottom: 1px solid rgba(255, 255, 255, .095);
+  text-align: center;
+}
+
+.vmg-feedback-drawer-header > div {
+  width: 100%;
+  text-align: center;
 }
 
 .vmg-feedback-eyebrow {
@@ -103,6 +108,7 @@ body.vmg-feedback-open .vmg-feedback-drawer {
   font-weight: 800;
   letter-spacing: .14em;
   text-transform: uppercase;
+  text-align: center;
 }
 
 .vmg-feedback-title {
@@ -111,16 +117,22 @@ body.vmg-feedback-open .vmg-feedback-drawer {
   font-size: 1.42rem;
   font-weight: 820;
   letter-spacing: -.025em;
+  text-align: center;
 }
 
 .vmg-feedback-intro {
-  margin: 8px 0 0;
+  max-width: 320px;
+  margin: 8px auto 0;
   color: rgba(255, 255, 255, .64);
   font-size: .86rem;
   line-height: 1.55;
+  text-align: center;
 }
 
 .vmg-feedback-close {
+  position: absolute;
+  top: 0;
+  right: 0;
   width: 36px;
   height: 36px;
   display: inline-flex;
@@ -361,6 +373,10 @@ body.vmg-feedback-open .vmg-feedback-drawer {
     border: 0;
     border-radius: 0;
     padding: 20px 16px 18px;
+  }
+
+  .vmg-feedback-drawer-header {
+    padding-inline: 42px;
   }
 
   .vmg-feedback-title {
