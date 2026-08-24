@@ -33,13 +33,13 @@
   width: 100% !important;
 }
 
-/* 2) Locations ticker: animate the exact measured start-to-clone displacement. */
+/* 2) Locations ticker: animate only after the exact clone displacement is ready. */
 @keyframes locationsTickerContinuous {
   from {
     transform: translate3d(0, 0, 0);
   }
   to {
-    transform: translate3d(var(--vmg-country-loop-distance, -50%), 0, 0);
+    transform: translate3d(var(--vmg-country-loop-distance, 0px), 0, 0);
   }
 }
 
@@ -53,15 +53,23 @@
 .country-ticker-track {
   display: flex !important;
   flex-wrap: nowrap !important;
+  gap: 0 !important;
   width: max-content !important;
   max-width: none !important;
-  animation: locationsTickerContinuous var(--locations-ticker-duration, 29.8s) linear infinite !important;
+  transform: translate3d(0, 0, 0);
+  animation: none !important;
   animation-play-state: running !important;
+  visibility: visible !important;
+  opacity: 1 !important;
   will-change: transform;
 }
 
-.country-ticker:hover .country-ticker-track,
-.country-ticker:active .country-ticker-track {
+.country-ticker-track[data-vmg-country-ready="true"] {
+  animation: locationsTickerContinuous var(--locations-ticker-duration, 29.8s) linear infinite !important;
+}
+
+.country-ticker:hover .country-ticker-track[data-vmg-country-ready="true"],
+.country-ticker:active .country-ticker-track[data-vmg-country-ready="true"] {
   animation-play-state: running !important;
 }
 
@@ -69,6 +77,7 @@
   display: flex !important;
   flex-wrap: nowrap !important;
   flex: 0 0 auto !important;
+  gap: 0 !important;
 }
 
 .country-ticker-group span {
@@ -91,7 +100,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .country-ticker-track {
+  .country-ticker-track[data-vmg-country-ready="true"] {
     animation: locationsTickerContinuous 42s linear infinite !important;
     animation-play-state: running !important;
   }
@@ -228,6 +237,7 @@
   body.menu-open .site-header.vmg-econship-header,
   .site-header.vmg-econship-header.vmg-menu-open {
     transform: none !important;
+    z-index: 9000 !important;
   }
 
   .site-header.vmg-econship-header .site-nav {
@@ -241,6 +251,16 @@
     margin: 0 !important;
   }
 
+  body.menu-open .site-header.vmg-econship-header .site-nav,
+  .site-header.vmg-econship-header.vmg-menu-open .site-nav {
+    z-index: 9100 !important;
+  }
+
+  body.menu-open .site-header.vmg-econship-header .nav-toggle,
+  .site-header.vmg-econship-header.vmg-menu-open .nav-toggle {
+    z-index: 9200 !important;
+  }
+
   .vmg-econship-header .site-nav > ul {
     position: absolute !important;
     top: 0 !important;
@@ -251,6 +271,11 @@
     padding: 4px 12px 6px !important;
     overflow-y: visible !important;
     overscroll-behavior: contain !important;
+  }
+
+  body.menu-open .site-header.vmg-econship-header .site-nav > ul,
+  .site-header.vmg-econship-header.vmg-menu-open .site-nav > ul {
+    z-index: 9101 !important;
   }
 
   .vmg-mobile-tracker-item {
