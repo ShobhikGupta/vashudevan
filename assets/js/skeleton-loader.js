@@ -63,20 +63,6 @@
   'use strict';
 
   var CONTACT_PATH_RE = /^\/contact(?:\.html)?\/?$/;
-  var HOME_TICKER_SYMBOLS = [
-    'CAPITALCOM:ALUMINUM',
-    'CAPITALCOM:MCU3',
-    'PEPPERSTONE:ZINC',
-    'CAPITALCOM:LEAD',
-    'PEPPERSTONE:NICKEL',
-    'CAPITALCOM:TSI',
-    'CAPITALCOM:XAUUSD',
-    'CAPITALCOM:XAGUSD',
-    'PEPPERSTONE:XPTUSD',
-    'FX_IDC:USDINR',
-    'FX_IDC:GBPINR',
-    'FX_IDC:EURINR'
-  ];
 
   function normalizeContactRouting() {
     document.querySelectorAll('a[href]').forEach(function (link) {
@@ -125,6 +111,65 @@
     }
   }
 
+  function ensureTargetedRoundStyles() {
+    if (!document.head || document.getElementById('vmg-pr12-targeted-round-styles')) return;
+
+    var style = document.createElement('style');
+    style.id = 'vmg-pr12-targeted-round-styles';
+    style.textContent = [
+      '@property --vmg-country-ticker-shift {',
+      '  syntax: "<percentage>";',
+      '  inherits: false;',
+      '  initial-value: 0%;',
+      '}',
+      '@keyframes locationsTickerScroll {',
+      '  from { --vmg-country-ticker-shift: 0%; }',
+      '  to { --vmg-country-ticker-shift: -50%; }',
+      '}',
+      '.country-ticker-track {',
+      '  transform: translate3d(var(--vmg-country-ticker-shift), 0, 0) !important;',
+      '  animation: locationsTickerScroll var(--locations-ticker-duration, 29.8s) linear infinite !important;',
+      '  animation-play-state: running !important;',
+      '  will-change: transform;',
+      '}',
+      '.country-ticker:hover .country-ticker-track,',
+      '.country-ticker:active .country-ticker-track {',
+      '  animation-play-state: running !important;',
+      '}',
+      '@media (prefers-reduced-motion: reduce) {',
+      '  .country-ticker-track {',
+      '    animation: locationsTickerScroll 42s linear infinite !important;',
+      '    animation-play-state: running !important;',
+      '    transform: translate3d(var(--vmg-country-ticker-shift), 0, 0) !important;',
+      '  }',
+      '}',
+      '.vmg-parent-category-arrow-enabled .product-card-cta {',
+      '  display: inline-flex;',
+      '  align-items: center;',
+      '  justify-content: center;',
+      '  gap: 7px;',
+      '}',
+      '.vmg-parent-category-arrow-enabled .product-card-cta-arrow {',
+      '  display: inline-block;',
+      '  color: currentColor;',
+      '  transition: transform 180ms ease;',
+      '}',
+      '@media (hover: hover) and (pointer: fine) {',
+      '  .vmg-parent-category-arrow-enabled .home-products-grid .home-product-tile a:hover .product-card-cta-arrow,',
+      '  .vmg-parent-category-arrow-enabled #main-products-grid .card.product > a:hover .product-card-cta-arrow {',
+      '    transform: translateX(3px);',
+      '  }',
+      '}',
+      '@media (prefers-reduced-motion: reduce) {',
+      '  .vmg-parent-category-arrow-enabled .product-card-cta-arrow {',
+      '    transition: none !important;',
+      '    transform: none !important;',
+      '  }',
+      '}'
+    ].join('\n');
+    document.head.appendChild(style);
+  }
+
   function syncCountryTicker() {
     var track = document.getElementById('country-ticker-track');
     if (!track) return;
@@ -156,6 +201,36 @@
     source.removeAttribute('aria-hidden');
   }
 
+  function enhanceParentCategoryCtas() {
+    var path = window.location.pathname || '/';
+    var selector = '';
+
+    if (path === '/' || path === '/index.html') {
+      selector = '.home-products-grid .home-product-tile .product-card-cta';
+    } else if (path === '/products.html') {
+      selector = '#main-products-grid .card.product .product-card-cta';
+    } else {
+      return;
+    }
+
+    document.documentElement.classList.add('vmg-parent-category-arrow-enabled');
+
+    document.querySelectorAll(selector).forEach(function (cta) {
+      if (cta.querySelector('.product-card-cta-arrow')) return;
+      if ((cta.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase() !== 'view category') return;
+
+      var label = document.createElement('span');
+      label.textContent = 'View Category';
+
+      var arrow = document.createElement('span');
+      arrow.className = 'product-card-cta-arrow';
+      arrow.setAttribute('aria-hidden', 'true');
+      arrow.textContent = '\u2192';
+
+      cta.replaceChildren(label, arrow);
+    });
+  }
+
   function ensureContactPeople() {
     if (!CONTACT_PATH_RE.test(window.location.pathname || '')) return;
 
@@ -180,44 +255,6 @@
     shobhik.setAttribute('data-vmg-contact-person', 'shobhik');
     shobhik.innerHTML = '<strong>Shobhik Gupta</strong><a href="tel:+919316571362">+91 9316571362</a>';
     existingPhone.insertAdjacentElement('afterend', shobhik);
-  }
-
-  function migrateHomepageTickerTape() {
-    var path = window.location.pathname || '/';
-    if (path !== '/' && path !== '/index.html') return;
-
-    var host = document.querySelector('.market-ticker-tradingview');
-    if (!host || host.querySelector('tv-ticker-tape[data-vmg-modern-ticker="true"]')) return;
-
-    var attribution = host.querySelector('.tradingview-widget-copyright');
-    if (attribution) attribution.remove();
-
-    host.querySelectorAll('script[src*="embed-widget-ticker-tape.js"]').forEach(function (script) {
-      script.remove();
-    });
-
-    var ticker = document.createElement('tv-ticker-tape');
-    ticker.setAttribute('symbols', HOME_TICKER_SYMBOLS.join(','));
-    ticker.setAttribute('item-size', 'compact');
-    ticker.setAttribute('direction', 'horizontal');
-    ticker.setAttribute('theme', 'light');
-    ticker.setAttribute('data-vmg-modern-ticker', 'true');
-
-    var fallback = document.createElement('div');
-    fallback.className = 'market-ticker-fallback';
-    fallback.textContent = 'Market data temporarily unavailable.';
-    ticker.appendChild(fallback);
-
-    host.replaceChildren(ticker);
-    if (attribution) host.appendChild(attribution);
-
-    if (!document.querySelector('script[data-vmg-tv-ticker-component]')) {
-      var moduleScript = document.createElement('script');
-      moduleScript.type = 'module';
-      moduleScript.src = 'https://widgets.tradingview-widget.com/w/en/tv-ticker-tape.js';
-      moduleScript.setAttribute('data-vmg-tv-ticker-component', 'true');
-      document.head.appendChild(moduleScript);
-    }
   }
 
   function bindExistingFeedbackTriggers() {
@@ -316,10 +353,11 @@
   }
 
   function init() {
+    ensureTargetedRoundStyles();
     normalizeContactRouting();
     syncCountryTicker();
+    enhanceParentCategoryCtas();
     ensureContactPeople();
-    migrateHomepageTickerTape();
     scheduleFeedbackBinding();
     stabilizeTradingViewHosts();
     scheduleFloatingStack();
@@ -334,6 +372,7 @@
     /* Re-normalize after shared shell helpers finish any delayed DOM work. */
     window.setTimeout(normalizeContactRouting, 350);
     window.setTimeout(normalizeContactRouting, 1200);
+    window.setTimeout(enhanceParentCategoryCtas, 350);
   }
 
   if (document.readyState === 'loading') {
