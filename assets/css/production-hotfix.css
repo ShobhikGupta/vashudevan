@@ -282,3 +282,116 @@
     overflow-y: auto !important;
   }
 }
+
+/* Final PR #12 round: make mobile menu geometry viewport-consistent on every page. */
+:root {
+  --vmg-mobile-header-height: 64px;
+}
+
+@media (max-width: 991px) {
+  html body.menu-open .site-header.vmg-econship-header,
+  html body .site-header.vmg-econship-header.vmg-menu-open {
+    transform: none !important;
+    will-change: auto !important;
+    pointer-events: auto !important;
+  }
+
+  .site-header.vmg-econship-header .site-nav {
+    position: fixed !important;
+    top: var(--vmg-mobile-header-height) !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: calc(100dvh - var(--vmg-mobile-header-height)) !important;
+    margin: 0 !important;
+  }
+
+  .site-header.vmg-econship-header .site-nav > ul {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    margin: 0 !important;
+  }
+}
+
+/* Final PR #12 round: animate the exact measured source-to-clone distance. */
+@keyframes locationsTickerContinuous {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(var(--vmg-country-loop-distance, -50%), 0, 0);
+  }
+}
+
+.country-ticker-wrap,
+.country-ticker {
+  max-width: 100% !important;
+  overflow: hidden !important;
+  overflow-x: clip !important;
+}
+
+.country-ticker-track {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  width: max-content !important;
+  max-width: none !important;
+  animation: locationsTickerContinuous var(--locations-ticker-duration, 29.8s) linear infinite !important;
+  animation-play-state: running !important;
+  will-change: transform;
+}
+
+.country-ticker:hover .country-ticker-track,
+.country-ticker:active .country-ticker-track {
+  animation-play-state: running !important;
+}
+
+.country-ticker-group {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  flex: 0 0 auto !important;
+}
+
+.country-ticker-group span {
+  flex: 0 0 auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .country-ticker-track {
+    animation: locationsTickerContinuous 42s linear infinite !important;
+    animation-play-state: running !important;
+  }
+}
+
+/* Parent-category CTA arrows are static markup; this file only styles them. */
+.home-products-grid .product-card-cta,
+#main-products-grid .product-card-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.home-products-grid .product-card-cta-arrow,
+#main-products-grid .product-card-cta-arrow {
+  display: inline-block;
+  color: currentColor;
+  transition: transform 180ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .home-products-grid .home-product-tile a:hover .product-card-cta-arrow,
+  #main-products-grid .card.product > a:hover .product-card-cta-arrow {
+    transform: translateX(3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-products-grid .product-card-cta-arrow,
+  #main-products-grid .product-card-cta-arrow {
+    transition: none !important;
+    transform: none !important;
+  }
+}
