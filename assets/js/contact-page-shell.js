@@ -72,6 +72,11 @@
         rows[0].appendChild(countryField);
       }
     }
+
+    var privacyLabel = form.querySelector('label[for="privacy"]');
+    if (privacyLabel) {
+      privacyLabel.innerHTML = 'I have read the <a href="/privacy-policy.html" class="privacy-link">Privacy Policy</a> and agree to Vashudevan MetGlobal LLP processing the information and attachments I submit to respond to my enquiry.';
+    }
   }
 
   // Keep the existing desktop card-height treatment, but with one observer only.
