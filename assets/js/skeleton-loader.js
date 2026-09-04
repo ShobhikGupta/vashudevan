@@ -120,15 +120,14 @@
 
     if (sourceWidth <= 0 || loopDistance <= 0) {
       track.classList.remove('vmg-country-ticker-ready');
-      track.removeAttribute('data-vmg-country-ready');
       track.style.removeProperty('--vmg-country-loop-distance');
+      track.removeAttribute('data-vmg-country-loop-distance');
       return false;
     }
 
     track.style.setProperty('--vmg-country-group-width', sourceWidth.toFixed(3) + 'px');
     track.style.setProperty('--vmg-country-loop-distance', (-loopDistance).toFixed(3) + 'px');
     track.setAttribute('data-vmg-country-loop-distance', loopDistance.toFixed(3));
-    track.setAttribute('data-vmg-country-ready', 'true');
     track.classList.add('vmg-country-ticker-ready');
     return true;
   }
@@ -138,7 +137,8 @@
     if (!track) return;
 
     track.classList.remove('vmg-country-ticker-ready');
-    track.removeAttribute('data-vmg-country-ready');
+    track.style.removeProperty('--vmg-country-loop-distance');
+    track.removeAttribute('data-vmg-country-loop-distance');
 
     var groups = Array.prototype.slice.call(track.querySelectorAll('.country-ticker-group'));
     if (!groups.length) return;
