@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="assets/css/styles.css">
   <!-- intl-tel-input CSS for phone number input -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.12/build/css/intlTelInput.min.css">
+  <link rel="stylesheet" href="/assets/css/contact-form-reliability.css?v=20260904a">
 
     <link rel="stylesheet" href="/assets/css/vmg-trade-nav.css" data-vmg-trade-nav="true">
     <link rel="stylesheet" href="/assets/css/vmg-nav-premium-overrides.css" data-vmg-nav-premium="true">
@@ -111,29 +112,29 @@
             <div class="form-row">
               <div class="form-field">
                 <label for="fullname">Full Name *</label>
-                <input type="text" id="fullname" name="fullname" placeholder="Full name" required>
-                <span class="error" aria-live="polite">Please enter full name.</span>
+                <input type="text" id="fullname" name="fullname" placeholder="Full name" minlength="2" maxlength="80" required aria-describedby="fullname-error">
+                <span class="error" id="fullname-error" aria-live="polite">Please enter full name.</span>
               </div>
               <div class="form-field">
                 <label for="contact">Contact number *</label>
                 <div class="phone-input-group" id="contact-phone-group" role="group"
                   aria-label="Phone number with country code">
                   <input type="tel" id="contact" name="contact" placeholder="Phone Number" inputmode="tel"
-                    autocomplete="tel" required>
+                    autocomplete="tel" required aria-describedby="contact-error">
                 </div>
-                <span class="error" aria-live="polite">Not a valid phone number.</span>
+                <span class="error" id="contact-error" aria-live="polite">Please enter a valid phone number.</span>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-field">
                 <label for="emailID">Email ID *</label>
-                <input type="email" id="emailID" name="EmailID" placeholder="Email ID" required>
-                <span class="error" aria-live="polite">Please enter email.</span>
+                <input type="email" id="emailID" name="EmailID" placeholder="Email ID" maxlength="254" required aria-describedby="emailID-error">
+                <span class="error" id="emailID-error" aria-live="polite">Please enter email.</span>
               </div>
               <div class="form-field">
                 <label for="country">Country *</label>
-                <select id="country" name="country" required>
+                <select id="country" name="country" required aria-required="true" aria-describedby="country-error">
                   <option value="">Select country</option>
                   <option value="afghanistan">Afghanistan</option>
                   <option value="albania">Albania</option>
@@ -332,45 +333,60 @@
                   <option value="zambia">Zambia</option>
                   <option value="zimbabwe">Zimbabwe</option>
                 </select>
-                <span class="error" aria-live="polite">Please select country.</span>
+                <span class="error" id="country-error" aria-live="polite">Please select country.</span>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-field">
                 <label for="organization">Organization</label>
-                <input type="text" id="organization" name="organization" placeholder="Organization">
-                <span class="error" aria-live="polite">Please enter organization.</span>
+                <input type="text" id="organization" name="organization" placeholder="Organization" maxlength="120" aria-describedby="organization-error">
+                <span class="error" id="organization-error" aria-live="polite"></span>
               </div>
               <div class="form-field">
-                <label for="type">Type</label>
-                <select id="type" name="type">
-                  <option value="">Select type</option>
-                  <option value="buyer">Buyer</option>
-                  <option value="seller">Seller</option>
+                <label for="type">Type *</label>
+                <select id="type" name="type" required aria-required="true" aria-describedby="type-error">
+                  <option value="">Select enquiry type</option>
+                  <option value="buyer">Buyer / Purchase Requirement</option>
+                  <option value="seller">Supplier / Material Offer</option>
+                  <option value="quotation">Bulk Quotation / Market Enquiry</option>
+                  <option value="partnership">Business Partnership</option>
+                  <option value="documentation">Documentation / Shipment Support</option>
+                  <option value="callback">Call Back Request</option>
                   <option value="investor">Investor</option>
                   <option value="finance">Finance</option>
-                  <option value="other">Other</option>
+                  <option value="general">General Enquiry</option>
                 </select>
-                <span class="error" aria-live="polite">Please select category.</span>
+                <span class="error" id="type-error" aria-live="polite">Please select an enquiry type.</span>
               </div>
             </div>
 
             <div class="form-field full-width">
               <label for="message">Message *</label>
-              <textarea id="message" name="message" rows="4" placeholder="Type your query here..." required></textarea>
-              <span class="error" aria-live="polite">Please enter your message.</span>
+              <textarea id="message" name="message" rows="4" placeholder="Type your query here..." minlength="10" maxlength="3000" required aria-describedby="message-error"></textarea>
+              <span class="error" id="message-error" aria-live="polite">Please enter your message.</span>
             </div>
 
             <div class="form-checkbox">
               <div class="checkbox-row">
-                <input type="checkbox" id="privacy" name="privacy" required>
+                <input type="checkbox" id="privacy" name="privacy" required aria-describedby="privacy-error">
                 <label for="privacy">By using this form you agree with the storage and handling of your data by this
-                  website in accordance with our <a href="#" class="privacy-link">Privacy Policy</a>.</label>
+                  website in accordance with our <a href="/privacy-policy.html" class="privacy-link">Privacy Policy</a>.</label>
               </div>
-              <span class="error" aria-live="polite">Please accept the privacy policy to continue.</span>
+              <span class="error" id="privacy-error" aria-live="polite">Please accept the privacy policy to continue.</span>
             </div>
 
+
+            <div class="vmg-honeypot-field" aria-hidden="true">
+              <label for="website">Website</label>
+              <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+            </div>
+            <input type="hidden" id="formStartedAt" name="formStartedAt" value="">
+
+            <div class="form-field full-width vmg-turnstile-field">
+              <div id="contact-turnstile" class="vmg-turnstile" aria-label="Security verification"></div>
+              <span class="error" id="contact-turnstile-error" aria-live="polite"></span>
+            </div>
 
             <button type="submit" class="btn-animated submit submit-btn">Submit</button>
             <p class="form-result" id="form-result" role="status" aria-live="polite"></p>
@@ -451,720 +467,11 @@
   </div>
 </footer>
 
-  <script src="/assets/js/config.js?v=20260822b"></script>
-  <!-- intl-tel-input JavaScript library -->
+  <script src="/assets/js/config.js?v=20260904c"></script>
   <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.12/build/js/intlTelInput.min.js"></script>
-  <script src="assets/js/main.js"></script>
-
-  <!-- Direct intl-tel-input initialization with two-way sync to Country select -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      console.log('DOM loaded, initializing intl-tel-input...');
-
-      // Wait a bit for all scripts to load
-      setTimeout(function () {
-        var phoneInput = document.getElementById('contact');
-        if (phoneInput && window.intlTelInput) {
-          try {
-            var iti = phoneInput._iti;
-            if (!iti) {
-              console.log('Initializing intl-tel-input with separateDialCode: false');
-              iti = window.intlTelInput(phoneInput, {
-                initialCountry: 'in',
-                separateDialCode: false,
-                nationalMode: false,
-                autoPlaceholder: 'aggressive',
-                utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.12/build/js/utils.js'
-              });
-              phoneInput._iti = iti;
-              console.log('✅ intl-tel-input initialized successfully with separateDialCode: false');
-            } else {
-              console.log('intl-tel-input already initialized; using existing instance');
-            }
-
-            // Sync with country select
-            var countrySelect = document.getElementById('country');
-            if (countrySelect) {
-              var countryMapping = {
-                'afghanistan': 'af', 'albania': 'al', 'algeria': 'dz', 'andorra': 'ad', 'angola': 'ao',
-                'argentina': 'ar', 'armenia': 'am', 'australia': 'au', 'austria': 'at', 'azerbaijan': 'az',
-                'bahamas': 'bs', 'bahrain': 'bh', 'bangladesh': 'bd', 'belarus': 'by', 'belgium': 'be',
-                'belize': 'bz', 'benin': 'bj', 'bhutan': 'bt', 'bolivia': 'bo', 'bosnia-and-herzegovina': 'ba',
-                'botswana': 'bw', 'brazil': 'br', 'brunei': 'bn', 'bulgaria': 'bg', 'burkina-faso': 'bf',
-                'burundi': 'bi', 'cambodia': 'kh', 'cameroon': 'cm', 'canada': 'ca', 'central-african-republic': 'cf',
-                'chad': 'td', 'chile': 'cl', 'china': 'cn', 'colombia': 'co', 'comoros': 'km', 'congo': 'cg',
-                'congo-democratic-republic': 'cd', 'costa-rica': 'cr', 'cote-divoire': 'ci', 'croatia': 'hr',
-                'cuba': 'cu', 'cyprus': 'cy', 'czech-republic': 'cz', 'denmark': 'dk', 'djibouti': 'dj',
-                'dominica': 'dm', 'dominican-republic': 'do', 'ecuador': 'ec', 'egypt': 'eg', 'el-salvador': 'sv',
-                'equatorial-guinea': 'gq', 'eritrea': 'er', 'estonia': 'ee', 'eswatini': 'sz', 'ethiopia': 'et',
-                'fiji': 'fj', 'finland': 'fi', 'france': 'fr', 'gabon': 'ga', 'gambia': 'gm', 'georgia': 'ge',
-                'germany': 'de', 'ghana': 'gh', 'greece': 'gr', 'grenada': 'gd', 'guatemala': 'gt', 'guinea': 'gn',
-                'guinea-bissau': 'gw', 'guyana': 'gy', 'haiti': 'ht', 'honduras': 'hn', 'hungary': 'hu',
-                'iceland': 'is', 'india': 'in', 'indonesia': 'id', 'iran': 'ir', 'iraq': 'iq', 'ireland': 'ie',
-                'israel': 'il', 'italy': 'it', 'jamaica': 'jm', 'japan': 'jp', 'jordan': 'jo', 'kazakhstan': 'kz',
-                'kenya': 'ke', 'kiribati': 'ki', 'korea-north': 'kp', 'korea-south': 'kr', 'kuwait': 'kw',
-                'kyrgyzstan': 'kg', 'laos': 'la', 'latvia': 'lv', 'lebanon': 'lb', 'lesotho': 'ls', 'liberia': 'lr',
-                'libya': 'ly', 'liechtenstein': 'li', 'lithuania': 'lt', 'luxembourg': 'lu', 'madagascar': 'mg',
-                'malawi': 'mw', 'malaysia': 'my', 'maldives': 'mv', 'mali': 'ml', 'malta': 'mt',
-                'marshall-islands': 'mh', 'mauritania': 'mr', 'mauritius': 'mu', 'mexico': 'mx', 'micronesia': 'fm',
-                'moldova': 'md', 'monaco': 'mc', 'mongolia': 'mn', 'montenegro': 'me', 'morocco': 'ma',
-                'mozambique': 'mz', 'myanmar': 'mm', 'namibia': 'na', 'nauru': 'nr', 'nepal': 'np',
-                'netherlands': 'nl', 'new-zealand': 'nz', 'nicaragua': 'ni', 'niger': 'ne', 'nigeria': 'ng',
-                'north-macedonia': 'mk', 'norway': 'no', 'oman': 'om', 'pakistan': 'pk', 'palau': 'pw',
-                'palestine': 'ps', 'panama': 'pa', 'papua-new-guinea': 'pg', 'paraguay': 'py', 'peru': 'pe',
-                'philippines': 'ph', 'poland': 'pl', 'portugal': 'pt', 'qatar': 'qa', 'romania': 'ro',
-                'russia': 'ru', 'rwanda': 'rw', 'samoa': 'ws', 'san-marino': 'sm', 'sao-tome-and-principe': 'st',
-                'saudi-arabia': 'sa', 'senegal': 'sn', 'serbia': 'rs', 'seychelles': 'sc', 'sierra-leone': 'sl',
-                'singapore': 'sg', 'slovakia': 'sk', 'slovenia': 'si', 'solomon-islands': 'sb', 'somalia': 'so',
-                'south-africa': 'za', 'south-sudan': 'ss', 'spain': 'es', 'sri-lanka': 'lk', 'sudan': 'sd',
-                'suriname': 'sr', 'sweden': 'se', 'switzerland': 'ch', 'syria': 'sy', 'taiwan': 'tw',
-                'tajikistan': 'tj', 'tanzania': 'tz', 'thailand': 'th', 'timor-leste': 'tl', 'togo': 'tg',
-                'tonga': 'to', 'trinidad-and-tobago': 'tt', 'tunisia': 'tn', 'turkey': 'tr', 'turkmenistan': 'tm',
-                'tuvalu': 'tv', 'uganda': 'ug', 'ukraine': 'ua', 'united-arab-emirates': 'ae',
-                'united-kingdom': 'gb', 'united-states': 'us', 'uruguay': 'uy', 'uzbekistan': 'uz',
-                'vanuatu': 'vu', 'vatican-city': 'va', 'venezuela': 've', 'vietnam': 'vn', 'yemen': 'ye',
-                'zambia': 'zm', 'zimbabwe': 'zw'
-              };
-              // Expose mapping globally for other scripts (e.g., custom phone code renderer)
-              try { window.countryMapping = countryMapping; } catch (_) { }
-              // Build iso2 -> dialCode map once from intl-tel-input data (if available)
-              try {
-                if (!window.iso2ToDial && window.intlTelInputGlobals && typeof window.intlTelInputGlobals.getCountryData === 'function') {
-                  var list = window.intlTelInputGlobals.getCountryData();
-                  var map = {};
-                  for (var i = 0; i < list.length; i++) { map[list[i].iso2] = String(list[i].dialCode); }
-                  window.iso2ToDial = map;
-                }
-              } catch (_) { }
-
-              function syncCountryToPhone() {
-                if (!countrySelect) return;
-                var selectedValue = countrySelect.value;
-                console.log('Country selected:', selectedValue);
-
-                // Immediate UI update from local mapping (robust fallback)
-                var dialCodeEl = document.getElementById('contact-dial-code');
-                if (dialCodeEl && window.dialCodeByCountry && window.dialCodeByCountry[selectedValue]) {
-                  dialCodeEl.textContent = '+' + window.dialCodeByCountry[selectedValue];
-                }
-
-                // Sync with intl-tel-input library if loaded
-                if (iti && selectedValue && countryMapping[selectedValue]) {
-                  var iso2 = countryMapping[selectedValue];
-                  iti.setCountry(iso2);
-                  var countryData = iti.getSelectedCountryData();
-
-                  // Update again with official data from library if available
-                  if (dialCodeEl && countryData.dialCode) {
-                    dialCodeEl.textContent = '+' + countryData.dialCode;
-                  }
-
-                  console.log('✅ Country synced via library to', countryData.name, '+' + countryData.dialCode);
-                }
-              }
-
-              countrySelect.addEventListener('change', syncCountryToPhone);
-              countrySelect.addEventListener('input', syncCountryToPhone);
-              // Added click listener with slight delay to capture user interaction like in popup
-              countrySelect.addEventListener('click', function () { setTimeout(syncCountryToPhone, 50); });
-              syncCountryToPhone();
-
-              // Also sync from phone dropdown back to country select
-              phoneInput.addEventListener('countrychange', function () {
-                try {
-                  var cd = iti.getSelectedCountryData();
-                  if (!cd || !cd.iso2) return;
-
-                  // Update the visible dial code display when changed via flag dropdown
-                  var dialCodeEl = document.getElementById('contact-dial-code');
-                  if (dialCodeEl && cd.dialCode) {
-                    dialCodeEl.textContent = '+' + cd.dialCode;
-                  }
-
-                  // find matching key in mapping to sync the dropdown
-                  var keys = Object.keys(countryMapping);
-                  for (var i = 0; i < keys.length; i++) {
-                    if (countryMapping[keys[i]] === cd.iso2) {
-                      countrySelect.value = keys[i];
-                      // Don't trigger full sync loop, just update UI
-                      break;
-                    }
-                  }
-                } catch (e) { console.log('reverse sync error', e); }
-              });
-            }
-          } catch (e) {
-            console.error('❌ Failed to initialize intl-tel-input:', e);
-          }
-        } else {
-          console.error('❌ Phone input or intl-tel-input library not found');
-        }
-      }, 500);
-    });
-
-    // Shared Dial code mapping for all countries (country value -> dial code)
-    const dialCodeByCountry = {
-      'afghanistan': '93', 'albania': '355', 'algeria': '213', 'andorra': '376', 'angola': '244',
-      'argentina': '54', 'armenia': '374', 'australia': '61', 'austria': '43', 'azerbaijan': '994',
-      'bahamas': '1242', 'bahrain': '973', 'bangladesh': '880', 'belarus': '375', 'belgium': '32',
-      'belize': '501', 'benin': '229', 'bhutan': '975', 'bolivia': '591', 'bosnia-and-herzegovina': '387',
-      'botswana': '267', 'brazil': '55', 'brunei': '673', 'bulgaria': '359', 'burkina-faso': '226',
-      'burundi': '257', 'cambodia': '855', 'cameroon': '237', 'canada': '1', 'central-african-republic': '236',
-      'chad': '235', 'chile': '56', 'china': '86', 'colombia': '57', 'comoros': '269', 'congo': '242',
-      'congo-democratic-republic': '243', 'costa-rica': '506', 'cote-divoire': '225', 'croatia': '385',
-      'cuba': '53', 'cyprus': '357', 'czech-republic': '420', 'denmark': '45', 'djibouti': '253',
-      'dominica': '1767', 'dominican-republic': '1809', 'ecuador': '593', 'egypt': '20', 'el-salvador': '503',
-      'equatorial-guinea': '240', 'eritrea': '291', 'estonia': '372', 'eswatini': '268', 'ethiopia': '251',
-      'fiji': '679', 'finland': '358', 'france': '33', 'gabon': '241', 'gambia': '220', 'georgia': '995',
-      'germany': '49', 'ghana': '233', 'greece': '30', 'grenada': '1473', 'guatemala': '502', 'guinea': '224',
-      'guinea-bissau': '245', 'guyana': '592', 'haiti': '509', 'honduras': '504', 'hungary': '36',
-      'iceland': '354', 'india': '91', 'indonesia': '62', 'iran': '98', 'iraq': '964', 'ireland': '353',
-      'israel': '972', 'italy': '39', 'jamaica': '1876', 'japan': '81', 'jordan': '962', 'kazakhstan': '7',
-      'kenya': '254', 'kiribati': '686', 'korea-north': '850', 'korea-south': '82', 'kuwait': '965',
-      'kyrgyzstan': '996', 'laos': '856', 'latvia': '371', 'lebanon': '961', 'lesotho': '266', 'liberia': '231',
-      'libya': '218', 'liechtenstein': '423', 'lithuania': '370', 'luxembourg': '352', 'madagascar': '261',
-      'malawi': '265', 'malaysia': '60', 'maldives': '960', 'mali': '223', 'malta': '356',
-      'marshall-islands': '692', 'mauritania': '222', 'mauritius': '230', 'mexico': '52', 'micronesia': '691',
-      'moldova': '373', 'monaco': '377', 'mongolia': '976', 'montenegro': '382', 'morocco': '212',
-      'mozambique': '258', 'myanmar': '95', 'namibia': '264', 'nauru': '674', 'nepal': '977',
-      'netherlands': '31', 'new-zealand': '64', 'nicaragua': '505', 'niger': '227', 'nigeria': '234',
-      'north-macedonia': '389', 'norway': '47', 'oman': '968', 'pakistan': '92', 'palau': '680',
-      'palestine': '970', 'panama': '507', 'papua-new-guinea': '675', 'paraguay': '595', 'peru': '51',
-      'philippines': '63', 'poland': '48', 'portugal': '351', 'qatar': '974', 'romania': '40',
-      'russia': '7', 'rwanda': '250', 'samoa': '685', 'san-marino': '378', 'sao-tome-and-principe': '239',
-      'saudi-arabia': '966', 'senegal': '221', 'serbia': '381', 'seychelles': '248', 'sierra-leone': '232',
-      'singapore': '65', 'slovakia': '421', 'slovenia': '386', 'solomon-islands': '677', 'somalia': '252',
-      'south-africa': '27', 'south-sudan': '211', 'spain': '34', 'sri-lanka': '94', 'sudan': '249',
-      'suriname': '597', 'sweden': '46', 'switzerland': '41', 'syria': '963', 'taiwan': '886',
-      'tajikistan': '992', 'tanzania': '255', 'thailand': '66', 'timor-leste': '670', 'togo': '228',
-      'tonga': '676', 'trinidad-and-tobago': '1868', 'tunisia': '216', 'turkey': '90', 'turkmenistan': '993',
-      'tuvalu': '688', 'uganda': '256', 'ukraine': '380', 'united-arab-emirates': '971',
-      'united-kingdom': '44', 'united-states': '1', 'uruguay': '598', 'uzbekistan': '998',
-      'vanuatu': '678', 'vatican-city': '379', 'venezuela': '58', 'vietnam': '84', 'yemen': '967',
-      'zambia': '260', 'zimbabwe': '263'
-    };
-
-    window.dialCodeByCountry = dialCodeByCountry;
-
-    // Google Sheets Integration Script
-    document.addEventListener('DOMContentLoaded', function () {
-      const form = document.getElementById('contact-form');
-      const formResult = document.getElementById('form-result');
-      const submitBtn = form.querySelector('.submit-btn');
-
-      // Your Google Apps Script Web App URL
-      const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsmNbhUkhWY3hEmYof4dGi7cOEYEbMDoBSFe3erSciipp-_-tI1RKuQ7P3ms9gyYYR/exec';
-
-
-
-      form.addEventListener('submit', async function (e) {
-        e.preventDefault();
-        // Prevent other submit listeners (e.g., in assets/js/main.js) from interfering
-        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
-        console.log('Form submitted!');
-
-        // Get form values
-        const fullName = document.getElementById('fullname').value.trim();
-        const contactNumber = document.getElementById('contact').value.trim();
-
-        // Get emailID with debugging
-        const emailField = document.getElementById('emailID');
-        let emailID = '';
-        if (emailField) {
-          emailID = emailField.value ? emailField.value.trim() : '';
-          console.log('Email field found:', {
-            id: emailField.id,
-            name: emailField.name,
-            value: emailField.value,
-            trimmed: emailID
-          });
-        } else {
-          console.log('Email field NOT found!');
-        }
-
-        // Use default if empty
-        if (!emailID) {
-          emailID = 'no-email@example.com';
-          console.log('Using default emailID:', emailID);
-        }
-
-        const countryEl = document.getElementById('country');
-        const country = countryEl ? countryEl.value : '';
-        // Clean country: use the visible option text (e.g., "Australia")
-        const cleanedCountry = (function () {
-          if (!countryEl) return country || '';
-          var opt = countryEl.options && countryEl.options[countryEl.selectedIndex];
-          return (opt && opt.text ? opt.text : country).trim();
-        })();
-        const organization = document.getElementById('organization').value.trim();
-        const type = document.getElementById('type').value;
-        const message = document.getElementById('message').value.trim();
-        const privacy = document.getElementById('privacy').checked;
-
-        // Build full international phone number - always use country dropdown
-        const fullPhone = (function () {
-          const rawPhone = (contactNumber || '').trim();
-          const digits = rawPhone.replace(/\D/g, '');
-
-          // If user already typed a number starting with +, use it as-is
-          if (rawPhone.charAt(0) === '+') {
-            return rawPhone.replace(/\s+/g, '');
-          }
-
-          // Otherwise, always prepend the dial code from the selected country
-          try {
-            const selectedCountry = country; // country value from dropdown
-            const dialCode = window.dialCodeByCountry ? window.dialCodeByCountry[selectedCountry] : '';
-            if (dialCode && digits) {
-              return '+' + dialCode + digits;
-            }
-          } catch (_) { }
-
-          // Final fallback: try intl-tel-input if available
-          try {
-            const phoneEl = document.getElementById('contact');
-            if (phoneEl && phoneEl._iti && typeof phoneEl._iti.getNumber === 'function') {
-              const utils = (window.intlTelInputUtils || {}).numberFormat ? window.intlTelInputUtils : null;
-              const number = utils ? phoneEl._iti.getNumber(utils.numberFormat.E164) : phoneEl._iti.getNumber();
-              if (number) return String(number).replace(/\s+/g, '');
-            }
-          } catch (_) { }
-
-          return rawPhone;
-        })();
-
-        console.log('Form values:', { fullName, contactNumber: fullPhone, emailID, country: cleanedCountry, organization, type, message, privacy });
-
-        // Clear all previous errors
-        clearAllErrors();
-
-        // Field-specific validation with error display
-        let isValid = true;
-
-        if (!fullName) {
-          showFieldError('fullname', 'Please enter full name.');
-          isValid = false;
-        }
-
-        if (!fullPhone) {
-          showFieldError('contact', 'Not a valid phone number.');
-          isValid = false;
-        } else if (!fullPhone.match(/^\+[1-9]\d{6,14}$/)) {
-          showFieldError('contact', 'Not a valid phone number.');
-          isValid = false;
-        }
-
-        if (!emailID || emailID === 'no-email@example.com') {
-          showFieldError('emailID', 'Please enter email.');
-          isValid = false;
-        } else if (!emailID.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-          showFieldError('emailID', 'Please enter a valid email address.');
-          isValid = false;
-        }
-
-        if (!cleanedCountry) {
-          showFieldError('country', 'Please select country.');
-          isValid = false;
-        }
-
-        if (!message) {
-          showFieldError('message', 'Please enter your message.');
-          isValid = false;
-        }
-
-        if (!privacy) {
-          showFieldError('privacy', 'Please accept the privacy policy to continue.');
-          isValid = false;
-        }
-
-        if (!isValid) {
-          showMessage('❌ Please fill in all required fields correctly', 'error');
-          return;
-        }
-
-        console.log('Validation passed, submitting...');
-
-        // Show submitting message
-        showMessage('⏳ Submitting...', 'submitting');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Submitting...';
-
-        try {
-          // Prepare payload the new Apps Script doPost expects
-          const data = {
-            source: 'main',
-            fullName: fullName,
-            // phone (multiple aliases)
-            contactNumber: fullPhone,
-            phone: fullPhone,
-            phoneNumber: fullPhone,
-            'Phone Number': fullPhone,
-            // email (multiple aliases)
-            email: emailID,
-            mailId: emailID,
-            'Mail ID': emailID,
-            // country (multiple aliases)
-            country: cleanedCountry,
-            Country: cleanedCountry,
-            organization: organization,
-            type: type,
-            message: message,
-            submittedAt: new Date().toISOString(),
-            page: window.location.href
-          };
-
-          console.log('Sending data:', data);
-
-          // Try a proper CORS JSON POST first (may succeed if GAS allows it)
-          let corsOk = false;
-          try {
-            const res = await fetch(GOOGLE_SCRIPT_URL, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-              body: JSON.stringify(data)
-            });
-            corsOk = !!res.ok;
-          } catch (_) { corsOk = false; }
-
-          // Fallback: fire a no-cors JSON POST which Apps Script accepts
-          if (!corsOk) {
-            try {
-              fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-              });
-            } catch (_) { }
-          }
-
-          // Additional fallback: sendBeacon with JSON blob
-          try {
-            const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-            navigator.sendBeacon(GOOGLE_SCRIPT_URL, blob);
-          } catch (_) { }
-
-          // Final fallback: URL-encoded with common field names to match sheet headers
-          try {
-            const formData = new URLSearchParams();
-            formData.append('source', 'main');
-            formData.append('fullName', fullName);
-            formData.append('country', cleanedCountry);
-            formData.append('Country', cleanedCountry);
-            formData.append('phone', fullPhone);
-            formData.append('phoneNumber', fullPhone);
-            formData.append('Phone Number', fullPhone);
-            formData.append('contactNumber', fullPhone);
-            formData.append('email', emailID);
-            formData.append('mailId', emailID);
-            formData.append('Mail ID', emailID);
-            formData.append('organization', organization);
-            formData.append('type', type);
-            formData.append('message', message);
-            formData.append('submittedAt', new Date().toISOString());
-            formData.append('page', window.location.href);
-            fetch(GOOGLE_SCRIPT_URL, {
-              method: 'POST',
-              mode: 'no-cors',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-              body: formData.toString()
-            });
-          } catch (_) { }
-
-          // Wait
-          await new Promise(resolve => setTimeout(resolve, 2000));
-
-          // Success
-          showMessage('Thank you! Your details have been submitted.', 'success');
-          form.reset();
-
-        } catch (error) {
-          console.error('Error:', error);
-          showMessage('❌ Failed to send message. Please try again.', 'error');
-        } finally {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Submit';
-        }
-      });
-
-      function showMessage(message, type) {
-        formResult.textContent = message;
-        formResult.className = `form-result ${type}`;
-
-        // Auto-hide success message after 5 seconds
-        if (type === 'success') {
-          setTimeout(() => {
-            formResult.textContent = '';
-            formResult.className = 'form-result';
-          }, 5000);
-        }
-      }
-
-      function showFieldError(fieldId, message) {
-        const field = document.getElementById(fieldId);
-        if (field) {
-          const errorElement = field.parentElement.querySelector('.error');
-          if (errorElement) {
-            errorElement.textContent = message;
-            errorElement.classList.add('show');
-          }
-        }
-      }
-
-      function clearAllErrors() {
-        const errorElements = form.querySelectorAll('.error');
-        errorElements.forEach(error => {
-          error.textContent = '';
-          error.classList.remove('show');
-        });
-      }
-    });
-  </script>
-
-  <!-- Equalize left card height to match form card (desktop only) -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const leftCard = document.querySelector('.contact-info-left');
-      const rightFormCard = document.querySelector('.contact-form-new');
-      const rightContainer = document.querySelector('.contact-form-container');
-      if (!leftCard || !rightFormCard) return;
-
-      function getTargetHeight() {
-        return (rightContainer ? rightContainer.offsetHeight : rightFormCard.offsetHeight);
-      }
-
-      function syncHeights() {
-        if (window.matchMedia('(min-width: 769px)').matches) {
-          leftCard.style.height = 'auto';
-          leftCard.style.height = getTargetHeight() + 'px';
-        } else {
-          leftCard.style.height = '';
-        }
-      }
-
-      syncHeights();
-      window.addEventListener('resize', syncHeights);
-      window.addEventListener('load', syncHeights);
-      const ro = new ResizeObserver(syncHeights);
-      ro.observe(rightFormCard);
-    });
-  </script>
-
-  <!-- Swap phone and country fields: Country above Phone Number -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      var form = document.getElementById('contact-form');
-      if (!form) return;
-      var rows = form.querySelectorAll('.form-row');
-      if (rows.length < 2) return;
-      var row1 = rows[0];
-      var row2 = rows[1];
-      var contactEl = form.querySelector('#contact');
-      var countryEl = form.querySelector('#country');
-      if (!contactEl || !countryEl) return;
-      var contactField = contactEl.closest('.form-field');
-      var countryField = countryEl.closest('.form-field');
-      if (!contactField || !countryField) return;
-      // Move contact to row 2 (after Email), country to row 1 (after Full Name)
-      row2.appendChild(contactField);
-      row1.appendChild(countryField);
-    });
-  </script>
-
-  <!-- FIXED: Country code display update script -->
-  <script>
-    (function () {
-      function ensurePhoneSync() {
-        var phoneInput = document.getElementById('contact');
-        var countrySelect = document.getElementById('country');
-        var dialCodeDisplay = document.getElementById('contact-dial-code');
-
-        if (!phoneInput || !countrySelect) return;
-
-        var iti = phoneInput._iti;
-        if (!iti && window.intlTelInput) {
-          try {
-            iti = window.intlTelInput(phoneInput, {
-              initialCountry: 'in',
-              separateDialCode: true,
-              nationalMode: false,
-              autoPlaceholder: 'aggressive',
-              utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.12/build/js/utils.js'
-            });
-            phoneInput._iti = iti;
-          } catch (_) { }
-        }
-
-        if (!iti) return;
-        if (phoneInput.dataset.syncBound === 'true') return;
-
-        var mapping = {
-          'afghanistan': 'af', 'albania': 'al', 'algeria': 'dz', 'andorra': 'ad', 'angola': 'ao',
-          'argentina': 'ar', 'armenia': 'am', 'australia': 'au', 'austria': 'at', 'azerbaijan': 'az',
-          'bahamas': 'bs', 'bahrain': 'bh', 'bangladesh': 'bd', 'belarus': 'by', 'belgium': 'be',
-          'belize': 'bz', 'benin': 'bj', 'bhutan': 'bt', 'bolivia': 'bo', 'bosnia-and-herzegovina': 'ba',
-          'botswana': 'bw', 'brazil': 'br', 'brunei': 'bn', 'bulgaria': 'bg', 'burkina-faso': 'bf',
-          'burundi': 'bi', 'cambodia': 'kh', 'cameroon': 'cm', 'canada': 'ca', 'central-african-republic': 'cf',
-          'chad': 'td', 'chile': 'cl', 'china': 'cn', 'colombia': 'co', 'comoros': 'km', 'congo': 'cg',
-          'congo-democratic-republic': 'cd', 'costa-rica': 'cr', 'cote-divoire': 'ci', 'croatia': 'hr',
-          'cuba': 'cu', 'cyprus': 'cy', 'czech-republic': 'cz', 'denmark': 'dk', 'djibouti': 'dj',
-          'dominica': 'dm', 'dominican-republic': 'do', 'ecuador': 'ec', 'egypt': 'eg', 'el-salvador': 'sv',
-          'equatorial-guinea': 'gq', 'eritrea': 'er', 'estonia': 'ee', 'eswatini': 'sz', 'ethiopia': 'et',
-          'fiji': 'fj', 'finland': 'fi', 'france': 'fr', 'gabon': 'ga', 'gambia': 'gm', 'georgia': 'ge',
-          'germany': 'de', 'ghana': 'gh', 'greece': 'gr', 'grenada': 'gd', 'guatemala': 'gt', 'guinea': 'gn',
-          'guinea-bissau': 'gw', 'guyana': 'gy', 'haiti': 'ht', 'honduras': 'hn', 'hungary': 'hu',
-          'iceland': 'is', 'india': 'in', 'indonesia': 'id', 'iran': 'ir', 'iraq': 'iq', 'ireland': 'ie',
-          'israel': 'il', 'italy': 'it', 'jamaica': 'jm', 'japan': 'jp', 'jordan': 'jo', 'kazakhstan': 'kz',
-          'kenya': 'ke', 'kiribati': 'ki', 'korea-north': 'kp', 'korea-south': 'kr', 'kuwait': 'kw',
-          'kyrgyzstan': 'kg', 'laos': 'la', 'latvia': 'lv', 'lebanon': 'lb', 'lesotho': 'ls', 'liberia': 'lr',
-          'libya': 'ly', 'liechtenstein': 'li', 'lithuania': 'lt', 'luxembourg': 'lu', 'madagascar': 'mg',
-          'malawi': 'mw', 'malaysia': 'my', 'maldives': 'mv', 'mali': 'ml', 'malta': 'mt', 'marshall-islands': 'mh',
-          'mauritania': 'mr', 'mauritius': 'mu', 'mexico': 'mx', 'micronesia': 'fm', 'moldova': 'md', 'monaco': 'mc',
-          'mongolia': 'mn', 'montenegro': 'me', 'morocco': 'ma', 'mozambique': 'mz', 'myanmar': 'mm',
-          'namibia': 'na', 'nauru': 'nr', 'nepal': 'np', 'netherlands': 'nl', 'new-zealand': 'nz', 'nicaragua': 'ni',
-          'niger': 'ne', 'nigeria': 'ng', 'north-macedonia': 'mk', 'norway': 'no', 'oman': 'om', 'pakistan': 'pk',
-          'palau': 'pw', 'palestine': 'ps', 'panama': 'pa', 'papua-new-guinea': 'pg', 'paraguay': 'py', 'peru': 'pe',
-          'philippines': 'ph', 'poland': 'pl', 'portugal': 'pt', 'qatar': 'qa', 'romania': 'ro', 'russia': 'ru',
-          'rwanda': 'rw', 'samoa': 'ws', 'san-marino': 'sm', 'sao-tome-and-principe': 'st', 'saudi-arabia': 'sa',
-          'senegal': 'sn', 'serbia': 'rs', 'seychelles': 'sc', 'sierra-leone': 'sl', 'singapore': 'sg', 'slovakia': 'sk',
-          'slovenia': 'si', 'solomon-islands': 'sb', 'somalia': 'so', 'south-africa': 'za', 'south-sudan': 'ss',
-          'spain': 'es', 'sri-lanka': 'lk', 'sudan': 'sd', 'suriname': 'sr', 'sweden': 'se', 'switzerland': 'ch',
-          'syria': 'sy', 'taiwan': 'tw', 'tajikistan': 'tj', 'tanzania': 'tz', 'thailand': 'th', 'timor-leste': 'tl',
-          'togo': 'tg', 'tonga': 'to', 'trinidad-and-tobago': 'tt', 'tunisia': 'tn', 'turkey': 'tr', 'turkmenistan': 'tm',
-          'tuvalu': 'tv', 'uganda': 'ug', 'ukraine': 'ua', 'united-arab-emirates': 'ae', 'united-kingdom': 'gb',
-          'united-states': 'us', 'uruguay': 'uy', 'uzbekistan': 'uz', 'vanuatu': 'vu', 'vatican-city': 'va',
-          'venezuela': 've', 'vietnam': 'vn', 'yemen': 'ye', 'zambia': 'zm', 'zimbabwe': 'zw'
-        };
-
-        function updateDialCodeDisplay() {
-          if (!dialCodeDisplay) return;
-          try {
-            var cd = iti.getSelectedCountryData();
-            if (cd && cd.dialCode) {
-              dialCodeDisplay.textContent = '+' + cd.dialCode;
-              console.log('Dial code updated to:', '+' + cd.dialCode);
-            }
-          } catch (e) {
-            console.log('Error updating dial code:', e);
-          }
-        }
-
-        function syncCountryToPhone() {
-          var val = countrySelect.value;
-          if (val && mapping[val]) {
-            iti.setCountry(mapping[val]);
-            // Force immediate update of dial code display with multiple attempts
-            setTimeout(updateDialCodeDisplay, 10);
-            setTimeout(updateDialCodeDisplay, 50);
-            setTimeout(updateDialCodeDisplay, 100);
-            setTimeout(updateDialCodeDisplay, 200);
-            setTimeout(updateDialCodeDisplay, 500);
-          }
-        }
-
-        function syncPhoneToCountry() {
-          try {
-            var cd = iti.getSelectedCountryData();
-            if (!cd || !cd.iso2) return;
-            var keys = Object.keys(mapping);
-            for (var i = 0; i < keys.length; i++) {
-              if (mapping[keys[i]] === cd.iso2) {
-                countrySelect.value = keys[i];
-                break;
-              }
-            }
-            updateDialCodeDisplay();
-          } catch (e) {
-            console.log('Error syncing phone to country:', e);
-          }
-        }
-
-        // Remove old listeners and add new ones
-        countrySelect.removeEventListener('change', syncCountryToPhone);
-        countrySelect.addEventListener('change', syncCountryToPhone);
-
-        phoneInput.removeEventListener('countrychange', syncPhoneToCountry);
-        phoneInput.addEventListener('countrychange', function () {
-          syncPhoneToCountry();
-          updateDialCodeDisplay();
-        });
-
-        // Also update when dropdown is closed or input is focused
-        phoneInput.addEventListener('blur', function () {
-          setTimeout(updateDialCodeDisplay, 50);
-        });
-
-        phoneInput.addEventListener('focus', function () {
-          setTimeout(updateDialCodeDisplay, 50);
-        });
-
-        // Watch for any changes to the phone input that might indicate country change
-        phoneInput.addEventListener('input', function () {
-          setTimeout(updateDialCodeDisplay, 50);
-        });
-
-        phoneInput.dataset.syncBound = 'true';
-
-        // Initial sync with multiple attempts
-        syncCountryToPhone();
-        setTimeout(syncCountryToPhone, 100);
-        setTimeout(syncCountryToPhone, 300);
-        setTimeout(syncCountryToPhone, 500);
-        setTimeout(syncCountryToPhone, 1000);
-
-        // Force initial dial code display
-        setTimeout(updateDialCodeDisplay, 100);
-        setTimeout(updateDialCodeDisplay, 200);
-        setTimeout(updateDialCodeDisplay, 400);
-        setTimeout(updateDialCodeDisplay, 800);
-        setTimeout(updateDialCodeDisplay, 1200);
-
-        // Also try to update when the library is fully loaded
-        if (window.intlTelInputGlobals) {
-          setTimeout(updateDialCodeDisplay, 1500);
-        }
-      }
-
-      // Run at multiple points to ensure it works
-      if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        setTimeout(ensurePhoneSync, 200);
-        setTimeout(ensurePhoneSync, 500);
-        setTimeout(ensurePhoneSync, 1000);
-        setTimeout(ensurePhoneSync, 2000);
-      } else {
-        document.addEventListener('DOMContentLoaded', function () {
-          setTimeout(ensurePhoneSync, 200);
-          setTimeout(ensurePhoneSync, 500);
-          setTimeout(ensurePhoneSync, 1000);
-          setTimeout(ensurePhoneSync, 2000);
-        });
-      }
-
-      window.addEventListener('load', function () {
-        setTimeout(ensurePhoneSync, 200);
-        setTimeout(ensurePhoneSync, 500);
-        setTimeout(ensurePhoneSync, 1000);
-        setTimeout(ensurePhoneSync, 2000);
-      });
-
-      // Also run after any potential AJAX loads
-      setInterval(function () {
-        if (document.getElementById('contact') && document.getElementById('contact')._iti) {
-          var display = document.getElementById('contact-dial-code');
-          var iti = document.getElementById('contact')._iti;
-          if (display && iti) {
-            try {
-              var cd = iti.getSelectedCountryData();
-              if (cd && cd.dialCode && display.textContent !== '+' + cd.dialCode) {
-                display.textContent = '+' + cd.dialCode;
-                console.log('Interval fix: dial code updated to', '+' + cd.dialCode);
-              }
-            } catch (e) { }
-          }
-        }
-      }, 1000);
-    })();
-  </script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+  <script src="/assets/js/contact-page-shell.js?v=20260904a"></script>
+  <script src="/assets/js/contact-form.js?v=20260904a"></script>
 </body>
 
 </html>
