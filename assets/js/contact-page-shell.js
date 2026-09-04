@@ -72,6 +72,77 @@
         rows[0].appendChild(countryField);
       }
     }
+
+    // Contact hard default: India is authoritative from first paint onward.
+    // This guard runs before contact-form.js and prevents a transient metadata miss
+    // from replacing a valid +91 with an em dash. It never derives Country from phone input.
+    var dialCode = document.getElementById('contact-dial-code');
+    var phoneGroup = document.getElementById('contact-phone-group');
+    var lastValidDial = '+91';
+
+    function indiaOption() {
+      if (!country) return null;
+      return Array.prototype.find.call(country.options, function (option) {
+        return option.value === 'in' || option.textContent.trim().toLowerCase() === 'india';
+      }) || null;
+    }
+
+    function setIndiaDefault() {
+      var india = indiaOption();
+      if (india) {
+        india.value = 'in';
+        india.dataset.dialCode = india.dataset.dialCode || '91';
+        india.selected = true;
+        country.value = 'in';
+      }
+      if (dialCode) dialCode.textContent = '+91';
+      if (phoneGroup) phoneGroup.setAttribute('aria-label', 'India +91, phone number');
+      var label = document.querySelector('#country + .vmg-custom-select .vmg-custom-select-label');
+      if (label) label.textContent = 'India';
+      if (phone) phone.value = '';
+      lastValidDial = '+91';
+    }
+
+    function metadataDialForSelectedCountry() {
+      if (!country || !window.intlTelInputGlobals || typeof window.intlTelInputGlobals.getCountryData !== 'function') return '';
+      var iso2 = country.value;
+      var data = window.intlTelInputGlobals.getCountryData() || [];
+      var match = data.find(function (item) { return item.iso2 === iso2; });
+      return match && match.dialCode ? '+' + match.dialCode : '';
+    }
+
+    function preserveValidDial() {
+      if (!dialCode || !country) return;
+      var current = String(dialCode.textContent || '').trim();
+      var metadataDial = metadataDialForSelectedCountry();
+      if (metadataDial) {
+        dialCode.textContent = metadataDial;
+        lastValidDial = metadataDial;
+        return;
+      }
+      if (country.value === 'in' || (indiaOption() && indiaOption().selected)) {
+        dialCode.textContent = '+91';
+        lastValidDial = '+91';
+        return;
+      }
+      if (/^\+[1-9]\d*$/.test(current)) {
+        lastValidDial = current;
+        return;
+      }
+      dialCode.textContent = lastValidDial || '+91';
+    }
+
+    setIndiaDefault();
+    if (country) country.addEventListener('change', function () {
+      window.requestAnimationFrame(preserveValidDial);
+    });
+    if (dialCode && window.MutationObserver) {
+      var dialObserver = new MutationObserver(preserveValidDial);
+      dialObserver.observe(dialCode, { childList: true, characterData: true, subtree: true });
+    }
+    window.setTimeout(preserveValidDial, 0);
+    window.setTimeout(preserveValidDial, 100);
+    window.setTimeout(preserveValidDial, 250);
   }
 
   // Keep the existing desktop card-height treatment, but with one observer only.
