@@ -38,7 +38,7 @@
     var brand = document.createElement('div');
     brand.className = 'opening-popup-brand';
     brand.innerHTML = [
-      '<img class="opening-popup-brand-logo" src="/assets/img/LOGO.png" alt="Vashudevan Met Global LLP logo" decoding="async">',
+      '<img class="opening-popup-brand-logo" src="/assets/img/vmg-open-graph.jpg" alt="Vashudevan Met Global LLP logo" decoding="async">',
       '<div class="opening-popup-contact-row" aria-label="Vashudevan contact details">',
         '<span class="opening-popup-contact-item">',
           '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.75 5.75h16.5v12.5H3.75z"/><path d="m4.5 7 7.5 6 7.5-6"/></svg>',

@@ -4,6 +4,8 @@
   window.AppConfig.googleScriptUrl = 'https://script.google.com/macros/s/AKfycbxsmNbhUkhWY3hEmYof4dGi7cOEYEbMDoBSFe3erSciipp-_-tI1RKuQ7P3ms9gyYYR/exec';
   window.AppConfig.contactEndpoint = window.AppConfig.contactEndpoint || '';
   window.AppConfig.gaMeasurementId = 'G-6CJ7X607D5';
+  window.AppConfig.turnstileSiteKey = window.AppConfig.turnstileSiteKey || '';
+  window.AppConfig.popupTurnstileSiteKey = window.AppConfig.popupTurnstileSiteKey || '';
 })();
 
 (function () {

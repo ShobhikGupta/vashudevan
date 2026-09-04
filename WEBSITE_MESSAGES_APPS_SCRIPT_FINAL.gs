@@ -19,8 +19,12 @@
     Trade Updates Subscription
 
   Required Script Properties:
-    TURNSTILE_SECRET_KEY
+    CONTACT_TURNSTILE_SECRET_KEY
+    POPUP_TURNSTILE_SECRET_KEY
     CONTACT_UPLOAD_FOLDER_ID
+
+  Compatibility fallback (optional during migration):
+    TURNSTILE_SECRET_KEY
 
   Optional preview-only Script Property:
     TURNSTILE_ALLOW_TEST_HOSTNAME = true
@@ -200,8 +204,19 @@ function vmgCacheGate_(options) {
   }
 }
 
+function vmgTurnstileSecret_(expectedAction) {
+  var props = PropertiesService.getScriptProperties();
+  if (expectedAction === 'popup_form') {
+    return props.getProperty('POPUP_TURNSTILE_SECRET_KEY') || props.getProperty('TURNSTILE_SECRET_KEY') || '';
+  }
+  if (expectedAction === 'contact_form') {
+    return props.getProperty('CONTACT_TURNSTILE_SECRET_KEY') || props.getProperty('TURNSTILE_SECRET_KEY') || '';
+  }
+  return '';
+}
+
 function vmgVerifyTurnstile_(token, expectedAction) {
-  var secret = PropertiesService.getScriptProperties().getProperty('TURNSTILE_SECRET_KEY');
+  var secret = vmgTurnstileSecret_(expectedAction);
   if (!secret) return { ok: false, message: 'Security verification is not configured.' };
   token = vmgNormalize_(token, 4096);
   if (!token) return { ok: false, message: 'Please complete the security verification and try again.' };
