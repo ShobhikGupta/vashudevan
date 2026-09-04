@@ -6,6 +6,22 @@
   form.dataset.vmgReliabilityBound = 'true';
   window.VMG_CONTACT_FORM_MANAGED = true;
 
+  var DEFAULT_COUNTRY = { iso2: 'in', name: 'India', dialCode: '91' };
+  var TYPE_VALUES = ['buyer', 'seller', 'quotation', 'partnership', 'documentation', 'callback', 'investor', 'finance', 'general'];
+  var PREVIEW_TEST_HOST = 'deploy-preview-12--exquisite-hotteok-531d58.netlify.app';
+  var TURNSTILE_PREVIEW_SITEKEY = '1x00000000000000000000AA';
+  var MAX_ATTACHMENTS = 10;
+  var MAX_ATTACHMENT_BYTES = 25 * 1024 * 1024;
+  var MAX_SINGLE_ATTACHMENT_BYTES = 10 * 1024 * 1024;
+  var ALLOWED_ATTACHMENT_TYPES = {
+    'image/jpeg': true,
+    'image/png': true,
+    'image/webp': true,
+    'image/heic': true,
+    'image/heif': true,
+    'application/pdf': true
+  };
+
   function ensureContactMarkup() {
     var phone = document.getElementById('contact');
     var phoneGroup = document.getElementById('contact-phone-group');
@@ -22,10 +38,8 @@
     }
 
     if (!document.getElementById('attachments')) {
-      var message = document.getElementById('message');
-      var messageField = message && message.closest('.form-field');
       var privacy = form.querySelector('.form-checkbox');
-      if (messageField && privacy) {
+      if (privacy) {
         var field = document.createElement('div');
         field.className = 'form-field full-width vmg-attachments-field';
         field.innerHTML = '' +
@@ -34,7 +48,7 @@
             '<span class="vmg-attachment-icon" aria-hidden="true">↥</span>' +
             '<span><span class="vmg-attachment-title">Add photos or documents</span>' +
             '<span class="vmg-attachment-support">Material photos, specifications or supporting documents</span></span>' +
-            '<span class="vmg-attachment-rules">JPG, PNG, WEBP, HEIC or PDF · Up to 5 files · 10 MB total</span>' +
+            '<span class="vmg-attachment-rules">JPG, PNG, WEBP, HEIC or PDF · Up to 10 files · 25 MB total</span>' +
           '</button>' +
           '<input class="vmg-attachment-input" type="file" id="attachments" name="attachments" multiple ' +
             'accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf" aria-describedby="attachments-error">' +
@@ -71,86 +85,166 @@
   var turnstileHost = document.getElementById('contact-turnstile');
   var turnstileError = document.getElementById('contact-turnstile-error');
 
-  var TYPE_VALUES = ['buyer', 'seller', 'quotation', 'partnership', 'documentation', 'callback', 'investor', 'finance', 'general'];
-  var PREVIEW_TEST_HOST = 'deploy-preview-12--exquisite-hotteok-531d58.netlify.app';
-  var TURNSTILE_PREVIEW_SITEKEY = '1x00000000000000000000AA';
-  var MAX_ATTACHMENTS = 5;
-  var MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
-  var ALLOWED_ATTACHMENT_TYPES = {
-    'image/jpeg': true,
-    'image/png': true,
-    'image/webp': true,
-    'image/heic': true,
-    'image/heif': true,
-    'application/pdf': true
-  };
-
   var startedAt = Date.now();
+  var countryByIso2 = {};
+  var selectedFiles = [];
   var phoneEngineInput = null;
   var iti = null;
-  var countryByIso2 = {};
   var phoneConflict = false;
-  var selectedFiles = [];
+  var phoneReady = false;
+  var countryReady = false;
   var submitting = false;
   var turnstileWidgetId = null;
   var turnstileToken = '';
 
-  function countryData() {
-    if (!window.intlTelInputGlobals || typeof window.intlTelInputGlobals.getCountryData !== 'function') return [];
-    return window.intlTelInputGlobals.getCountryData().slice();
+  function setSubmitState(state) {
+    if (window.VMGSubmitState && submitButton) {
+      window.VMGSubmitState.set(submitButton, state);
+      return;
+    }
+    if (!submitButton) return;
+    submitButton.disabled = state === 'loading' || state === 'success';
   }
 
-  function populateCountries() {
+  function countryData() {
+    if (!window.intlTelInputGlobals || typeof window.intlTelInputGlobals.getCountryData !== 'function') return [];
+    try { return window.intlTelInputGlobals.getCountryData().slice(); } catch (_) { return []; }
+  }
+
+  function setHardIndiaDefault() {
+    if (dialCodeEl) dialCodeEl.textContent = '+91';
+    if (phoneGroup) phoneGroup.setAttribute('aria-label', 'India +91, phone number');
+    if (fields.phone) fields.phone.value = '';
+
     if (!fields.country) return;
+    var options = Array.prototype.slice.call(fields.country.options || []);
+    var india = options.find(function (option) {
+      return option.value === 'in' || option.textContent.trim().toLowerCase() === 'india';
+    });
+    if (india) {
+      india.value = 'in';
+      india.dataset.dialCode = '91';
+      india.selected = true;
+      fields.country.value = 'in';
+    }
+  }
+
+  function populateCountriesFromLibrary() {
+    if (!fields.country) return false;
     var data = countryData();
-    if (!data.length) return;
+    if (!data.length) return false;
+
     countryByIso2 = {};
     var fragment = document.createDocumentFragment();
     var placeholder = document.createElement('option');
     placeholder.value = '';
     placeholder.textContent = 'Select country';
     fragment.appendChild(placeholder);
+
     data.forEach(function (item) {
+      if (!item || !item.iso2 || !item.name || !item.dialCode) return;
       countryByIso2[item.iso2] = item;
       var option = document.createElement('option');
       option.value = item.iso2;
       option.textContent = item.name;
-      option.dataset.dialCode = item.dialCode || '';
+      option.dataset.dialCode = item.dialCode;
       fragment.appendChild(option);
     });
+
     fields.country.innerHTML = '';
     fields.country.appendChild(fragment);
-    fields.country.value = 'in';
-    fields.country.dataset.vmgCountryCount = String(data.length);
+    fields.country.value = DEFAULT_COUNTRY.iso2;
+    fields.country.dataset.vmgCountryReady = 'true';
+    fields.country.dataset.vmgCountryCount = String(Object.keys(countryByIso2).length);
+    countryReady = true;
+    return true;
+  }
+
+  function dispatchCountriesReady() {
+    document.dispatchEvent(new CustomEvent('vmg:contact-countries-ready', {
+      detail: { count: Object.keys(countryByIso2).length }
+    }));
+  }
+
+  function waitForCountryData() {
+    var delays = [0, 16, 100, 250, 500];
+    return new Promise(function (resolve) {
+      var attempt = 0;
+      function tryNow() {
+        if (populateCountriesFromLibrary()) {
+          setHardIndiaDefault();
+          dispatchCountriesReady();
+          resolve(true);
+          return;
+        }
+        if (attempt >= delays.length - 1) {
+          countryReady = false;
+          if (fields.country) fields.country.dataset.vmgCountryReady = 'error';
+          resolve(false);
+          return;
+        }
+        attempt += 1;
+        if (attempt === 1 && window.requestAnimationFrame) {
+          window.requestAnimationFrame(function () { window.setTimeout(tryNow, delays[attempt]); });
+        } else {
+          window.setTimeout(tryNow, delays[attempt]);
+        }
+      }
+      tryNow();
+    });
   }
 
   function initPhoneEngine() {
-    if (!fields.phone || !window.intlTelInput) return null;
+    if (!window.intlTelInput) return false;
     phoneEngineInput = document.createElement('input');
     phoneEngineInput.type = 'tel';
     phoneEngineInput.tabIndex = -1;
     phoneEngineInput.setAttribute('aria-hidden', 'true');
     phoneEngineInput.className = 'vmg-phone-validation-engine';
     form.appendChild(phoneEngineInput);
+
     iti = window.intlTelInput(phoneEngineInput, {
-      initialCountry: 'in',
+      initialCountry: DEFAULT_COUNTRY.iso2,
       allowDropdown: false,
       separateDialCode: false,
-      nationalMode: true,
+      nationalMode: false,
       autoPlaceholder: 'off',
       utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.12/build/js/utils.js'
     });
     var wrapper = phoneEngineInput.closest('.iti');
     if (wrapper) wrapper.classList.add('vmg-phone-validation-engine-wrap');
-    return iti;
+    return true;
+  }
+
+  function waitForPhoneReady() {
+    if (!iti) return Promise.resolve(false);
+    if (iti.promise && typeof iti.promise.then === 'function') {
+      return iti.promise.then(function () { phoneReady = true; return true; }).catch(function () { return false; });
+    }
+    return new Promise(function (resolve) {
+      var delays = [0, 50, 120, 250, 500, 900];
+      var attempt = 0;
+      function check() {
+        if (window.intlTelInputUtils || (iti && typeof iti.isValidNumber === 'function' && typeof iti.getNumber === 'function')) {
+          phoneReady = true;
+          resolve(true);
+          return;
+        }
+        if (attempt >= delays.length - 1) { resolve(false); return; }
+        attempt += 1;
+        window.setTimeout(check, delays[attempt]);
+      }
+      check();
+    });
   }
 
   function selectedCountryMeta() {
-    var iso2 = fields.country ? fields.country.value : '';
+    if (!fields.country) return null;
+    var iso2 = fields.country.value;
     if (iso2 && countryByIso2[iso2]) return countryByIso2[iso2];
-    if (fields.country && fields.country.selectedIndex >= 0) {
-      var option = fields.country.options[fields.country.selectedIndex];
-      return option && option.value ? { iso2: option.value, name: option.textContent.trim(), dialCode: option.dataset.dialCode || '' } : null;
+    var option = fields.country.options[fields.country.selectedIndex];
+    if (option && option.value && option.dataset.dialCode) {
+      return { iso2: option.value, name: option.textContent.trim(), dialCode: option.dataset.dialCode };
     }
     return null;
   }
@@ -162,23 +256,31 @@
 
   function updateDialCode() {
     var meta = selectedCountryMeta();
-    var dial = meta && meta.dialCode ? '+' + meta.dialCode : '—';
-    if (dialCodeEl) dialCodeEl.textContent = dial;
-    if (phoneGroup) phoneGroup.setAttribute('aria-label', (meta ? meta.name + ' ' + dial : 'Country dial code') + ', phone number');
+    if (!meta || !meta.dialCode) {
+      if (fields.country && fields.country.value === DEFAULT_COUNTRY.iso2) {
+        if (dialCodeEl) dialCodeEl.textContent = '+91';
+        return true;
+      }
+      return false;
+    }
+    if (dialCodeEl) dialCodeEl.textContent = '+' + meta.dialCode;
+    if (phoneGroup) phoneGroup.setAttribute('aria-label', meta.name + ' +' + meta.dialCode + ', phone number');
+    return true;
   }
 
   function setPhoneEngineCountry() {
     var meta = selectedCountryMeta();
+    if (!meta || !iti) return false;
+    try { iti.setCountry(meta.iso2); } catch (_) { return false; }
     updateDialCode();
-    if (!iti || !meta || !meta.iso2) return;
-    try { iti.setCountry(meta.iso2); } catch (_) {}
+    return true;
   }
 
   function digitsOnly(value) { return String(value || '').replace(/\D/g, ''); }
 
   function clearPhoneConflict() {
     phoneConflict = false;
-    if (fields.phone && fields.phone.dataset.phoneConflict) delete fields.phone.dataset.phoneConflict;
+    if (fields.phone) delete fields.phone.dataset.phoneConflict;
   }
 
   function setPhoneConflict() {
@@ -192,16 +294,15 @@
     var raw = fields.phone.value.trim();
     if (!raw) { clearPhoneConflict(); return; }
     var meta = selectedCountryMeta();
+    if (!meta || !meta.dialCode) return;
+
     if (raw.charAt(0) === '+') {
-      if (!meta || !meta.dialCode) { setPhoneConflict(); return; }
-      var matchingPrefix = '+' + meta.dialCode;
-      if (raw.indexOf(matchingPrefix) === 0) {
-        fields.phone.value = digitsOnly(raw.slice(matchingPrefix.length));
+      var prefix = '+' + meta.dialCode;
+      if (raw.indexOf(prefix) === 0) {
+        fields.phone.value = digitsOnly(raw.slice(prefix.length));
         clearPhoneConflict();
-        clearInvalid(fields.phone);
       } else {
         setPhoneConflict();
-        return;
       }
     } else {
       fields.phone.value = digitsOnly(raw);
@@ -209,41 +310,37 @@
     }
   }
 
-  function syncCountryToPhoneEngine() {
-    setPhoneEngineCountry();
-    normalizeVisiblePhone();
-    if (fields.phone && fields.phone.value.trim() && !phoneConflict) {
-      if (validPhone()) clearInvalid(fields.phone);
-      else setInvalid(fields.phone, 'Please enter a valid phone number for ' + countryName() + '.');
-    }
-  }
-
-  function setEngineNumber() {
-    if (!phoneEngineInput || !fields.phone) return '';
-    var national = digitsOnly(fields.phone.value);
-    phoneEngineInput.value = national;
-    return national;
-  }
-
-  function validPhone() {
-    if (!fields.phone || !fields.phone.value.trim() || phoneConflict) return false;
-    if (!iti || typeof iti.isValidNumber !== 'function') return false;
-    setEngineNumber();
-    try { return iti.isValidNumber(); } catch (_) { return false; }
-  }
-
-  function fullPhone() {
-    if (!fields.phone || phoneConflict) return '';
-    var national = setEngineNumber();
-    if (!national) return '';
-    if (iti && typeof iti.getNumber === 'function') {
-      try {
-        var number = String(iti.getNumber() || '').replace(/\s+/g, '');
-        if (/^\+[1-9]\d{6,14}$/.test(number)) return number;
-      } catch (_) {}
-    }
+  function canonicalPhone() {
     var meta = selectedCountryMeta();
-    return meta && meta.dialCode ? '+' + meta.dialCode + national : '';
+    var national = fields.phone ? digitsOnly(fields.phone.value) : '';
+    if (!meta || !meta.dialCode || !national) return '';
+    return '+' + meta.dialCode + national;
+  }
+
+  async function validatePhone() {
+    if (!fields.phone || !fields.phone.value.trim() || phoneConflict) return false;
+    var ready = phoneReady || await waitForPhoneReady();
+    if (!ready || !iti) return null;
+    var meta = selectedCountryMeta();
+    var canonical = canonicalPhone();
+    if (!meta || !canonical) return false;
+    try {
+      iti.setCountry(meta.iso2);
+      iti.setNumber(canonical);
+      return iti.isValidNumber();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  async function fullPhone() {
+    var valid = await validatePhone();
+    if (valid !== true) return '';
+    try {
+      var number = String(iti.getNumber() || '').replace(/\s+/g, '');
+      if (/^\+[1-9]\d{6,14}$/.test(number)) return number;
+    } catch (_) {}
+    return canonicalPhone();
   }
 
   function errorElement(control) {
@@ -253,9 +350,7 @@
       var byId = document.getElementById(id.split(/\s+/)[0]);
       if (byId) return byId;
     }
-    if (control === fields.privacy) return form.querySelector('.form-checkbox .error');
-    var field = control.closest('.form-field');
-    return field ? field.querySelector('.error') : null;
+    return control === fields.privacy ? form.querySelector('.form-checkbox .error') : null;
   }
 
   function customSelectRoot(select) {
@@ -312,7 +407,7 @@
 
   function readableBytes(bytes) {
     if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(bytes < 10240 ? 1 : 0) + ' KB';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 
@@ -324,24 +419,16 @@
     selectedFiles.forEach(function (file, index) {
       var item = document.createElement('div');
       item.className = 'vmg-attachment-chip';
-      var icon = document.createElement('span');
-      icon.className = 'vmg-attachment-chip-icon';
-      icon.setAttribute('aria-hidden', 'true');
-      icon.textContent = file.type.indexOf('image/') === 0 ? '▧' : 'PDF';
-      var name = document.createElement('span');
-      name.className = 'vmg-attachment-chip-name';
-      name.textContent = file.name;
-      name.title = file.name;
-      var size = document.createElement('span');
-      size.className = 'vmg-attachment-chip-size';
-      size.textContent = readableBytes(file.size);
+      item.innerHTML = '<span class="vmg-attachment-chip-icon" aria-hidden="true">' + (file.type.indexOf('image/') === 0 ? '▧' : 'PDF') + '</span>' +
+        '<span class="vmg-attachment-chip-name"></span><span class="vmg-attachment-chip-size">' + readableBytes(file.size) + '</span>';
+      item.querySelector('.vmg-attachment-chip-name').textContent = file.name;
       var remove = document.createElement('button');
       remove.type = 'button';
       remove.className = 'vmg-attachment-remove';
       remove.setAttribute('aria-label', 'Remove ' + file.name);
       remove.textContent = '×';
       remove.addEventListener('click', function () { selectedFiles.splice(index, 1); clearAttachmentError(); renderAttachments(); });
-      item.appendChild(icon); item.appendChild(name); item.appendChild(size); item.appendChild(remove);
+      item.appendChild(remove);
       attachmentList.appendChild(item);
     });
   }
@@ -350,33 +437,25 @@
     var incoming = Array.prototype.slice.call(fileList || []);
     if (!incoming.length) return;
     var unsupported = incoming.find(function (file) { return !ALLOWED_ATTACHMENT_TYPES[file.type]; });
-    if (unsupported) {
-      setAttachmentError('Unsupported file type: ' + unsupported.name + '. Use JPG, PNG, WEBP, HEIC or PDF.');
-      if (fields.attachments) fields.attachments.value = '';
-      return;
-    }
-    var currentKeys = {};
-    selectedFiles.forEach(function (file) { currentKeys[attachmentKey(file)] = true; });
+    if (unsupported) { setAttachmentError('Unsupported file type: ' + unsupported.name + '.'); fields.attachments.value = ''; return; }
+    var oversized = incoming.find(function (file) { return file.size > MAX_SINGLE_ATTACHMENT_BYTES; });
+    if (oversized) { setAttachmentError(oversized.name + ' is larger than the 10 MB per-file limit.'); fields.attachments.value = ''; return; }
+
+    var keys = {};
+    selectedFiles.forEach(function (file) { keys[attachmentKey(file)] = true; });
     var combined = selectedFiles.slice();
     incoming.forEach(function (file) {
       var key = attachmentKey(file);
-      if (!currentKeys[key]) { currentKeys[key] = true; combined.push(file); }
+      if (!keys[key]) { keys[key] = true; combined.push(file); }
     });
-    if (combined.length > MAX_ATTACHMENTS) {
-      setAttachmentError('You can attach up to 5 files.');
-      if (fields.attachments) fields.attachments.value = '';
-      return;
-    }
+
+    if (combined.length > MAX_ATTACHMENTS) { setAttachmentError('You can attach up to 10 files.'); fields.attachments.value = ''; return; }
     var total = combined.reduce(function (sum, file) { return sum + file.size; }, 0);
-    if (total > MAX_ATTACHMENT_BYTES) {
-      setAttachmentError('Attachments must be 10 MB total or less.');
-      if (fields.attachments) fields.attachments.value = '';
-      return;
-    }
+    if (total > MAX_ATTACHMENT_BYTES) { setAttachmentError('Attachments must be 25 MB total or less.'); fields.attachments.value = ''; return; }
     selectedFiles = combined;
     clearAttachmentError();
     renderAttachments();
-    if (fields.attachments) fields.attachments.value = '';
+    fields.attachments.value = '';
   }
 
   function fileToPayload(file) {
@@ -405,53 +484,62 @@
     if (turnstileError) { turnstileError.textContent = message; turnstileError.classList.add('show'); }
   }
 
-  function validateAll() {
+  async function validateAll() {
     var ok = true;
-    var name = fields.fullname ? fields.fullname.value.trim() : '';
-    var email = fields.email ? fields.email.value.trim() : '';
-    var org = fields.organization ? fields.organization.value.trim() : '';
-    var message = fields.message ? fields.message.value.trim() : '';
+    var name = fields.fullname.value.trim();
+    var email = fields.email.value.trim();
+    var org = fields.organization.value.trim();
+    var message = fields.message.value.trim();
+
     if (name.length < 2 || name.length > 80) { setInvalid(fields.fullname, 'Please enter your full name (2–80 characters).'); ok = false; } else clearInvalid(fields.fullname);
-    if (!fields.country || !fields.country.value) { setInvalid(fields.country, 'Please select a country.'); ok = false; } else clearInvalid(fields.country);
-    if (!validEmail(email)) { setInvalid(fields.email, email ? 'Please enter a valid email address.' : 'Please enter your email address.'); ok = false; } else clearInvalid(fields.email);
-    if (!fields.phone || !fields.phone.value.trim()) { setInvalid(fields.phone, 'Please enter your phone number.'); ok = false; }
+    if (!countryReady || !fields.country.value || !selectedCountryMeta()) { setInvalid(fields.country, countryReady ? 'Please select a country.' : 'Country list is still initializing. Please try again.'); ok = false; } else clearInvalid(fields.country);
+    if (!validEmail(email)) { setInvalid(fields.email, 'Please enter a valid email address.'); ok = false; } else clearInvalid(fields.email);
+
+    if (!fields.phone.value.trim()) { setInvalid(fields.phone, 'Please enter your phone number.'); ok = false; }
     else if (phoneConflict) { setInvalid(fields.phone, 'The number includes a different country code. Change Country first.'); ok = false; }
-    else if (!validPhone()) { setInvalid(fields.phone, 'Please enter a valid phone number for ' + (countryName() || 'the selected country') + '.'); ok = false; }
-    else clearInvalid(fields.phone);
+    else {
+      var phoneValid = await validatePhone();
+      if (phoneValid === null) { setInvalid(fields.phone, 'Phone validation is still loading. Please try again.'); ok = false; }
+      else if (!phoneValid) { setInvalid(fields.phone, 'Please enter a valid phone number for ' + (countryName() || 'the selected country') + '.'); ok = false; }
+      else clearInvalid(fields.phone);
+    }
+
     if (org.length > 120) { setInvalid(fields.organization, 'Organization must be 120 characters or fewer.'); ok = false; } else clearInvalid(fields.organization);
-    if (!fields.type || TYPE_VALUES.indexOf(fields.type.value) === -1) { setInvalid(fields.type, 'Please select an enquiry type.'); ok = false; } else clearInvalid(fields.type);
+    if (TYPE_VALUES.indexOf(fields.type.value) === -1) { setInvalid(fields.type, 'Please select an enquiry type.'); ok = false; } else clearInvalid(fields.type);
     if (message.length < 10 || message.length > 3000) { setInvalid(fields.message, 'Please enter a message between 10 and 3000 characters.'); ok = false; } else clearInvalid(fields.message);
-    var totalBytes = selectedFiles.reduce(function (sum, file) { return sum + file.size; }, 0);
-    if (selectedFiles.length > MAX_ATTACHMENTS || totalBytes > MAX_ATTACHMENT_BYTES || selectedFiles.some(function (file) { return !ALLOWED_ATTACHMENT_TYPES[file.type]; })) { setAttachmentError('Please review the selected attachments.'); ok = false; } else clearAttachmentError();
-    if (!fields.privacy || !fields.privacy.checked) { setInvalid(fields.privacy, 'Please accept the privacy policy to continue.'); ok = false; } else clearInvalid(fields.privacy);
+
+    var total = selectedFiles.reduce(function (sum, file) { return sum + file.size; }, 0);
+    if (selectedFiles.length > MAX_ATTACHMENTS || total > MAX_ATTACHMENT_BYTES || selectedFiles.some(function (file) { return file.size > MAX_SINGLE_ATTACHMENT_BYTES || !ALLOWED_ATTACHMENT_TYPES[file.type]; })) {
+      setAttachmentError('Please review the selected attachments.'); ok = false;
+    } else clearAttachmentError();
+
+    if (!fields.privacy.checked) { setInvalid(fields.privacy, 'Please accept the privacy policy to continue.'); ok = false; } else clearInvalid(fields.privacy);
     if (!turnstileToken) { setTurnstileError('Please complete the security verification and try again.'); ok = false; } else clearTurnstileError();
     return ok;
   }
 
   function bindLiveValidation() {
-    if (fields.fullname) fields.fullname.addEventListener('input', function () { var v = this.value.trim(); if (v.length >= 2 && v.length <= 80) clearInvalid(this); });
-    if (fields.email) fields.email.addEventListener('input', function () { if (validEmail(this.value.trim())) clearInvalid(this); });
-    if (fields.organization) fields.organization.addEventListener('input', function () { if (this.value.trim().length <= 120) clearInvalid(this); });
-    if (fields.message) fields.message.addEventListener('input', function () { var n = this.value.trim().length; if (n >= 10 && n <= 3000) clearInvalid(this); });
-    if (fields.privacy) fields.privacy.addEventListener('change', function () { if (this.checked) clearInvalid(this); });
-    if (fields.type) fields.type.addEventListener('change', function () { if (TYPE_VALUES.indexOf(this.value) !== -1) clearInvalid(this); });
-    if (fields.country) fields.country.addEventListener('change', function () { if (this.value) clearInvalid(this); syncCountryToPhoneEngine(); });
-    if (fields.phone) {
-      fields.phone.addEventListener('input', function () { normalizeVisiblePhone(); if (!phoneConflict && this.value.trim() && validPhone()) clearInvalid(this); });
-      fields.phone.addEventListener('blur', function () {
-        normalizeVisiblePhone();
-        if (!this.value.trim()) return;
-        if (phoneConflict) setPhoneConflict();
-        else if (validPhone()) clearInvalid(this);
-        else setInvalid(this, 'Please enter a valid phone number for ' + (countryName() || 'the selected country') + '.');
-      });
-    }
-    if (attachmentPicker && fields.attachments) attachmentPicker.addEventListener('click', function () { fields.attachments.click(); });
-    if (fields.attachments) fields.attachments.addEventListener('change', function () { addAttachments(this.files); });
+    fields.country.addEventListener('change', function () {
+      if (this.value) clearInvalid(this);
+      setPhoneEngineCountry();
+      normalizeVisiblePhone();
+    });
+    fields.phone.addEventListener('input', function () { normalizeVisiblePhone(); });
+    fields.phone.addEventListener('blur', function () { normalizeVisiblePhone(); });
+    fields.type.addEventListener('change', function () { if (TYPE_VALUES.indexOf(this.value) !== -1) clearInvalid(this); });
+    fields.privacy.addEventListener('change', function () { if (this.checked) clearInvalid(this); });
+    attachmentPicker.addEventListener('click', function () { fields.attachments.click(); });
+    fields.attachments.addEventListener('change', function () { addAttachments(this.files); });
   }
 
-  function isPreviewEnvironment() { return window.location.hostname === PREVIEW_TEST_HOST || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'; }
-  function configuredTurnstileSitekey() { if (isPreviewEnvironment()) return TURNSTILE_PREVIEW_SITEKEY; return (window.AppConfig && window.AppConfig.turnstileSiteKey) || ''; }
+  function isPreviewEnvironment() {
+    return window.location.hostname === PREVIEW_TEST_HOST || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  }
+
+  function configuredTurnstileSitekey() {
+    if (isPreviewEnvironment()) return TURNSTILE_PREVIEW_SITEKEY;
+    return (window.AppConfig && window.AppConfig.turnstileSiteKey) || '';
+  }
 
   function renderTurnstile() {
     if (!turnstileHost || turnstileWidgetId !== null) return;
@@ -477,15 +565,6 @@
     if (window.turnstile && turnstileWidgetId !== null) { try { window.turnstile.reset(turnstileWidgetId); } catch (_) {} }
   }
 
-  function setButtonState(state) {
-    if (!submitButton) return;
-    submitButton.classList.remove('is-submitting', 'is-success');
-    submitButton.disabled = state === 'submitting' || state === 'success';
-    submitButton.setAttribute('aria-label', state === 'submitting' ? 'Sending message' : state === 'success' ? 'Message sent' : 'Submit');
-    if (state === 'submitting') submitButton.classList.add('is-submitting');
-    if (state === 'success') submitButton.classList.add('is-success');
-  }
-
   function showResult(message, kind) {
     if (!result) return;
     result.textContent = message || '';
@@ -494,7 +573,7 @@
 
   function resetAttachments() {
     selectedFiles = [];
-    if (fields.attachments) fields.attachments.value = '';
+    fields.attachments.value = '';
     clearAttachmentError();
     renderAttachments();
   }
@@ -502,29 +581,31 @@
   function resetFormAfterSuccess() {
     form.reset();
     startedAt = Date.now();
-    if (fields.startedAt) fields.startedAt.value = String(startedAt);
+    fields.startedAt.value = String(startedAt);
     resetAttachments();
-    if (fields.country) { fields.country.value = 'in'; fields.country.dispatchEvent(new Event('change', { bubbles: true })); }
-    if (fields.type) { fields.type.value = ''; fields.type.dispatchEvent(new Event('change', { bubbles: true })); }
-    if (fields.phone) fields.phone.value = '';
+    fields.country.value = DEFAULT_COUNTRY.iso2;
+    fields.country.dispatchEvent(new Event('change', { bubbles: true }));
+    fields.type.value = '';
+    fields.type.dispatchEvent(new Event('change', { bubbles: true }));
+    fields.phone.value = '';
     clearPhoneConflict();
     setPhoneEngineCountry();
-    [fields.fullname, fields.phone, fields.email, fields.organization, fields.country, fields.type, fields.message, fields.privacy].forEach(clearInvalid);
     resetTurnstile();
   }
 
   async function payload() {
     var attachments = await serializeAttachments();
-    var phone = fullPhone();
+    var phone = await fullPhone();
     return {
-      source: 'main', fullName: fields.fullname.value.trim(), fullname: fields.fullname.value.trim(),
+      source: 'main',
+      fullName: fields.fullname.value.trim(), fullname: fields.fullname.value.trim(),
       contact: phone, contactNumber: phone, phone: phone,
       email: fields.email.value.trim(), mailId: fields.email.value.trim(),
       country: countryName(), Country: countryName(), countryIso2: fields.country.value,
       organization: fields.organization.value.trim(), type: fields.type.value, message: fields.message.value.trim(),
       privacy: true, attachments: attachments, attachmentCount: attachments.length,
       website: fields.honeypot ? fields.honeypot.value : '',
-      formStartedAt: fields.startedAt ? Number(fields.startedAt.value) : startedAt,
+      formStartedAt: Number(fields.startedAt.value || startedAt),
       submittedAt: new Date().toISOString(), page: window.location.href,
       'cf-turnstile-response': turnstileToken
     };
@@ -534,12 +615,15 @@
     var endpoint = (window.AppConfig && (window.AppConfig.contactEndpoint || window.AppConfig.googleScriptUrl)) || '';
     if (!endpoint) throw new Error('Submission endpoint is not configured.');
     if (!(window.AppConfig && window.AppConfig.contactSecurityReady === true)) throw new Error('Server-side security and attachment handling are not deployed yet.');
-    var response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8', 'Accept': 'application/json' }, body: JSON.stringify(data) });
+    var response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=UTF-8', 'Accept': 'application/json' },
+      body: JSON.stringify(data)
+    });
     if (!response.ok) throw new Error('The server could not accept your message.');
     var body = {};
     try { body = await response.json(); } catch (_) {}
-    if (body && body.success === false) throw new Error(body.message || 'Submission could not be accepted.');
-    if (!body || body.success !== true) throw new Error('The server did not confirm your submission.');
+    if (!body || body.success !== true) throw new Error((body && body.message) || 'The server did not confirm your submission.');
     return body;
   }
 
@@ -548,36 +632,46 @@
     event.stopImmediatePropagation();
     if (submitting) return;
     showResult('', '');
-    if (!validateAll()) {
+
+    if (!(await validateAll())) {
+      setSubmitState('error');
       showResult('Please correct the highlighted fields.', 'error');
-      var firstInvalid = form.querySelector('[aria-invalid="true"], .vmg-turnstile.is-invalid');
-      if (firstInvalid && typeof firstInvalid.focus === 'function') firstInvalid.focus();
       return;
     }
+
     submitting = true;
-    setButtonState('submitting');
+    setSubmitState('loading');
     showResult('Sending your message securely…', 'submitting');
     try {
       var data = await payload();
       await submitContact(data);
-      setButtonState('success');
+      setSubmitState('success');
       showResult('Thank you! Your message has been sent.', 'success');
       resetFormAfterSuccess();
-      window.setTimeout(function () { setButtonState('idle'); showResult('', ''); }, 1800);
+      window.setTimeout(function () { setSubmitState('idle'); showResult('', ''); }, 1800);
     } catch (error) {
-      setButtonState('idle');
+      setSubmitState('error');
       showResult(error && error.message ? error.message : 'Unable to send your message. Please try again.', 'error');
       resetTurnstile();
-    } finally { submitting = false; }
+      window.setTimeout(function () { setSubmitState('idle'); }, 280);
+    } finally {
+      submitting = false;
+    }
   }, true);
 
-  populateCountries();
+  setHardIndiaDefault();
   initPhoneEngine();
-  if (fields.country) fields.country.value = 'in';
-  setPhoneEngineCountry();
-  if (fields.phone) fields.phone.value = '';
-  if (fields.startedAt) fields.startedAt.value = String(startedAt);
+  fields.startedAt.value = String(startedAt);
   bindLiveValidation();
   renderAttachments();
   renderTurnstile();
+  waitForPhoneReady();
+  waitForCountryData().then(function (ready) {
+    if (!ready) {
+      setInvalid(fields.country, 'Country list could not initialize. Please refresh and try again.');
+      return;
+    }
+    fields.country.value = DEFAULT_COUNTRY.iso2;
+    setPhoneEngineCountry();
+  });
 })();
