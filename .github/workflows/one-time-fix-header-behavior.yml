@@ -53,10 +53,19 @@ jobs:
             await page.check('#privacy');
             await page.evaluate(()=>{window.AppConfig.contactSecurityReady=true;window.AppConfig.contactEndpoint='http://127.0.0.1:8000/qa-contact';});
             await page.waitForTimeout(100);
-            console.log('BEFORE',await page.evaluate(()=>({valid:document.getElementById('contact-form').checkValidity(),country:country.value,dial:document.getElementById('contact-dial-code').textContent,phone:contact.value,type:type.value,turnText:document.getElementById('contact-turnstile').innerText})));
+            console.log('BEFORE',await page.evaluate(()=>({valid:document.getElementById('contact-form').checkValidity(),country:document.getElementById('country').value,dial:document.getElementById('contact-dial-code').textContent,phone:document.getElementById('contact').value,type:document.getElementById('type').value,turnText:document.getElementById('contact-turnstile').innerText})));
             await page.locator('#contact-form .submit-btn').click();
             await page.waitForTimeout(1000);
-            const state=await page.evaluate(()=>({result:document.getElementById('form-result').textContent,resultClass:document.getElementById('form-result').className,errors:[...document.querySelectorAll('#contact-form .error.show')].map(x=>({id:x.id,text:x.textContent})),phoneError:document.getElementById('contact-error')?.textContent,submitClass:document.querySelector('#contact-form .submit-btn').className,submitDisabled:document.querySelector('#contact-form .submit-btn').disabled,country:document.getElementById('country').value,dial:document.getElementById('contact-dial-code').textContent})));
+            const state=await page.evaluate(()=>({
+              result:document.getElementById('form-result').textContent,
+              resultClass:document.getElementById('form-result').className,
+              errors:[...document.querySelectorAll('#contact-form .error.show')].map(x=>({id:x.id,text:x.textContent})),
+              phoneError:document.getElementById('contact-error')?.textContent || '',
+              submitClass:document.querySelector('#contact-form .submit-btn').className,
+              submitDisabled:document.querySelector('#contact-form .submit-btn').disabled,
+              country:document.getElementById('country').value,
+              dial:document.getElementById('contact-dial-code').textContent
+            }));
             console.log('AFTER',JSON.stringify(state));
             if(!captured) throw new Error('No request captured: '+JSON.stringify(state));
             const body=JSON.parse(captured);
