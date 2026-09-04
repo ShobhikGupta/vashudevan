@@ -324,6 +324,7 @@
     if (countryUi) countryUi.sync();
   }
 
+  // One deterministic controller for Tier 2 pinning, footer retreat and Go To Top.
   function initHeaderBehavior() {
     var header = document.querySelector('.site-header.vmg-econship-header');
     var nav = header && header.querySelector('.site-nav');
@@ -334,18 +335,42 @@
     var desktopQuery = window.matchMedia('(min-width: 992px)');
     var navParent = nav.parentNode;
     var rafId = 0;
-    var isFooterVisible = false;
+
     var sentinel = navParent.querySelector('.vmg-tier2-sentinel');
     if (!sentinel) {
-      sentinel = document.createElement('div'); sentinel.className = 'vmg-tier2-sentinel'; sentinel.setAttribute('aria-hidden', 'true'); navParent.insertBefore(sentinel, nav);
-    } else if (sentinel.nextElementSibling !== nav) navParent.insertBefore(sentinel, nav);
+      sentinel = document.createElement('div');
+      sentinel.className = 'vmg-tier2-sentinel';
+      sentinel.setAttribute('aria-hidden', 'true');
+      navParent.insertBefore(sentinel, nav);
+    } else if (sentinel.nextElementSibling !== nav) {
+      navParent.insertBefore(sentinel, nav);
+    }
+
     var spacer = navParent.querySelector('.vmg-tier2-spacer');
-    if (!spacer) { spacer = document.createElement('div'); spacer.className = 'vmg-tier2-spacer'; spacer.setAttribute('aria-hidden', 'true'); }
+    if (!spacer) {
+      spacer = document.createElement('div');
+      spacer.className = 'vmg-tier2-spacer';
+      spacer.setAttribute('aria-hidden', 'true');
+    }
     nav.insertAdjacentElement('afterend', spacer);
 
-    function isMenuOpen() { return document.body.classList.contains('menu-open') || nav.classList.contains('open'); }
+    function isMenuOpen() {
+      return nav.classList.contains('open') || document.body.classList.contains('menu-open');
+    }
+
+    function footerIsActuallyVisible() {
+      var rect = footer.getBoundingClientRect();
+      var viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+      return rect.top < viewportHeight && rect.bottom > 0;
+    }
+
     function setDesktopPinned(desktop) {
-      if (!desktop) { header.classList.remove('vmg-tier2-pinned'); spacer.style.height = '0px'; return false; }
+      if (!desktop) {
+        header.classList.remove('vmg-tier2-pinned');
+        spacer.style.height = '0px';
+        return false;
+      }
+
       var shouldPin = sentinel.getBoundingClientRect().top <= 0;
       var navHeight = Math.max(1, Math.round(nav.getBoundingClientRect().height));
       header.style.setProperty('--vmg-tier2-height', navHeight + 'px');
@@ -353,37 +378,59 @@
       spacer.style.height = shouldPin ? navHeight + 'px' : '0px';
       return shouldPin;
     }
+
     function applyState() {
       rafId = 0;
+
       var desktop = desktopQuery.matches;
       var pinned = setDesktopPinned(desktop);
       var menuOpen = isMenuOpen();
-      var retreat = isFooterVisible && !menuOpen && (!desktop || pinned);
-      header.classList.toggle('vmg-footer-in-view', isFooterVisible);
+      var footerVisible = footerIsActuallyVisible();
+      var retreat = footerVisible && !menuOpen && (!desktop || pinned);
+
+      header.classList.toggle('vmg-footer-in-view', footerVisible);
       header.classList.toggle('vmg-menu-open', menuOpen);
-      document.body.classList.toggle('vmg-footer-visible', isFooterVisible);
+      document.body.classList.toggle('vmg-footer-visible', footerVisible);
       document.body.classList.toggle('vmg-header-retreated', retreat);
-      if (backToTop) { backToTop.classList.toggle('visible', retreat); backToTop.setAttribute('aria-hidden', retreat ? 'false' : 'true'); }
+
+      // Retire the old main.js pre-footer visual state. main.js may still add this
+      // class synchronously, but this authoritative frame always clears it.
+      document.body.classList.remove('scroll-top-visible');
+
+      if (backToTop) {
+        backToTop.classList.toggle('visible', retreat);
+        backToTop.setAttribute('aria-hidden', retreat ? 'false' : 'true');
+      }
     }
-    function requestState() { if (!rafId) rafId = window.requestAnimationFrame(applyState); }
+
+    function requestState() {
+      if (!rafId) rafId = window.requestAnimationFrame(applyState);
+    }
+
     window.addEventListener('scroll', requestState, { passive: true });
     window.addEventListener('resize', requestState, { passive: true });
-    if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', requestState); else if (desktopQuery.addListener) desktopQuery.addListener(requestState);
+    window.addEventListener('orientationchange', requestState, { passive: true });
+    window.addEventListener('load', requestState, { once: true });
+    document.addEventListener('vmg:loader-hidden', requestState);
+
+    if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', requestState);
+    else if (desktopQuery.addListener) desktopQuery.addListener(requestState);
+
+    // Observe only the nav state. Do not observe body classes that this controller
+    // itself writes, which previously caused redundant feedback cycles.
     var menuObserver = new MutationObserver(requestState);
     menuObserver.observe(nav, { attributes: true, attributeFilter: ['class'] });
-    menuObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
-    if ('IntersectionObserver' in window) {
-      var footerObserver = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.target !== footer) return;
-          isFooterVisible = entry.isIntersecting && entry.intersectionRect.height > 0;
-          requestState();
-        });
-      }, { root: null, rootMargin: '0px', threshold: [0, 0.001] });
-      footerObserver.observe(footer);
+
+    if ('ResizeObserver' in window) {
+      var geometryObserver = new ResizeObserver(requestState);
+      geometryObserver.observe(nav);
+      geometryObserver.observe(footer);
     }
+
     applyState();
-    window.setTimeout(requestState, 80); window.setTimeout(requestState, 250); window.setTimeout(requestState, 800);
+    window.setTimeout(requestState, 80);
+    window.setTimeout(requestState, 250);
+    window.setTimeout(requestState, 800);
   }
 
   function init() {
