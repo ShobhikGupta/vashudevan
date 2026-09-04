@@ -1,0 +1,45 @@
+name: One-time Contact reliability QA
+
+on:
+  push:
+    branches:
+      - hotfix/production-ui-fixes-24aug
+    paths:
+      - .github/workflows/one-time-contact-qa.yml
+
+permissions:
+  contents: write
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: hotfix/production-ui-fixes-24aug
+          fetch-depth: 0
+      - name: Verify Contact JavaScript and scoped diff
+        run: |
+          node --check assets/js/contact-form.js
+          node --check assets/js/contact-page-shell.js
+          git diff --check f1a374c8b55b13d871bfa14abed774c4562f4978..HEAD
+          test "$(grep -o 'intlTelInput.min.js' contact.html | wc -l)" -eq 1
+          ! grep -q 'assets/js/main.js' contact.html
+          ! grep -q 'Direct intl-tel-input initialization with two-way sync' contact.html
+          ! grep -q 'Google Sheets Integration Script' contact.html
+          ! grep -q 'FIXED: Country code display update script' contact.html
+          grep -q 'id="contact-turnstile"' contact.html
+          grep -q 'name="website"' contact.html
+          grep -q 'name="formStartedAt"' contact.html
+          grep -q 'Type \*' contact.html
+          grep -q 'id="type" name="type" required' contact.html
+          grep -q 'TURNSTILE_SECRET_KEY' CONTACT_APPS_SCRIPT_SECURITY_PATCH.gs
+          ! grep -q 'TURNSTILE_SECRET_KEY[[:space:]]*=' CONTACT_APPS_SCRIPT_SECURITY_PATCH.gs
+      - name: Remove one-time QA workflow
+        run: |
+          rm .github/workflows/one-time-contact-qa.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/one-time-contact-qa.yml
+          git commit -m "Remove one-time Contact QA workflow"
+          git push origin HEAD:hotfix/production-ui-fixes-24aug
