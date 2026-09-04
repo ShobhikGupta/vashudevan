@@ -16,9 +16,7 @@
     return host === 'localhost' || host === '127.0.0.1' || host.slice(-PROJECT_SUFFIX.length) === PROJECT_SUFFIX;
   }
 
-  function api() {
-    return window.VMGCountryPhone || null;
-  }
+  function api() { return window.VMGCountryPhone || null; }
 
   function currentForm() {
     return document.querySelector('.opening-popup-form[data-vmg-popup-security-bound="true"]');
@@ -58,11 +56,10 @@
     style.id = 'vmg-popup-security-style';
     style.textContent = [
       '.vmg-popup-honeypot{position:absolute!important;left:-10000px!important;top:auto!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;pointer-events:none!important}',
-      '.opening-popup-turnstile-field{margin-top:0}',
-      '.opening-popup-turnstile{width:100%;min-height:65px;display:flex;align-items:center}',
-      '.opening-popup-turnstile>div{max-width:100%}',
-      '.opening-popup-turnstile-error{min-height:16px;margin-top:4px;font-size:12px;line-height:1.3;color:#b42318}',
-      '@media(max-width:480px){.opening-popup-turnstile{transform-origin:left top;max-width:100%}}'
+      '.opening-popup-turnstile-field{position:absolute;left:0;bottom:0;width:1px;height:1px;overflow:visible;pointer-events:none}',
+      '.opening-popup-turnstile{width:1px;height:1px;overflow:visible}',
+      '.opening-popup-turnstile-error{position:absolute;left:0;top:8px;width:min(340px,80vw);font-size:12px;line-height:1.35;color:#b42318;pointer-events:none}',
+      '.opening-popup-turnstile-error:empty{display:none}'
     ].join('');
     document.head.appendChild(style);
   }
@@ -95,14 +92,11 @@
     if (existing) return existing;
 
     var field = document.createElement('div');
-    field.className = 'field opening-popup-turnstile-field';
-    field.innerHTML = '<label>Cloudflare security*</label>' +
-      '<div class="opening-popup-turnstile" data-vmg-popup-turnstile></div>' +
-      '<div class="opening-popup-turnstile-error" data-vmg-popup-turnstile-error role="alert" aria-live="polite"></div>';
-
-    var actions = form.querySelector('.opening-popup-actions');
-    if (actions) form.insertBefore(field, actions);
-    else form.appendChild(field);
+    field.className = 'opening-popup-turnstile-field';
+    field.setAttribute('aria-live', 'polite');
+    field.innerHTML = '<div class="opening-popup-turnstile" data-vmg-popup-turnstile></div>' +
+      '<div class="opening-popup-turnstile-error" data-vmg-popup-turnstile-error role="alert"></div>';
+    form.appendChild(field);
     return field;
   }
 
@@ -113,10 +107,31 @@
 
   function resetTurnstile(form) {
     form.dataset.vmgPopupTurnstileToken = '';
+    form.dataset.vmgPopupTurnstilePendingSubmit = 'false';
     var widgetId = form.dataset.vmgPopupTurnstileWidgetId;
     try {
       if (window.turnstile && widgetId !== undefined && widgetId !== '') window.turnstile.reset(widgetId);
     } catch (_) {}
+  }
+
+  function continuePendingSubmit(form) {
+    if (form.dataset.vmgPopupTurnstilePendingSubmit !== 'true') return;
+    form.dataset.vmgPopupTurnstilePendingSubmit = 'false';
+    window.setTimeout(function () {
+      if (!document.documentElement.contains(form)) return;
+      if (typeof form.requestSubmit === 'function') form.requestSubmit();
+      else {
+        var event;
+        try { event = new Event('submit', { bubbles: true, cancelable: true }); }
+        catch (_) { event = document.createEvent('Event'); event.initEvent('submit', true, true); }
+        form.dispatchEvent(event);
+      }
+    }, 0);
+  }
+
+  function popupSiteKey() {
+    if (isPreviewHost()) return PREVIEW_SITEKEY;
+    return (window.AppConfig && window.AppConfig.popupTurnstileSiteKey) || '';
   }
 
   function renderTurnstile(form) {
@@ -127,11 +142,9 @@
       if (!document.documentElement.contains(form) || !window.turnstile || typeof window.turnstile.render !== 'function') return;
       if (host.dataset.rendered === 'true') return;
 
-      var sitekey = isPreviewHost()
-        ? PREVIEW_SITEKEY
-        : ((window.AppConfig && window.AppConfig.turnstileSiteKey) || '');
-
+      var sitekey = popupSiteKey();
       if (!sitekey) {
+        form.dataset.vmgPopupTurnstileReady = 'false';
         setTurnstileError(form, 'Security verification is not configured yet.');
         return;
       }
@@ -139,19 +152,25 @@
       var options = {
         sitekey: sitekey,
         theme: 'light',
-        appearance: 'always',
-        size: 'flexible',
+        appearance: 'interaction-only',
+        execution: 'execute',
         action: 'popup_form',
         callback: function (token) {
           form.dataset.vmgPopupTurnstileToken = token || '';
           setTurnstileError(form, '');
+          continuePendingSubmit(form);
         },
         'expired-callback': function () {
           form.dataset.vmgPopupTurnstileToken = '';
-          setTurnstileError(form, 'Security verification expired. Please verify again.');
+        },
+        'timeout-callback': function () {
+          form.dataset.vmgPopupTurnstileToken = '';
+          form.dataset.vmgPopupTurnstilePendingSubmit = 'false';
+          setTurnstileError(form, 'Security verification timed out. Please try again.');
         },
         'error-callback': function () {
           form.dataset.vmgPopupTurnstileToken = '';
+          form.dataset.vmgPopupTurnstilePendingSubmit = 'false';
           setTurnstileError(form, 'Security verification failed. Please try again.');
         }
       };
@@ -159,18 +178,32 @@
       try {
         var id = window.turnstile.render(host, options);
         form.dataset.vmgPopupTurnstileWidgetId = String(id);
+        form.dataset.vmgPopupTurnstileReady = 'true';
         host.dataset.rendered = 'true';
-      } catch (_) {
-        try {
-          delete options.size;
-          var fallbackId = window.turnstile.render(host, options);
-          form.dataset.vmgPopupTurnstileWidgetId = String(fallbackId);
-          host.dataset.rendered = 'true';
-        } catch (error) {
-          setTurnstileError(form, 'Security verification could not be loaded. Please try again.');
-        }
+      } catch (error) {
+        form.dataset.vmgPopupTurnstileReady = 'false';
+        setTurnstileError(form, 'Security verification could not be loaded. Please try again.');
       }
     });
+  }
+
+  function executeTurnstile(form) {
+    var widgetId = form.dataset.vmgPopupTurnstileWidgetId;
+    if (form.dataset.vmgPopupTurnstileReady !== 'true' || widgetId === undefined || widgetId === '') {
+      setTurnstileError(form, 'Security verification is still loading. Please try again.');
+      renderTurnstile(form);
+      return false;
+    }
+    try {
+      form.dataset.vmgPopupTurnstilePendingSubmit = 'true';
+      setTurnstileError(form, '');
+      window.turnstile.execute(widgetId);
+      return true;
+    } catch (_) {
+      form.dataset.vmgPopupTurnstilePendingSubmit = 'false';
+      setTurnstileError(form, 'Security verification failed. Please try again.');
+      return false;
+    }
   }
 
   function syncSharedCountry(form) {
@@ -339,6 +372,7 @@
   function bindPopup(form) {
     if (!form || form.dataset.vmgPopupSecurityBound === 'true') return;
     form.dataset.vmgPopupSecurityBound = 'true';
+    form.dataset.vmgPopupTurnstilePendingSubmit = 'false';
     ensureSecurityStyles();
     ensureHiddenFields(form);
     ensureTurnstileField(form);
@@ -352,7 +386,7 @@
       }
       event.preventDefault();
       event.stopImmediatePropagation();
-      setTurnstileError(form, 'Please complete the security verification and try again.');
+      if (form.dataset.vmgPopupTurnstilePendingSubmit !== 'true') executeTurnstile(form);
     }, true);
 
     var success = form.querySelector('.opening-popup-success');
