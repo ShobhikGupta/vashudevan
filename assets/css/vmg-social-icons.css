@@ -58,6 +58,104 @@
   justify-content: center !important;
 }
 
+/* Desktop Tier 1: one geometric centerline for feedback + all four social circles. */
+@media (min-width: 992px) {
+  .vmg-nav-socials {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    align-self: center !important;
+    height: 36px !important;
+    gap: 7px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .vmg-nav-social-icons {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-self: center !important;
+    height: 36px !important;
+    gap: 7px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .vmg-nav-socials .vmg-feedback-trigger-desktop {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-self: center !important;
+    min-height: 36px !important;
+    height: 36px !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+    transform: none !important;
+  }
+
+  .vmg-nav-social-icons .vmg-social-link {
+    position: relative !important;
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    flex: 0 0 34px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-self: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    vertical-align: middle !important;
+    transform: none !important;
+  }
+
+  /* ::before is the sole visible social artwork on desktop. */
+  .vmg-nav-social-icons .vmg-social-link::before {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 20px !important;
+    height: 20px !important;
+    margin: 0 !important;
+    flex: none !important;
+    transform: translate(-50%, -50%) !important;
+    background-position: center !important;
+    background-size: contain !important;
+  }
+
+  .vmg-nav-social-icons .vmg-social-link::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  .vmg-nav-social-icons .vmg-social-link > svg,
+  .vmg-nav-social-icons .vmg-social-link > img,
+  .vmg-nav-social-icons .vmg-social-link .vmg-social-icon-img {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    position: absolute !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .vmg-nav-social-icons .vmg-social-link:hover,
+  .vmg-nav-social-icons .vmg-social-link:focus-visible,
+  .vmg-nav-socials .vmg-feedback-trigger-desktop:hover,
+  .vmg-nav-socials .vmg-feedback-trigger-desktop:focus-visible {
+    transform: none !important;
+  }
+}
+
 @media (max-width: 991px) {
   .vmg-mobile-socials .vmg-social-link {
     display: inline-flex !important;
