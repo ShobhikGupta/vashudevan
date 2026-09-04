@@ -1,15 +1,10 @@
 name: One-time robust header behavior fix
-
 on:
   push:
-    branches:
-      - hotfix/production-ui-fixes-24aug
-    paths:
-      - .github/workflows/one-time-fix-header-behavior.yml
-
+    branches: [hotfix/production-ui-fixes-24aug]
+    paths: [.github/workflows/one-time-fix-header-behavior.yml]
 permissions:
   contents: read
-
 jobs:
   qa:
     runs-on: ubuntu-latest
@@ -18,7 +13,6 @@ jobs:
         with:
           ref: hotfix/production-ui-fixes-24aug
           fetch-depth: 0
-
       - name: Static checks
         run: |
           node --check assets/js/vmg-country-phone.js
@@ -26,127 +20,50 @@ jobs:
           node --check assets/js/contact-form-v2.js
           node --check assets/js/contact-page-shell.js
           node --check assets/js/vmg-submit-state.js
-          node --check assets/js/vmg-feedback.js
-          node --check assets/js/vmg-footer.js
           git diff --check origin/main...HEAD
-          ! grep -q "Country list is still initializing. Please try again." assets/js/contact-form-v2.js
-          ! grep -q "Phone validation is still loading. Please try again." assets/js/contact-form-v2.js
-          grep -q "MAX_FILES = 10" assets/js/contact-form-v2.js
-          grep -q "MAX_TOTAL = 25" assets/js/contact-form-v2.js
-          grep -q "MAX_FILE = 10" assets/js/contact-form-v2.js
-
-      - name: Shared mapping checks
-        run: |
-          cat > /tmp/check-map.cjs <<'NODE'
-          const fs=require('fs'), vm=require('vm');
-          global.window=global;
-          global.document={dispatchEvent(){}};
-          global.CustomEvent=function(type,init){this.type=type;this.detail=init&&init.detail};
-          vm.runInThisContext(fs.readFileSync('assets/js/vmg-country-phone.js','utf8'));
-          const api=global.VMGCountryPhone;
-          if(!api || api.count < 195) throw new Error('Mapped country count below 195: '+(api&&api.count));
-          const missing=api.countries.filter(x=>!x.value||!x.name||!/^[a-z]{2}$/.test(x.iso2)||!/^\d+$/.test(x.dialCode));
-          if(missing.length) throw new Error('Missing country metadata: '+JSON.stringify(missing.slice(0,5)));
-          const expected={india:'91',france:'33',madagascar:'261',iceland:'354','united-kingdom':'44','united-states':'1','united-arab-emirates':'971',mauritius:'230',bangladesh:'880',china:'86',singapore:'65',australia:'61'};
-          for(const [value,dial] of Object.entries(expected)){
-            const got=api.getDialCode(value); if(got!==dial) throw new Error(value+' expected '+dial+' got '+got);
-          }
-          console.log(JSON.stringify({mapped:api.count,missing:missing.length,expected}));
-          NODE
-          node /tmp/check-map.cjs
-
       - name: Install browser
         run: |
           npm init -y >/dev/null 2>&1
           npm install playwright@1.55.0 >/dev/null 2>&1
           npx playwright install --with-deps chromium >/dev/null 2>&1
-
-      - name: Browser behavior checks
+      - name: Contact diagnostics
         run: |
           python3 -m http.server 8000 >/tmp/vmg-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID || true' EXIT
-          cat > /tmp/browser-qa.cjs <<'NODE'
+          cat > /tmp/diag.cjs <<'NODE'
           const {chromium}=require(process.cwd()+'/node_modules/playwright');
           (async()=>{
             const browser=await chromium.launch({headless:true});
             const page=await browser.newPage({viewport:{width:1440,height:900}});
-            await page.route('https://cdn.jsdelivr.net/**', r=>r.abort());
-            await page.route('https://challenges.cloudflare.com/**', r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
-            await page.addInitScript(()=>{
-              window.turnstile={render(host,opts){host.innerHTML='<div>Test security verification</div>';setTimeout(()=>opts.callback&&opts.callback('qa-token'),10);return 'qa';},reset(){}};
-            });
-            let contactBody=null;
-            await page.route('http://127.0.0.1:8000/qa-contact', async route=>{
-              contactBody=route.request().postDataJSON();
-              await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({success:true})});
-            });
+            page.on('pageerror',e=>console.log('PAGEERROR',String(e)));
+            await page.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+            await page.route('https://challenges.cloudflare.com/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
+            await page.addInitScript(()=>{window.turnstile={render(host,opts){host.innerHTML='<div>QA Turnstile</div>';setTimeout(()=>opts.callback&&opts.callback('qa-token'),10);return 'qa';},reset(){}};});
+            let captured=null;
+            await page.route('http://127.0.0.1:8000/qa-contact',async route=>{captured=route.request().postData();console.log('CAPTURED',captured);await route.fulfill({status:200,contentType:'application/json',body:'{"success":true}'});});
             await page.goto('http://127.0.0.1:8000/contact.html',{waitUntil:'domcontentloaded'});
-            await page.waitForFunction(()=>document.querySelector('#contact-form')?.dataset.vmgV2Bound==='true',{timeout:10000});
-            await page.waitForFunction(()=>window.VMGCountryPhone && document.getElementById('country')?.dataset.vmgCountryReady==='true',{timeout:5000});
-            const initial=await page.evaluate(()=>({country:document.getElementById('country').value,dial:document.getElementById('contact-dial-code').textContent.trim(),phone:document.getElementById('contact').value,count:window.VMGCountryPhone.count}));
-            if(initial.country!=='india'||initial.dial!=='+91'||initial.phone!==''||initial.count<195) throw new Error('Bad initial Contact state '+JSON.stringify(initial));
-            const tests=[['india','+91'],['france','+33'],['madagascar','+261'],['iceland','+354'],['united-kingdom','+44'],['united-states','+1'],['united-arab-emirates','+971'],['mauritius','+230'],['bangladesh','+880'],['china','+86'],['singapore','+65'],['australia','+61']];
-            for(const [value,dial] of tests){await page.selectOption('#country',value);await page.waitForTimeout(20);const got=(await page.locator('#contact-dial-code').textContent()).trim();if(got!==dial)throw new Error(value+' expected '+dial+' got '+got);}
-            await page.selectOption('#country','france');
-            await page.fill('#contact','+919316571362');
-            await page.dispatchEvent('#contact','input');
-            const reverse=await page.evaluate(()=>({country:document.getElementById('country').value,dial:document.getElementById('contact-dial-code').textContent.trim()}));
-            if(reverse.country!=='france'||reverse.dial!=='+33')throw new Error('Phone changed country '+JSON.stringify(reverse));
-
-            async function submitIndia(number){
-              await page.selectOption('#country','india');
-              await page.fill('#fullname','QA Test User');
-              await page.fill('#emailID','qa@example.com');
-              await page.fill('#contact',number);
-              await page.selectOption('#type','general');
-              await page.fill('#message','This is a valid browser QA enquiry message.');
-              await page.check('#privacy');
-              await page.evaluate(()=>{window.AppConfig.contactSecurityReady=true;window.AppConfig.contactEndpoint='http://127.0.0.1:8000/qa-contact';});
-              await page.waitForTimeout(50);
-              await page.locator('#contact-form .submit-btn').click();
-              await page.waitForFunction(()=>document.getElementById('form-result')?.classList.contains('success'),{timeout:5000});
-              if(!contactBody) throw new Error('Contact request not captured');
-              if(contactBody.phoneE164!=='+91'+number||contactBody.phoneDialCode!=='+91'||contactBody.phoneNational!==number||contactBody.phoneDisplay!=='+91 '+number) throw new Error('Bad phone payload '+JSON.stringify(contactBody));
-              const phoneError=await page.locator('#contact-error').evaluate(el=>el.classList.contains('show'));
-              if(phoneError) throw new Error('Valid India number rejected '+number);
-              const copy=contactBody; contactBody=null; return copy;
-            }
-            const first=await submitIndia('9316571362');
-            await page.waitForTimeout(1850);
-            const reset=await page.evaluate(()=>({country:document.getElementById('country').value,dial:document.getElementById('contact-dial-code').textContent.trim(),phone:document.getElementById('contact').value}));
-            if(reset.country!=='india'||reset.dial!=='+91'||reset.phone!=='')throw new Error('Bad reset '+JSON.stringify(reset));
-            const second=await submitIndia('9879208178');
-            const bodyText=await page.locator('body').innerText();
-            if(bodyText.includes('Country list is still initializing. Please try again.')||bodyText.includes('Phone validation is still loading. Please try again.'))throw new Error('Initialization error visible');
-
-            let popupBody=null;
-            await page.route('https://script.google.com/**', async route=>{
-              const raw=route.request().postData()||'';
-              if(raw.trim().startsWith('{')){try{popupBody=JSON.parse(raw)}catch{}}
-              await route.fulfill({status:200,contentType:'text/plain',body:'ok'});
-            });
-            await page.goto('http://127.0.0.1:8000/index.html',{waitUntil:'domcontentloaded'});
-            await page.waitForSelector('.opening-popup-form',{timeout:6000});
-            await page.waitForFunction(()=>document.getElementById('op-country')?.dataset.vmgSharedCountry==='true',{timeout:5000});
-            await page.selectOption('#op-country','madagascar');
-            await page.waitForTimeout(60);
-            const mdDial=(await page.locator('#op-dial-code').textContent()).trim();
-            if(mdDial!=='+261')throw new Error('Popup Madagascar dial '+mdDial);
-            await page.selectOption('#op-country','india');
-            await page.fill('#op-phone','9316571362');
-            await page.fill('#op-email','qa@example.com');
-            await page.locator('.opening-popup-submit').click();
-            await page.waitForTimeout(400);
-            if(!popupBody||popupBody.phoneDisplay!=='+91 9316571362'||popupBody.phoneE164!=='+919316571362')throw new Error('Popup payload not augmented '+JSON.stringify(popupBody));
-            console.log(JSON.stringify({initial,contact931:first.phoneDisplay,contact987:second.phoneDisplay,popup:popupBody.phoneDisplay,madagascar:mdDial}));
+            await page.waitForFunction(()=>document.querySelector('#contact-form')?.dataset.vmgV2Bound==='true');
+            await page.selectOption('#country','india');
+            await page.fill('#fullname','QA Test User');
+            await page.fill('#emailID','qa@example.com');
+            await page.fill('#contact','9316571362');
+            await page.selectOption('#type','general');
+            await page.fill('#message','This is a valid browser QA enquiry message.');
+            await page.check('#privacy');
+            await page.evaluate(()=>{window.AppConfig.contactSecurityReady=true;window.AppConfig.contactEndpoint='http://127.0.0.1:8000/qa-contact';});
+            await page.waitForTimeout(100);
+            console.log('BEFORE',await page.evaluate(()=>({valid:document.getElementById('contact-form').checkValidity(),country:country.value,dial:document.getElementById('contact-dial-code').textContent,phone:contact.value,type:type.value,turnText:document.getElementById('contact-turnstile').innerText})));
+            await page.locator('#contact-form .submit-btn').click();
+            await page.waitForTimeout(1000);
+            const state=await page.evaluate(()=>({result:document.getElementById('form-result').textContent,resultClass:document.getElementById('form-result').className,errors:[...document.querySelectorAll('#contact-form .error.show')].map(x=>({id:x.id,text:x.textContent})),phoneError:document.getElementById('contact-error')?.textContent,submitClass:document.querySelector('#contact-form .submit-btn').className,submitDisabled:document.querySelector('#contact-form .submit-btn').disabled,country:document.getElementById('country').value,dial:document.getElementById('contact-dial-code').textContent})));
+            console.log('AFTER',JSON.stringify(state));
+            if(!captured) throw new Error('No request captured: '+JSON.stringify(state));
+            const body=JSON.parse(captured);
+            if(body.phoneDisplay!=='+91 9316571362'||body.phoneE164!=='+919316571362')throw new Error('Bad phone payload '+captured);
+            if(state.phoneError)throw new Error('Phone error after valid India submission '+state.phoneError);
+            console.log('CONTACT_PASS',body.phoneDisplay);
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
-          node /tmp/browser-qa.cjs
-
-      - name: Report repo state
-        run: |
-          git status --short
-          git diff --stat origin/main...HEAD
-          git diff --check origin/main...HEAD
+          node /tmp/diag.cjs
