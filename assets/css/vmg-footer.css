@@ -28,8 +28,8 @@
 .vmg-footer-trust-card[data-logo-key="msme"] .vmg-footer-trust-logo{width:68px;flex-basis:68px;height:34px}
 .vmg-footer-trust-copy{min-width:0}
 .vmg-footer-trust-copy strong{display:block;color:#0a1728;font-size:.74rem;font-weight:820;line-height:1.18}
-.vmg-footer-trust-copy span{display:block;margin-top:2px;color:#687586;font-size:.64rem;line-height:1.28;overflow-wrap:anywhere}
-.vmg-footer-external{color:#9c683c!important;font-size:.57rem!important;font-weight:730!important}
+.vmg-footer-trust-copy span{display:block;margin-top:2px;color:#687586;font-size:12px;line-height:1.35;overflow-wrap:anywhere}
+.vmg-footer-external{color:#9c683c!important;font-size:12px!important;font-weight:730!important;line-height:1.35!important}
 
 /* Compact navy footer */
 .vmg-footer-main{background:#081321}
@@ -43,7 +43,7 @@
 .vmg-footer-subscribe-row{min-height:70px;display:grid;grid-template-columns:minmax(230px,.72fr) minmax(360px,1.28fr);gap:24px;align-items:center;padding:8px 0;border-top:1px solid rgba(151,166,183,.15);border-bottom:1px solid rgba(151,166,183,.15)}
 .vmg-footer-subscribe-copy{min-width:0}
 .vmg-footer-subscribe-copy strong{display:block;color:#fff;font-size:.85rem;font-weight:820;letter-spacing:-.01em}
-.vmg-footer-subscribe-copy span{display:block;margin-top:2px;color:#8897a7;font-size:.68rem;line-height:1.35}
+.vmg-footer-subscribe-copy span{display:block;margin-top:2px;color:#8897a7;font-size:12.5px;line-height:1.45}
 .vmg-footer-subscribe-form{position:relative;min-width:0;padding-bottom:13px}
 .vmg-footer-subscribe-controls{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;border:1px solid rgba(255,255,255,.16);border-radius:8px;background:#fff;overflow:hidden;transition:border-color .15s ease,box-shadow .15s ease}
 .vmg-footer-subscribe-form:focus-within .vmg-footer-subscribe-controls{border-color:rgba(211,163,120,.72);box-shadow:0 0 0 3px rgba(184,121,67,.12)}
@@ -93,7 +93,7 @@
   .vmg-footer-trust-logo{width:52px;flex-basis:52px}
   .vmg-footer-trust-card[data-logo-key="mrai"] .vmg-footer-trust-logo{width:44px;flex-basis:44px;height:44px}
   .vmg-footer-trust-card[data-logo-key="recycleinme"] .vmg-footer-trust-logo{width:56px;flex-basis:56px}
-  .vmg-footer-trust-copy strong{font-size:.7rem}.vmg-footer-trust-copy span{font-size:.6rem}
+  .vmg-footer-trust-copy strong{font-size:.7rem}.vmg-footer-trust-copy span{font-size:12px}
   .vmg-footer-subscribe-controls{grid-template-columns:1fr}
   .vmg-footer-subscribe-button{border-left:0;border-top:1px solid rgba(184,121,67,.18)}
 }
