@@ -90,9 +90,9 @@
   }
 
   loadStylesheet('/assets/css/vmg-market-polish.css', 'data-vmg-market-polish');
-  loadScript('/assets/js/skeleton-loader.js?v=20260822a', 'data-vmg-skeleton-loader-script');
+  loadScript('/assets/js/skeleton-loader.js?v=20260904b', 'data-vmg-skeleton-loader-script');
   loadScript('/assets/js/vmg-feedback.js?v=20260822j', 'data-vmg-feedback-script');
-  loadScript('/assets/js/vmg-help.js?v=20260822j', 'data-vmg-help-script');
+  loadScript('/assets/js/vmg-help.js?v=20260904b', 'data-vmg-help-script');
 })();
 
 (function () {
@@ -118,12 +118,15 @@
     document.querySelectorAll('.vmg-social-link, .vmg-footer-socials a').forEach(function (link) {
       var key = socialKey(link);
       if (!key || !SOCIAL_ASSETS[key]) return;
-
-      // The uploaded icon itself is rendered from first CSS paint by
-      // vmg-social-icons.css. Do not replace placeholder markup after load.
       link.setAttribute('aria-label', 'Open VMG ' + key.charAt(0).toUpperCase() + key.slice(1));
       link.setAttribute('data-vmg-social-asset', SOCIAL_ASSETS[key]);
     });
+  }
+
+  function upgradeBenchmarkChevron() {
+    var chevron = document.querySelector('.market-custom-select-chevron');
+    if (!chevron || chevron.querySelector('svg')) return;
+    chevron.innerHTML = '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M6 8l4 4 4-4"/></svg>';
   }
 
   function ensureToast() {
@@ -137,6 +140,18 @@
     return toast;
   }
 
+  function closeMobileNavBeforeToast(callback) {
+    var nav = document.getElementById('site-nav');
+    var toggle = document.querySelector('.nav-toggle');
+    var mobile = window.matchMedia('(max-width: 991px)').matches;
+    if (mobile && nav && nav.classList.contains('open') && toggle) {
+      toggle.click();
+      window.setTimeout(callback, 170);
+      return;
+    }
+    callback();
+  }
+
   function bindTrackForms() {
     var toast = ensureToast();
     var timer = null;
@@ -148,14 +163,18 @@
       form.addEventListener('submit', function (event) {
         event.preventDefault();
         var input = form.querySelector('.vmg-track-input');
-        toast.textContent = input && input.value.trim()
+        var message = input && input.value.trim()
           ? 'Shipment tracking portal is coming soon. Your reference has not been submitted.'
           : 'Shipment tracking portal is coming soon.';
-        toast.classList.add('is-visible');
-        window.clearTimeout(timer);
-        timer = window.setTimeout(function () {
-          toast.classList.remove('is-visible');
-        }, 3200);
+
+        closeMobileNavBeforeToast(function () {
+          toast.textContent = message;
+          toast.classList.add('is-visible');
+          window.clearTimeout(timer);
+          timer = window.setTimeout(function () {
+            toast.classList.remove('is-visible');
+          }, 3200);
+        });
       });
     });
   }
@@ -177,74 +196,66 @@
     });
   }
 
+  // SINGLE JS source of truth for header pinning, footer retreat and Go-To-Top visibility.
   function initHeaderBehavior() {
     var header = document.querySelector('.site-header.vmg-econship-header');
-    var brandRow = header && header.querySelector('.vmg-nav-brand-row');
     var nav = header && header.querySelector('.site-nav');
     var footer = document.querySelector('footer.vmg-global-footer, footer.site-footer');
     var backToTop = document.getElementById('back-to-top');
-
-    if (!header || !brandRow || !nav || !footer) return;
+    if (!header || !nav || !footer) return;
 
     var desktopQuery = window.matchMedia('(min-width: 992px)');
-    var rafId = 0;
     var navParent = nav.parentNode;
-    var spacer = navParent && navParent.querySelector('.vmg-tier2-spacer');
+    var rafId = 0;
+    var isFooterVisible = false;
 
-    if (!spacer && navParent) {
+    var sentinel = navParent.querySelector('.vmg-tier2-sentinel');
+    if (!sentinel) {
+      sentinel = document.createElement('div');
+      sentinel.className = 'vmg-tier2-sentinel';
+      sentinel.setAttribute('aria-hidden', 'true');
+      navParent.insertBefore(sentinel, nav);
+    } else if (sentinel.nextElementSibling !== nav) {
+      navParent.insertBefore(sentinel, nav);
+    }
+
+    var spacer = navParent.querySelector('.vmg-tier2-spacer');
+    if (!spacer) {
       spacer = document.createElement('div');
       spacer.className = 'vmg-tier2-spacer';
       spacer.setAttribute('aria-hidden', 'true');
-      navParent.insertBefore(spacer, nav);
     }
-
-    var oldSentinel = navParent && navParent.querySelector('.vmg-tier2-sentinel');
-    if (oldSentinel) oldSentinel.remove();
+    nav.insertAdjacentElement('afterend', spacer);
 
     function isMenuOpen() {
       return document.body.classList.contains('menu-open') || nav.classList.contains('open');
     }
 
-    function footerIsVisible() {
-      var rect = footer.getBoundingClientRect();
-      return rect.top < window.innerHeight && rect.bottom > 0;
-    }
-
-    function desktopTier2Threshold() {
-      var headerDocTop = header.getBoundingClientRect().top + window.scrollY;
-      return headerDocTop + brandRow.getBoundingClientRect().height;
-    }
-
-    function setPinned(desktop) {
+    function setDesktopPinned(desktop) {
       if (!desktop) {
         header.classList.remove('vmg-tier2-pinned');
-        if (spacer) spacer.style.height = '0px';
+        spacer.style.height = '0px';
         return false;
       }
 
-      var threshold = desktopTier2Threshold();
-      var shouldPin = window.scrollY >= Math.max(0, threshold - 0.5);
+      var shouldPin = sentinel.getBoundingClientRect().top <= 0;
       var navHeight = Math.max(1, Math.round(nav.getBoundingClientRect().height));
-
-      header.classList.toggle('vmg-tier2-pinned', shouldPin);
       header.style.setProperty('--vmg-tier2-height', navHeight + 'px');
-      if (spacer) spacer.style.height = shouldPin ? navHeight + 'px' : '0px';
-
+      header.classList.toggle('vmg-tier2-pinned', shouldPin);
+      spacer.style.height = shouldPin ? navHeight + 'px' : '0px';
       return shouldPin;
     }
 
     function applyState() {
       rafId = 0;
-
       var desktop = desktopQuery.matches;
-      var pinned = setPinned(desktop);
-      var footerVisible = footerIsVisible();
+      var pinned = setDesktopPinned(desktop);
       var menuOpen = isMenuOpen();
-      var retreat = footerVisible && !menuOpen && (!desktop || pinned);
+      var retreat = isFooterVisible && !menuOpen && (!desktop || pinned);
 
-      header.classList.toggle('vmg-footer-in-view', footerVisible);
+      header.classList.toggle('vmg-footer-in-view', isFooterVisible);
       header.classList.toggle('vmg-menu-open', menuOpen);
-      document.body.classList.toggle('vmg-footer-visible', footerVisible);
+      document.body.classList.toggle('vmg-footer-visible', isFooterVisible);
       document.body.classList.toggle('vmg-header-retreated', retreat);
 
       if (backToTop) {
@@ -258,24 +269,25 @@
       rafId = window.requestAnimationFrame(applyState);
     }
 
+    // Scroll answers only one question: has desktop Tier 2 reached viewport top?
     window.addEventListener('scroll', requestState, { passive: true });
     window.addEventListener('resize', requestState, { passive: true });
 
-    if (desktopQuery.addEventListener) {
-      desktopQuery.addEventListener('change', requestState);
-    } else if (desktopQuery.addListener) {
-      desktopQuery.addListener(requestState);
-    }
+    if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', requestState);
+    else if (desktopQuery.addListener) desktopQuery.addListener(requestState);
 
     var menuObserver = new MutationObserver(requestState);
     menuObserver.observe(nav, { attributes: true, attributeFilter: ['class'] });
     menuObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
     if ('IntersectionObserver' in window) {
-      var footerObserver = new IntersectionObserver(requestState, {
-        root: null,
-        threshold: [0, 0.001, 0.05]
-      });
+      var footerObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.target !== footer) return;
+          isFooterVisible = entry.isIntersecting && entry.intersectionRect.height > 0;
+          requestState();
+        });
+      }, { root: null, rootMargin: '0px', threshold: [0, 0.001] });
       footerObserver.observe(footer);
     }
 
@@ -287,6 +299,7 @@
 
   function init() {
     hydrateSocialIcons();
+    upgradeBenchmarkChevron();
     bindTrackForms();
     setActiveNav();
     initHeaderBehavior();
