@@ -85,32 +85,36 @@
   background: rgba(180,35,24,.035);
 }
 
-.contact-form-new .error {
-  min-height: 1.15em;
-}
+.contact-form-new .error { min-height: 1.15em; }
+.contact-form-new .error.show { display: block; color: #b42318; }
 
-.contact-form-new .error.show {
-  display: block;
-  color: #b42318;
+/* Type only: strong, mathematically centered value/options; field label stays untouched/left. */
+.contact-form-new #type + .vmg-custom-select .vmg-custom-select-button {
+  position: relative;
+  justify-content: center;
+  text-align: center;
+  font-weight: 700;
 }
-
-/* Type only: selected value and options are deliberately stronger for scanning. */
-.contact-form-new #type + .vmg-custom-select .vmg-custom-select-button,
-.contact-form-new #type + .vmg-custom-select .vmg-custom-select-label,
+.contact-form-new #type + .vmg-custom-select .vmg-custom-select-label {
+  width: 100%;
+  padding-inline: 24px;
+  text-align: center;
+  font-weight: 700;
+}
 .contact-form-new #type + .vmg-custom-select .vmg-custom-select-option {
+  text-align: center;
   font-weight: 700;
 }
 
-/* Country keeps its normal visual weight. */
+/* Country keeps its normal visual weight and left alignment. */
 .contact-form-new #country + .vmg-custom-select .vmg-custom-select-button,
 .contact-form-new #country + .vmg-custom-select .vmg-custom-select-label,
 .contact-form-new #country + .vmg-custom-select .vmg-custom-select-option {
   font-weight: inherit;
+  text-align: left;
 }
 
-.contact-form-new .vmg-attachments-field {
-  margin-top: 2px;
-}
+.contact-form-new .vmg-attachments-field { margin-top: 2px; }
 
 .contact-form-new .vmg-attachment-picker {
   width: 100%;
@@ -148,28 +152,14 @@
   color: #9a5f31;
 }
 
-.contact-form-new .vmg-attachment-title {
-  display: block;
-  font-weight: 700;
-  line-height: 1.25;
-}
-
+.contact-form-new .vmg-attachment-title { display: block; font-weight: 700; line-height: 1.25; }
 .contact-form-new .vmg-attachment-support,
-.contact-form-new .vmg-attachment-rules {
-  display: block;
-  color: #64748b;
-  line-height: 1.35;
-}
-
+.contact-form-new .vmg-attachment-rules { display: block; color: #64748b; line-height: 1.35; }
 .contact-form-new .vmg-attachment-support { font-size: 13px; }
 .contact-form-new .vmg-attachment-rules { grid-column: 2; font-size: 12px; margin-top: -7px; }
 .contact-form-new .vmg-attachment-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
-.contact-form-new .vmg-attachment-list {
-  display: grid;
-  gap: 7px;
-  margin-top: 9px;
-}
+.contact-form-new .vmg-attachment-list { display: grid; gap: 7px; margin-top: 9px; }
 
 .contact-form-new .vmg-attachment-chip {
   display: grid;
@@ -205,11 +195,7 @@
   font-weight: 650;
 }
 
-.contact-form-new .vmg-attachment-chip-size {
-  color: #64748b;
-  font-size: 12px;
-  white-space: nowrap;
-}
+.contact-form-new .vmg-attachment-chip-size { color: #64748b; font-size: 12px; white-space: nowrap; }
 
 .contact-form-new .vmg-attachment-remove {
   width: 28px;
@@ -224,7 +210,6 @@
   font-size: 20px;
   cursor: pointer;
 }
-
 .contact-form-new .vmg-attachment-remove:hover,
 .contact-form-new .vmg-attachment-remove:focus-visible { background: #f1f5f9; color: #0f172a; outline: 0; }
 .contact-form-new .vmg-attachments-field.is-invalid .vmg-attachment-picker { border-color: #b42318; box-shadow: 0 0 0 3px rgba(180,35,24,.1); }
@@ -235,7 +220,6 @@
   flex-direction: column;
   align-items: center;
 }
-
 .contact-form-new .vmg-turnstile {
   min-height: 65px;
   width: 100%;
@@ -243,17 +227,14 @@
   align-items: center;
   justify-content: center;
 }
-
 .contact-form-new .vmg-turnstile > div,
 .contact-form-new .vmg-turnstile iframe { max-width: 100%; }
-
 .contact-form-new .vmg-turnstile.is-invalid {
   padding: 8px;
   border: 1px solid rgba(180,35,24,.46);
   border-radius: 9px;
   background: rgba(180,35,24,.025);
 }
-
 .contact-form-new .vmg-turnstile.is-unconfigured {
   min-height: 50px;
   border: 1px dashed rgba(184,121,67,.52);
@@ -261,65 +242,11 @@
   background: rgba(184,121,67,.04);
 }
 
-/* Real request-state submit treatment: idle -> progress -> success. */
-.contact-form-new .submit-btn {
-  position: relative;
-  min-width: 126px;
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.contact-form-new .submit-btn::after {
-  content: "";
-  position: absolute;
-  inset: 50% auto auto 50%;
-  width: 17px;
-  height: 17px;
-  margin: -8.5px 0 0 -8.5px;
-  opacity: 0;
-  border: 2px solid rgba(255,255,255,.45);
-  border-top-color: #fff;
-  border-radius: 50%;
-  transform: scale(.8);
-  pointer-events: none;
-}
-
-.contact-form-new .submit-btn.is-submitting { color: transparent !important; cursor: wait; }
-.contact-form-new .submit-btn.is-submitting::after { opacity: 1; transform: scale(1); animation: vmgContactSpin .72s linear infinite; }
-.contact-form-new .submit-btn.is-success { color: transparent !important; background: #287a55 !important; border-color: #287a55 !important; }
-.contact-form-new .submit-btn.is-success::after {
-  width: 9px;
-  height: 15px;
-  margin: -9px 0 0 -4px;
-  opacity: 1;
-  border: 0;
-  border-right: 2px solid #fff;
-  border-bottom: 2px solid #fff;
-  border-radius: 0;
-  transform: rotate(45deg) scale(1);
-  animation: none;
-}
-
-@keyframes vmgContactSpin { to { transform: scale(1) rotate(360deg); } }
+.contact-form-new .submit-btn { min-width: 126px; }
 
 @media (max-width: 520px) {
   .contact-form-new .contact-dial-code { min-width: 68px; padding-inline: 10px; }
   .contact-form-new .vmg-attachment-chip { grid-template-columns: 30px minmax(0,1fr) 28px; }
   .contact-form-new .vmg-attachment-chip-size { grid-column: 2; }
   .contact-form-new .vmg-attachment-remove { grid-column: 3; grid-row: 1 / span 2; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .contact-form-new .submit-btn.is-submitting::after {
-    content: "…";
-    width: auto;
-    height: auto;
-    margin: 0;
-    border: 0;
-    color: #fff;
-    font-weight: 800;
-    opacity: 1;
-    transform: translate(-50%,-50%);
-    animation: none;
-  }
 }
