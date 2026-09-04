@@ -58,9 +58,13 @@
     });
   }
 
-  // Preserve the existing Contact visual field order without the old inline script.
   var form = document.getElementById('contact-form');
   if (form) {
+    // Prevent the legacy library-dependent Contact controller from binding.
+    // contact-form-v2.js becomes the sole Contact form owner below.
+    form.dataset.vmgReliabilityBound = 'true';
+    window.VMG_CONTACT_FORM_MANAGED = true;
+
     var rows = form.querySelectorAll('.form-row');
     var phone = form.querySelector('#contact');
     var country = form.querySelector('#country');
@@ -77,9 +81,33 @@
     if (privacyLabel) {
       privacyLabel.innerHTML = 'I have read the <a href="/privacy-policy.html" class="privacy-link">Privacy Policy</a> and agree to Vashudevan MetGlobal LLP processing the information and attachments I submit to respond to my enquiry.';
     }
+
+    function ensureScript(src, marker, done) {
+      var existing = document.querySelector('script[' + marker + ']');
+      if (existing) {
+        if (done) {
+          if (existing.dataset.loaded === 'true') done();
+          else existing.addEventListener('load', done, { once: true });
+        }
+        return;
+      }
+      var script = document.createElement('script');
+      script.src = src;
+      script.async = false;
+      script.setAttribute(marker, 'true');
+      script.addEventListener('load', function () { script.dataset.loaded = 'true'; if (done) done(); }, { once: true });
+      document.head.appendChild(script);
+    }
+
+    function loadV2() {
+      if (document.querySelector('script[data-vmg-contact-v2]')) return;
+      ensureScript('/assets/js/contact-form-v2.js?v=20260905a', 'data-vmg-contact-v2');
+    }
+
+    if (window.VMGCountryPhone) loadV2();
+    else ensureScript('/assets/js/vmg-country-phone.js?v=20260905a', 'data-vmg-country-phone-contact', loadV2);
   }
 
-  // Keep the existing desktop card-height treatment, but with one observer only.
   var leftCard = document.querySelector('.contact-info-left');
   var rightCard = document.querySelector('.contact-form-new');
   var rightContainer = document.querySelector('.contact-form-container');
@@ -100,7 +128,6 @@
     ro.observe(rightCard);
   }
 
-  // Contact still needs the existing floating WhatsApp utility, without loading main.js.
   if (!document.getElementById('whatsapp-float')) {
     var link = document.createElement('a');
     link.id = 'whatsapp-float';
