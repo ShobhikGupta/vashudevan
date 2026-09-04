@@ -1,0 +1,69 @@
+/* Final low-risk homepage polish from the FloTO usability audit.
+   Visual-only: no functionality, routing, ticker, popup or header behavior changes. */
+
+/* Trade desk: keep the decorative copper rule attached to the CTA itself so
+   all three enquiry cards use the same axis, width, thickness and spacing. */
+.home-view .home-main .home-trade-item > a {
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.home-view .home-main .home-trade-item > a::after {
+  left: 0;
+  right: auto;
+  bottom: 0;
+  width: 38px;
+  height: 1px;
+  background: var(--home-copper);
+}
+
+/* Product catalogue: restore a little breathing room before the section-level
+   View More Products text action without changing cards or section padding. */
+.home-view .home-main .home-products-cta {
+  margin-top: 28px;
+}
+
+/* Trade Intelligence & Resources: both peer cards share one left content axis.
+   Their intentionally different backgrounds remain unchanged. */
+.home-view .home-main .home-utilities-grid .home-utility,
+.home-view .home-main .home-utilities-grid .home-utility h3,
+.home-view .home-main .home-utilities-grid .home-utility p,
+.home-view .home-main .home-utilities-grid .home-utility small,
+.home-view .home-main .home-utilities-grid .home-utility ul,
+.home-view .home-main .home-utilities-grid .home-utility li,
+.home-view .home-main .home-utilities-grid .home-utility li a {
+  text-align: left;
+}
+
+.home-view .home-main .home-utilities-grid .home-utility .home-text-link {
+  justify-content: flex-start;
+  width: fit-content;
+  margin-left: 0;
+  margin-right: auto;
+  text-align: left;
+}
+
+/* Desktop Tier 1 only: Give Feedback reads as a secondary utility while
+   preserving the existing 36px target, icon, placement and interaction. */
+@media (min-width: 992px) {
+  .home-view .vmg-nav-socials .vmg-feedback-trigger-desktop {
+    background: rgba(10, 23, 40, .035);
+    border-color: #d5dce5;
+    color: #0a1728;
+    box-shadow: none;
+  }
+
+  .home-view .vmg-nav-socials .vmg-feedback-trigger-desktop:hover,
+  .home-view .vmg-nav-socials .vmg-feedback-trigger-desktop:focus-visible {
+    background: rgba(10, 23, 40, .075);
+    border-color: rgba(184, 121, 67, .45);
+    color: #0a1728;
+    box-shadow: 0 5px 12px rgba(10, 23, 40, .08);
+  }
+}
+
+@media (max-width: 768px) {
+  .home-view .home-main .home-products-cta {
+    margin-top: 24px;
+  }
+}
