@@ -54,7 +54,7 @@
   }
   loadStylesheet('/assets/css/vmg-market-polish.css?v=20260904b', 'data-vmg-market-polish');
   loadScript('/assets/js/skeleton-loader.js?v=20260904b', 'data-vmg-skeleton-loader-script');
-  loadScript('/assets/js/vmg-feedback.js?v=20260822j', 'data-vmg-feedback-script');
+  loadScript('/assets/js/vmg-feedback.js?v=20260905a', 'data-vmg-feedback-script');
   loadScript('/assets/js/vmg-help.js?v=20260904b', 'data-vmg-help-script');
 })();
 
@@ -295,11 +295,10 @@
     return { sync: syncVisual };
   }
 
-  function initContactSelects() {
+  function initContactTypeSelect() {
     if ((window.location.pathname || '') !== '/contact.html') return;
     var typeSelect = document.getElementById('type');
-    var countrySelect = document.getElementById('country');
-    if (!typeSelect || !countrySelect) return;
+    if (!typeSelect) return;
 
     var typeOptions = [
       ['', 'Select enquiry type'], ['buyer', 'Buyer / Purchase Requirement'], ['seller', 'Supplier / Material Offer'],
@@ -309,10 +308,12 @@
     ];
     typeSelect.innerHTML = '';
     typeOptions.forEach(function (pair) {
-      var option = document.createElement('option'); option.value = pair[0]; option.textContent = pair[1]; typeSelect.appendChild(option);
+      var option = document.createElement('option');
+      option.value = pair[0];
+      option.textContent = pair[1];
+      typeSelect.appendChild(option);
     });
 
-    var countryUi = initVmgCustomSelect(countrySelect);
     var typeUi = initVmgCustomSelect(typeSelect);
     var requestedType = new URLSearchParams(window.location.search).get('type');
     var supported = typeOptions.slice(1).map(function (pair) { return pair[0]; });
@@ -321,10 +322,17 @@
       if (typeUi) typeUi.sync();
       typeSelect.dispatchEvent(new Event('change', { bubbles: true }));
     }
-    if (countryUi) countryUi.sync();
   }
 
-  // One deterministic controller for Tier 2 pinning, footer retreat and Go To Top.
+  function initContactCountrySelect() {
+    if ((window.location.pathname || '') !== '/contact.html') return;
+    var countrySelect = document.getElementById('country');
+    if (!countrySelect || countrySelect.dataset.vmgCustomSelect === 'true') return;
+    if (countrySelect.dataset.vmgCountryReady !== 'true') return;
+    var ui = initVmgCustomSelect(countrySelect);
+    if (ui) ui.sync();
+  }
+
   function initHeaderBehavior() {
     var header = document.querySelector('.site-header.vmg-econship-header');
     var nav = header && header.querySelector('.site-nav');
@@ -381,22 +389,16 @@
 
     function applyState() {
       rafId = 0;
-
       var desktop = desktopQuery.matches;
       var pinned = setDesktopPinned(desktop);
       var menuOpen = isMenuOpen();
       var footerVisible = footerIsActuallyVisible();
       var retreat = footerVisible && !menuOpen && (!desktop || pinned);
-
       header.classList.toggle('vmg-footer-in-view', footerVisible);
       header.classList.toggle('vmg-menu-open', menuOpen);
       document.body.classList.toggle('vmg-footer-visible', footerVisible);
       document.body.classList.toggle('vmg-header-retreated', retreat);
-
-      // Retire the old main.js pre-footer visual state. main.js may still add this
-      // class synchronously, but this authoritative frame always clears it.
       document.body.classList.remove('scroll-top-visible');
-
       if (backToTop) {
         backToTop.classList.toggle('visible', retreat);
         backToTop.setAttribute('aria-hidden', retreat ? 'false' : 'true');
@@ -412,21 +414,15 @@
     window.addEventListener('orientationchange', requestState, { passive: true });
     window.addEventListener('load', requestState, { once: true });
     document.addEventListener('vmg:loader-hidden', requestState);
-
     if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', requestState);
     else if (desktopQuery.addListener) desktopQuery.addListener(requestState);
-
-    // Observe only the nav state. Do not observe body classes that this controller
-    // itself writes, which previously caused redundant feedback cycles.
     var menuObserver = new MutationObserver(requestState);
     menuObserver.observe(nav, { attributes: true, attributeFilter: ['class'] });
-
     if ('ResizeObserver' in window) {
       var geometryObserver = new ResizeObserver(requestState);
       geometryObserver.observe(nav);
       geometryObserver.observe(footer);
     }
-
     applyState();
     window.setTimeout(requestState, 80);
     window.setTimeout(requestState, 250);
@@ -439,10 +435,12 @@
     bindTrackForms();
     setActiveNav();
     routeContactIntents();
-    initContactSelects();
+    initContactTypeSelect();
+    initContactCountrySelect();
     initHeaderBehavior();
   }
 
+  document.addEventListener('vmg:contact-countries-ready', initContactCountrySelect);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();
 })();
