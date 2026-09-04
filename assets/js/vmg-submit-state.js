@@ -10,7 +10,6 @@
     document.head.appendChild(script);
   }
   load('/assets/js/vmg-country-phone.js?v=20260905a', 'data-vmg-country-phone');
-  load('/assets/js/vmg-country-phone-bridge.js?v=20260905a', 'data-vmg-country-phone-bridge');
 })();
 
 (function () {
