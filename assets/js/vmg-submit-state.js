@@ -5,6 +5,7 @@
 
   var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   var originals = new WeakMap();
+  var resetTimers = new WeakMap();
 
   function remember(button) {
     if (!button || originals.has(button)) return;
@@ -26,6 +27,11 @@
   function set(button, state) {
     if (!button) return;
     remember(button);
+    var existingTimer = resetTimers.get(button);
+    if (existingTimer) {
+      window.clearTimeout(existingTimer);
+      resetTimers.delete(button);
+    }
     button.classList.remove('is-submitting', 'is-success', 'is-error');
 
     if (state === 'loading' || state === 'submitting') {
@@ -52,17 +58,25 @@
     if (state === 'error') button.classList.add('is-error');
   }
 
+  function idleAfter(button, delay) {
+    var timer = window.setTimeout(function () {
+      resetTimers.delete(button);
+      set(button, 'idle');
+    }, delay);
+    resetTimers.set(button, timer);
+  }
+
   function prepare(button) {
     remember(button);
     button.setAttribute('aria-busy', 'false');
     return button;
   }
 
-  function bindOpeningPopup(form) {
+  function bindStatusDrivenForm(form, buttonSelector, statusSelector) {
     if (!form || form.dataset.vmgSubmitStateBound === 'true') return;
-    var button = form.querySelector('.opening-popup-submit');
-    var success = form.querySelector('.opening-popup-success');
-    if (!button) return;
+    var button = form.querySelector(buttonSelector);
+    var status = form.querySelector(statusSelector);
+    if (!button || !status) return;
     form.dataset.vmgSubmitStateBound = 'true';
     prepare(button);
 
@@ -70,9 +84,39 @@
       window.setTimeout(function () {
         if (button.disabled) set(button, 'loading');
       }, 0);
-    });
+    }, true);
 
-    if (success && window.MutationObserver) {
+    if (!window.MutationObserver) return;
+    var observer = new MutationObserver(function () {
+      var text = (status.textContent || '').trim();
+      if (status.classList.contains('is-success') && text) {
+        set(button, 'success');
+        idleAfter(button, 1300);
+      } else if (status.classList.contains('is-error') && text) {
+        set(button, 'error');
+        idleAfter(button, 260);
+      } else if (/sending/i.test(text)) {
+        set(button, 'loading');
+      }
+    });
+    observer.observe(status, { attributes: true, childList: true, characterData: true, subtree: true });
+  }
+
+  function bindOpeningPopup(form) {
+    if (!form || form.dataset.vmgSubmitStateBound === 'true') return;
+    var button = form.querySelector('.opening-popup-submit');
+    var success = form.querySelector('.opening-popup-success');
+    if (!button || !success) return;
+    form.dataset.vmgSubmitStateBound = 'true';
+    prepare(button);
+
+    form.addEventListener('submit', function () {
+      window.setTimeout(function () {
+        if (button.disabled) set(button, 'loading');
+      }, 0);
+    }, true);
+
+    if (window.MutationObserver) {
       var successObserver = new MutationObserver(function () {
         var style = window.getComputedStyle(success);
         var visible = style.display !== 'none' && style.visibility !== 'hidden' && (success.textContent || '').trim();
@@ -80,29 +124,30 @@
       });
       successObserver.observe(success, { attributes: true, childList: true, characterData: true, subtree: true });
     }
-
-    if (window.MutationObserver) {
-      var buttonObserver = new MutationObserver(function () {
-        if (!button.disabled && !button.classList.contains('is-success')) set(button, 'idle');
-      });
-      buttonObserver.observe(button, { attributes: true, attributeFilter: ['disabled'] });
-    }
   }
 
-  function scanPopup() {
+  function scan() {
     document.querySelectorAll('.opening-popup-form').forEach(bindOpeningPopup);
+    document.querySelectorAll('#vmg-feedback-form').forEach(function (form) {
+      bindStatusDrivenForm(form, '.vmg-feedback-submit', '.vmg-feedback-status');
+    });
+    document.querySelectorAll('[data-vmg-subscribe-form]').forEach(function (form) {
+      bindStatusDrivenForm(form, '.vmg-footer-subscribe-button', '.vmg-footer-subscribe-status');
+    });
+    document.querySelectorAll('#contact-form .submit-btn').forEach(prepare);
   }
 
   window.VMGSubmitState = {
     prepare: prepare,
-    set: set
+    set: set,
+    idleAfter: idleAfter
   };
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scanPopup, { once: true });
-  else scanPopup();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scan, { once: true });
+  else scan();
 
   if (window.MutationObserver) {
-    var observer = new MutationObserver(scanPopup);
-    observer.observe(document.documentElement, { childList: true, subtree: true });
+    var pageObserver = new MutationObserver(scan);
+    pageObserver.observe(document.documentElement, { childList: true, subtree: true });
   }
 })();
