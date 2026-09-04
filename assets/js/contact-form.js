@@ -6,6 +6,47 @@
   form.dataset.vmgReliabilityBound = 'true';
   window.VMG_CONTACT_FORM_MANAGED = true;
 
+  function ensureContactMarkup() {
+    var phone = document.getElementById('contact');
+    var phoneGroup = document.getElementById('contact-phone-group');
+    if (phone && phoneGroup && !document.getElementById('contact-dial-code')) {
+      var dial = document.createElement('span');
+      dial.className = 'contact-dial-code';
+      dial.id = 'contact-dial-code';
+      dial.setAttribute('aria-hidden', 'true');
+      dial.textContent = '+91';
+      phoneGroup.insertBefore(dial, phone);
+      phone.placeholder = 'Phone number';
+      phone.setAttribute('autocomplete', 'tel-national');
+      phoneGroup.setAttribute('aria-label', 'India +91, phone number');
+    }
+
+    if (!document.getElementById('attachments')) {
+      var message = document.getElementById('message');
+      var messageField = message && message.closest('.form-field');
+      var privacy = form.querySelector('.form-checkbox');
+      if (messageField && privacy) {
+        var field = document.createElement('div');
+        field.className = 'form-field full-width vmg-attachments-field';
+        field.innerHTML = '' +
+          '<label for="attachments">Attachments (optional)</label>' +
+          '<button type="button" class="vmg-attachment-picker" id="attachment-picker" aria-controls="attachments">' +
+            '<span class="vmg-attachment-icon" aria-hidden="true">↥</span>' +
+            '<span><span class="vmg-attachment-title">Add photos or documents</span>' +
+            '<span class="vmg-attachment-support">Material photos, specifications or supporting documents</span></span>' +
+            '<span class="vmg-attachment-rules">JPG, PNG, WEBP, HEIC or PDF · Up to 5 files · 10 MB total</span>' +
+          '</button>' +
+          '<input class="vmg-attachment-input" type="file" id="attachments" name="attachments" multiple ' +
+            'accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf" aria-describedby="attachments-error">' +
+          '<div class="vmg-attachment-list" id="attachment-list" aria-live="polite"></div>' +
+          '<span class="error" id="attachments-error" aria-live="polite"></span>';
+        privacy.parentNode.insertBefore(field, privacy);
+      }
+    }
+  }
+
+  ensureContactMarkup();
+
   var fields = {
     fullname: document.getElementById('fullname'),
     phone: document.getElementById('contact'),
@@ -63,14 +104,12 @@
     if (!fields.country) return;
     var data = countryData();
     if (!data.length) return;
-
     countryByIso2 = {};
     var fragment = document.createDocumentFragment();
     var placeholder = document.createElement('option');
     placeholder.value = '';
     placeholder.textContent = 'Select country';
     fragment.appendChild(placeholder);
-
     data.forEach(function (item) {
       countryByIso2[item.iso2] = item;
       var option = document.createElement('option');
@@ -79,7 +118,6 @@
       option.dataset.dialCode = item.dialCode || '';
       fragment.appendChild(option);
     });
-
     fields.country.innerHTML = '';
     fields.country.appendChild(fragment);
     fields.country.value = 'in';
@@ -88,14 +126,12 @@
 
   function initPhoneEngine() {
     if (!fields.phone || !window.intlTelInput) return null;
-
     phoneEngineInput = document.createElement('input');
     phoneEngineInput.type = 'tel';
     phoneEngineInput.tabIndex = -1;
     phoneEngineInput.setAttribute('aria-hidden', 'true');
     phoneEngineInput.className = 'vmg-phone-validation-engine';
     form.appendChild(phoneEngineInput);
-
     iti = window.intlTelInput(phoneEngineInput, {
       initialCountry: 'in',
       allowDropdown: false,
@@ -104,7 +140,6 @@
       autoPlaceholder: 'off',
       utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.12/build/js/utils.js'
     });
-
     var wrapper = phoneEngineInput.closest('.iti');
     if (wrapper) wrapper.classList.add('vmg-phone-validation-engine-wrap');
     return iti;
@@ -115,11 +150,7 @@
     if (iso2 && countryByIso2[iso2]) return countryByIso2[iso2];
     if (fields.country && fields.country.selectedIndex >= 0) {
       var option = fields.country.options[fields.country.selectedIndex];
-      return option && option.value ? {
-        iso2: option.value,
-        name: option.textContent.trim(),
-        dialCode: option.dataset.dialCode || ''
-      } : null;
+      return option && option.value ? { iso2: option.value, name: option.textContent.trim(), dialCode: option.dataset.dialCode || '' } : null;
     }
     return null;
   }
@@ -143,9 +174,7 @@
     try { iti.setCountry(meta.iso2); } catch (_) {}
   }
 
-  function digitsOnly(value) {
-    return String(value || '').replace(/\D/g, '');
-  }
+  function digitsOnly(value) { return String(value || '').replace(/\D/g, ''); }
 
   function clearPhoneConflict() {
     phoneConflict = false;
@@ -161,17 +190,10 @@
   function normalizeVisiblePhone() {
     if (!fields.phone) return;
     var raw = fields.phone.value.trim();
-    if (!raw) {
-      clearPhoneConflict();
-      return;
-    }
-
+    if (!raw) { clearPhoneConflict(); return; }
     var meta = selectedCountryMeta();
     if (raw.charAt(0) === '+') {
-      if (!meta || !meta.dialCode) {
-        setPhoneConflict();
-        return;
-      }
+      if (!meta || !meta.dialCode) { setPhoneConflict(); return; }
       var matchingPrefix = '+' + meta.dialCode;
       if (raw.indexOf(matchingPrefix) === 0) {
         fields.phone.value = digitsOnly(raw.slice(matchingPrefix.length));
@@ -255,10 +277,7 @@
       if (privacyWrap) privacyWrap.classList.add('is-invalid');
     }
     var error = errorElement(control);
-    if (error) {
-      error.textContent = message;
-      error.classList.add('show');
-    }
+    if (error) { error.textContent = message; error.classList.add('show'); }
   }
 
   function clearInvalid(control) {
@@ -277,26 +296,18 @@
     if (error) error.classList.remove('show');
   }
 
-  function validEmail(value) {
-    return value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-  }
+  function validEmail(value) { return value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value); }
 
   function setAttachmentError(message) {
     var field = fields.attachments ? fields.attachments.closest('.vmg-attachments-field') : null;
     if (field) field.classList.add('is-invalid');
-    if (attachmentError) {
-      attachmentError.textContent = message;
-      attachmentError.classList.add('show');
-    }
+    if (attachmentError) { attachmentError.textContent = message; attachmentError.classList.add('show'); }
   }
 
   function clearAttachmentError() {
     var field = fields.attachments ? fields.attachments.closest('.vmg-attachments-field') : null;
     if (field) field.classList.remove('is-invalid');
-    if (attachmentError) {
-      attachmentError.textContent = '';
-      attachmentError.classList.remove('show');
-    }
+    if (attachmentError) { attachmentError.textContent = ''; attachmentError.classList.remove('show'); }
   }
 
   function readableBytes(bytes) {
@@ -305,9 +316,7 @@
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 
-  function attachmentKey(file) {
-    return [file.name, file.size, file.lastModified].join('|');
-  }
+  function attachmentKey(file) { return [file.name, file.size, file.lastModified].join('|'); }
 
   function renderAttachments() {
     if (!attachmentList) return;
@@ -315,36 +324,24 @@
     selectedFiles.forEach(function (file, index) {
       var item = document.createElement('div');
       item.className = 'vmg-attachment-chip';
-
       var icon = document.createElement('span');
       icon.className = 'vmg-attachment-chip-icon';
       icon.setAttribute('aria-hidden', 'true');
       icon.textContent = file.type.indexOf('image/') === 0 ? '▧' : 'PDF';
-
       var name = document.createElement('span');
       name.className = 'vmg-attachment-chip-name';
       name.textContent = file.name;
       name.title = file.name;
-
       var size = document.createElement('span');
       size.className = 'vmg-attachment-chip-size';
       size.textContent = readableBytes(file.size);
-
       var remove = document.createElement('button');
       remove.type = 'button';
       remove.className = 'vmg-attachment-remove';
       remove.setAttribute('aria-label', 'Remove ' + file.name);
       remove.textContent = '×';
-      remove.addEventListener('click', function () {
-        selectedFiles.splice(index, 1);
-        clearAttachmentError();
-        renderAttachments();
-      });
-
-      item.appendChild(icon);
-      item.appendChild(name);
-      item.appendChild(size);
-      item.appendChild(remove);
+      remove.addEventListener('click', function () { selectedFiles.splice(index, 1); clearAttachmentError(); renderAttachments(); });
+      item.appendChild(icon); item.appendChild(name); item.appendChild(size); item.appendChild(remove);
       attachmentList.appendChild(item);
     });
   }
@@ -352,38 +349,30 @@
   function addAttachments(fileList) {
     var incoming = Array.prototype.slice.call(fileList || []);
     if (!incoming.length) return;
-
     var unsupported = incoming.find(function (file) { return !ALLOWED_ATTACHMENT_TYPES[file.type]; });
     if (unsupported) {
       setAttachmentError('Unsupported file type: ' + unsupported.name + '. Use JPG, PNG, WEBP, HEIC or PDF.');
       if (fields.attachments) fields.attachments.value = '';
       return;
     }
-
     var currentKeys = {};
     selectedFiles.forEach(function (file) { currentKeys[attachmentKey(file)] = true; });
     var combined = selectedFiles.slice();
     incoming.forEach(function (file) {
       var key = attachmentKey(file);
-      if (!currentKeys[key]) {
-        currentKeys[key] = true;
-        combined.push(file);
-      }
+      if (!currentKeys[key]) { currentKeys[key] = true; combined.push(file); }
     });
-
     if (combined.length > MAX_ATTACHMENTS) {
       setAttachmentError('You can attach up to 5 files.');
       if (fields.attachments) fields.attachments.value = '';
       return;
     }
-
     var total = combined.reduce(function (sum, file) { return sum + file.size; }, 0);
     if (total > MAX_ATTACHMENT_BYTES) {
       setAttachmentError('Attachments must be 10 MB total or less.');
       if (fields.attachments) fields.attachments.value = '';
       return;
     }
-
     selectedFiles = combined;
     clearAttachmentError();
     renderAttachments();
@@ -396,10 +385,7 @@
       reader.onload = function () {
         var dataUrl = String(reader.result || '');
         var comma = dataUrl.indexOf(',');
-        if (comma === -1) {
-          reject(new Error('Could not read ' + file.name + '.'));
-          return;
-        }
+        if (comma === -1) { reject(new Error('Could not read ' + file.name + '.')); return; }
         resolve({ name: file.name, mimeType: file.type, size: file.size, base64: dataUrl.slice(comma + 1) });
       };
       reader.onerror = function () { reject(new Error('Could not read ' + file.name + '.')); };
@@ -407,24 +393,16 @@
     });
   }
 
-  function serializeAttachments() {
-    return Promise.all(selectedFiles.map(fileToPayload));
-  }
+  function serializeAttachments() { return Promise.all(selectedFiles.map(fileToPayload)); }
 
   function clearTurnstileError() {
     if (turnstileHost) turnstileHost.classList.remove('is-invalid');
-    if (turnstileError) {
-      turnstileError.textContent = '';
-      turnstileError.classList.remove('show');
-    }
+    if (turnstileError) { turnstileError.textContent = ''; turnstileError.classList.remove('show'); }
   }
 
   function setTurnstileError(message) {
     if (turnstileHost) turnstileHost.classList.add('is-invalid');
-    if (turnstileError) {
-      turnstileError.textContent = message;
-      turnstileError.classList.add('show');
-    }
+    if (turnstileError) { turnstileError.textContent = message; turnstileError.classList.add('show'); }
   }
 
   function validateAll() {
@@ -433,26 +411,18 @@
     var email = fields.email ? fields.email.value.trim() : '';
     var org = fields.organization ? fields.organization.value.trim() : '';
     var message = fields.message ? fields.message.value.trim() : '';
-
     if (name.length < 2 || name.length > 80) { setInvalid(fields.fullname, 'Please enter your full name (2–80 characters).'); ok = false; } else clearInvalid(fields.fullname);
     if (!fields.country || !fields.country.value) { setInvalid(fields.country, 'Please select a country.'); ok = false; } else clearInvalid(fields.country);
     if (!validEmail(email)) { setInvalid(fields.email, email ? 'Please enter a valid email address.' : 'Please enter your email address.'); ok = false; } else clearInvalid(fields.email);
-
     if (!fields.phone || !fields.phone.value.trim()) { setInvalid(fields.phone, 'Please enter your phone number.'); ok = false; }
     else if (phoneConflict) { setInvalid(fields.phone, 'The number includes a different country code. Change Country first.'); ok = false; }
     else if (!validPhone()) { setInvalid(fields.phone, 'Please enter a valid phone number for ' + (countryName() || 'the selected country') + '.'); ok = false; }
     else clearInvalid(fields.phone);
-
     if (org.length > 120) { setInvalid(fields.organization, 'Organization must be 120 characters or fewer.'); ok = false; } else clearInvalid(fields.organization);
     if (!fields.type || TYPE_VALUES.indexOf(fields.type.value) === -1) { setInvalid(fields.type, 'Please select an enquiry type.'); ok = false; } else clearInvalid(fields.type);
     if (message.length < 10 || message.length > 3000) { setInvalid(fields.message, 'Please enter a message between 10 and 3000 characters.'); ok = false; } else clearInvalid(fields.message);
-
     var totalBytes = selectedFiles.reduce(function (sum, file) { return sum + file.size; }, 0);
-    if (selectedFiles.length > MAX_ATTACHMENTS || totalBytes > MAX_ATTACHMENT_BYTES || selectedFiles.some(function (file) { return !ALLOWED_ATTACHMENT_TYPES[file.type]; })) {
-      setAttachmentError('Please review the selected attachments.');
-      ok = false;
-    } else clearAttachmentError();
-
+    if (selectedFiles.length > MAX_ATTACHMENTS || totalBytes > MAX_ATTACHMENT_BYTES || selectedFiles.some(function (file) { return !ALLOWED_ATTACHMENT_TYPES[file.type]; })) { setAttachmentError('Please review the selected attachments.'); ok = false; } else clearAttachmentError();
     if (!fields.privacy || !fields.privacy.checked) { setInvalid(fields.privacy, 'Please accept the privacy policy to continue.'); ok = false; } else clearInvalid(fields.privacy);
     if (!turnstileToken) { setTurnstileError('Please complete the security verification and try again.'); ok = false; } else clearTurnstileError();
     return ok;
@@ -466,12 +436,8 @@
     if (fields.privacy) fields.privacy.addEventListener('change', function () { if (this.checked) clearInvalid(this); });
     if (fields.type) fields.type.addEventListener('change', function () { if (TYPE_VALUES.indexOf(this.value) !== -1) clearInvalid(this); });
     if (fields.country) fields.country.addEventListener('change', function () { if (this.value) clearInvalid(this); syncCountryToPhoneEngine(); });
-
     if (fields.phone) {
-      fields.phone.addEventListener('input', function () {
-        normalizeVisiblePhone();
-        if (!phoneConflict && this.value.trim() && validPhone()) clearInvalid(this);
-      });
+      fields.phone.addEventListener('input', function () { normalizeVisiblePhone(); if (!phoneConflict && this.value.trim() && validPhone()) clearInvalid(this); });
       fields.phone.addEventListener('blur', function () {
         normalizeVisiblePhone();
         if (!this.value.trim()) return;
@@ -480,63 +446,35 @@
         else setInvalid(this, 'Please enter a valid phone number for ' + (countryName() || 'the selected country') + '.');
       });
     }
-
     if (attachmentPicker && fields.attachments) attachmentPicker.addEventListener('click', function () { fields.attachments.click(); });
     if (fields.attachments) fields.attachments.addEventListener('change', function () { addAttachments(this.files); });
   }
 
-  function isPreviewEnvironment() {
-    return window.location.hostname === PREVIEW_TEST_HOST || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  }
-
-  function configuredTurnstileSitekey() {
-    if (isPreviewEnvironment()) return TURNSTILE_PREVIEW_SITEKEY;
-    return (window.AppConfig && window.AppConfig.turnstileSiteKey) || '';
-  }
+  function isPreviewEnvironment() { return window.location.hostname === PREVIEW_TEST_HOST || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'; }
+  function configuredTurnstileSitekey() { if (isPreviewEnvironment()) return TURNSTILE_PREVIEW_SITEKEY; return (window.AppConfig && window.AppConfig.turnstileSiteKey) || ''; }
 
   function renderTurnstile() {
     if (!turnstileHost || turnstileWidgetId !== null) return;
-    if (!window.turnstile || typeof window.turnstile.render !== 'function') {
-      window.setTimeout(renderTurnstile, 120);
-      return;
-    }
-
+    if (!window.turnstile || typeof window.turnstile.render !== 'function') { window.setTimeout(renderTurnstile, 120); return; }
     var sitekey = configuredTurnstileSitekey();
-    if (!sitekey) {
-      turnstileHost.classList.add('is-unconfigured');
-      setTurnstileError('Security verification is not configured yet.');
-      return;
-    }
-
-    try {
-      turnstileWidgetId = window.turnstile.render(turnstileHost, {
-        sitekey: sitekey,
-        theme: 'light',
-        appearance: 'always',
-        size: 'flexible',
-        action: 'contact_form',
-        callback: function (token) { turnstileToken = token || ''; clearTurnstileError(); },
-        'expired-callback': function () { turnstileToken = ''; setTurnstileError('Security verification expired. Please verify again.'); },
-        'error-callback': function () { turnstileToken = ''; setTurnstileError('Security verification failed. Please try again.'); }
-      });
-    } catch (_) {
-      turnstileWidgetId = window.turnstile.render(turnstileHost, {
-        sitekey: sitekey,
-        theme: 'light',
-        appearance: 'always',
-        action: 'contact_form',
-        callback: function (token) { turnstileToken = token || ''; clearTurnstileError(); },
-        'expired-callback': function () { turnstileToken = ''; setTurnstileError('Security verification expired. Please verify again.'); },
-        'error-callback': function () { turnstileToken = ''; setTurnstileError('Security verification failed. Please try again.'); }
-      });
-    }
+    if (!sitekey) { turnstileHost.classList.add('is-unconfigured'); setTurnstileError('Security verification is not configured yet.'); return; }
+    var options = {
+      sitekey: sitekey,
+      theme: 'light',
+      appearance: 'always',
+      size: 'flexible',
+      action: 'contact_form',
+      callback: function (token) { turnstileToken = token || ''; clearTurnstileError(); },
+      'expired-callback': function () { turnstileToken = ''; setTurnstileError('Security verification expired. Please verify again.'); },
+      'error-callback': function () { turnstileToken = ''; setTurnstileError('Security verification failed. Please try again.'); }
+    };
+    try { turnstileWidgetId = window.turnstile.render(turnstileHost, options); }
+    catch (_) { delete options.size; turnstileWidgetId = window.turnstile.render(turnstileHost, options); }
   }
 
   function resetTurnstile() {
     turnstileToken = '';
-    if (window.turnstile && turnstileWidgetId !== null) {
-      try { window.turnstile.reset(turnstileWidgetId); } catch (_) {}
-    }
+    if (window.turnstile && turnstileWidgetId !== null) { try { window.turnstile.reset(turnstileWidgetId); } catch (_) {} }
   }
 
   function setButtonState(state) {
@@ -566,14 +504,8 @@
     startedAt = Date.now();
     if (fields.startedAt) fields.startedAt.value = String(startedAt);
     resetAttachments();
-    if (fields.country) {
-      fields.country.value = 'in';
-      fields.country.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-    if (fields.type) {
-      fields.type.value = '';
-      fields.type.dispatchEvent(new Event('change', { bubbles: true }));
-    }
+    if (fields.country) { fields.country.value = 'in'; fields.country.dispatchEvent(new Event('change', { bubbles: true })); }
+    if (fields.type) { fields.type.value = ''; fields.type.dispatchEvent(new Event('change', { bubbles: true })); }
     if (fields.phone) fields.phone.value = '';
     clearPhoneConflict();
     setPhoneEngineCountry();
@@ -585,27 +517,15 @@
     var attachments = await serializeAttachments();
     var phone = fullPhone();
     return {
-      source: 'main',
-      fullName: fields.fullname.value.trim(),
-      fullname: fields.fullname.value.trim(),
-      contact: phone,
-      contactNumber: phone,
-      phone: phone,
-      email: fields.email.value.trim(),
-      mailId: fields.email.value.trim(),
-      country: countryName(),
-      Country: countryName(),
-      countryIso2: fields.country.value,
-      organization: fields.organization.value.trim(),
-      type: fields.type.value,
-      message: fields.message.value.trim(),
-      privacy: true,
-      attachments: attachments,
-      attachmentCount: attachments.length,
+      source: 'main', fullName: fields.fullname.value.trim(), fullname: fields.fullname.value.trim(),
+      contact: phone, contactNumber: phone, phone: phone,
+      email: fields.email.value.trim(), mailId: fields.email.value.trim(),
+      country: countryName(), Country: countryName(), countryIso2: fields.country.value,
+      organization: fields.organization.value.trim(), type: fields.type.value, message: fields.message.value.trim(),
+      privacy: true, attachments: attachments, attachmentCount: attachments.length,
       website: fields.honeypot ? fields.honeypot.value : '',
       formStartedAt: fields.startedAt ? Number(fields.startedAt.value) : startedAt,
-      submittedAt: new Date().toISOString(),
-      page: window.location.href,
+      submittedAt: new Date().toISOString(), page: window.location.href,
       'cf-turnstile-response': turnstileToken
     };
   }
@@ -613,17 +533,9 @@
   async function submitContact(data) {
     var endpoint = (window.AppConfig && (window.AppConfig.contactEndpoint || window.AppConfig.googleScriptUrl)) || '';
     if (!endpoint) throw new Error('Submission endpoint is not configured.');
-    if (!(window.AppConfig && window.AppConfig.contactSecurityReady === true)) {
-      throw new Error('Server-side security and attachment handling are not deployed yet.');
-    }
-
-    var response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=UTF-8', 'Accept': 'application/json' },
-      body: JSON.stringify(data)
-    });
+    if (!(window.AppConfig && window.AppConfig.contactSecurityReady === true)) throw new Error('Server-side security and attachment handling are not deployed yet.');
+    var response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8', 'Accept': 'application/json' }, body: JSON.stringify(data) });
     if (!response.ok) throw new Error('The server could not accept your message.');
-
     var body = {};
     try { body = await response.json(); } catch (_) {}
     if (body && body.success === false) throw new Error(body.message || 'Submission could not be accepted.');
@@ -635,7 +547,6 @@
     event.preventDefault();
     event.stopImmediatePropagation();
     if (submitting) return;
-
     showResult('', '');
     if (!validateAll()) {
       showResult('Please correct the highlighted fields.', 'error');
@@ -643,11 +554,9 @@
       if (firstInvalid && typeof firstInvalid.focus === 'function') firstInvalid.focus();
       return;
     }
-
     submitting = true;
     setButtonState('submitting');
     showResult('Sending your message securely…', 'submitting');
-
     try {
       var data = await payload();
       await submitContact(data);
@@ -659,9 +568,7 @@
       setButtonState('idle');
       showResult(error && error.message ? error.message : 'Unable to send your message. Please try again.', 'error');
       resetTurnstile();
-    } finally {
-      submitting = false;
-    }
+    } finally { submitting = false; }
   }, true);
 
   populateCountries();
