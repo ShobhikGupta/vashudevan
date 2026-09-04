@@ -1,5 +1,20 @@
 (function () {
   'use strict';
+  if (!document || !document.head) return;
+  function load(src, marker) {
+    if (document.querySelector('script[' + marker + ']')) return;
+    var script = document.createElement('script');
+    script.src = src;
+    script.async = false;
+    script.setAttribute(marker, 'true');
+    document.head.appendChild(script);
+  }
+  load('/assets/js/vmg-country-phone.js?v=20260905a', 'data-vmg-country-phone');
+  load('/assets/js/vmg-country-phone-bridge.js?v=20260905a', 'data-vmg-country-phone-bridge');
+})();
+
+(function () {
+  'use strict';
 
   if (window.VMGSubmitState) return;
 
