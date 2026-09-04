@@ -1,0 +1,447 @@
+name: One-time country phone routing fix
+on:
+  push:
+    branches: [hotfix/production-ui-fixes-24aug]
+    paths: [.github/workflows/one-time-country-phone-routing-fix.yml]
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: hotfix/production-ui-fixes-24aug
+          fetch-depth: 0
+      - name: Apply shared country and routing patch
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, html, json
+
+          root = Path('.')
+          main_path = root/'assets/js/main.js'
+          contact_path = root/'assets/js/contact-form.js'
+          main = main_path.read_text()
+          contact = contact_path.read_text()
+
+          def js_object(name):
+              m = re.search(r"var\s+" + re.escape(name) + r"\s*=\s*\{(.*?)\n\s*\};", main, re.S)
+              if not m:
+                  raise SystemExit('Missing object '+name)
+              return dict(re.findall(r"'([^']+)'\s*:\s*'([^']+)'", m.group(1)))
+
+          iso = js_object('__countryIso2ByValue')
+          dial = js_object('__dialCodeByValue')
+
+          m = re.search(r"function buildCountryOptions\(\) \{.*?return `(?P<html>.*?)`;\n\s*\}", main, re.S)
+          if not m:
+              raise SystemExit('buildCountryOptions block not found')
+          options = []
+          for value, name in re.findall(r'<option value="([^"]*)">([^<]*)</option>', m.group('html')):
+              if not value:
+                  continue
+              name = html.unescape(name.replace("\\'", "'"))
+              options.append((value, name))
+
+          supplement = {
+              'antigua-and-barbuda': ('ag','1268'),
+              'barbados': ('bb','1246'),
+              'cabo-verde': ('cv','238'),
+              'montenegro': ('me','382'),
+              'myanmar': ('mm','95'),
+              'palestine': ('ps','970'),
+              'saint-kitts-and-nevis': ('kn','1869'),
+              'saint-lucia': ('lc','1758'),
+              'saint-vincent-and-the-grenadines': ('vc','1784'),
+              'vatican-city': ('va','379')
+          }
+          for value, pair in supplement.items():
+              iso.setdefault(value, pair[0]); dial.setdefault(value, pair[1])
+
+          missing = [value for value, _ in options if value not in iso or value not in dial]
+          if missing:
+              raise SystemExit('Missing shared country metadata: '+', '.join(missing))
+          if len(options) < 195:
+              raise SystemExit('Expected at least 195 countries, got %d' % len(options))
+
+          entries = [dict(value=value, name=name, iso2=iso[value], dialCode=dial[value]) for value,name in options]
+          module = """(function () {\n  'use strict';\n  if (window.VMGCountryPhone) return;\n  var countries = __DATA__;\n  var byValue = Object.create(null);\n  var byIso2 = Object.create(null);\n  function normalizeKey(value) {\n    return String(value == null ? '' : value).trim().toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');\n  }\n  countries.forEach(function (entry) { byValue[entry.value] = entry; byValue[normalizeKey(entry.name)] = entry; byIso2[entry.iso2] = entry; });\n  function getByValue(value) { var raw=String(value==null?'':value).trim().toLowerCase(); return byIso2[raw] || byValue[normalizeKey(raw)] || null; }\n  function getDialCode(value) { var entry=getByValue(value); return entry ? entry.dialCode : ''; }\n  function getIso2(value) { var entry=getByValue(value); return entry ? entry.iso2 : ''; }\n  function nationalDigits(value) { return String(value==null?'':value).replace(/\\D/g, ''); }\n  function formatDisplayPhone(countryValue, nationalValue) { var entry=getByValue(countryValue), national=nationalDigits(nationalValue); return entry && national ? '+'+entry.dialCode+' '+national : ''; }\n  function canonicalPhone(countryValue, nationalValue) { var entry=getByValue(countryValue), national=nationalDigits(nationalValue); return entry && national ? '+'+entry.dialCode+national : ''; }\n  window.VMGCountryPhone = Object.freeze({ countries:countries.slice(), count:countries.length, getByValue:getByValue, getDialCode:getDialCode, getIso2:getIso2, nationalDigits:nationalDigits, formatDisplayPhone:formatDisplayPhone, canonicalPhone:canonicalPhone, defaultCountry:byValue.india });\n  document.dispatchEvent(new CustomEvent('vmg:country-phone-ready', {detail:{count:countries.length}}));\n})();\n""".replace('__DATA__', json.dumps(entries, ensure_ascii=False, separators=(',',':')))
+          (root/'assets/js/vmg-country-phone.js').write_text(module)
+
+          new_build = """function buildCountryOptions() {\n    var shared = window.VMGCountryPhone;\n    if (!shared || !shared.countries || !shared.countries.length) return '<option value=\"india\" selected>India</option>';\n    return '<option value=\"\">Select country</option>' + shared.countries.map(function (entry) {\n      var selected = entry.value === 'india' ? ' selected' : '';\n      return '<option value=\"' + entry.value + '\"' + selected + '>' + entry.name + '</option>';\n    }).join('');\n  }"""
+          main, n = re.subn(r"function buildCountryOptions\(\) \{.*?return `.*?`;\n\s*\}", new_build, main, count=1, flags=re.S)
+          if n != 1: raise SystemExit('Could not replace buildCountryOptions')
+
+          shared_popup = """
+    // One shared static country/phone source for Popup and Contact.
+    var sharedCountryPhone = window.VMGCountryPhone;
+    function syncCountryUIAndITI(){
+      if (!popupCountry || !sharedCountryPhone) return;
+      var entry = sharedCountryPhone.getByValue(popupCountry.value);
+      if (!entry) return;
+      if (popupDialCode) popupDialCode.textContent = '+' + entry.dialCode;
+      try { if (popupPhone && popupPhone._iti) popupPhone._iti.setCountry(entry.iso2); } catch(_) {}
+    }
+
+    // Attach listeners immediately"""
+          main, n = re.subn(r"\n    // Country mappings available immediately.*?\n    // Attach listeners immediately", '\n'+shared_popup, main, count=1, flags=re.S)
+          if n != 1: raise SystemExit('Could not replace popup country maps')
+
+          # Replace any remaining popup-map lookups with shared helper calls.
+          popup_start = main.index('// Opening popup form')
+          popup = main[popup_start:]
+          popup = re.sub(r'__countryIso2ByValue\[([^\]]+)\]', r'sharedCountryPhone.getIso2(\1)', popup)
+          popup = re.sub(r'__dialCodeByValue\[([^\]]+)\]', r'sharedCountryPhone.getDialCode(\1)', popup)
+          if '__countryIso2ByValue' in popup or '__dialCodeByValue' in popup:
+              raise SystemExit('Duplicate popup maps remain')
+
+          anchor = "      // Build payload: include routing fields Apps Script expects AND exact header keys"
+          if anchor not in popup: raise SystemExit('Popup payload anchor missing')
+          popup_phone_parts = """      var popupEntry = sharedCountryPhone && sharedCountryPhone.getByValue(popupCountry && popupCountry.value);\n      var phoneNational = sharedCountryPhone ? sharedCountryPhone.nationalDigits(phone || '') : String(phone || '').replace(/\\D/g, '');\n      var phoneDialCode = popupEntry ? '+' + popupEntry.dialCode : '';\n      var phoneDisplay = popupEntry && phoneNational ? phoneDialCode + ' ' + phoneNational : fullPhone;\n\n"""
+          popup = popup.replace(anchor, popup_phone_parts + anchor, 1)
+          old_payload = """        phone: fullPhone,\n        email: email,\n        country: countryText,\n        // exact sheet headers to ensure correct placement\n        'PHONE NUMBER': fullPhone,"""
+          new_payload = """        phone: fullPhone,\n        contact: fullPhone,\n        contactNumber: fullPhone,\n        phoneE164: fullPhone,\n        phoneDialCode: phoneDialCode,\n        phoneNational: phoneNational,\n        phoneDisplay: phoneDisplay,\n        email: email,\n        country: countryText,\n        // exact sheet headers to ensure correct placement\n        'PHONE NUMBER': phoneDisplay,"""
+          if old_payload not in popup: raise SystemExit('Popup payload fields anchor missing')
+          popup = popup.replace(old_payload, new_payload, 1)
+          popup = popup.replace("formData.append('PHONE NUMBER', fullPhone);", "formData.append('PHONE NUMBER', phoneDisplay);\n          formData.append('phoneE164', fullPhone);\n          formData.append('phoneDialCode', phoneDialCode);\n          formData.append('phoneNational', phoneNational);\n          formData.append('phoneDisplay', phoneDisplay);", 1)
+          main = main[:popup_start] + popup
+          main_path.write_text(main)
+
+          # Contact: replace library-dependent country source with shared static source.
+          contact = contact.replace("var DEFAULT_COUNTRY = { iso2: 'in', name: 'India', dialCode: '91' };", "var DEFAULT_COUNTRY = { value: 'india', iso2: 'in', name: 'India', dialCode: '91' };")
+          contact = contact.replace('var countryReady = false;', 'var countryReady = true;\n  var countryPhone = window.VMGCountryPhone;')
+
+          static_country = r'''function setHardIndiaDefault(clearPhone) {
+    if (dialCodeEl) dialCodeEl.textContent = '+91';
+    if (phoneGroup) phoneGroup.setAttribute('aria-label', 'India +91, phone number');
+    if (clearPhone !== false && fields.phone) fields.phone.value = '';
+    if (!fields.country) return;
+    fields.country.value = 'india';
+  }
+
+  function populateCountriesFromSharedMap() {
+    if (!fields.country || !countryPhone || !countryPhone.countries || !countryPhone.countries.length) return false;
+    var fragment = document.createDocumentFragment();
+    var placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Select country';
+    fragment.appendChild(placeholder);
+    countryPhone.countries.forEach(function (item) {
+      var option = document.createElement('option');
+      option.value = item.value;
+      option.textContent = item.name;
+      option.dataset.iso2 = item.iso2;
+      option.dataset.dialCode = item.dialCode;
+      fragment.appendChild(option);
+    });
+    fields.country.innerHTML = '';
+    fields.country.appendChild(fragment);
+    fields.country.value = 'india';
+    fields.country.dataset.vmgCountryReady = 'true';
+    fields.country.dataset.vmgCountryCount = String(countryPhone.count || countryPhone.countries.length);
+    countryReady = true;
+    return true;
+  }
+'''
+          contact, n = re.subn(r"function countryData\(\) \{.*?\n  function initPhoneEngine\(\)", static_country + "\n  function initPhoneEngine()", contact, count=1, flags=re.S)
+          if n != 1: raise SystemExit('Could not replace Contact country source')
+
+          selected = r'''function selectedCountryMeta() {
+    if (!fields.country || !countryPhone) return null;
+    return countryPhone.getByValue(fields.country.value);
+  }'''
+          contact, n = re.subn(r"function selectedCountryMeta\(\) \{.*?\n  \}", selected, contact, count=1, flags=re.S)
+          if n != 1: raise SystemExit('Could not replace selectedCountryMeta')
+
+          phone_funcs = r'''function canonicalPhone() {
+    var parts = basicPhoneParts();
+    return parts ? parts.canonical : '';
+  }
+
+  function basicPhoneParts() {
+    if (!fields.phone || !countryPhone) return null;
+    var raw = fields.phone.value.trim();
+    var meta = selectedCountryMeta();
+    if (!raw || !meta || !meta.dialCode || /[A-Za-z]/.test(raw) || fields.phone.dataset.phoneInvalidChars === 'true') return null;
+    var national = countryPhone.nationalDigits(raw);
+    if (national.length < 6 || national.length > 14) return null;
+    var canonical = '+' + meta.dialCode + national;
+    var internationalDigits = canonical.slice(1);
+    if (internationalDigits.length < 7 || internationalDigits.length > 15) return null;
+    return { meta: meta, national: national, canonical: canonical };
+  }
+
+  async function validatePhone() {
+    if (phoneConflict) return false;
+    var basic = basicPhoneParts();
+    if (!basic) return false;
+    if (!iti) return true;
+    var ready = phoneReady || await waitForPhoneReady();
+    if (!ready) return true;
+    try {
+      iti.setCountry(basic.meta.iso2);
+      iti.setNumber(basic.canonical);
+      return iti.isValidNumber();
+    } catch (_) {
+      return true;
+    }
+  }
+
+  async function fullPhone() {
+    var basic = basicPhoneParts();
+    if (!basic) return '';
+    if (iti) {
+      var ready = phoneReady || await waitForPhoneReady();
+      if (ready) {
+        try {
+          iti.setCountry(basic.meta.iso2);
+          iti.setNumber(basic.canonical);
+          var normalized = String(iti.getNumber() || '').replace(/\s+/g, '');
+          if (/^\+[1-9]\d{6,14}$/.test(normalized)) return normalized;
+        } catch (_) {}
+      }
+    }
+    return basic.canonical;
+  }
+
+  async function phonePartsForPayload() {
+    var basic = basicPhoneParts();
+    if (!basic) return { e164:'', dialCode:'', national:'', display:'' };
+    var e164 = await fullPhone();
+    var national = basic.national;
+    var prefix = '+' + basic.meta.dialCode;
+    if (e164 && e164.indexOf(prefix) === 0) {
+      var normalizedNational = e164.slice(prefix.length);
+      if (normalizedNational) national = normalizedNational;
+    }
+    return { e164:e164 || basic.canonical, dialCode:prefix, national:national, display:prefix + ' ' + national };
+  }'''
+          contact, n = re.subn(r"function canonicalPhone\(\) \{.*?\n  function errorElement\(control\)", phone_funcs + "\n\n  function errorElement(control)", contact, count=1, flags=re.S)
+          if n != 1: raise SystemExit('Could not replace Contact phone validation functions')
+
+          # Preserve explicit invalid-character state instead of silently accepting letters.
+          contact = contact.replace("var raw = fields.phone.value.trim();\n    if (!raw) { clearPhoneConflict(); return; }", "var raw = fields.phone.value.trim();\n    if (!raw) { clearPhoneConflict(); delete fields.phone.dataset.phoneInvalidChars; return; }\n    if (/[A-Za-z]/.test(raw)) { fields.phone.dataset.phoneInvalidChars = 'true'; return; }\n    delete fields.phone.dataset.phoneInvalidChars;", 1)
+
+          old_country_validation = "if (!countryReady || !fields.country.value || !selectedCountryMeta()) { setInvalid(fields.country, countryReady ? 'Please select a country.' : 'Country list is still initializing. Please try again.'); ok = false; } else clearInvalid(fields.country);"
+          new_country_validation = "if (!fields.country.value || !selectedCountryMeta()) { setInvalid(fields.country, 'Please select a country.'); ok = false; } else clearInvalid(fields.country);"
+          if old_country_validation not in contact: raise SystemExit('Country validation text not found')
+          contact = contact.replace(old_country_validation, new_country_validation, 1)
+          old_phone_validation = """      var phoneValid = await validatePhone();\n      if (phoneValid === null) { setInvalid(fields.phone, 'Phone validation is still loading. Please try again.'); ok = false; }\n      else if (!phoneValid) { setInvalid(fields.phone, 'Please enter a valid phone number for ' + (countryName() || 'the selected country') + '.'); ok = false; }\n      else clearInvalid(fields.phone);"""
+          new_phone_validation = """      var phoneValid = await validatePhone();\n      if (!phoneValid) { setInvalid(fields.phone, 'Please enter a valid phone number for ' + (countryName() || 'the selected country') + '.'); ok = false; }\n      else clearInvalid(fields.phone);"""
+          if old_phone_validation not in contact: raise SystemExit('Phone validation text not found')
+          contact = contact.replace(old_phone_validation, new_phone_validation, 1)
+
+          payload_fn = r'''async function payload() {
+    var attachments = await serializeAttachments();
+    var phoneParts = await phonePartsForPayload();
+    return {
+      source: 'main',
+      fullName: fields.fullname.value.trim(),
+      fullname: fields.fullname.value.trim(),
+      contact: phoneParts.e164,
+      contactNumber: phoneParts.e164,
+      phone: phoneParts.e164,
+      phoneE164: phoneParts.e164,
+      phoneDialCode: phoneParts.dialCode,
+      phoneNational: phoneParts.national,
+      phoneDisplay: phoneParts.display,
+      'PHONE NUMBER': phoneParts.display,
+      email: fields.email.value.trim(),
+      mailId: fields.email.value.trim(),
+      country: countryName(),
+      Country: countryName(),
+      countryIso2: (selectedCountryMeta() || {}).iso2 || '',
+      organization: fields.organization.value.trim(),
+      type: fields.type.value,
+      message: fields.message.value.trim(),
+      privacy: true,
+      attachments: attachments,
+      attachmentCount: attachments.length,
+      website: fields.honeypot ? fields.honeypot.value : '',
+      formStartedAt: Number(fields.startedAt.value || startedAt),
+      submittedAt: new Date().toISOString(),
+      page: window.location.href,
+      'cf-turnstile-response': turnstileToken
+    };
+  }'''
+          contact, n = re.subn(r"async function payload\(\) \{.*?\n  \}\n\n  async function submitContact", payload_fn + "\n\n  async function submitContact", contact, count=1, flags=re.S)
+          if n != 1: raise SystemExit('Could not replace Contact payload')
+
+          init_fn = r'''async function initializeContact() {
+    setHardIndiaDefault(true);
+    fields.startedAt.value = String(startedAt);
+    bindLiveValidation();
+    renderAttachments();
+    renderTurnstile();
+
+    if (!populateCountriesFromSharedMap()) {
+      setInvalid(fields.country, 'Please select a country.');
+      return;
+    }
+    fields.country.value = 'india';
+    setHardIndiaDefault(true);
+    initPhoneEngine();
+    setPhoneEngineCountry();
+    updateDialCode();
+    document.dispatchEvent(new CustomEvent('vmg:contact-countries-ready', { detail: { count: countryPhone.count } }));
+    waitForPhoneReady();
+  }'''
+          contact, n = re.subn(r"async function initializeContact\(\) \{.*?\n  \}\n\n  initializeContact\(\);", init_fn + "\n\n  initializeContact();", contact, count=1, flags=re.S)
+          if n != 1: raise SystemExit('Could not replace initializeContact')
+          if 'Country list is still initializing' in contact or 'Phone validation is still loading' in contact:
+              raise SystemExit('User-facing initialization error remains')
+          contact_path.write_text(contact)
+
+          # Load the shared module synchronously before popup/contact consumers.
+          for rel, anchor in [
+              ('index.html','    <script src="/assets/js/config.js'),
+              ('market-prices/index.html','    <script src="/assets/js/config.js'),
+              ('contact.html','  <script src="/assets/js/config.js')
+          ]:
+              p=root/rel; s=p.read_text()
+              if '/assets/js/vmg-country-phone.js' not in s:
+                  idx=s.find(anchor)
+                  if idx < 0: raise SystemExit('Script anchor missing in '+rel)
+                  s=s[:idx] + anchor.split('<script')[0] + '<script src="/assets/js/vmg-country-phone.js?v=20260905a"></script>\n' + s[idx:]
+              p.write_text(s)
+
+          # Exact Apps Script routing patch. This is source-only until deployed in Apps Script.
+          routing = r'''/*
+  VMG Apps Script routing patch — NOT deployed by committing this file.
+  Add these functions to the deployed Google Apps Script project serving window.AppConfig.googleScriptUrl.
+  Existing Contact security functions from CONTACT_APPS_SCRIPT_SECURITY_PATCH.gs remain required.
+*/
+
+function vmgGetTargetSheetName_(data) {
+  var source = String((data && data.source) || '').trim().toLowerCase();
+  var type = String((data && data.type) || '').trim().toLowerCase();
+  if (source === 'popup') return 'OPENING POP-UP MESSAGES';
+  if (source === 'website-feedback' || type === 'website feedback') return 'FEEDBACK';
+  if (source === 'trade-updates-subscription' || type === 'trade updates subscription') return 'Trade Updates Subscription';
+  if (source === 'main') return 'CONTACT US MESSAGES';
+  return 'CONTACT US MESSAGES';
+}
+
+function vmgEnsureTargetSheet_(ss, sheetName) {
+  var sheet = ss.getSheetByName(sheetName);
+  if (sheet) return sheet;
+  var headersBySheet = {
+    'FEEDBACK': ['DATE','Rating','Email ID','Comments','Page'],
+    'Trade Updates Subscription': ['DATE','Email ID','Page','Source']
+  };
+  var headers = headersBySheet[sheetName];
+  if (!headers) throw new Error('Required sheet is missing: ' + sheetName);
+  sheet = ss.insertSheet(sheetName);
+  sheet.getRange(1,1,1,headers.length).setValues([headers]);
+  return sheet;
+}
+
+function vmgPhoneDisplay_(data) {
+  var explicit = String((data && data.phoneDisplay) || '').trim();
+  if (explicit) return explicit;
+  var dial = String((data && data.phoneDialCode) || '').trim();
+  var national = String((data && data.phoneNational) || '').replace(/\D/g,'');
+  if (dial && dial.charAt(0) !== '+') dial = '+' + dial.replace(/\D/g,'');
+  if (dial && national) return dial + ' ' + national;
+  var e164 = String((data && (data.phoneE164 || data.contact || data.contactNumber || data.phone)) || '').trim();
+  return e164;
+}
+
+function vmgAppendRoutedSubmission_(ss, data, attachmentReferences) {
+  var sheetName = vmgGetTargetSheetName_(data);
+  var sheet = vmgEnsureTargetSheet_(ss, sheetName);
+  var now = new Date();
+  var phoneDisplay = vmgPhoneDisplay_(data);
+
+  if (sheetName === 'FEEDBACK') {
+    sheet.appendRow([now, data.rating || data['FEEDBACK RATING'] || '', data.email || data['MAIL ID'] || '', data.message || data.comments || data['MESSAGE'] || '', data.page || '']);
+    return sheetName;
+  }
+
+  if (sheetName === 'Trade Updates Subscription') {
+    sheet.appendRow([now, data.email || data['MAIL ID'] || '', data.page || '', data.source || 'trade-updates-subscription']);
+    return sheetName;
+  }
+
+  if (sheetName === 'OPENING POP-UP MESSAGES') {
+    var next = sheet.getLastRow() + 1;
+    sheet.getRange(next,1,1,4).setValues([[now, data.country || data.Country || '', phoneDisplay, data.email || data['MAIL ID'] || '']]);
+    sheet.getRange(next,3).setNumberFormat('@').setValue(phoneDisplay);
+    return sheetName;
+  }
+
+  var refs = Array.isArray(attachmentReferences) ? attachmentReferences : [];
+  var attachmentText = refs.map(function(item){ return item.url || ''; }).filter(String).join('\n');
+  var row = sheet.getLastRow() + 1;
+  sheet.getRange(row,1,1,9).setValues([[
+    now,
+    data.fullName || data.fullname || '',
+    phoneDisplay,
+    data.email || data.mailId || '',
+    data.country || data.Country || '',
+    data.organization || '',
+    data.type || '',
+    data.message || '',
+    attachmentText
+  ]]);
+  sheet.getRange(row,3).setNumberFormat('@').setValue(phoneDisplay);
+  if (refs.length) vmgSetAttachmentLinks_(sheet.getRange(row,9), refs);
+  return sheetName;
+}
+
+function vmgSetAttachmentLinks_(range, refs) {
+  var textParts = [], spans = [], cursor = 0;
+  refs.forEach(function(item, index){
+    var label = String(item.name || ('Attachment ' + (index + 1)));
+    if (index) { textParts.push('\n'); cursor += 1; }
+    textParts.push(label);
+    spans.push({start:cursor,end:cursor+label.length,url:item.url});
+    cursor += label.length;
+  });
+  var text = textParts.join('');
+  var builder = SpreadsheetApp.newRichTextValue().setText(text);
+  spans.forEach(function(span){ if (span.url) builder.setLinkUrl(span.start, span.end, span.url); });
+  range.setRichTextValue(builder.build());
+}
+
+/*
+  INTEGRATION INTO THE DEPLOYED doPost(e):
+
+  1) Parse data exactly once.
+  2) var target = vmgGetTargetSheetName_(data);
+  3) For target === 'CONTACT US MESSAGES' only, run vmgValidateContactSecurity_(data)
+     and vmgSaveContactAttachments_(data.attachments || []) BEFORE appending.
+  4) Preserve popup/feedback/subscription validation appropriate to those forms;
+     do NOT force Contact Turnstile rules onto forms that do not collect Contact data.
+  5) Open the existing WEBSITE MESSAGES spreadsheet, then call:
+       vmgAppendRoutedSubmission_(ss, data, attachmentReferences);
+  6) Return {success:true} only after the correct sheet write succeeds.
+
+  This router only affects NEW submissions. Do not move/delete historical rows.
+*/
+'''
+          (root/'CONTACT_APPS_SCRIPT_ROUTING_PATCH.gs').write_text(routing)
+
+          # Remove this one-time workflow from final tree.
+          (root/'.github/workflows/one-time-country-phone-routing-fix.yml').unlink()
+          PY
+
+          node --check assets/js/vmg-country-phone.js
+          node --check assets/js/contact-form.js
+          node --check assets/js/main.js
+          git diff --check
+          grep -q "phoneDisplay" assets/js/contact-form.js
+          grep -q "phoneDisplay" assets/js/main.js
+          ! grep -q "Country list is still initializing" assets/js/contact-form.js
+          ! grep -q "Phone validation is still loading" assets/js/contact-form.js
+          test $(grep -o '"value"' assets/js/vmg-country-phone.js | wc -l) -ge 195
+
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          git commit -m "Unify country phone logic and prepare Sheet routing"
+          git push origin HEAD:hotfix/production-ui-fixes-24aug
