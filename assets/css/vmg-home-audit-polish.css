@@ -43,25 +43,6 @@
   text-align: left;
 }
 
-/* Desktop Tier 1 only: Give Feedback reads as a secondary utility while
-   preserving the existing 36px target, icon, placement and interaction. */
-@media (min-width: 992px) {
-  .home-view .vmg-nav-socials .vmg-feedback-trigger-desktop {
-    background: rgba(10, 23, 40, .035);
-    border-color: #d5dce5;
-    color: #0a1728;
-    box-shadow: none;
-  }
-
-  .home-view .vmg-nav-socials .vmg-feedback-trigger-desktop:hover,
-  .home-view .vmg-nav-socials .vmg-feedback-trigger-desktop:focus-visible {
-    background: rgba(10, 23, 40, .075);
-    border-color: rgba(184, 121, 67, .45);
-    color: #0a1728;
-    box-shadow: 0 5px 12px rgba(10, 23, 40, .08);
-  }
-}
-
 @media (max-width: 768px) {
   .home-view .home-main .home-products-cta {
     margin-top: 24px;
