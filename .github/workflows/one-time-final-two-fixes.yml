@@ -1,0 +1,403 @@
+name: One-time final Contact and desktop header fixes
+on:
+  push:
+    branches:
+      - hotfix/production-ui-fixes-24aug
+    paths:
+      - .github/workflows/one-time-final-two-fixes.yml
+permissions:
+  contents: write
+jobs:
+  patch-and-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: hotfix/production-ui-fixes-24aug
+          fetch-depth: 0
+
+      - name: Patch only the two requested issues
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          js_path = Path('assets/js/contact-form.js')
+          js = js_path.read_text()
+
+          anchor = "  var TURNSTILE_PREVIEW_SITEKEY = '1x00000000000000000000AA';\n"
+          insert = anchor + "  var DEFAULT_COUNTRY = { iso2: 'in', name: 'India', dialCode: '91' };\n"
+          if "var DEFAULT_COUNTRY" not in js:
+              if anchor not in js:
+                  raise SystemExit('TURNSTILE anchor not found')
+              js = js.replace(anchor, insert, 1)
+
+          country_block = r"  function populateCountries\(\) \{.*?\n  \}\n\n  function initPhoneEngine\(\) \{"
+          country_replacement = r'''  function setDefaultCountryState() {
+    if (dialCodeEl) dialCodeEl.textContent = '+91';
+    if (phoneGroup) phoneGroup.setAttribute('aria-label', 'India +91, phone number');
+    if (fields.country) {
+      var options = Array.prototype.slice.call(fields.country.options || []);
+      var india = options.find(function (option) {
+        return option.value === 'in' || option.textContent.trim().toLowerCase() === 'india';
+      });
+      if (india) {
+        india.value = 'in';
+        india.dataset.dialCode = '91';
+        india.selected = true;
+        fields.country.value = 'in';
+      }
+    }
+    if (iti) {
+      try { iti.setCountry('in'); } catch (_) {}
+    }
+  }
+
+  function syncExistingCountryCustomSelect() {
+    if (!fields.country) return;
+    var root = customSelectRoot(fields.country);
+    if (!root) return;
+    var label = root.querySelector('.vmg-custom-select-label');
+    var list = root.querySelector('.vmg-custom-select-list');
+    var options = Array.prototype.slice.call(fields.country.options || []);
+    var selectedIndex = Math.max(0, fields.country.selectedIndex);
+    if (label) label.textContent = options[selectedIndex] ? options[selectedIndex].textContent : DEFAULT_COUNTRY.name;
+    if (!list) return;
+    list.innerHTML = '';
+    options.forEach(function (option, index) {
+      var item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'vmg-custom-select-option' + (index === selectedIndex ? ' is-active' : '');
+      item.setAttribute('role', 'option');
+      item.setAttribute('aria-selected', index === selectedIndex ? 'true' : 'false');
+      item.dataset.value = option.value;
+      item.dataset.index = String(index);
+      item.textContent = option.textContent;
+      list.appendChild(item);
+    });
+  }
+
+  function populateCountries() {
+    if (!fields.country) return false;
+    var data = countryData();
+    if (!data.length) return false;
+    countryByIso2 = {};
+    var fragment = document.createDocumentFragment();
+    var placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Select country';
+    fragment.appendChild(placeholder);
+    data.forEach(function (item) {
+      countryByIso2[item.iso2] = item;
+      var option = document.createElement('option');
+      option.value = item.iso2;
+      option.textContent = item.name;
+      option.dataset.dialCode = item.dialCode || '';
+      fragment.appendChild(option);
+    });
+    fields.country.innerHTML = '';
+    fields.country.appendChild(fragment);
+    fields.country.value = DEFAULT_COUNTRY.iso2;
+    fields.country.dataset.vmgCountryCount = String(data.length);
+    return true;
+  }
+
+  function initializeCountryData(attempt) {
+    var delays = [0, 16, 100, 250, 500];
+    if (populateCountries()) {
+      setDefaultCountryState();
+      setPhoneEngineCountry();
+      syncExistingCountryCustomSelect();
+      if (fields.country) fields.country.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
+    if (attempt >= delays.length - 1) {
+      setDefaultCountryState();
+      syncExistingCountryCustomSelect();
+      return;
+    }
+    var next = attempt + 1;
+    var retry = function () { window.setTimeout(function () { initializeCountryData(next); }, delays[next]); };
+    if (attempt === 0 && window.requestAnimationFrame) window.requestAnimationFrame(retry);
+    else retry();
+  }
+
+  function initPhoneEngine() {'''
+          js, count = re.subn(country_block, country_replacement, js, count=1, flags=re.S)
+          if count != 1:
+              raise SystemExit('country initialization block not found')
+
+          meta_block = r"  function selectedCountryMeta\(\) \{.*?\n  \}\n\n  function countryName\(\) \{.*?\n  \}\n\n  function updateDialCode\(\) \{.*?\n  \}\n"
+          meta_replacement = r'''  function selectedCountryMeta() {
+    var iso2 = fields.country ? fields.country.value : '';
+    if (iso2 && countryByIso2[iso2]) return countryByIso2[iso2];
+    if (iso2 === DEFAULT_COUNTRY.iso2) return DEFAULT_COUNTRY;
+    if (fields.country && fields.country.selectedIndex >= 0) {
+      var option = fields.country.options[fields.country.selectedIndex];
+      if (option && option.value) {
+        if (option.textContent.trim().toLowerCase() === 'india') return DEFAULT_COUNTRY;
+        return { iso2: option.value, name: option.textContent.trim(), dialCode: option.dataset.dialCode || '' };
+      }
+    }
+    return null;
+  }
+
+  function countryName() {
+    var meta = selectedCountryMeta();
+    if (meta && meta.name) return meta.name;
+    if (fields.country && fields.country.selectedIndex >= 0) {
+      var option = fields.country.options[fields.country.selectedIndex];
+      return option ? option.textContent.trim() : '';
+    }
+    return '';
+  }
+
+  function updateDialCode() {
+    var meta = selectedCountryMeta();
+    var currentDial = dialCodeEl ? String(dialCodeEl.textContent || '').trim() : '';
+    var dial = meta && meta.dialCode ? '+' + meta.dialCode : '';
+    if (!dial && fields.country && fields.country.value === DEFAULT_COUNTRY.iso2) dial = '+91';
+    if (!dial && /^\+[1-9]\d*$/.test(currentDial)) dial = currentDial;
+    if (!dial) dial = '+91';
+    if (dialCodeEl) dialCodeEl.textContent = dial;
+    if (phoneGroup) phoneGroup.setAttribute('aria-label', (meta && meta.name ? meta.name : DEFAULT_COUNTRY.name) + ' ' + dial + ', phone number');
+  }
+'''
+          js, count = re.subn(meta_block, meta_replacement, js, count=1, flags=re.S)
+          if count != 1:
+              raise SystemExit('country metadata/updateDialCode block not found')
+
+          reset_old = "    if (fields.country) { fields.country.value = 'in'; fields.country.dispatchEvent(new Event('change', { bubbles: true })); }\n    if (fields.type) { fields.type.value = ''; fields.type.dispatchEvent(new Event('change', { bubbles: true })); }\n    if (fields.phone) fields.phone.value = '';\n    clearPhoneConflict();\n    setPhoneEngineCountry();"
+          reset_new = "    setDefaultCountryState();\n    syncExistingCountryCustomSelect();\n    if (fields.country) fields.country.dispatchEvent(new Event('change', { bubbles: true }));\n    if (fields.type) { fields.type.value = ''; fields.type.dispatchEvent(new Event('change', { bubbles: true })); }\n    if (fields.phone) fields.phone.value = '';\n    clearPhoneConflict();\n    setPhoneEngineCountry();"
+          if reset_old not in js:
+              raise SystemExit('success reset block not found')
+          js = js.replace(reset_old, reset_new, 1)
+
+          init_old = "  populateCountries();\n  initPhoneEngine();\n  if (fields.country) fields.country.value = 'in';\n  setPhoneEngineCountry();\n  if (fields.phone) fields.phone.value = '';"
+          init_new = "  setDefaultCountryState();\n  initPhoneEngine();\n  setDefaultCountryState();\n  initializeCountryData(0);\n  if (fields.phone) fields.phone.value = '';"
+          if init_old not in js:
+              raise SystemExit('startup block not found')
+          js = js.replace(init_old, init_new, 1)
+
+          if "textContent = '—'" in js or " : '—'" in js:
+              raise SystemExit('em dash dial fallback still present')
+          js_path.write_text(js)
+
+          css_path = Path('assets/css/production-hotfix.css')
+          css = css_path.read_text()
+          social_block = r"/\* One authoritative desktop social alignment row\. \*/\n@media \(min-width: 992px\) \{.*?\n\}\n\n/\* Mobile drawer:"
+          social_replacement = r'''/* One authoritative desktop social/feedback centerline. Desktop only. */
+@media (min-width: 992px) {
+  .vmg-nav-socials {
+    grid-column: 3 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    align-self: center !important;
+    flex-wrap: nowrap !important;
+    height: 36px !important;
+    gap: 7px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+  }
+  .vmg-nav-social-icons {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-self: center !important;
+    flex-wrap: nowrap !important;
+    height: 36px !important;
+    gap: 7px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+  }
+  .vmg-nav-socials .vmg-feedback-trigger-desktop {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-self: center !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    line-height: 1 !important;
+  }
+  .vmg-nav-social-icons .vmg-social-link {
+    position: relative !important;
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    flex: 0 0 34px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-self: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    vertical-align: middle !important;
+    box-sizing: border-box !important;
+  }
+  .vmg-nav-social-icons .vmg-social-link > svg,
+  .vmg-nav-social-icons .vmg-social-link > img,
+  .vmg-nav-social-icons .vmg-social-link .vmg-social-icon-img {
+    display: block;
+    width: 20px !important;
+    height: 20px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex: none !important;
+  }
+  /* DOM artwork is authoritative; remove pseudo-element duplicates from painting/layout. */
+  .vmg-nav-social-icons .vmg-social-link::before,
+  .vmg-nav-social-icons .vmg-social-link::after {
+    content: none !important;
+    display: none !important;
+  }
+  /* If a real image asset exists, prefer it over the obsolete inline fallback SVG. */
+  .vmg-nav-social-icons .vmg-social-link:has(> img) > svg,
+  .vmg-nav-social-icons .vmg-social-link:has(.vmg-social-icon-img) > svg {
+    display: none !important;
+  }
+  .vmg-nav-social-icons .vmg-social-link:hover,
+  .vmg-nav-social-icons .vmg-social-link:focus-visible,
+  .vmg-nav-socials .vmg-feedback-trigger-desktop:hover,
+  .vmg-nav-socials .vmg-feedback-trigger-desktop:focus-visible {
+    transform: none !important;
+  }
+}
+
+/* Mobile drawer:'''
+          css, count = re.subn(social_block, social_replacement, css, count=1, flags=re.S)
+          if count != 1:
+              raise SystemExit('desktop social alignment block not found')
+          css_path.write_text(css)
+          PY
+
+      - name: Static QA
+        shell: bash
+        run: |
+          node --check assets/js/contact-form.js
+          git diff --check
+          grep -q "var DEFAULT_COUNTRY = { iso2: 'in', name: 'India', dialCode: '91' }" assets/js/contact-form.js
+          grep -q "initializeCountryData(0)" assets/js/contact-form.js
+          grep -q "dialCodeEl.textContent = '+91'" assets/js/contact-form.js
+          ! grep -q "syncPhoneToCountry" assets/js/contact-form.js
+          ! grep -q "textContent = '—'" assets/js/contact-form.js
+          grep -q "height: 36px !important" assets/css/production-hotfix.css
+          grep -q "content: none !important" assets/css/production-hotfix.css
+
+      - name: Browser QA at requested desktop widths
+        shell: bash
+        run: |
+          python3 -m http.server 8000 >/tmp/vmg-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          mkdir -p /tmp/vmgqa
+          cd /tmp/vmgqa
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install chromium >/dev/null 2>&1
+          cat > qa.cjs <<'NODE'
+          const { chromium } = require('playwright');
+          const fs = require('fs');
+          (async () => {
+            const browser = await chromium.launch({headless:true});
+            const page = await browser.newPage({viewport:{width:1440,height:900}});
+            const errors = [];
+            page.on('pageerror', e => errors.push(String(e)));
+            await page.goto('http://127.0.0.1:8000/contact.html', {waitUntil:'domcontentloaded'});
+            await page.waitForTimeout(1000);
+            const initial = await page.evaluate(() => ({
+              native: document.getElementById('country')?.value,
+              visible: document.querySelector('#country + .vmg-custom-select .vmg-custom-select-label')?.textContent?.trim(),
+              dial: document.getElementById('contact-dial-code')?.textContent?.trim(),
+              phone: document.getElementById('contact')?.value
+            }));
+            if (initial.native !== 'in' || initial.visible !== 'India' || initial.dial !== '+91' || initial.phone !== '') {
+              throw new Error('Initial Contact state failed: ' + JSON.stringify(initial));
+            }
+            const tests = [['in','+91'],['fr','+33'],['gb','+44'],['us','+1'],['ae','+971'],['mu','+230'],['in','+91']];
+            const phoneResults = [];
+            for (const [iso,dial] of tests) {
+              await page.selectOption('#country', iso);
+              await page.waitForTimeout(40);
+              const got = await page.$eval('#contact-dial-code', el => el.textContent.trim());
+              phoneResults.push({iso, expected:dial, got, pass:got===dial});
+              if (got !== dial) throw new Error(`Dial test ${iso}: expected ${dial}, got ${got}`);
+            }
+            await page.selectOption('#country','fr');
+            await page.fill('#contact','+919316571362');
+            await page.dispatchEvent('#contact','input');
+            const noReverse = await page.evaluate(() => ({
+              country: document.getElementById('country').value,
+              dial: document.getElementById('contact-dial-code').textContent.trim()
+            }));
+            if (noReverse.country !== 'fr' || noReverse.dial !== '+33') throw new Error('Phone reverse-controlled Country: '+JSON.stringify(noReverse));
+
+            const headerResults = [];
+            for (const width of [1024,1280,1440,1920]) {
+              await page.setViewportSize({width,height:900});
+              await page.goto('http://127.0.0.1:8000/index.html', {waitUntil:'domcontentloaded'});
+              await page.waitForTimeout(350);
+              await page.evaluate(() => {
+                document.querySelectorAll('.opening-popup-overlay,.skeleton-overlay,.skeleton-loader').forEach(el => el.remove());
+                document.body.style.overflow = 'auto';
+              });
+              const row = await page.evaluate(() => {
+                const feedback = document.querySelector('.vmg-feedback-trigger-desktop');
+                const icons = [...document.querySelectorAll('.vmg-nav-social-icons .vmg-social-link')];
+                const midY = el => { const r=el.getBoundingClientRect(); return r.top+r.height/2; };
+                const mids = [midY(feedback), ...icons.map(midY)];
+                const visibleArtwork = icons.map(link => {
+                  const dom = [...link.querySelectorAll('svg,img')].filter(el => {
+                    const s=getComputedStyle(el); const r=el.getBoundingClientRect();
+                    return s.display!=='none' && s.visibility!=='hidden' && r.width>0 && r.height>0;
+                  }).length;
+                  const before=getComputedStyle(link,'::before');
+                  const pseudo = before.display!=='none' && before.content && before.content!=='none' && before.content!=='normal' ? 1 : 0;
+                  return dom+pseudo;
+                });
+                const rr=document.querySelector('.vmg-nav-socials').getBoundingClientRect();
+                return {mids, maxDelta:Math.max(...mids)-Math.min(...mids), visibleArtwork, rowHeight:rr.height};
+              });
+              if (row.maxDelta > 1.01) throw new Error(`Header midpoint delta ${width}px = ${row.maxDelta}`);
+              if (row.visibleArtwork.some(n => n !== 1)) throw new Error(`Header artwork count ${width}px = ${row.visibleArtwork}`);
+              headerResults.push({width,...row});
+              if (width === 1440) await page.screenshot({path:'/tmp/header-1440.png', fullPage:false});
+            }
+            fs.writeFileSync('/tmp/qa.json', JSON.stringify({initial,phoneResults,noReverse,headerResults,pageErrors:errors},null,2));
+            console.log(fs.readFileSync('/tmp/qa.json','utf8'));
+            await browser.close();
+          })().catch(err => { console.error(err); process.exit(1); });
+          NODE
+          node qa.cjs
+          cd "$GITHUB_WORKSPACE"
+
+      - name: Commit targeted files and remove one-time workflow
+        shell: bash
+        run: |
+          git config user.name "ShobhikGupta"
+          git config user.email "actions@users.noreply.github.com"
+          rm .github/workflows/one-time-final-two-fixes.yml
+          git add assets/js/contact-form.js assets/css/production-hotfix.css .github/workflows/one-time-final-two-fixes.yml
+          git diff --cached --check
+          git commit -m "Fix Contact +91 default and desktop social alignment"
+          git push origin HEAD:hotfix/production-ui-fixes-24aug
+
+      - name: Upload 1440px header QA screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-two-fixes-qa
+          path: |
+            /tmp/header-1440.png
+            /tmp/qa.json
+          if-no-files-found: ignore
