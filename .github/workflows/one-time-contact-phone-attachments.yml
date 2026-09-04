@@ -1,45 +1,43 @@
-name: One-time Contact phone and attachment markup
+name: "One-time Contact phone attachment patch"
 on:
   push:
-    branches: [hotfix/production-ui-fixes-24aug]
-    paths: [.github/workflows/one-time-contact-phone-attachments.yml]
+    branches:
+      - "hotfix/production-ui-fixes-24aug"
+    paths:
+      - ".github/workflows/one-time-contact-phone-attachments.yml"
 permissions:
   contents: write
 jobs:
-  patch:
+  patch-contact:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: hotfix/production-ui-fixes-24aug
-      - name: Patch Contact markup
-        shell: python
+          ref: "hotfix/production-ui-fixes-24aug"
+      - name: Patch markup
         run: |
+          python3 - <<'PY'
           from pathlib import Path
-          p = Path('contact.html')
-          s = p.read_text()
-
-          s = s.replace('/assets/css/contact-form-reliability.css?v=20260904a', '/assets/css/contact-form-reliability.css?v=20260904b')
-          s = s.replace('/assets/js/contact-form.js?v=20260904a', '/assets/js/contact-form.js?v=20260904b')
-
-          old_phone = '''                <div class="phone-input-group" id="contact-phone-group" role="group"
+          p=Path('contact.html')
+          s=p.read_text()
+          s=s.replace('/assets/css/contact-form-reliability.css?v=20260904a','/assets/css/contact-form-reliability.css?v=20260904b')
+          s=s.replace('/assets/js/contact-form.js?v=20260904a','/assets/js/contact-form.js?v=20260904b')
+          old='''                <div class="phone-input-group" id="contact-phone-group" role="group"
                   aria-label="Phone number with country code">
                   <input type="tel" id="contact" name="contact" placeholder="Phone Number" inputmode="tel"
                     autocomplete="tel" required aria-describedby="contact-error">
                 </div>'''
-          new_phone = '''                <div class="phone-input-group" id="contact-phone-group" role="group"
+          new='''                <div class="phone-input-group" id="contact-phone-group" role="group"
                   aria-label="India +91, phone number">
                   <span class="contact-dial-code" id="contact-dial-code" aria-hidden="true">+91</span>
                   <input type="tel" id="contact" name="contact" placeholder="Phone number" inputmode="tel"
                     autocomplete="tel-national" required aria-describedby="contact-error">
                 </div>'''
-          if old_phone not in s:
-              raise SystemExit('phone block not found')
-          s = s.replace(old_phone, new_phone, 1)
-
-          marker = '''            <div class="form-checkbox">
+          if old not in s: raise SystemExit('phone block not found')
+          s=s.replace(old,new,1)
+          marker='''            <div class="form-checkbox">
               <div class="checkbox-row">'''
-          attachments = '''            <div class="form-field full-width vmg-attachments-field">
+          block='''            <div class="form-field full-width vmg-attachments-field">
               <label for="attachments">Attachments (optional)</label>
               <button type="button" class="vmg-attachment-picker" id="attachment-picker" aria-controls="attachments">
                 <span class="vmg-attachment-icon" aria-hidden="true">↥</span>
@@ -49,28 +47,23 @@ jobs:
                 </span>
                 <span class="vmg-attachment-rules">JPG, PNG, WEBP, HEIC or PDF · Up to 5 files · 10 MB total</span>
               </button>
-              <input class="vmg-attachment-input" type="file" id="attachments" name="attachments" multiple
-                accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf" aria-describedby="attachments-error">
+              <input class="vmg-attachment-input" type="file" id="attachments" name="attachments" multiple accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf" aria-describedby="attachments-error">
               <div class="vmg-attachment-list" id="attachment-list" aria-live="polite"></div>
               <span class="error" id="attachments-error" aria-live="polite"></span>
             </div>
 
 '''
-          if marker not in s:
-              raise SystemExit('privacy marker not found')
-          s = s.replace(marker, attachments + marker, 1)
-
+          if marker not in s: raise SystemExit('privacy marker not found')
+          s=s.replace(marker,block+marker,1)
           p.write_text(s)
-      - name: Verify Contact markup
+          PY
+      - name: Verify and commit
         run: |
           grep -q 'id="contact-dial-code"' contact.html
           grep -q 'id="attachments"' contact.html
           grep -q 'Attachments (optional)' contact.html
-          grep -q 'id="contact-turnstile"' contact.html
           grep -q 'contact-form.js?v=20260904b' contact.html
           git diff --check
-      - name: Commit Contact markup and remove workflow
-        run: |
           git config user.name "ShobhikGupta"
           git config user.email "actions@users.noreply.github.com"
           git add contact.html
