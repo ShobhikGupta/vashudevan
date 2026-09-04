@@ -1,0 +1,155 @@
+name: PR12 final browser QA
+on:
+  push:
+    branches: [hotfix/production-ui-fixes-24aug]
+    paths: [.github/workflows/pr12-final-qa.yml]
+permissions:
+  contents: write
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: hotfix/production-ui-fixes-24aug
+          fetch-depth: 0
+      - name: Static checks
+        run: |
+          node --check assets/js/contact-form.js
+          node --check assets/js/config.js
+          node --check assets/js/contact-page-shell.js
+          node --check assets/js/vmg-submit-state.js
+          node --check assets/js/vmg-feedback.js
+          node --check assets/js/vmg-footer.js
+          git diff --check origin/main...HEAD
+          ! grep -q "syncPhoneToCountry" assets/js/contact-form.js
+          ! grep -q "textContent = '—'" assets/js/contact-form.js
+          grep -q "iti.promise" assets/js/contact-form.js
+          grep -q "MAX_ATTACHMENTS = 10" assets/js/contact-form.js
+          grep -q "MAX_ATTACHMENT_BYTES = 25" assets/js/contact-form.js
+          grep -q "MAX_SINGLE_ATTACHMENT_BYTES = 10" assets/js/contact-form.js
+          grep -q "vmg:contact-countries-ready" assets/js/contact-form.js
+          grep -q "dataset.vmgCountryReady" assets/js/config.js
+          grep -q "processing the information and attachments I submit to respond to my enquiry" assets/js/contact-page-shell.js
+      - name: Install Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Browser QA
+        run: |
+          python3 -m http.server 8000 >/tmp/vmg-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          cat > /tmp/qa.cjs <<'NODE'
+          const { chromium } = require(process.cwd() + '/node_modules/playwright');
+          const fs = require('fs');
+          const report={phone:{},attachments:{},submit:{},header:{},errors:[]};
+          const publicPages=['/index.html','/who-we-are.html','/our-impact.html','/products.html','/product.html','/resources.html','/faq.html','/contact.html','/privacy-policy.html','/disclaimer.html','/market-prices/'];
+
+          async function newPage(browser,reducedMotion='no-preference'){
+            const page=await browser.newPage({viewport:{width:1440,height:900},reducedMotion});
+            page.on('pageerror',e=>report.errors.push(String(e)));
+            await page.addInitScript(()=>{
+              const R=window.Response;
+              window.fetch=()=>new Promise(r=>setTimeout(()=>r(new R(JSON.stringify({success:true}),{status:200,headers:{'Content-Type':'application/json'}})),350));
+              window.turnstile={render:(host,opt)=>{host.innerHTML='<div>QA security</div>';setTimeout(()=>opt.callback&&opt.callback('qa-token'),20);return 'qa';},reset:()=>{}};
+            });
+            await page.route('https://challenges.cloudflare.com/turnstile/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
+            return page;
+          }
+
+          async function contactReady(page){
+            await page.goto('http://127.0.0.1:8000/contact.html',{waitUntil:'domcontentloaded'});
+            await page.waitForFunction(()=>document.getElementById('country')?.dataset.vmgCountryReady==='true',{timeout:10000});
+            await page.waitForFunction(()=>document.querySelector('#country + .vmg-custom-select .vmg-custom-select-label')?.textContent.trim()==='India',{timeout:5000});
+          }
+
+          async function attachment(page,files){
+            await contactReady(page);
+            await page.locator('#attachments').setInputFiles(files);
+            await page.waitForTimeout(50);
+            return page.evaluate(()=>({chips:document.querySelectorAll('.vmg-attachment-chip').length,error:document.getElementById('attachments-error').textContent.trim(),shown:document.getElementById('attachments-error').classList.contains('show')}));
+          }
+
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await newPage(browser);
+            await contactReady(page);
+            const initial=await page.evaluate(()=>({
+              native:country.value,
+              visible:document.querySelector('#country + .vmg-custom-select .vmg-custom-select-label').textContent.trim(),
+              dial:document.getElementById('contact-dial-code').textContent.trim(),
+              phone:contact.value,
+              count:Number(country.dataset.vmgCountryCount||0),
+              all:[...country.options].filter(o=>o.value).map(o=>({iso2:o.value,name:o.textContent.trim(),dial:o.dataset.dialCode||''}))
+            }));
+            report.phone.initial=initial;
+            report.phone.missingDialCount=initial.all.filter(x=>!/^[a-z]{2}$/.test(x.iso2)||!x.name||!x.dial).length;
+            if(initial.native!=='in'||initial.visible!=='India'||initial.dial!=='+91'||initial.phone!==''||report.phone.missingDialCount) throw new Error('Initial/country metadata failure '+JSON.stringify(report.phone));
+
+            const tests=[['in','+91'],['fr','+33'],['is','+354'],['gb','+44'],['us','+1'],['ae','+971'],['mu','+230'],['sg','+65'],['au','+61'],['cn','+86'],['in','+91']];
+            report.phone.dials=[];
+            for(const [iso,expected] of tests){await page.selectOption('#country',iso);await page.waitForTimeout(15);const got=(await page.locator('#contact-dial-code').textContent()).trim();report.phone.dials.push({iso,expected,got,pass:got===expected});if(got!==expected)throw new Error('Dial '+iso+' '+got);}
+            report.phone.allDialFailures=[];
+            for(const e of initial.all){await page.selectOption('#country',e.iso2);const got=(await page.locator('#contact-dial-code').textContent()).trim();if(got!=='+'+e.dial)report.phone.allDialFailures.push({iso2:e.iso2,got,expected:'+'+e.dial});}
+            if(report.phone.allDialFailures.length)throw new Error('All dial failures '+JSON.stringify(report.phone.allDialFailures.slice(0,5)));
+
+            await page.selectOption('#country','fr');await page.fill('#contact','+919316571362');await page.dispatchEvent('#contact','input');
+            report.phone.reverseControl=await page.evaluate(()=>({country:country.value,dial:document.getElementById('contact-dial-code').textContent.trim()}));
+            if(report.phone.reverseControl.country!=='fr'||report.phone.reverseControl.dial!=='+33')throw new Error('Reverse control');
+
+            await page.selectOption('#country','in');await page.fill('#fullname','QA Test User');await page.fill('#emailID','qa@example.com');await page.fill('#contact','9316571362');await page.selectOption('#type','general');await page.fill('#message','This is a valid browser QA enquiry message.');await page.check('#privacy');
+            await page.evaluate(()=>{window.AppConfig.contactSecurityReady=true;window.AppConfig.contactEndpoint='https://qa.invalid/contact';});
+            await page.waitForTimeout(1000);await page.locator('#contact-form .submit-btn').click();
+            await page.waitForFunction(()=>document.querySelector('#contact-form .submit-btn')?.classList.contains('is-submitting'),{timeout:5000});report.submit.contactLoading=true;
+            await page.waitForFunction(()=>document.querySelector('#contact-form .submit-btn')?.classList.contains('is-success'),{timeout:5000});report.submit.contactSuccess=true;
+            report.phone.indianNumberValid=!(await page.locator('#contact-error').evaluate(el=>el.classList.contains('show')));if(!report.phone.indianNumberValid)throw new Error('Indian number rejected');
+
+            const tiny=n=>({name:'file-'+n+'.jpg',mimeType:'image/jpeg',buffer:Buffer.alloc(1024,1)});
+            report.attachments.one=await attachment(page,[tiny(1)]);
+            report.attachments.five=await attachment(page,Array.from({length:5},(_,i)=>tiny(i)));
+            report.attachments.ten=await attachment(page,Array.from({length:10},(_,i)=>tiny(i)));
+            report.attachments.eleven=await attachment(page,Array.from({length:11},(_,i)=>tiny(i)));
+            report.attachments.total249=await attachment(page,[{name:'a.pdf',mimeType:'application/pdf',buffer:Buffer.alloc(Math.floor(8.3*1024*1024),1)},{name:'b.pdf',mimeType:'application/pdf',buffer:Buffer.alloc(Math.floor(8.3*1024*1024),1)},{name:'c.pdf',mimeType:'application/pdf',buffer:Buffer.alloc(Math.floor(8.3*1024*1024),1)}]);
+            report.attachments.over25=await attachment(page,[{name:'a.pdf',mimeType:'application/pdf',buffer:Buffer.alloc(9*1024*1024,1)},{name:'b.pdf',mimeType:'application/pdf',buffer:Buffer.alloc(9*1024*1024,1)},{name:'c.pdf',mimeType:'application/pdf',buffer:Buffer.alloc(9*1024*1024,1)}]);
+            report.attachments.over10single=await attachment(page,[{name:'big.pdf',mimeType:'application/pdf',buffer:Buffer.alloc(10*1024*1024+1,1)}]);
+            report.attachments.exe=await attachment(page,[{name:'bad.exe',mimeType:'application/x-msdownload',buffer:Buffer.from('MZ')}]);
+            if(report.attachments.one.chips!==1||report.attachments.five.chips!==5||report.attachments.ten.chips!==10||!report.attachments.eleven.shown||report.attachments.total249.chips!==3||report.attachments.total249.shown||!report.attachments.over25.shown||!report.attachments.over10single.shown||!report.attachments.exe.shown)throw new Error('Attachment QA '+JSON.stringify(report.attachments));
+
+            await page.goto('http://127.0.0.1:8000/index.html',{waitUntil:'domcontentloaded'});await page.waitForTimeout(2300);await page.waitForSelector('.opening-popup-form');
+            await page.selectOption('#op-country','india');await page.fill('#op-phone','9316571362');await page.fill('#op-email','qa@example.com');await page.locator('.opening-popup-submit').click();
+            await page.waitForFunction(()=>document.querySelector('.opening-popup-submit')?.classList.contains('is-submitting'),{timeout:3000});report.submit.popupLoading=true;
+            await page.waitForFunction(()=>document.querySelector('.opening-popup-submit')?.classList.contains('is-success'),{timeout:4000});report.submit.popupSuccess=true;
+            if(await page.locator('.opening-popup-close').count())await page.locator('.opening-popup-close').click().catch(()=>{});await page.waitForTimeout(100);
+            await page.locator('.vmg-feedback-trigger-desktop').first().click();await page.locator('.vmg-feedback-rating[data-rating="Good"]').click();await page.fill('#vmg-feedback-comments','Browser QA feedback message.');await page.locator('.vmg-feedback-submit').click();
+            await page.waitForFunction(()=>document.querySelector('.vmg-feedback-submit')?.classList.contains('is-submitting'),{timeout:3000});report.submit.feedbackLoading=true;
+            await page.waitForFunction(()=>document.querySelector('.vmg-feedback-submit')?.classList.contains('is-success'),{timeout:4000});report.submit.feedbackSuccess=true;await page.waitForTimeout(1450);
+            await page.locator('[data-vmg-subscribe-form] input[type="email"]').fill('qa@example.com');await page.locator('.vmg-footer-subscribe-button').click();
+            await page.waitForFunction(()=>document.querySelector('.vmg-footer-subscribe-button')?.classList.contains('is-submitting'),{timeout:3000});report.submit.footerLoading=true;
+            await page.waitForFunction(()=>document.querySelector('.vmg-footer-subscribe-button')?.classList.contains('is-success'),{timeout:4000});report.submit.footerSuccess=true;
+
+            for(const path of publicPages){await page.goto('http://127.0.0.1:8000'+path,{waitUntil:'domcontentloaded'});await page.waitForTimeout(500);const s=await page.evaluate(()=>{const fb=document.querySelector('.vmg-feedback-trigger-desktop');const links=[...document.querySelectorAll('.vmg-nav-social-icons .vmg-social-link')];const mid=e=>{const r=e.getBoundingClientRect();return r.top+r.height/2};const mids=fb&&links.length?[mid(fb),...links.map(mid)]:[];const cs=fb?getComputedStyle(fb):null;return{bg:cs?.backgroundColor||'',fg:cs?.color||'',delta:mids.length?Math.max(...mids)-Math.min(...mids):999,header:!!document.querySelector('.site-header.vmg-econship-header'),footer:!!document.querySelector('footer.vmg-global-footer,footer.site-footer'),nav:!!document.querySelector('link[data-vmg-nav-premium]'),footerCss:!!document.querySelector('link[data-vmg-footer-style]'),logo:document.querySelector('.vmg-updated-header-logo')?.getAttribute('src')||''};});report.header[path]=s;if(s.bg!=='rgb(10, 23, 40)'||s.fg!=='rgb(255, 255, 255)'||s.delta>1.01||!s.header||!s.footer||!s.nav||!s.footerCss||!s.logo.includes('vmg-header-logo.svg'))throw new Error('Header '+path+' '+JSON.stringify(s));}
+
+            const reduced=await newPage(browser,'reduce');await reduced.goto('http://127.0.0.1:8000/index.html',{waitUntil:'domcontentloaded'});await reduced.waitForTimeout(2300);report.submit.reducedMotion=await reduced.evaluate(()=>[document.querySelector('.opening-popup-submit'),document.querySelector('.vmg-feedback-submit'),document.querySelector('.vmg-footer-subscribe-button')].filter(Boolean).map(b=>{VMGSubmitState.set(b,'loading');const loading=b.textContent.trim();VMGSubmitState.set(b,'success');const success=b.textContent.trim();VMGSubmitState.set(b,'idle');return{loading,success};}));if(report.submit.reducedMotion.some(x=>x.loading!=='Sending…'||x.success!=='✓ Sent'))throw new Error('Reduced motion');await reduced.close();
+
+            fs.writeFileSync('/tmp/pr12-qa-report.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));await browser.close();
+          })().catch(e=>{report.fatal=String(e?.stack||e);fs.writeFileSync('/tmp/pr12-qa-report.json',JSON.stringify(report,null,2));console.error(report.fatal);process.exit(1);});
+          NODE
+          node /tmp/qa.cjs
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr12-final-qa-report
+          path: /tmp/pr12-qa-report.json
+          if-no-files-found: ignore
+      - name: Remove one-time QA workflow
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm .github/workflows/pr12-final-qa.yml
+          git add -A
+          git commit -m "Remove one-time PR12 final QA workflow"
+          git push origin HEAD:hotfix/production-ui-fixes-24aug
