@@ -1,0 +1,171 @@
+/* Contact form reliability pass — Contact page only. */
+
+.contact-form-new .vmg-honeypot-field {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  pointer-events: none !important;
+}
+
+.contact-form-new .form-field.is-invalid input:not([type="checkbox"]),
+.contact-form-new .form-field.is-invalid textarea,
+.contact-form-new .form-field.is-invalid select {
+  border-color: #b42318 !important;
+  box-shadow: 0 0 0 3px rgba(180,35,24,.1) !important;
+}
+
+.contact-form-new .vmg-custom-select.is-invalid .vmg-custom-select-button {
+  border-color: #b42318 !important;
+  box-shadow: 0 0 0 3px rgba(180,35,24,.1) !important;
+}
+
+.contact-form-new #contact-phone-group.is-invalid .iti,
+.contact-form-new #contact-phone-group.is-invalid .iti__flag-container,
+.contact-form-new #contact-phone-group.is-invalid input {
+  border-color: #b42318 !important;
+}
+
+.contact-form-new #contact-phone-group.is-invalid .iti {
+  border-radius: 10px;
+  box-shadow: 0 0 0 3px rgba(180,35,24,.1) !important;
+}
+
+.contact-form-new .form-checkbox.is-invalid {
+  padding: 9px 10px;
+  margin-inline: -10px;
+  border: 1px solid rgba(180,35,24,.46);
+  border-radius: 9px;
+  background: rgba(180,35,24,.035);
+}
+
+.contact-form-new .error {
+  min-height: 1.15em;
+}
+
+.contact-form-new .error.show {
+  display: block;
+  color: #b42318;
+}
+
+/* Type only: selected value and options are deliberately stronger for scanning. */
+.contact-form-new #type + .vmg-custom-select .vmg-custom-select-button,
+.contact-form-new #type + .vmg-custom-select .vmg-custom-select-label,
+.contact-form-new #type + .vmg-custom-select .vmg-custom-select-option {
+  font-weight: 700;
+}
+
+/* Country keeps its normal visual weight. */
+.contact-form-new #country + .vmg-custom-select .vmg-custom-select-button,
+.contact-form-new #country + .vmg-custom-select .vmg-custom-select-label,
+.contact-form-new #country + .vmg-custom-select .vmg-custom-select-option {
+  font-weight: inherit;
+}
+
+.contact-form-new .iti {
+  width: 100%;
+}
+
+.contact-form-new .iti input#contact {
+  width: 100%;
+}
+
+.contact-form-new .vmg-turnstile-field {
+  margin-top: 2px;
+}
+
+.contact-form-new .vmg-turnstile {
+  min-height: 65px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.contact-form-new .vmg-turnstile.is-invalid {
+  padding: 8px;
+  border: 1px solid rgba(180,35,24,.46);
+  border-radius: 9px;
+  background: rgba(180,35,24,.025);
+}
+
+.contact-form-new .vmg-turnstile.is-unconfigured {
+  min-height: 50px;
+  border: 1px dashed rgba(184,121,67,.52);
+  border-radius: 9px;
+  background: rgba(184,121,67,.04);
+}
+
+/* Real request-state submit treatment: idle -> progress -> success. */
+.contact-form-new .submit-btn {
+  position: relative;
+  min-width: 126px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.contact-form-new .submit-btn::after {
+  content: "";
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 17px;
+  height: 17px;
+  margin: -8.5px 0 0 -8.5px;
+  opacity: 0;
+  border: 2px solid rgba(255,255,255,.45);
+  border-top-color: #fff;
+  border-radius: 50%;
+  transform: scale(.8);
+  pointer-events: none;
+}
+
+.contact-form-new .submit-btn.is-submitting {
+  color: transparent !important;
+  cursor: wait;
+}
+
+.contact-form-new .submit-btn.is-submitting::after {
+  opacity: 1;
+  transform: scale(1);
+  animation: vmgContactSpin .72s linear infinite;
+}
+
+.contact-form-new .submit-btn.is-success {
+  color: transparent !important;
+  background: #287a55 !important;
+  border-color: #287a55 !important;
+}
+
+.contact-form-new .submit-btn.is-success::after {
+  width: 9px;
+  height: 15px;
+  margin: -9px 0 0 -4px;
+  opacity: 1;
+  border: 0;
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  border-radius: 0;
+  transform: rotate(45deg) scale(1);
+  animation: none;
+}
+
+@keyframes vmgContactSpin {
+  to { transform: scale(1) rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-form-new .submit-btn.is-submitting::after {
+    content: "…";
+    width: auto;
+    height: auto;
+    margin: 0;
+    border: 0;
+    color: #fff;
+    font-weight: 800;
+    opacity: 1;
+    transform: translate(-50%,-50%);
+    animation: none;
+  }
+}
