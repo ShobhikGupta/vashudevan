@@ -1,13 +1,13 @@
 /*
-  VMG Contact form — REQUIRED Google Apps Script security gate.
+  VMG Contact form — REQUIRED Google Apps Script security + attachment gate.
 
   IMPORTANT:
   - This repository does NOT contain the deployed Apps Script doPost source.
-  - Do NOT copy a Turnstile secret into this file or GitHub.
-  - Store TURNSTILE_SECRET_KEY in Apps Script > Project Settings > Script Properties.
-  - Call vmgValidateContactSecurity_(data) at the very TOP of the existing contact
-    doPost flow, BEFORE writing to Sheets, emailing, forwarding, or otherwise storing data.
-  - Preserve the existing normal destination / sheet / email workflow after this gate.
+  - Do NOT copy a Turnstile secret or private Drive folder ID into GitHub.
+  - Store TURNSTILE_SECRET_KEY and CONTACT_UPLOAD_FOLDER_ID in Apps Script > Project Settings > Script Properties.
+  - Call vmgValidateContactSecurity_(data) at the very TOP of the existing contact doPost flow, BEFORE writing to Sheets, emailing, forwarding, or otherwise storing data.
+  - Only after validation succeeds, call vmgSaveContactAttachments_(data.attachments || []).
+  - Preserve the existing normal destination / sheet / email workflow after these gates.
 */
 
 function vmgJson_(obj) {
@@ -40,32 +40,26 @@ function vmgVerifyTurnstile_(token) {
     .getScriptProperties()
     .getProperty('TURNSTILE_SECRET_KEY');
 
-  if (!secret) {
-    return { ok: false, message: 'Security verification is not configured.' };
-  }
-  if (!token) {
-    return { ok: false, message: 'Please complete the security verification and try again.' };
-  }
+  if (!secret) return { ok: false, message: 'Security verification is not configured.' };
+  if (!token) return { ok: false, message: 'Please complete the security verification and try again.' };
 
   try {
     var response = UrlFetchApp.fetch(
       'https://challenges.cloudflare.com/turnstile/v0/siteverify',
       {
         method: 'post',
-        payload: {
-          secret: secret,
-          response: token
-        },
+        payload: { secret: secret, response: token },
         muteHttpExceptions: true
       }
     );
     var body = JSON.parse(response.getContentText() || '{}');
-    if (body.success !== true) {
-      return { ok: false, message: 'Please complete the security verification and try again.' };
+    if (body.success !== true) return { ok: false, message: 'Please complete the security verification and try again.' };
+    if (body.action && body.action !== 'contact_form') return { ok: false, message: 'Security verification failed.' };
+
+    var allowedHosts = ['vashudevan.com', 'www.vashudevan.com', 'deploy-preview-12--exquisite-hotteok-531d58.netlify.app'];
+    if (body.hostname && allowedHosts.indexOf(body.hostname) === -1) {
+      return { ok: false, message: 'Security verification failed.' };
     }
-    // Optional hardening once production hostname/action are confirmed:
-    // if (body.hostname !== 'vashudevan.com') return { ok: false, message: 'Security verification failed.' };
-    // if (body.action && body.action !== 'contact_form') return { ok: false, message: 'Security verification failed.' };
     return { ok: true };
   } catch (error) {
     return { ok: false, message: 'Security verification could not be completed.' };
@@ -79,7 +73,6 @@ function vmgValidateContactSecurity_(raw) {
 
   var honeypot = vmgNormalize_(data.website, 200);
   if (honeypot) {
-    // Deliberately successful-looking response so bots learn nothing useful.
     return { ok: false, silentBot: true, response: { success: true } };
   }
 
@@ -110,6 +103,9 @@ function vmgValidateContactSecurity_(raw) {
   if (urls.length > 4) return { ok: false, message: 'Message contains too many links.' };
   if (/(.)\1{40,}/.test(message)) return { ok: false, message: 'Message content could not be accepted.' };
 
+  var attachmentCheck = vmgValidateAttachmentMetadata_(data.attachments || []);
+  if (!attachmentCheck.ok) return attachmentCheck;
+
   var turnstile = vmgVerifyTurnstile_(turnstileToken);
   if (!turnstile.ok) return turnstile;
 
@@ -120,20 +116,13 @@ function vmgValidateContactSecurity_(raw) {
 
   lock.waitLock(5000);
   try {
-    if (cache.get(duplicateKey)) {
-      return { ok: false, duplicate: true, message: 'This enquiry was already received recently.' };
-    }
+    if (cache.get(duplicateKey)) return { ok: false, duplicate: true, message: 'This enquiry was already received recently.' };
 
     var count = Number(cache.get(rateKey) || '0');
-    if (count >= 3) {
-      return { ok: false, rateLimited: true, message: 'Please wait before sending another enquiry.' };
-    }
+    if (count >= 3) return { ok: false, rateLimited: true, message: 'Please wait before sending another enquiry.' };
 
-    // Reserve the duplicate/rate slots immediately before the normal storage/send path.
-    // If your existing doPost can still fail after this point, move these two cache.put
-    // calls to immediately after that workflow succeeds.
-    cache.put(duplicateKey, '1', 600);       // 10 minutes
-    cache.put(rateKey, String(count + 1), 900); // 15 minutes
+    cache.put(duplicateKey, '1', 600);
+    cache.put(rateKey, String(count + 1), 900);
   } finally {
     lock.releaseLock();
   }
@@ -152,8 +141,89 @@ function vmgValidateContactSecurity_(raw) {
   };
 }
 
+function vmgValidateAttachmentMetadata_(attachments) {
+  var list = Array.isArray(attachments) ? attachments : [];
+  if (list.length > 5) return { ok: false, message: 'You can attach up to 5 files.' };
+
+  var allowed = {
+    'image/jpeg': true,
+    'image/png': true,
+    'image/webp': true,
+    'image/heic': true,
+    'image/heif': true,
+    'application/pdf': true
+  };
+  var total = 0;
+
+  for (var i = 0; i < list.length; i++) {
+    var item = list[i] || {};
+    var mimeType = vmgNormalize_(item.mimeType, 80).toLowerCase();
+    var name = vmgNormalize_(item.name, 220);
+    var size = Number(item.size || 0);
+    var base64 = String(item.base64 || '');
+
+    if (!allowed[mimeType]) return { ok: false, message: 'Unsupported attachment type.' };
+    if (!name || !size || size < 1) return { ok: false, message: 'Invalid attachment.' };
+    if (!base64 || base64.length > 15 * 1024 * 1024) return { ok: false, message: 'Invalid attachment payload.' };
+
+    total += size;
+    if (total > 10 * 1024 * 1024) return { ok: false, message: 'Attachments must be 10 MB total or less.' };
+  }
+
+  return { ok: true };
+}
+
+function vmgSanitizeFilename_(name) {
+  var clean = String(name || 'file')
+    .replace(/[\\/:*?"<>|\u0000-\u001F]/g, '_')
+    .replace(/\s+/g, '-')
+    .replace(/[^A-Za-z0-9._-]/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 140);
+  return clean || 'file';
+}
+
+function vmgSaveContactAttachments_(attachments) {
+  var list = Array.isArray(attachments) ? attachments : [];
+  if (!list.length) return [];
+
+  var validation = vmgValidateAttachmentMetadata_(list);
+  if (!validation.ok) throw new Error(validation.message || 'Invalid attachment.');
+
+  var folderId = PropertiesService
+    .getScriptProperties()
+    .getProperty('CONTACT_UPLOAD_FOLDER_ID');
+  if (!folderId) throw new Error('Attachment storage is not configured.');
+
+  var folder = DriveApp.getFolderById(folderId);
+  var references = [];
+
+  list.forEach(function (item) {
+    var decoded = Utilities.base64Decode(String(item.base64 || ''));
+    if (decoded.length !== Number(item.size || 0)) throw new Error('Attachment size validation failed.');
+
+    var safeName = Utilities.formatDate(new Date(), 'GMT', 'yyyyMMdd-HHmmss') + '_' +
+      Utilities.getUuid() + '_' + vmgSanitizeFilename_(item.name);
+    var blob = Utilities.newBlob(decoded, item.mimeType, safeName);
+    var file = folder.createFile(blob);
+
+    // Do NOT add public sharing permissions. The containing Drive folder should remain private.
+    references.push({
+      name: item.name,
+      storedName: safeName,
+      mimeType: item.mimeType,
+      size: Number(item.size || 0),
+      fileId: file.getId(),
+      url: file.getUrl()
+    });
+  });
+
+  return references;
+}
+
 /*
-  INSERT THIS AT THE TOP OF YOUR EXISTING doPost(e), immediately after parsing JSON:
+  REQUIRED doPost integration example, immediately after parsing JSON:
 
   var gate = vmgValidateContactSecurity_(data);
   if (!gate.ok) {
@@ -161,7 +231,6 @@ function vmgValidateContactSecurity_(raw) {
     return vmgJson_({ success: false, message: gate.message || 'Submission rejected.' });
   }
 
-  // Optional: replace user-supplied values with normalized values:
   data.fullName = gate.clean.fullName;
   data.email = gate.clean.email;
   data.contact = gate.clean.phone;
@@ -170,6 +239,19 @@ function vmgValidateContactSecurity_(raw) {
   data.type = gate.clean.type;
   data.message = gate.clean.message;
 
-  // ...then continue your EXISTING Sheet/email handling unchanged...
-  // return vmgJson_({ success: true });
+  var attachmentReferences = [];
+  try {
+    attachmentReferences = vmgSaveContactAttachments_(data.attachments || []);
+  } catch (uploadError) {
+    return vmgJson_({ success: false, message: 'Attachments could not be stored securely.' });
+  }
+
+  data.attachmentReferences = attachmentReferences;
+  data.attachmentUrls = attachmentReferences.map(function (item) { return item.url; }).join('\n');
+
+  // ...continue EXISTING Sheet/email handling unchanged...
+  // Store attachmentUrls (or JSON.stringify(attachmentReferences)) with the enquiry.
+  // Include attachment links in the existing notification email if one exists.
+  // Only return success AFTER the Sheet/email workflow actually succeeds:
+  // return vmgJson_({ success: true, attachments: attachmentReferences });
 */
