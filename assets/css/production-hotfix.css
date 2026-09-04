@@ -165,18 +165,23 @@
   z-index: 2200 !important;
 }
 
-/* WhatsApp and Need Help use one shared left/bottom/gap geometry on every public page. */
-.vmg-help,
-.whatsapp-float {
+/* WhatsApp and Need Help have one viewport-fixed anchor. The extra html/body
+   specificity deliberately reconciles older later-loaded mobile rules. */
+html body .vmg-help,
+html body .whatsapp-float {
+  position: fixed !important;
+  top: auto !important;
   left: calc(var(--vmg-float-left) + env(safe-area-inset-left)) !important;
   right: auto !important;
 }
 
-.vmg-help {
+html body .vmg-help,
+html body .vmg-help.is-open {
   bottom: calc(var(--vmg-float-base) + env(safe-area-inset-bottom)) !important;
+  transform: none !important;
 }
 
-.whatsapp-float {
+html body .whatsapp-float {
   bottom: calc(
     var(--vmg-float-base)
     + env(safe-area-inset-bottom)
@@ -227,7 +232,7 @@
   }
 }
 
-/* 6) Mobile drawer is viewport-fixed and always above normal page content. */
+/* 6) Mobile drawer: closed state occupies no viewport; open state alone is fixed. */
 @media (max-width: 991px) {
   :root {
     --vmg-float-left: 10px;
@@ -241,7 +246,26 @@
     z-index: 50000 !important;
   }
 
-  .site-header.vmg-econship-header .site-nav {
+  .site-header.vmg-econship-header .site-nav:not(.open) {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: auto !important;
+    width: 100% !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  body.menu-open .site-header.vmg-econship-header .site-nav,
+  .site-header.vmg-econship-header.vmg-menu-open .site-nav,
+  .site-header.vmg-econship-header .site-nav.open {
     position: fixed !important;
     top: var(--vmg-mobile-header-height) !important;
     left: 0 !important;
@@ -249,13 +273,14 @@
     bottom: 0 !important;
     width: 100vw !important;
     height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
     margin: 0 !important;
-  }
-
-  body.menu-open .site-header.vmg-econship-header .site-nav,
-  .site-header.vmg-econship-header.vmg-menu-open .site-nav {
-    z-index: 50001 !important;
+    overflow: visible !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     pointer-events: auto !important;
+    z-index: 50001 !important;
   }
 
   body.menu-open .site-header.vmg-econship-header .nav-toggle,
@@ -276,7 +301,8 @@
   }
 
   body.menu-open .site-header.vmg-econship-header .site-nav > ul,
-  .site-header.vmg-econship-header.vmg-menu-open .site-nav > ul {
+  .site-header.vmg-econship-header.vmg-menu-open .site-nav > ul,
+  .site-header.vmg-econship-header .site-nav.open > ul {
     z-index: 50002 !important;
   }
 
@@ -366,6 +392,26 @@
     margin-bottom: 0 !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
+  }
+
+  /* Homepage mobile hero must physically and visually meet the 64px header. */
+  body.home-view .site-header.vmg-econship-header {
+    margin-bottom: 0 !important;
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+  }
+
+  body.home-view .home-main {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  body.home-view .home-main > .home-hero {
+    margin-top: 0 !important;
+  }
+
+  body.home-view .site-header.vmg-econship-header .vmg-tier2-spacer {
+    height: 0 !important;
   }
 }
 
