@@ -102,8 +102,7 @@
       window.VMGSubmitState.set(submitButton, state);
       return;
     }
-    if (!submitButton) return;
-    submitButton.disabled = state === 'loading' || state === 'success';
+    if (submitButton) submitButton.disabled = state === 'loading' || state === 'success';
   }
 
   function countryData() {
@@ -111,14 +110,13 @@
     try { return window.intlTelInputGlobals.getCountryData().slice(); } catch (_) { return []; }
   }
 
-  function setHardIndiaDefault() {
+  function setHardIndiaDefault(clearPhone) {
     if (dialCodeEl) dialCodeEl.textContent = '+91';
     if (phoneGroup) phoneGroup.setAttribute('aria-label', 'India +91, phone number');
-    if (fields.phone) fields.phone.value = '';
-
+    if (clearPhone !== false && fields.phone) fields.phone.value = '';
     if (!fields.country) return;
-    var options = Array.prototype.slice.call(fields.country.options || []);
-    var india = options.find(function (option) {
+
+    var india = Array.prototype.slice.call(fields.country.options || []).find(function (option) {
       return option.value === 'in' || option.textContent.trim().toLowerCase() === 'india';
     });
     if (india) {
@@ -134,7 +132,7 @@
     var data = countryData();
     if (!data.length) return false;
 
-    countryByIso2 = {};
+    var nextByIso2 = {};
     var fragment = document.createDocumentFragment();
     var placeholder = document.createElement('option');
     placeholder.value = '';
@@ -143,7 +141,7 @@
 
     data.forEach(function (item) {
       if (!item || !item.iso2 || !item.name || !item.dialCode) return;
-      countryByIso2[item.iso2] = item;
+      nextByIso2[item.iso2] = item;
       var option = document.createElement('option');
       option.value = item.iso2;
       option.textContent = item.name;
@@ -151,6 +149,8 @@
       fragment.appendChild(option);
     });
 
+    if (!nextByIso2.in || !nextByIso2.in.dialCode) return false;
+    countryByIso2 = nextByIso2;
     fields.country.innerHTML = '';
     fields.country.appendChild(fragment);
     fields.country.value = DEFAULT_COUNTRY.iso2;
@@ -160,23 +160,12 @@
     return true;
   }
 
-  function dispatchCountriesReady() {
-    document.dispatchEvent(new CustomEvent('vmg:contact-countries-ready', {
-      detail: { count: Object.keys(countryByIso2).length }
-    }));
-  }
-
   function waitForCountryData() {
     var delays = [0, 16, 100, 250, 500];
     return new Promise(function (resolve) {
       var attempt = 0;
       function tryNow() {
-        if (populateCountriesFromLibrary()) {
-          setHardIndiaDefault();
-          dispatchCountriesReady();
-          resolve(true);
-          return;
-        }
+        if (populateCountriesFromLibrary()) { resolve(true); return; }
         if (attempt >= delays.length - 1) {
           countryReady = false;
           if (fields.country) fields.country.dataset.vmgCountryReady = 'error';
@@ -218,19 +207,33 @@
 
   function waitForPhoneReady() {
     if (!iti) return Promise.resolve(false);
+
+    // intl-tel-input v18 exposes iti.promise for async utils loading. This is authoritative.
     if (iti.promise && typeof iti.promise.then === 'function') {
-      return iti.promise.then(function () { phoneReady = true; return true; }).catch(function () { return false; });
+      return iti.promise.then(function () {
+        phoneReady = true;
+        return true;
+      }).catch(function () {
+        phoneReady = false;
+        return false;
+      });
     }
+
+    // Legacy/fallback path: wait for the actual utils global, never method existence alone.
     return new Promise(function (resolve) {
       var delays = [0, 50, 120, 250, 500, 900];
       var attempt = 0;
       function check() {
-        if (window.intlTelInputUtils || (iti && typeof iti.isValidNumber === 'function' && typeof iti.getNumber === 'function')) {
+        if (window.intlTelInputUtils) {
           phoneReady = true;
           resolve(true);
           return;
         }
-        if (attempt >= delays.length - 1) { resolve(false); return; }
+        if (attempt >= delays.length - 1) {
+          phoneReady = false;
+          resolve(false);
+          return;
+        }
         attempt += 1;
         window.setTimeout(check, delays[attempt]);
       }
@@ -272,8 +275,7 @@
     var meta = selectedCountryMeta();
     if (!meta || !iti) return false;
     try { iti.setCountry(meta.iso2); } catch (_) { return false; }
-    updateDialCode();
-    return true;
+    return updateDialCode();
   }
 
   function digitsOnly(value) { return String(value || '').replace(/\D/g, ''); }
@@ -301,6 +303,7 @@
       if (raw.indexOf(prefix) === 0) {
         fields.phone.value = digitsOnly(raw.slice(prefix.length));
         clearPhoneConflict();
+        clearInvalid(fields.phone);
       } else {
         setPhoneConflict();
       }
@@ -321,9 +324,11 @@
     if (!fields.phone || !fields.phone.value.trim() || phoneConflict) return false;
     var ready = phoneReady || await waitForPhoneReady();
     if (!ready || !iti) return null;
+
     var meta = selectedCountryMeta();
     var canonical = canonicalPhone();
     if (!meta || !canonical) return false;
+
     try {
       iti.setCountry(meta.iso2);
       iti.setNumber(canonical);
@@ -347,8 +352,8 @@
     if (!control) return null;
     var id = control.getAttribute('aria-describedby');
     if (id) {
-      var byId = document.getElementById(id.split(/\s+/)[0]);
-      if (byId) return byId;
+      var element = document.getElementById(id.split(/\s+/)[0]);
+      if (element) return element;
     }
     return control === fields.privacy ? form.querySelector('.form-checkbox .error') : null;
   }
@@ -364,8 +369,8 @@
     control.setAttribute('aria-invalid', 'true');
     var field = control.closest('.form-field');
     if (field) field.classList.add('is-invalid');
-    var root = customSelectRoot(control);
-    if (root) root.classList.add('is-invalid');
+    var custom = customSelectRoot(control);
+    if (custom) custom.classList.add('is-invalid');
     if (control === fields.phone && phoneGroup) phoneGroup.classList.add('is-invalid');
     if (control === fields.privacy) {
       var privacyWrap = control.closest('.form-checkbox');
@@ -380,8 +385,8 @@
     control.removeAttribute('aria-invalid');
     var field = control.closest('.form-field');
     if (field) field.classList.remove('is-invalid');
-    var root = customSelectRoot(control);
-    if (root) root.classList.remove('is-invalid');
+    var custom = customSelectRoot(control);
+    if (custom) custom.classList.remove('is-invalid');
     if (control === fields.phone && phoneGroup) phoneGroup.classList.remove('is-invalid');
     if (control === fields.privacy) {
       var privacyWrap = control.closest('.form-checkbox');
@@ -391,7 +396,9 @@
     if (error) error.classList.remove('show');
   }
 
-  function validEmail(value) { return value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value); }
+  function validEmail(value) {
+    return value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
 
   function setAttachmentError(message) {
     var field = fields.attachments ? fields.attachments.closest('.vmg-attachments-field') : null;
@@ -411,7 +418,9 @@
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 
-  function attachmentKey(file) { return [file.name, file.size, file.lastModified].join('|'); }
+  function attachmentKey(file) {
+    return [file.name, file.size, file.lastModified].join('|');
+  }
 
   function renderAttachments() {
     if (!attachmentList) return;
@@ -419,15 +428,34 @@
     selectedFiles.forEach(function (file, index) {
       var item = document.createElement('div');
       item.className = 'vmg-attachment-chip';
-      item.innerHTML = '<span class="vmg-attachment-chip-icon" aria-hidden="true">' + (file.type.indexOf('image/') === 0 ? '▧' : 'PDF') + '</span>' +
-        '<span class="vmg-attachment-chip-name"></span><span class="vmg-attachment-chip-size">' + readableBytes(file.size) + '</span>';
-      item.querySelector('.vmg-attachment-chip-name').textContent = file.name;
+
+      var icon = document.createElement('span');
+      icon.className = 'vmg-attachment-chip-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.textContent = file.type.indexOf('image/') === 0 ? '▧' : 'PDF';
+
+      var name = document.createElement('span');
+      name.className = 'vmg-attachment-chip-name';
+      name.textContent = file.name;
+
+      var size = document.createElement('span');
+      size.className = 'vmg-attachment-chip-size';
+      size.textContent = readableBytes(file.size);
+
       var remove = document.createElement('button');
       remove.type = 'button';
       remove.className = 'vmg-attachment-remove';
       remove.setAttribute('aria-label', 'Remove ' + file.name);
       remove.textContent = '×';
-      remove.addEventListener('click', function () { selectedFiles.splice(index, 1); clearAttachmentError(); renderAttachments(); });
+      remove.addEventListener('click', function () {
+        selectedFiles.splice(index, 1);
+        clearAttachmentError();
+        renderAttachments();
+      });
+
+      item.appendChild(icon);
+      item.appendChild(name);
+      item.appendChild(size);
       item.appendChild(remove);
       attachmentList.appendChild(item);
     });
@@ -436,22 +464,42 @@
   function addAttachments(fileList) {
     var incoming = Array.prototype.slice.call(fileList || []);
     if (!incoming.length) return;
-    var unsupported = incoming.find(function (file) { return !ALLOWED_ATTACHMENT_TYPES[file.type]; });
-    if (unsupported) { setAttachmentError('Unsupported file type: ' + unsupported.name + '.'); fields.attachments.value = ''; return; }
-    var oversized = incoming.find(function (file) { return file.size > MAX_SINGLE_ATTACHMENT_BYTES; });
-    if (oversized) { setAttachmentError(oversized.name + ' is larger than the 10 MB per-file limit.'); fields.attachments.value = ''; return; }
 
-    var keys = {};
-    selectedFiles.forEach(function (file) { keys[attachmentKey(file)] = true; });
+    var unsupported = incoming.find(function (file) { return !ALLOWED_ATTACHMENT_TYPES[file.type]; });
+    if (unsupported) {
+      setAttachmentError('Unsupported file type: ' + unsupported.name + '. Use JPG, PNG, WEBP, HEIC or PDF.');
+      fields.attachments.value = '';
+      return;
+    }
+
+    var oversized = incoming.find(function (file) { return file.size > MAX_SINGLE_ATTACHMENT_BYTES; });
+    if (oversized) {
+      setAttachmentError(oversized.name + ' is larger than the 10 MB per-file limit.');
+      fields.attachments.value = '';
+      return;
+    }
+
+    var existing = {};
+    selectedFiles.forEach(function (file) { existing[attachmentKey(file)] = true; });
     var combined = selectedFiles.slice();
     incoming.forEach(function (file) {
       var key = attachmentKey(file);
-      if (!keys[key]) { keys[key] = true; combined.push(file); }
+      if (!existing[key]) { existing[key] = true; combined.push(file); }
     });
 
-    if (combined.length > MAX_ATTACHMENTS) { setAttachmentError('You can attach up to 10 files.'); fields.attachments.value = ''; return; }
+    if (combined.length > MAX_ATTACHMENTS) {
+      setAttachmentError('You can attach up to 10 files.');
+      fields.attachments.value = '';
+      return;
+    }
+
     var total = combined.reduce(function (sum, file) { return sum + file.size; }, 0);
-    if (total > MAX_ATTACHMENT_BYTES) { setAttachmentError('Attachments must be 25 MB total or less.'); fields.attachments.value = ''; return; }
+    if (total > MAX_ATTACHMENT_BYTES) {
+      setAttachmentError('Attachments must be 25 MB total or less.');
+      fields.attachments.value = '';
+      return;
+    }
+
     selectedFiles = combined;
     clearAttachmentError();
     renderAttachments();
@@ -472,7 +520,9 @@
     });
   }
 
-  function serializeAttachments() { return Promise.all(selectedFiles.map(fileToPayload)); }
+  function serializeAttachments() {
+    return Promise.all(selectedFiles.map(fileToPayload));
+  }
 
   function clearTurnstileError() {
     if (turnstileHost) turnstileHost.classList.remove('is-invalid');
@@ -488,29 +538,37 @@
     var ok = true;
     var name = fields.fullname.value.trim();
     var email = fields.email.value.trim();
-    var org = fields.organization.value.trim();
+    var organization = fields.organization.value.trim();
     var message = fields.message.value.trim();
 
     if (name.length < 2 || name.length > 80) { setInvalid(fields.fullname, 'Please enter your full name (2–80 characters).'); ok = false; } else clearInvalid(fields.fullname);
     if (!countryReady || !fields.country.value || !selectedCountryMeta()) { setInvalid(fields.country, countryReady ? 'Please select a country.' : 'Country list is still initializing. Please try again.'); ok = false; } else clearInvalid(fields.country);
     if (!validEmail(email)) { setInvalid(fields.email, 'Please enter a valid email address.'); ok = false; } else clearInvalid(fields.email);
 
-    if (!fields.phone.value.trim()) { setInvalid(fields.phone, 'Please enter your phone number.'); ok = false; }
-    else if (phoneConflict) { setInvalid(fields.phone, 'The number includes a different country code. Change Country first.'); ok = false; }
-    else {
+    if (!fields.phone.value.trim()) {
+      setInvalid(fields.phone, 'Please enter your phone number.');
+      ok = false;
+    } else if (phoneConflict) {
+      setInvalid(fields.phone, 'The number includes a different country code. Change Country first.');
+      ok = false;
+    } else {
       var phoneValid = await validatePhone();
       if (phoneValid === null) { setInvalid(fields.phone, 'Phone validation is still loading. Please try again.'); ok = false; }
       else if (!phoneValid) { setInvalid(fields.phone, 'Please enter a valid phone number for ' + (countryName() || 'the selected country') + '.'); ok = false; }
       else clearInvalid(fields.phone);
     }
 
-    if (org.length > 120) { setInvalid(fields.organization, 'Organization must be 120 characters or fewer.'); ok = false; } else clearInvalid(fields.organization);
+    if (organization.length > 120) { setInvalid(fields.organization, 'Organization must be 120 characters or fewer.'); ok = false; } else clearInvalid(fields.organization);
     if (TYPE_VALUES.indexOf(fields.type.value) === -1) { setInvalid(fields.type, 'Please select an enquiry type.'); ok = false; } else clearInvalid(fields.type);
     if (message.length < 10 || message.length > 3000) { setInvalid(fields.message, 'Please enter a message between 10 and 3000 characters.'); ok = false; } else clearInvalid(fields.message);
 
-    var total = selectedFiles.reduce(function (sum, file) { return sum + file.size; }, 0);
-    if (selectedFiles.length > MAX_ATTACHMENTS || total > MAX_ATTACHMENT_BYTES || selectedFiles.some(function (file) { return file.size > MAX_SINGLE_ATTACHMENT_BYTES || !ALLOWED_ATTACHMENT_TYPES[file.type]; })) {
-      setAttachmentError('Please review the selected attachments.'); ok = false;
+    var totalBytes = selectedFiles.reduce(function (sum, file) { return sum + file.size; }, 0);
+    var invalidAttachment = selectedFiles.some(function (file) {
+      return !ALLOWED_ATTACHMENT_TYPES[file.type] || file.size > MAX_SINGLE_ATTACHMENT_BYTES;
+    });
+    if (selectedFiles.length > MAX_ATTACHMENTS || totalBytes > MAX_ATTACHMENT_BYTES || invalidAttachment) {
+      setAttachmentError('Please review the selected attachments.');
+      ok = false;
     } else clearAttachmentError();
 
     if (!fields.privacy.checked) { setInvalid(fields.privacy, 'Please accept the privacy policy to continue.'); ok = false; } else clearInvalid(fields.privacy);
@@ -519,13 +577,17 @@
   }
 
   function bindLiveValidation() {
+    fields.fullname.addEventListener('input', function () { if (this.value.trim().length >= 2) clearInvalid(this); });
+    fields.email.addEventListener('input', function () { if (validEmail(this.value.trim())) clearInvalid(this); });
+    fields.organization.addEventListener('input', function () { if (this.value.trim().length <= 120) clearInvalid(this); });
+    fields.message.addEventListener('input', function () { var n = this.value.trim().length; if (n >= 10 && n <= 3000) clearInvalid(this); });
     fields.country.addEventListener('change', function () {
       if (this.value) clearInvalid(this);
       setPhoneEngineCountry();
       normalizeVisiblePhone();
     });
-    fields.phone.addEventListener('input', function () { normalizeVisiblePhone(); });
-    fields.phone.addEventListener('blur', function () { normalizeVisiblePhone(); });
+    fields.phone.addEventListener('input', normalizeVisiblePhone);
+    fields.phone.addEventListener('blur', normalizeVisiblePhone);
     fields.type.addEventListener('change', function () { if (TYPE_VALUES.indexOf(this.value) !== -1) clearInvalid(this); });
     fields.privacy.addEventListener('change', function () { if (this.checked) clearInvalid(this); });
     attachmentPicker.addEventListener('click', function () { fields.attachments.click(); });
@@ -543,9 +605,18 @@
 
   function renderTurnstile() {
     if (!turnstileHost || turnstileWidgetId !== null) return;
-    if (!window.turnstile || typeof window.turnstile.render !== 'function') { window.setTimeout(renderTurnstile, 120); return; }
+    if (!window.turnstile || typeof window.turnstile.render !== 'function') {
+      window.setTimeout(renderTurnstile, 120);
+      return;
+    }
+
     var sitekey = configuredTurnstileSitekey();
-    if (!sitekey) { turnstileHost.classList.add('is-unconfigured'); setTurnstileError('Security verification is not configured yet.'); return; }
+    if (!sitekey) {
+      turnstileHost.classList.add('is-unconfigured');
+      setTurnstileError('Security verification is not configured yet.');
+      return;
+    }
+
     var options = {
       sitekey: sitekey,
       theme: 'light',
@@ -562,7 +633,9 @@
 
   function resetTurnstile() {
     turnstileToken = '';
-    if (window.turnstile && turnstileWidgetId !== null) { try { window.turnstile.reset(turnstileWidgetId); } catch (_) {} }
+    if (window.turnstile && turnstileWidgetId !== null) {
+      try { window.turnstile.reset(turnstileWidgetId); } catch (_) {}
+    }
   }
 
   function showResult(message, kind) {
@@ -598,15 +671,26 @@
     var phone = await fullPhone();
     return {
       source: 'main',
-      fullName: fields.fullname.value.trim(), fullname: fields.fullname.value.trim(),
-      contact: phone, contactNumber: phone, phone: phone,
-      email: fields.email.value.trim(), mailId: fields.email.value.trim(),
-      country: countryName(), Country: countryName(), countryIso2: fields.country.value,
-      organization: fields.organization.value.trim(), type: fields.type.value, message: fields.message.value.trim(),
-      privacy: true, attachments: attachments, attachmentCount: attachments.length,
+      fullName: fields.fullname.value.trim(),
+      fullname: fields.fullname.value.trim(),
+      contact: phone,
+      contactNumber: phone,
+      phone: phone,
+      email: fields.email.value.trim(),
+      mailId: fields.email.value.trim(),
+      country: countryName(),
+      Country: countryName(),
+      countryIso2: fields.country.value,
+      organization: fields.organization.value.trim(),
+      type: fields.type.value,
+      message: fields.message.value.trim(),
+      privacy: true,
+      attachments: attachments,
+      attachmentCount: attachments.length,
       website: fields.honeypot ? fields.honeypot.value : '',
       formStartedAt: Number(fields.startedAt.value || startedAt),
-      submittedAt: new Date().toISOString(), page: window.location.href,
+      submittedAt: new Date().toISOString(),
+      page: window.location.href,
       'cf-turnstile-response': turnstileToken
     };
   }
@@ -614,13 +698,17 @@
   async function submitContact(data) {
     var endpoint = (window.AppConfig && (window.AppConfig.contactEndpoint || window.AppConfig.googleScriptUrl)) || '';
     if (!endpoint) throw new Error('Submission endpoint is not configured.');
-    if (!(window.AppConfig && window.AppConfig.contactSecurityReady === true)) throw new Error('Server-side security and attachment handling are not deployed yet.');
+    if (!(window.AppConfig && window.AppConfig.contactSecurityReady === true)) {
+      throw new Error('Server-side security and attachment handling are not deployed yet.');
+    }
+
     var response = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=UTF-8', 'Accept': 'application/json' },
       body: JSON.stringify(data)
     });
     if (!response.ok) throw new Error('The server could not accept your message.');
+
     var body = {};
     try { body = await response.json(); } catch (_) {}
     if (!body || body.success !== true) throw new Error((body && body.message) || 'The server did not confirm your submission.');
@@ -636,6 +724,7 @@
     if (!(await validateAll())) {
       setSubmitState('error');
       showResult('Please correct the highlighted fields.', 'error');
+      window.setTimeout(function () { setSubmitState('idle'); }, 260);
       return;
     }
 
@@ -659,19 +748,39 @@
     }
   }, true);
 
-  setHardIndiaDefault();
-  initPhoneEngine();
-  fields.startedAt.value = String(startedAt);
-  bindLiveValidation();
-  renderAttachments();
-  renderTurnstile();
-  waitForPhoneReady();
-  waitForCountryData().then(function (ready) {
-    if (!ready) {
+  async function initializeContact() {
+    // Hard visual default before any async/library-dependent work.
+    setHardIndiaDefault(true);
+    fields.startedAt.value = String(startedAt);
+    bindLiveValidation();
+    renderAttachments();
+    renderTurnstile();
+
+    // Canonical country data first. The visible custom Country UI is gated in config.js
+    // and is not constructed until the ready event below.
+    var countriesLoaded = await waitForCountryData();
+    if (!countriesLoaded) {
       setInvalid(fields.country, 'Country list could not initialize. Please refresh and try again.');
       return;
     }
+
     fields.country.value = DEFAULT_COUNTRY.iso2;
+    setHardIndiaDefault(true);
+
+    if (!initPhoneEngine()) {
+      setInvalid(fields.phone, 'Phone validation could not initialize. Please refresh and try again.');
+      return;
+    }
+
     setPhoneEngineCountry();
-  });
+    updateDialCode();
+    document.dispatchEvent(new CustomEvent('vmg:contact-countries-ready', {
+      detail: { count: Object.keys(countryByIso2).length }
+    }));
+
+    // Utils load may complete later; validation awaits this promise/state before judging a number.
+    waitForPhoneReady();
+  }
+
+  initializeContact();
 })();
