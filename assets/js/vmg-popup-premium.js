@@ -12,7 +12,7 @@
       '.opening-popup-header{display:block!important;position:relative!important;text-align:center!important}',
       '.opening-popup-header>div:not(.opening-popup-brand){width:100%!important;text-align:center!important}',
       '.opening-popup-brand{width:100%;text-align:center;margin:0 auto 14px;padding:0 0 13px;border-bottom:1px solid #e8eaed}',
-      '.opening-popup-brand-logo{display:block;width:100%;max-width:282px;height:84px;object-fit:contain;object-position:center;margin:0 auto 9px}',
+      '.opening-popup-brand-logo{display:block;width:100%;max-width:282px;height:auto;object-fit:contain;object-position:center;margin:0 auto 9px}',
       '.opening-popup-contact-row{display:flex;align-items:center;justify-content:center;gap:10px;min-width:0;color:#667085;font-size:11.5px;font-weight:500;line-height:1.2;letter-spacing:-.01em;white-space:nowrap}',
       '.opening-popup-contact-item{display:inline-flex;align-items:center;gap:6px;min-width:0}',
       '.opening-popup-contact-item svg{width:17px;height:17px;flex:0 0 17px;stroke:#b6542a;stroke-width:1.65;fill:none}',
@@ -23,7 +23,7 @@
       '.opening-popup-close:hover{background:#f5f6f7!important;color:#344054!important}',
       '.opening-popup-submit:disabled{background:#e9ebef!important;color:#98a2b3!important;box-shadow:none!important}',
       '.opening-popup-turnstile-field{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important;margin:0!important;padding:0!important;border:0!important}',
-      '@media(max-width:430px){.opening-popup-brand{margin-bottom:12px;padding-bottom:11px}.opening-popup-brand-logo{max-width:238px;height:72px;margin-bottom:8px}.opening-popup-contact-row{gap:7px;font-size:10.25px}.opening-popup-contact-item{gap:4px}.opening-popup-contact-item svg{width:15px;height:15px;flex-basis:15px}.opening-popup-contact-separator{height:15px}}',
+      '@media(max-width:430px){.opening-popup-brand{margin-bottom:12px;padding-bottom:11px}.opening-popup-brand-logo{max-width:238px;height:auto;margin-bottom:8px}.opening-popup-contact-row{gap:7px;font-size:10.25px}.opening-popup-contact-item{gap:4px}.opening-popup-contact-item svg{width:15px;height:15px;flex-basis:15px}.opening-popup-contact-separator{height:15px}}',
       '@media(max-width:360px){.opening-popup-contact-row{font-size:9.7px;gap:5px}.opening-popup-contact-item{gap:3px}}'
     ].join('');
     document.head.appendChild(style);
@@ -38,7 +38,7 @@
     var brand = document.createElement('div');
     brand.className = 'opening-popup-brand';
     brand.innerHTML = [
-      '<img class="opening-popup-brand-logo" src="/assets/img/vmg-open-graph.jpg" alt="Vashudevan Met Global LLP logo" decoding="async">',
+      '<img class="opening-popup-brand-logo" src="/assets/img/vmg-open-graph.png" alt="Vashudevan MetGlobal LLP logo" decoding="async">',
       '<div class="opening-popup-contact-row" aria-label="Vashudevan contact details">',
         '<span class="opening-popup-contact-item">',
           '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.75 5.75h16.5v12.5H3.75z"/><path d="m4.5 7 7.5 6 7.5-6"/></svg>',
