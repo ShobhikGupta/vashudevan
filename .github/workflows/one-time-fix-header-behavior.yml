@@ -1,219 +1,46 @@
-name: One-time robust header behavior fix
+name: PR12 exact VMG PNG transfer test
 
 on:
   push:
     branches:
-      - chatgpt/mobile-fixes-21aug
+      - hotfix/production-ui-fixes-24aug
     paths:
       - .github/workflows/one-time-fix-header-behavior.yml
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  patch:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: chatgpt/mobile-fixes-21aug
-          fetch-depth: 0
-
-      - name: Replace fragile header logic with deterministic sticky behavior
+      - name: Test Canva delivery URLs for exact uploaded PNG
+        shell: bash
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          import re
-
-          help_path = Path('assets/js/vmg-help.js')
-          s = help_path.read_text()
-
-          # Remove the old dedicated sticky stylesheet loader: the replacement logic below
-          # uses direct state + one simplified stylesheet and avoids fighting multiple rules.
-          s = re.sub(
-              r"\n\s*if \(!document\.querySelector\('link\[data-vmg-header-sticky-fix\]'\)\) \{.*?\n\s*\}\n",
-              "\n",
-              s,
-              count=1,
-              flags=re.S,
-          )
-
-          new_func = r'''  function initHeaderStickyBehavior(attempt) {
-    attempt = attempt || 0;
-    var header = document.querySelector('.site-header.vmg-econship-header, .site-header');
-    var nav = header && header.querySelector('.site-nav');
-    var brandRow = header && header.querySelector('.vmg-nav-brand-row');
-    if (!header || !nav || !brandRow) {
-      if (attempt < 30) window.setTimeout(function () { initHeaderStickyBehavior(attempt + 1); }, 100);
-      return;
-    }
-    if (header.dataset.vmgStickyFix === 'v3') return;
-    header.dataset.vmgStickyFix = 'v3';
-
-    header.classList.remove('vmg-tier1-collapsed', 'vmg-header-retreat', 'vmg-tier2-pinned', 'vmg-footer-active');
-
-    var desktopQuery = window.matchMedia('(min-width: 992px)');
-    var raf = 0;
-
-    function finalFooter() {
-      return document.querySelector('footer.vmg-global-footer, footer.site-footer');
-    }
-
-    function footerIsEntering() {
-      var footer = finalFooter();
-      if (!footer) return false;
-      var rect = footer.getBoundingClientRect();
-      return rect.top < window.innerHeight && rect.bottom > 0;
-    }
-
-    function apply() {
-      raf = 0;
-      var isDesktop = desktopQuery.matches;
-      var atFooter = footerIsEntering();
-      var menuOpen = document.body.classList.contains('menu-open') || nav.classList.contains('open');
-
-      /* One sticky header model everywhere. main.js already toggles .is-scrolled reliably. */
-      header.style.setProperty('position', 'sticky', 'important');
-      header.style.setProperty('top', '0', 'important');
-      header.style.setProperty('left', '0', 'important');
-      header.style.setProperty('right', '0', 'important');
-      header.style.setProperty('z-index', '1200', 'important');
-      header.style.setProperty('transition', 'transform 320ms cubic-bezier(.22,1,.36,1), box-shadow 180ms ease', 'important');
-
-      nav.style.removeProperty('position');
-      nav.style.removeProperty('top');
-      nav.style.removeProperty('left');
-      nav.style.removeProperty('right');
-      nav.style.removeProperty('width');
-      nav.style.removeProperty('z-index');
-      nav.style.removeProperty('box-shadow');
-      nav.style.removeProperty('transform');
-      nav.style.removeProperty('pointer-events');
-
-      if (isDesktop) {
-        /* Tier 1 collapses only after the page has actually started scrolling;
-           Tier 2 remains at the top because the whole header is sticky. */
-        var collapse = window.scrollY > 8;
-        header.classList.toggle('vmg-desktop-tier1-hidden', collapse);
-      } else {
-        header.classList.remove('vmg-desktop-tier1-hidden');
-      }
-
-      if (atFooter && !menuOpen) {
-        header.style.setProperty('transform', 'translate3d(0, calc(-100% - 2px), 0)', 'important');
-        header.style.setProperty('pointer-events', 'none', 'important');
-      } else {
-        header.style.setProperty('transform', 'translate3d(0,0,0)', 'important');
-        header.style.setProperty('pointer-events', 'auto', 'important');
-      }
-    }
-
-    function requestApply() {
-      if (raf) return;
-      raf = window.requestAnimationFrame(apply);
-    }
-
-    window.addEventListener('scroll', requestApply, { passive: true });
-    window.addEventListener('resize', requestApply, { passive: true });
-    document.addEventListener('click', function () { window.setTimeout(requestApply, 0); });
-    if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', requestApply);
-    else if (desktopQuery.addListener) desktopQuery.addListener(requestApply);
-
-    apply();
-    window.setTimeout(apply, 200);
-    window.setTimeout(apply, 900);
-  }
-'''
-
-          s, count = re.subn(
-              r"  function initHeaderStickyBehavior\(attempt\) \{.*?\n  \}\n\n  function closeMenu",
-              new_func + "\n  function closeMenu",
-              s,
-              count=1,
-              flags=re.S,
-          )
-          if count != 1:
-              raise SystemExit('Could not replace initHeaderStickyBehavior')
-
-          help_path.write_text(s)
-
-          css_path = Path('assets/css/vmg-header-sticky-fix.css')
-          css_path.write_text(r'''/* VMG header state styles — deterministic v3. */
-.site-header.vmg-econship-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 1200 !important;
-  background: #fff;
-  transform: translate3d(0,0,0);
-  transition: transform 320ms cubic-bezier(.22,1,.36,1), box-shadow 180ms ease;
-}
-
-/* Mobile: full brand header remains visible for the entire page until footer entry. */
-@media (max-width: 991px) {
-  .site-header.vmg-econship-header .vmg-nav-brand-row {
-    max-height: 64px !important;
-    min-height: 64px !important;
-    opacity: 1 !important;
-    transform: none !important;
-    overflow: visible !important;
-  }
-}
-
-/* Desktop: Tier 1 collapses smoothly after scrolling; Tier 2 remains visible. */
-@media (min-width: 992px) {
-  .site-header.vmg-econship-header .vmg-nav-brand-row {
-    max-height: 82px !important;
-    min-height: 82px !important;
-    overflow: hidden !important;
-    opacity: 1 !important;
-    transform: translate3d(0,0,0) !important;
-    transition: max-height 280ms cubic-bezier(.22,1,.36,1), min-height 280ms cubic-bezier(.22,1,.36,1), opacity 180ms ease, transform 280ms cubic-bezier(.22,1,.36,1), margin 280ms cubic-bezier(.22,1,.36,1) !important;
-  }
-
-  .site-header.vmg-econship-header.vmg-desktop-tier1-hidden .vmg-nav-brand-row {
-    max-height: 0 !important;
-    min-height: 0 !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    opacity: 0 !important;
-    transform: translate3d(0,-100%,0) !important;
-    pointer-events: none !important;
-  }
-
-  .site-header.vmg-econship-header .site-nav {
-    position: relative !important;
-    top: auto !important;
-    left: auto !important;
-    right: auto !important;
-    width: 100% !important;
-    transform: none !important;
-  }
-
-  .site-header.vmg-econship-header.vmg-desktop-tier1-hidden .site-nav {
-    box-shadow: 0 8px 24px rgba(4,12,23,.14) !important;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .site-header.vmg-econship-header,
-  .site-header.vmg-econship-header .vmg-nav-brand-row {
-    transition: none !important;
-  }
-}
-''')
-
-          config = Path('assets/js/config.js')
-          cs = config.read_text()
-          cs = cs.replace("/assets/js/vmg-help.js?v=20260821g", "/assets/js/vmg-help.js?v=20260821j")
-          cs = cs.replace("/assets/js/vmg-help.js?v=20260821h", "/assets/js/vmg-help.js?v=20260821j")
-          config.write_text(cs)
-          PY
-
-      - name: Commit robust header fix
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/js/vmg-help.js assets/css/vmg-header-sticky-fix.css assets/js/config.js
-          git diff --cached --check
-          git commit -m "Make mobile and desktop header behavior deterministic"
-          git push origin HEAD:chatgpt/mobile-fixes-21aug
+          set +e
+          BASE_QUERY='csig=AAAAAAAAAAAAAAAAAAAAAG2TynxfrXB3wwh0K4Ns7vRWBVN9DTIOG4Ps95SvHO48&exp=1788612411&osig=AAAAAAAAAAAAAAAAAAAAAErseym9D0Jd2ffXMF6BxcEk5AfkGT76Ca2iX3fRGrUZ&signer=media-rpc&x-canva-quality=thumbnail'
+          URI='ifs%3A%2F%2FM%2F5a944107-4f1a-47ef-b0a4-f637b3ec0f0c'
+          URL1="https://media.canva.com/v2/image-resize/format:PNG/height:66/quality:100/uri:${URI}/watermark:F/width:200?${BASE_QUERY}"
+          URL2="https://media.canva.com/v2/image-resize/format:PNG/height:682/quality:100/uri:${URI}/watermark:F/width:2048?${BASE_QUERY}"
+          URL3="https://media.canva.com/v2/image-resize/format:PNG/height:682/quality:100/uri:${URI}/watermark:F/width:2048?csig=AAAAAAAAAAAAAAAAAAAAAG2TynxfrXB3wwh0K4Ns7vRWBVN9DTIOG4Ps95SvHO48&exp=1788612411&osig=AAAAAAAAAAAAAAAAAAAAAErseym9D0Jd2ffXMF6BxcEk5AfkGT76Ca2iX3fRGrUZ&signer=media-rpc&x-canva-quality=original"
+          EXPECT='6976461f6b6ae2eafd9fbed50f5b74b61f4f03c75c8944fc1d4e7f046172db82'
+          for n in 1 2 3; do
+            eval "u=\$URL$n"
+            echo "--- candidate $n ---"
+            code=$(curl -sS -L -w '%{http_code}' -o "/tmp/c$n" "$u")
+            echo "HTTP=$code"
+            file "/tmp/c$n" || true
+            wc -c "/tmp/c$n" || true
+            sha256sum "/tmp/c$n" || true
+            python - "/tmp/c$n" <<'PY'
+import struct,sys
+p=sys.argv[1]
+b=open(p,'rb').read(24)
+if len(b)>=24 and b[:8]==b'\x89PNG\r\n\x1a\n':
+    print('PNG_DIMS=%dx%d' % struct.unpack('>II',b[16:24]))
+else:
+    print('NOT_PNG')
+PY
+          done
+          echo "EXPECTED_SHA256=$EXPECT"
