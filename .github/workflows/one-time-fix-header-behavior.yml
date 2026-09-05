@@ -28,7 +28,6 @@ jobs:
           ASSET='assets/img/vmg-open-graph.png'
 
           curl -fLsS "$SOURCE_URL" -o "$ASSET"
-
           ACTUAL_SHA=$(sha256sum "$ASSET" | awk '{print $1}')
           test "$ACTUAL_SHA" = "$EXPECTED_SHA"
           file "$ASSET" | grep -q 'PNG image data, 2048 x 682'
@@ -46,7 +45,6 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import re
-
           js_path = Path('assets/js/vmg-popup-premium.js')
           js = js_path.read_text()
           js = js.replace('/assets/img/vmg-open-graph.jpg', '/assets/img/vmg-open-graph.png')
@@ -69,9 +67,7 @@ jobs:
               '<meta property="og:image:height" content="682">',
           ]
           for p in pages:
-              s = p.read_text()
-              s = s.replace(old, new)
-              # Remove any pre-existing image detail tags so reruns stay idempotent.
+              s = p.read_text().replace(old, new)
               s = re.sub(r'\s*<meta property="og:image:(?:type|width|height)"[^>]*>\s*', '\n', s)
               image_line = f'<meta property="og:image" content="{new}">'
               if image_line not in s:
@@ -80,16 +76,14 @@ jobs:
               indent = indent_match.group(1) if indent_match else '    '
               replacement = image_line + '\n' + '\n'.join(indent + x for x in extras)
               s = s.replace(image_line, replacement, 1)
-              # Strip trailing whitespace only on pages touched by this metadata change.
               s = '\n'.join(line.rstrip() for line in s.splitlines()) + ('\n' if s.endswith('\n') else '')
               p.write_text(s)
           PY
 
-          # Corrupted JPG was introduced only for this popup/OG implementation. Remove it.
           rm -f assets/img/vmg-open-graph.jpg
 
-          # Assertions: no active JPG references and correct final metadata/source.
-          if grep -R --exclude-dir=.git --exclude='*.map' -n 'vmg-open-graph\.jpg' .; then
+          # Exclude this temporary workflow itself; it necessarily contains migration test strings.
+          if grep -R --exclude-dir=.git --exclude='*.map' --exclude='one-time-fix-header-behavior.yml' -n 'vmg-open-graph\.jpg' .; then
             echo 'ERROR: old JPG reference remains' >&2
             exit 1
           fi
@@ -118,7 +112,6 @@ jobs:
           print('OG/Twitter metadata verified on', len(pages), 'pages')
           PY
 
-          git diff --check db1172ec4c2191269fc2f6b01a8906018c59731d...HEAD || true
           git diff --check
           git status --short
           git diff --stat
