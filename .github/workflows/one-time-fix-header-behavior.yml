@@ -1,4 +1,4 @@
-name: PR12 exact VMG PNG asset fix
+name: Restore original workflow after PR12 image fix
 
 on:
   push:
@@ -11,119 +11,21 @@ permissions:
   contents: write
 
 jobs:
-  patch:
+  restore:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: hotfix/production-ui-fixes-24aug
           fetch-depth: 0
-
-      - name: Replace broken JPG with exact uploaded PNG and update references
-        shell: bash
+      - name: Restore workflow byte-for-byte from main
         run: |
           set -euo pipefail
-          EXPECTED_SHA='6976461f6b6ae2eafd9fbed50f5b74b61f4f03c75c8944fc1d4e7f046172db82'
-          SOURCE_URL='https://d2ol7oe51mr4n9.cloudfront.net/user_3HlPWOAKilHPSPIdNM0AP7SJmmF/abd59880-86bf-4496-a2ab-5df10763b53d.png'
-          ASSET='assets/img/vmg-open-graph.png'
-
-          curl -fLsS "$SOURCE_URL" -o "$ASSET"
-          ACTUAL_SHA=$(sha256sum "$ASSET" | awk '{print $1}')
-          test "$ACTUAL_SHA" = "$EXPECTED_SHA"
-          file "$ASSET" | grep -q 'PNG image data, 2048 x 682'
-          python - <<'PY'
-          from pathlib import Path
-          import struct
-          p = Path('assets/img/vmg-open-graph.png')
-          b = p.read_bytes()
-          assert b[:8] == b'\x89PNG\r\n\x1a\n'
-          w, h = struct.unpack('>II', b[16:24])
-          assert (w, h) == (2048, 682), (w, h)
-          print('PNG verified:', w, 'x', h, len(b), 'bytes')
-          PY
-
-          python - <<'PY'
-          from pathlib import Path
-          import re
-          js_path = Path('assets/js/vmg-popup-premium.js')
-          js = js_path.read_text()
-          js = js.replace('/assets/img/vmg-open-graph.jpg', '/assets/img/vmg-open-graph.png')
-          js = js.replace('alt="Vashudevan Met Global LLP logo"', 'alt="Vashudevan MetGlobal LLP logo"')
-          js = js.replace('max-width:282px;height:84px;object-fit:contain', 'max-width:282px;height:auto;object-fit:contain')
-          js = js.replace('max-width:238px;height:72px;margin-bottom:8px', 'max-width:238px;height:auto;margin-bottom:8px')
-          js_path.write_text(js)
-
-          pages = [
-              Path('index.html'), Path('who-we-are.html'), Path('our-impact.html'),
-              Path('products.html'), Path('product.html'), Path('resources.html'),
-              Path('faq.html'), Path('contact.html'), Path('privacy-policy.html'),
-              Path('disclaimer.html'), Path('market-prices/index.html')
-          ]
-          old = 'https://vashudevan.com/assets/img/vmg-open-graph.jpg'
-          new = 'https://vashudevan.com/assets/img/vmg-open-graph.png'
-          extras = [
-              '<meta property="og:image:type" content="image/png">',
-              '<meta property="og:image:width" content="2048">',
-              '<meta property="og:image:height" content="682">',
-          ]
-          for p in pages:
-              s = p.read_text().replace(old, new)
-              s = re.sub(r'\s*<meta property="og:image:(?:type|width|height)"[^>]*>\s*', '\n', s)
-              image_line = f'<meta property="og:image" content="{new}">'
-              if image_line not in s:
-                  raise SystemExit(f'og:image not found in {p}')
-              indent_match = re.search(r'(^[ \t]*)' + re.escape(image_line), s, re.M)
-              indent = indent_match.group(1) if indent_match else '    '
-              replacement = image_line + '\n' + '\n'.join(indent + x for x in extras)
-              s = s.replace(image_line, replacement, 1)
-              s = '\n'.join(line.rstrip() for line in s.splitlines()) + ('\n' if s.endswith('\n') else '')
-              p.write_text(s)
-          PY
-
-          rm -f assets/img/vmg-open-graph.jpg
-
-          # Exclude this temporary workflow itself; it necessarily contains migration test strings.
-          if grep -R --exclude-dir=.git --exclude='*.map' --exclude='one-time-fix-header-behavior.yml' -n 'vmg-open-graph\.jpg' .; then
-            echo 'ERROR: old JPG reference remains' >&2
-            exit 1
-          fi
-          grep -q '/assets/img/vmg-open-graph.png' assets/js/vmg-popup-premium.js
-          grep -q 'max-width:282px;height:auto;object-fit:contain' assets/js/vmg-popup-premium.js
-          grep -q 'max-width:238px;height:auto;margin-bottom:8px' assets/js/vmg-popup-premium.js
-          node --check assets/js/vmg-popup-premium.js
-
-          python - <<'PY'
-          from pathlib import Path
-          pages = [
-              Path('index.html'), Path('who-we-are.html'), Path('our-impact.html'),
-              Path('products.html'), Path('product.html'), Path('resources.html'),
-              Path('faq.html'), Path('contact.html'), Path('privacy-policy.html'),
-              Path('disclaimer.html'), Path('market-prices/index.html')
-          ]
-          url = 'https://vashudevan.com/assets/img/vmg-open-graph.png'
-          for p in pages:
-              s = p.read_text()
-              assert s.count(f'<meta property="og:image" content="{url}">') == 1, p
-              assert s.count('<meta property="og:image:type" content="image/png">') == 1, p
-              assert s.count('<meta property="og:image:width" content="2048">') == 1, p
-              assert s.count('<meta property="og:image:height" content="682">') == 1, p
-              assert s.count(f'<meta name="twitter:image" content="{url}">') == 1, p
-              assert 'vmg-open-graph.jpg' not in s, p
-          print('OG/Twitter metadata verified on', len(pages), 'pages')
-          PY
-
-          git diff --check
-          git status --short
-          git diff --stat
-
-      - name: Commit exact PNG fix to existing PR branch
-        shell: bash
-        run: |
-          set -euo pipefail
+          git fetch origin main
+          git checkout origin/main -- .github/workflows/one-time-fix-header-behavior.yml
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add assets/img/vmg-open-graph.png assets/js/vmg-popup-premium.js index.html who-we-are.html our-impact.html products.html product.html resources.html faq.html contact.html privacy-policy.html disclaimer.html market-prices/index.html
-          git add -u assets/img/vmg-open-graph.jpg
+          git add .github/workflows/one-time-fix-header-behavior.yml
           git diff --cached --check
-          git commit -m 'Fix VMG popup and Open Graph PNG asset'
+          git commit -m 'Restore existing header workflow after VMG image fix'
           git push origin HEAD:hotfix/production-ui-fixes-24aug
