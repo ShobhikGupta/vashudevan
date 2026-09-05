@@ -20,7 +20,7 @@
     if (!document.querySelector('link[data-vmg-header-sticky-fix]')) {
       var sticky = document.createElement('link');
       sticky.rel = 'stylesheet';
-      sticky.href = '/assets/css/vmg-header-sticky-fix.css?v=20260821b';
+      sticky.href = '/assets/css/vmg-header-sticky-fix.css?v=20260822b';
       sticky.setAttribute('data-vmg-header-sticky-fix', 'true');
       document.head.appendChild(sticky);
     }
@@ -140,94 +140,6 @@
     if (smallNote) smallNote.innerHTML = 'Learn about our <a href="/privacy-policy.html">Privacy Policy</a> &amp; <a href="/disclaimer.html">Disclaimer</a>';
   }
 
-  function initHeaderStickyBehavior(attempt) {
-    attempt = attempt || 0;
-    var header = document.querySelector('.site-header.vmg-econship-header, .site-header');
-    var nav = header && header.querySelector('.site-nav');
-    var brandRow = header && header.querySelector('.vmg-nav-brand-row');
-    if (!header || !nav || !brandRow) {
-      if (attempt < 30) window.setTimeout(function () { initHeaderStickyBehavior(attempt + 1); }, 100);
-      return;
-    }
-    if (header.dataset.vmgStickyFix === 'true') return;
-    header.dataset.vmgStickyFix = 'true';
-
-    header.classList.remove('vmg-tier1-collapsed', 'vmg-header-retreat', 'vmg-tier2-pinned', 'vmg-footer-active');
-
-    var desktopQuery = window.matchMedia('(min-width: 992px)');
-    var navStart = 0;
-    var raf = 0;
-    var footerObserver = null;
-    var observedFooter = null;
-    var footerMutationObserver = null;
-
-    function measure() {
-      header.classList.remove('vmg-tier2-pinned');
-      header.style.removeProperty('--vmg-nav-height');
-      var headerTop = header.getBoundingClientRect().top + window.scrollY;
-      navStart = headerTop + brandRow.getBoundingClientRect().height;
-      header.style.setProperty('--vmg-nav-height', Math.max(1, Math.round(nav.getBoundingClientRect().height)) + 'px');
-      update();
-    }
-
-    function update() {
-      raf = 0;
-      if (desktopQuery.matches) {
-        header.classList.toggle('vmg-tier2-pinned', window.scrollY >= navStart - 1);
-      } else {
-        header.classList.remove('vmg-tier2-pinned');
-      }
-    }
-
-    function requestUpdate() {
-      if (raf) return;
-      raf = window.requestAnimationFrame(update);
-    }
-
-    function attachFooterObserver() {
-      var footer = document.querySelector('footer.vmg-global-footer, footer.site-footer');
-      if (!footer || footer === observedFooter) return;
-
-      if (footerObserver) footerObserver.disconnect();
-      observedFooter = footer;
-      header.classList.remove('vmg-footer-active');
-
-      footerObserver = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.target !== observedFooter) return;
-          header.classList.toggle('vmg-footer-active', entry.isIntersecting && entry.intersectionRect.height > 0);
-        });
-      }, { root: null, rootMargin: '0px', threshold: [0, 0.01] });
-
-      footerObserver.observe(footer);
-    }
-
-    function startFooterWatcher() {
-      attachFooterObserver();
-      footerMutationObserver = new MutationObserver(function () {
-        attachFooterObserver();
-      });
-      footerMutationObserver.observe(document.body, { childList: true, subtree: true });
-      window.setTimeout(attachFooterObserver, 250);
-      window.setTimeout(attachFooterObserver, 800);
-      window.setTimeout(attachFooterObserver, 1600);
-    }
-
-    window.addEventListener('scroll', requestUpdate, { passive: true });
-    window.addEventListener('resize', function () {
-      window.clearTimeout(window.__vmgHeaderResizeTimer);
-      window.__vmgHeaderResizeTimer = window.setTimeout(measure, 120);
-    }, { passive: true });
-
-    if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', measure);
-    else if (desktopQuery.addListener) desktopQuery.addListener(measure);
-
-    window.setTimeout(measure, 60);
-    window.setTimeout(measure, 450);
-    window.setTimeout(measure, 1200);
-    startFooterWatcher();
-  }
-
   function closeMenu(restoreFocus) {
     var root = document.getElementById(ROOT_ID);
     if (!root || !root.classList.contains('is-open')) return;
@@ -255,7 +167,6 @@
     polishFooterLinks();
     enhanceContactPage();
     normalizeLegalAndBrochureLabels();
-    initHeaderStickyBehavior();
     window.setTimeout(normalizeLegalAndBrochureLabels, 350);
     window.setTimeout(normalizeLegalAndBrochureLabels, 1200);
 
@@ -268,9 +179,9 @@
       '<div class="vmg-help-menu" id="vmg-help-menu" role="menu" aria-label="VMG help options" aria-hidden="true">',
         '<p>How can we help?</p>',
         '<a role="menuitem" href="https://wa.me/919879208178" target="_blank" rel="noopener noreferrer">WhatsApp VMG</a>',
-        '<a role="menuitem" href="/contact.html">Call Back Request</a>',
-        '<a role="menuitem" href="/contact.html">Submit Material Offer</a>',
-        '<a role="menuitem" href="/contact.html">Send Buying Requirement</a>',
+        '<a role="menuitem" href="/contact.html?type=callback#contact-form">Call Back Request</a>',
+        '<a role="menuitem" href="/contact.html?type=seller#contact-form">Submit Material Offer</a>',
+        '<a role="menuitem" href="/contact.html?type=buyer#contact-form">Send Buying Requirement</a>',
         '<a role="menuitem" href="mailto:exim@vashudevan.com">Email Us</a>',
         '<a role="menuitem" href="/Vashudevan-MetGlobal-Company-Profile.pdf" download="Vashudevan-MetGlobal-Company-Profile.pdf">Download VMG Brochure</a>',
       '</div>',

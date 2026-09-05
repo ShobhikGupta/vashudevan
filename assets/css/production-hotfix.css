@@ -1,0 +1,389 @@
+/* Production UI hotfixes — scoped to the approved PR #12 stabilization issues. */
+
+:root {
+  --vmg-float-left: 14px;
+  --vmg-float-base: 12px;
+  --vmg-float-gap: 10px;
+  --vmg-help-trigger-height: 32px;
+  --vmg-mobile-header-height: 64px;
+}
+
+/* TradingView host geometry only; TradingView owns rendering/movement. */
+.market-ticker-widget,
+.market-ticker-tradingview,
+.market-ticker-tradingview .tradingview-widget-container__widget,
+.market-ticker-tradingview tv-ticker-tape,
+.market-page .market-widget-panel,
+.market-page .market-chart-widget,
+.market-page .tradingview-widget-container,
+.market-page .tradingview-widget-container__widget {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+.market-ticker-tradingview {
+  width: 100% !important;
+  height: auto !important;
+  visibility: visible !important;
+  overflow: hidden !important;
+}
+.market-ticker-tradingview tv-ticker-tape {
+  display: block !important;
+  width: 100% !important;
+}
+
+/* Locations ticker: JS adds the single ready class after exact clone measurement. */
+@keyframes locationsTickerContinuous {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(var(--vmg-country-loop-distance), 0, 0); }
+}
+.country-ticker-wrap,
+.country-ticker {
+  max-width: 100% !important;
+  overflow: hidden !important;
+  overflow-x: clip !important;
+}
+.country-ticker-track {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 0 !important;
+  width: max-content !important;
+  max-width: none !important;
+  transform: translate3d(0, 0, 0);
+  animation: none;
+  animation-play-state: running !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  will-change: transform;
+}
+.country-ticker-track.vmg-country-ticker-ready {
+  animation: locationsTickerContinuous var(--locations-ticker-duration, 31.5s) linear infinite !important;
+}
+.country-ticker:hover .country-ticker-track.vmg-country-ticker-ready,
+.country-ticker:active .country-ticker-track.vmg-country-ticker-ready {
+  animation-play-state: running !important;
+}
+.country-ticker-group {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  flex: 0 0 auto !important;
+  gap: 0 !important;
+  padding-right: 28px;
+}
+.country-ticker-group span { flex: 0 0 auto !important; }
+@media (max-width: 768px) {
+  .country-ticker-wrap,
+  .country-ticker,
+  .country-ticker-track { visibility: visible !important; opacity: 1 !important; }
+  .country-ticker-wrap,
+  .country-ticker { display: block !important; contain: paint; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .country-ticker-track.vmg-country-ticker-ready {
+    animation: locationsTickerContinuous 45s linear infinite !important;
+    animation-play-state: running !important;
+  }
+}
+
+/* Existing parent-category CTA arrow treatment. */
+.home-products-grid .product-card-cta,
+#main-products-grid .product-card-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+.home-products-grid .product-card-cta-arrow,
+#main-products-grid .product-card-cta-arrow {
+  display: inline-block;
+  color: currentColor;
+  transition: transform 180ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .home-products-grid .home-product-tile a:hover .product-card-cta-arrow,
+  #main-products-grid .card.product > a:hover .product-card-cta-arrow { transform: translateX(3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-products-grid .product-card-cta-arrow,
+  #main-products-grid .product-card-cta-arrow { transition: none !important; transform: none !important; }
+}
+
+/* Opening popup stays above the complete site shell. */
+.opening-popup-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  min-height: 100vh !important;
+  z-index: 99990 !important;
+  isolation: isolate;
+  background: rgba(7, 20, 34, .52) !important;
+  backdrop-filter: blur(12px) saturate(125%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(125%) !important;
+  pointer-events: auto !important;
+}
+.opening-popup-overlay .opening-popup-card { position: relative; z-index: 1 !important; }
+.whatsapp-float,
+.vmg-help,
+.back-to-top { z-index: 2200 !important; }
+
+/* Shared fixed contact-control geometry. */
+html body .vmg-help,
+html body .whatsapp-float {
+  position: fixed !important;
+  top: auto !important;
+  left: calc(var(--vmg-float-left) + env(safe-area-inset-left)) !important;
+  right: auto !important;
+}
+html body .vmg-help,
+html body .vmg-help.is-open {
+  bottom: calc(var(--vmg-float-base) + env(safe-area-inset-bottom)) !important;
+  transform: none !important;
+}
+html body .whatsapp-float {
+  bottom: calc(var(--vmg-float-base) + env(safe-area-inset-bottom) + var(--vmg-help-trigger-height) + var(--vmg-float-gap)) !important;
+}
+
+/* Track confirmation must remain visible after the mobile nav closes. */
+.vmg-track-toast {
+  position: fixed !important;
+  z-index: 50100 !important;
+}
+
+/* Reusable VMG custom select. Native select remains the authoritative form field. */
+.form-field { position: relative; }
+.vmg-native-select-enhanced {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+.vmg-custom-select {
+  position: relative;
+  width: 100%;
+  z-index: 20;
+}
+.vmg-custom-select.is-open { z-index: 120; }
+.vmg-custom-select-button {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 42px 0 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #d5dce5;
+  border-radius: 10px;
+  background: #fff;
+  color: #0f172a;
+  font: inherit;
+  font-size: .95rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 170ms ease, box-shadow 170ms ease, background-color 170ms ease;
+}
+.vmg-custom-select-button:hover { border-color: #b8c2cf; background: #fbfcfd; }
+.vmg-custom-select-button:focus-visible,
+.vmg-custom-select.is-open .vmg-custom-select-button {
+  border-color: #b87943;
+  box-shadow: 0 0 0 3px rgba(184,121,67,.12);
+  outline: none;
+}
+.vmg-custom-select-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+.vmg-custom-select-chevron {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  color: #64748b;
+  transform: translateY(-50%);
+  transition: transform 170ms ease;
+  pointer-events: none;
+}
+.vmg-custom-select-chevron svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.vmg-custom-select.is-open .vmg-custom-select-chevron { transform: translateY(-50%) rotate(180deg); }
+.vmg-custom-select-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  max-height: 282px;
+  display: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+  border: 1px solid #d5dce5;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 16px 34px rgba(15,23,42,.12);
+}
+.vmg-custom-select.is-open .vmg-custom-select-list { display: grid; gap: 2px; }
+.vmg-custom-select-option {
+  width: 100%;
+  min-height: 40px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #475569;
+  font: inherit;
+  font-size: .92rem;
+  text-align: left;
+  cursor: pointer;
+}
+.vmg-custom-select-option:hover,
+.vmg-custom-select-option:focus,
+.vmg-custom-select-option.is-active { color: #0f172a; background: #f8fafc; outline: none; }
+.vmg-custom-select-option[aria-selected="true"] {
+  color: #7b522f;
+  background: #f7f2ed;
+  box-shadow: inset 2px 0 0 #b87943;
+}
+
+/* One authoritative desktop social alignment row. */
+@media (min-width: 992px) {
+  .vmg-nav-socials {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    align-self: center !important;
+    flex-wrap: nowrap !important;
+    gap: 7px !important;
+    margin: 0 !important;
+  }
+  .vmg-nav-social-icons {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-self: center !important;
+    flex-wrap: nowrap !important;
+    gap: 7px !important;
+    margin: 0 !important;
+    line-height: 0 !important;
+  }
+  .vmg-nav-socials .vmg-feedback-trigger { align-self: center !important; margin: 0 !important; }
+  .vmg-nav-social-icons .vmg-social-link {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    flex: 0 0 34px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-self: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 0 !important;
+  }
+  .vmg-nav-social-icons .vmg-social-link::before {
+    width: 20px !important;
+    height: 20px !important;
+    flex: 0 0 20px !important;
+    margin: 0 !important;
+  }
+}
+
+/* Mobile drawer: closed state occupies no viewport; fixed geometry applies only when open. */
+@media (max-width: 991px) {
+  :root { --vmg-float-left: 10px; --vmg-float-base: 10px; --vmg-float-gap: 10px; }
+  body.menu-open .site-header.vmg-econship-header,
+  .site-header.vmg-econship-header.vmg-menu-open { transform: none !important; z-index: 50000 !important; }
+
+  .site-header.vmg-econship-header .site-nav:not(.open) {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: auto !important;
+    width: 100% !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+  body.menu-open .site-header.vmg-econship-header .site-nav,
+  .site-header.vmg-econship-header.vmg-menu-open .site-nav,
+  .site-header.vmg-econship-header .site-nav.open {
+    position: fixed !important;
+    top: var(--vmg-mobile-header-height) !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 50001 !important;
+  }
+  body.menu-open .site-header.vmg-econship-header .nav-toggle,
+  .site-header.vmg-econship-header.vmg-menu-open .nav-toggle { z-index: 50003 !important; }
+  .vmg-econship-header .site-nav > ul {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    max-height: calc(100dvh - var(--vmg-mobile-header-height) - 4px) !important;
+    margin: 0 !important;
+    padding: 4px 12px 6px !important;
+    overflow-y: visible !important;
+    overscroll-behavior: contain !important;
+  }
+  body.menu-open .site-header.vmg-econship-header .site-nav > ul,
+  .site-header.vmg-econship-header.vmg-menu-open .site-nav > ul,
+  .site-header.vmg-econship-header .site-nav.open > ul { z-index: 50002 !important; }
+
+  .vmg-mobile-tracker-item { padding: 4px 4px 6px !important; }
+  .vmg-mobile-tracker-item .vmg-track-title { margin: 0 0 3px !important; font-size: .7rem !important; line-height: 1.15 !important; }
+  .vmg-mobile-tracker-item .vmg-track-input { height: 34px !important; font-size: .75rem !important; }
+  .vmg-mobile-tracker-item .vmg-track-button { min-height: 34px !important; padding: 0 10px !important; font-size: .74rem !important; }
+  .vmg-econship-header .site-nav > ul > li:not(.vmg-mobile-tracker-item):not(.vmg-mobile-feedback-item):not(.vmg-mobile-socials-item):not(.vmg-mobile-bottom-links) > a { min-height: 40px !important; padding: 0 10px !important; font-size: .92rem !important; }
+  .vmg-econship-header .site-nav .submenu a { min-height: 38px !important; padding-top: 8px !important; padding-bottom: 8px !important; }
+  .vmg-mobile-feedback-item { padding: 3px 0 !important; }
+  .vmg-mobile-feedback-item .vmg-feedback-trigger { min-height: 34px !important; padding-top: 4px !important; padding-bottom: 4px !important; }
+  .vmg-mobile-socials-item { padding: 5px 10px 4px !important; }
+  .vmg-mobile-socials-label { margin-bottom: 4px !important; }
+  .vmg-mobile-socials { justify-content: center !important; gap: 8px !important; }
+  .vmg-mobile-socials .vmg-social-link { width: 32px !important; height: 32px !important; min-width: 32px !important; min-height: 32px !important; }
+  .vmg-mobile-socials .vmg-social-link::before { width: 19px !important; height: 19px !important; flex-basis: 19px !important; }
+  .vmg-mobile-bottom-links { gap: 4px !important; padding: 4px 4px 5px !important; }
+  .vmg-mobile-bottom-links-row a,
+  .vmg-mobile-bottom-links-row button { min-height: 18px !important; padding: 0 !important; }
+  .vmg-mobile-brochure-cta { min-height: 34px !important; margin-top: 0 !important; margin-bottom: 0 !important; padding-top: 0 !important; padding-bottom: 0 !important; }
+
+  body.home-view .site-header.vmg-econship-header { margin-bottom: 0 !important; border-bottom: 0 !important; box-shadow: none !important; }
+  body.home-view .home-main { margin-top: 0 !important; padding-top: 0 !important; }
+  body.home-view .home-main > .home-hero { margin-top: 0 !important; }
+  body.home-view .site-header.vmg-econship-header .vmg-tier2-spacer { height: 0 !important; }
+}
+
+@media (max-width: 991px) and (max-height: 650px) {
+  .vmg-econship-header .site-nav > ul { overflow-y: auto !important; }
+}

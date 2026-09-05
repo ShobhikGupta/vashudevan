@@ -2171,40 +2171,53 @@ document.addEventListener('DOMContentLoaded', function() {
   } catch(_){ }
 });
 
-// Opening popup form (auto after load, once per user)
+// Opening popup form (Home + Market; document-lifecycle state)
 (function(){
-  var STORAGE_KEY = 'openingPopupCompleted';
   var SHOW_DELAY_MS = 2000;
+  var REOPEN_DELAY_MS = 45000;
+  var submittedThisPageLoad = false;
+  var isPopupOpen = false;
+  var popupReopenTimer = null;
+  var initialPopupTimer = null;
 
-  function isHomePage() {
+  function normalizedPopupPath() {
     try {
       var path = (window.location && window.location.pathname) ? window.location.pathname : '/';
-      if (path === '/' || path === '') return true;
-      // Handle common index paths both on server and local file URLs
-      if (path === '/index.html' || path === 'index.html') return true;
-      if (path.slice(-11) === '/index.html') return true;
+      if (!path) return '/';
+      return path.replace(/\/{2,}/g, '/');
     } catch(e) {}
-    return false;
+    return '/';
   }
 
-  function hasCompleted() {
-    // Single source of truth: localStorage only
-    try {
-      return localStorage.getItem(STORAGE_KEY) === '1';
-    } catch(e) {}
-    return false;
+  function isPopupEligiblePage() {
+    var path = normalizedPopupPath();
+    return path === '/' ||
+      path === '/index.html' ||
+      path === '/market-prices' ||
+      path === '/market-prices/' ||
+      path === '/market-prices/index.html';
   }
 
   function shouldShowPopup() {
-    // Only show on home page and if user has not already completed the popup
-    if (!isHomePage()) return false;
-    if (hasCompleted()) return false;
-    return true;
+    return isPopupEligiblePage() && !submittedThisPageLoad && !isPopupOpen;
   }
 
-  function markCompleted() {
-    // Persist completion once; localStorage is enough for this static site
-    try { localStorage.setItem(STORAGE_KEY, '1'); } catch(e) {}
+  function clearPopupReopenTimer() {
+    if (popupReopenTimer === null) return;
+    window.clearTimeout(popupReopenTimer);
+    popupReopenTimer = null;
+  }
+
+  function schedulePopupReopen() {
+    clearPopupReopenTimer();
+    if (!isPopupEligiblePage() || submittedThisPageLoad) return;
+
+    popupReopenTimer = window.setTimeout(function(){
+      popupReopenTimer = null;
+      if (!submittedThisPageLoad && !isPopupOpen) {
+        createPopup();
+      }
+    }, REOPEN_DELAY_MS);
   }
 
   function buildCountryOptions() {
@@ -2462,6 +2475,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     overlay.appendChild(card);
     document.body.appendChild(overlay);
+    clearPopupReopenTimer();
+    isPopupOpen = true;
 
     // Lock body scroll while popup is open
     var __prevBodyOverflow = document.body.style.overflow;
@@ -2794,10 +2809,11 @@ document.addEventListener('DOMContentLoaded', function() {
     })();
 
     function removePopup() {
-      if (!card) return;
+      if (!isPopupOpen) return;
+      isPopupOpen = false;
       card.classList.add('fade-out');
       setTimeout(function(){
-        overlay.remove();
+        if (overlay.isConnected) overlay.remove();
         // Restore body scroll
         document.body.style.overflow = __prevBodyOverflow || '';
       }, 240);
@@ -2857,8 +2873,9 @@ document.addEventListener('DOMContentLoaded', function() {
     updateSubmitState();
 
     function onClose() {
-      // Just close the popup; completion is only recorded on successful submit
+      if (!isPopupOpen) return;
       removePopup();
+      schedulePopupReopen();
     }
 
     // Prevent overlay clicks from dismissing the popup or interacting with the page
@@ -2880,16 +2897,17 @@ document.addEventListener('DOMContentLoaded', function() {
       var values = { country: country, phone: phone, email: email };
       if (!validate(values)) return;
 
+      submittedThisPageLoad = true;
+      clearPopupReopenTimer();
       submitBtn.disabled = true;
 
       // Prepare data and send to Google Apps Script used on the site
       var scriptUrl = (window.AppConfig && window.AppConfig.googleScriptUrl) || '';
       if (!scriptUrl) {
-        // fallback: mark completed so we don't annoy users
+        // Preserve the existing client-side thank-you behavior if no endpoint is configured.
         successEl.style.display = 'block';
         successEl.textContent = "Thank you! Your details have been submitted.";
-        markCompleted();
-        setTimeout(onClose, 1600);
+        setTimeout(removePopup, 1600);
         return;
       }
 
@@ -2997,8 +3015,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // User feedback
         successEl.style.display = 'block';
         successEl.textContent = "Thank you! Your details have been submitted.";
-        markCompleted();
-        setTimeout(onClose, 1400);
+        setTimeout(removePopup, 1400);
       } finally {
         setTimeout(function(){ submitBtn.disabled = false; }, 1600);
       }
@@ -3006,7 +3023,17 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   window.initOpeningPopup = function initOpeningPopup(){
-    if (!shouldShowPopup()) return;
-    setTimeout(createPopup, SHOW_DELAY_MS);
+    if (!isPopupEligiblePage() || submittedThisPageLoad) return;
+
+    if (initialPopupTimer !== null) {
+      window.clearTimeout(initialPopupTimer);
+    }
+
+    initialPopupTimer = window.setTimeout(function(){
+      initialPopupTimer = null;
+      if (!submittedThisPageLoad) {
+        createPopup();
+      }
+    }, SHOW_DELAY_MS);
   };
 })();

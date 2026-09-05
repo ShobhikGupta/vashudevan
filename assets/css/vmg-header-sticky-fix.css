@@ -1,5 +1,6 @@
 @import url('/assets/css/vmg-social-icons.css?v=20260822a');
-@import url('/assets/css/skeleton-loader.css?v=20260822a');
+@import url('/assets/css/skeleton-loader.css?v=20260824a');
+@import url('/assets/css/vmg-home-audit-polish.css?v=20260904a');
 
 /* VMG header/footer scroll behavior — single source of truth. */
 .site-header.vmg-econship-header {
@@ -76,16 +77,19 @@
     pointer-events: none !important;
   }
 
-  .site-header.vmg-econship-header:not(.vmg-footer-in-view),
-  .site-header.vmg-econship-header.vmg-menu-open,
-  body.menu-open .site-header.vmg-econship-header {
+  .site-header.vmg-econship-header:not(.vmg-footer-in-view) {
     transform: translate3d(0,0,0) !important;
     pointer-events: auto !important;
   }
 
-  body.menu-open .site-header.vmg-econship-header.vmg-footer-in-view,
-  .site-header.vmg-econship-header.vmg-menu-open.vmg-footer-in-view {
-    transform: translate3d(0,0,0) !important;
+  /* While the mobile menu is open, remove the transformed containing block so
+     the fixed drawer is anchored to the viewport on every page. */
+  html body.menu-open .site-header.vmg-econship-header,
+  html body .site-header.vmg-econship-header.vmg-menu-open,
+  html body.menu-open .site-header.vmg-econship-header.vmg-footer-in-view,
+  html body .site-header.vmg-econship-header.vmg-menu-open.vmg-footer-in-view {
+    transform: none !important;
+    will-change: auto !important;
     pointer-events: auto !important;
   }
 

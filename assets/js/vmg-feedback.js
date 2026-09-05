@@ -1,19 +1,28 @@
 (function(){
   if (!document || !document.head) return;
-  if (!document.querySelector('link[data-vmg-footer-style]')) {
+
+  function ensureStyle(href, marker) {
+    if (document.querySelector('link[' + marker + ']')) return;
     var link=document.createElement('link');
     link.rel='stylesheet';
-    link.href='/assets/css/vmg-footer.css';
-    link.setAttribute('data-vmg-footer-style','true');
+    link.href=href;
+    link.setAttribute(marker,'true');
     document.head.appendChild(link);
   }
-  if (!document.querySelector('script[data-vmg-footer-script]')) {
+
+  function ensureScript(src, marker) {
+    if (document.querySelector('script[' + marker + ']')) return;
     var script=document.createElement('script');
-    script.src='/assets/js/vmg-footer.js?v=20260821';
+    script.src=src;
     script.async=false;
-    script.setAttribute('data-vmg-footer-script','true');
+    script.setAttribute(marker,'true');
     document.head.appendChild(script);
   }
+
+  ensureStyle('/assets/css/vmg-submit-state.css?v=20260905a','data-vmg-submit-state-style');
+  ensureScript('/assets/js/vmg-submit-state.js?v=20260905a','data-vmg-submit-state-script');
+  ensureStyle('/assets/css/vmg-footer.css','data-vmg-footer-style');
+  ensureScript('/assets/js/vmg-footer.js?v=20260905a','data-vmg-footer-script');
 })();
 
 (function () {
@@ -28,6 +37,11 @@
   var closeIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>';
   var goodIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.01M15.5 10h.01M8.5 14.2c1.7 2.2 5.3 2.2 7 0"/></svg>';
   var improveIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.01M15.5 10h.01M8.5 16c1.7-2.2 5.3-2.2 7 0"/></svg>';
+
+  function submitState(button, state) {
+    if (window.VMGSubmitState) window.VMGSubmitState.set(button, state);
+    else if (button) button.disabled = state === 'loading' || state === 'success';
+  }
 
   function createTrigger(extraClass) {
     var button = document.createElement('button');
@@ -100,7 +114,6 @@
 
     document.body.appendChild(backdrop);
     document.body.appendChild(drawer);
-
     drawer.querySelector('.vmg-feedback-close').addEventListener('click', closeDrawer);
 
     drawer.querySelectorAll('.vmg-feedback-rating').forEach(function (button) {
@@ -139,14 +152,12 @@
   function openDrawer(trigger) {
     var drawer = document.getElementById(DRAWER_ID);
     if (!drawer) return;
-
     lastFocused = trigger || document.activeElement;
     document.body.classList.add('vmg-feedback-open');
     drawer.setAttribute('aria-hidden', 'false');
     document.querySelectorAll('.vmg-feedback-trigger').forEach(function (item) {
       item.setAttribute('aria-expanded', 'true');
     });
-
     window.setTimeout(function () {
       var focusTarget = drawer.querySelector('.vmg-feedback-rating');
       if (focusTarget) focusTarget.focus();
@@ -156,13 +167,11 @@
   function closeDrawer() {
     var drawer = document.getElementById(DRAWER_ID);
     if (!drawer || !document.body.classList.contains('vmg-feedback-open')) return;
-
     document.body.classList.remove('vmg-feedback-open');
     drawer.setAttribute('aria-hidden', 'true');
     document.querySelectorAll('.vmg-feedback-trigger').forEach(function (item) {
       item.setAttribute('aria-expanded', 'false');
     });
-
     if (lastFocused && typeof lastFocused.focus === 'function') {
       window.setTimeout(function () { lastFocused.focus(); }, 20);
     }
@@ -205,13 +214,11 @@
       if (firstRating) firstRating.focus();
       return;
     }
-
     if (!comments) {
       setStatus('Please add a short comment.', 'is-error');
       form.querySelector('#vmg-feedback-comments').focus();
       return;
     }
-
     if (email && !form.querySelector('#vmg-feedback-email').checkValidity()) {
       setStatus('Please enter a valid email address.', 'is-error');
       form.querySelector('#vmg-feedback-email').focus();
@@ -238,8 +245,7 @@
     };
 
     busy = true;
-    submitButton.disabled = true;
-    submitButton.textContent = 'Sending…';
+    submitState(submitButton, 'loading');
     setStatus('Sending feedback…', '');
 
     fetch(endpoint, {
@@ -249,32 +255,30 @@
       body: JSON.stringify(payload)
     }).then(function () {
       setStatus('Thank you. Your feedback has been sent.', 'is-success');
+      submitState(submitButton, 'success');
       resetForm();
       window.setTimeout(closeDrawer, 1300);
+      window.setTimeout(function () { submitState(submitButton, 'idle'); }, 1400);
     }).catch(function () {
       setStatus('Could not send feedback. Please try again.', 'is-error');
+      submitState(submitButton, 'error');
+      window.setTimeout(function () { submitState(submitButton, 'idle'); }, 280);
     }).finally(function () {
       busy = false;
-      submitButton.disabled = false;
-      submitButton.textContent = 'Submit Feedback';
     });
   }
 
   function handleKeydown(event) {
     if (!document.body.classList.contains('vmg-feedback-open')) return;
-
     if (event.key === 'Escape') {
       event.preventDefault();
       closeDrawer();
       return;
     }
-
     if (event.key !== 'Tab') return;
-
     var drawer = document.getElementById(DRAWER_ID);
     var focusables = Array.prototype.slice.call(drawer.querySelectorAll('button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'));
     if (!focusables.length) return;
-
     var first = focusables[0];
     var last = focusables[focusables.length - 1];
     if (event.shiftKey && document.activeElement === first) {
@@ -290,16 +294,12 @@
     createDrawer();
     addTriggers();
     document.addEventListener('keydown', handleKeydown);
-
     if (!document.querySelector('.vmg-nav-socials') || !document.querySelector('#site-nav > ul')) {
       observer = new MutationObserver(addTriggers);
       observer.observe(document.documentElement, { childList: true, subtree: true });
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init, { once: true });
-  } else {
-    init();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
+  else init();
 })();
