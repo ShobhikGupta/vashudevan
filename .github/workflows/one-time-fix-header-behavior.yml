@@ -33,14 +33,6 @@ jobs:
             file "/tmp/c$n" || true
             wc -c "/tmp/c$n" || true
             sha256sum "/tmp/c$n" || true
-            python - "/tmp/c$n" <<'PY'
-import struct,sys
-p=sys.argv[1]
-b=open(p,'rb').read(24)
-if len(b)>=24 and b[:8]==b'\x89PNG\r\n\x1a\n':
-    print('PNG_DIMS=%dx%d' % struct.unpack('>II',b[16:24]))
-else:
-    print('NOT_PNG')
-PY
+            python -c "import struct,sys; b=open(sys.argv[1],'rb').read(24); print('PNG_DIMS=%dx%d' % struct.unpack('>II',b[16:24]) if len(b)>=24 and b[:8]==b'\\x89PNG\\r\\n\\x1a\\n' else 'NOT_PNG')" "/tmp/c$n" || true
           done
           echo "EXPECTED_SHA256=$EXPECT"
