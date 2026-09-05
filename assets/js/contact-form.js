@@ -669,6 +669,9 @@
   async function payload() {
     var attachments = await serializeAttachments();
     var phone = await fullPhone();
+    var phoneMeta = selectedCountryMeta();
+    var phoneNational = fields.phone ? digitsOnly(fields.phone.value) : '';
+    var phoneDialCode = phoneMeta && phoneMeta.dialCode ? '+' + phoneMeta.dialCode : '';
     return {
       source: 'main',
       fullName: fields.fullname.value.trim(),
@@ -676,6 +679,10 @@
       contact: phone,
       contactNumber: phone,
       phone: phone,
+      phoneE164: phone,
+      phoneDialCode: phoneDialCode,
+      phoneNational: phoneNational,
+      phoneDisplay: phoneDialCode && phoneNational ? phoneDialCode + ' ' + phoneNational : '',
       email: fields.email.value.trim(),
       mailId: fields.email.value.trim(),
       country: countryName(),

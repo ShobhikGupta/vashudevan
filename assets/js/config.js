@@ -3,6 +3,10 @@
   window.AppConfig = window.AppConfig || {};
   window.AppConfig.googleScriptUrl = 'https://script.google.com/macros/s/AKfycbxsmNbhUkhWY3hEmYof4dGi7cOEYEbMDoBSFe3erSciipp-_-tI1RKuQ7P3ms9gyYYR/exec';
   window.AppConfig.contactEndpoint = window.AppConfig.contactEndpoint || '';
+  // Enabled only because the deployed Apps Script now performs
+  // server-side Turnstile verification, routing, spam guards
+  // and attachment handling.
+  window.AppConfig.contactSecurityReady = true;
   window.AppConfig.gaMeasurementId = 'G-6CJ7X607D5';
   window.AppConfig.turnstileSiteKey = window.AppConfig.turnstileSiteKey || '';
   window.AppConfig.popupTurnstileSiteKey = window.AppConfig.popupTurnstileSiteKey || '';

@@ -123,20 +123,11 @@ function vmgParseRequest_(e) {
 
 function vmgGetTargetSheetName_(data) {
   var source = vmgNormalize_(data && data.source, 80).toLowerCase();
-  var type = vmgNormalize_(data && data.type, 80).toLowerCase();
 
-  // SOURCE is the primary router. If source is present but unknown, reject it.
-  if (source) {
-    if (source === 'popup') return 'OPENING POP-UP MESSAGES';
-    if (source === 'main') return 'CONTACT US MESSAGES';
-    if (source === 'website-feedback') return 'FEEDBACK';
-    if (source === 'trade-updates-subscription') return 'Trade Updates Subscription';
-    return null;
-  }
-
-  // Compatibility only for older feedback/subscription payloads with no source.
-  if (type === 'website feedback') return 'FEEDBACK';
-  if (type === 'trade updates subscription') return 'Trade Updates Subscription';
+  if (source === 'popup') return 'OPENING POP-UP MESSAGES';
+  if (source === 'main') return 'CONTACT US MESSAGES';
+  if (source === 'website-feedback') return 'FEEDBACK';
+  if (source === 'trade-updates-subscription') return 'Trade Updates Subscription';
   return null;
 }
 
