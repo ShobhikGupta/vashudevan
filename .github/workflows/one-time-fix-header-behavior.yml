@@ -15,24 +15,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Test Canva delivery URLs for exact uploaded PNG
+      - name: Test exact uploaded PNG delivery paths
         shell: bash
         run: |
           set +e
-          BASE_QUERY='csig=AAAAAAAAAAAAAAAAAAAAAG2TynxfrXB3wwh0K4Ns7vRWBVN9DTIOG4Ps95SvHO48&exp=1788612411&osig=AAAAAAAAAAAAAAAAAAAAAErseym9D0Jd2ffXMF6BxcEk5AfkGT76Ca2iX3fRGrUZ&signer=media-rpc&x-canva-quality=thumbnail'
-          URI='ifs%3A%2F%2FM%2F5a944107-4f1a-47ef-b0a4-f637b3ec0f0c'
-          URL1="https://media.canva.com/v2/image-resize/format:PNG/height:66/quality:100/uri:${URI}/watermark:F/width:200?${BASE_QUERY}"
-          URL2="https://media.canva.com/v2/image-resize/format:PNG/height:682/quality:100/uri:${URI}/watermark:F/width:2048?${BASE_QUERY}"
-          URL3="https://media.canva.com/v2/image-resize/format:PNG/height:682/quality:100/uri:${URI}/watermark:F/width:2048?csig=AAAAAAAAAAAAAAAAAAAAAG2TynxfrXB3wwh0K4Ns7vRWBVN9DTIOG4Ps95SvHO48&exp=1788612411&osig=AAAAAAAAAAAAAAAAAAAAAErseym9D0Jd2ffXMF6BxcEk5AfkGT76Ca2iX3fRGrUZ&signer=media-rpc&x-canva-quality=original"
           EXPECT='6976461f6b6ae2eafd9fbed50f5b74b61f4f03c75c8944fc1d4e7f046172db82'
+          URL1='https://drive.usercontent.google.com/download?id=1w0Boz6ooSSWg92Y45lyczacaoAlI4E29&export=download&confirm=t'
+          URL2='https://drive.google.com/uc?export=download&id=1w0Boz6ooSSWg92Y45lyczacaoAlI4E29&confirm=t'
+          URL3='https://drive.google.com/uc?id=1w0Boz6ooSSWg92Y45lyczacaoAlI4E29&export=download'
           for n in 1 2 3; do
             eval "u=\$URL$n"
-            echo "--- candidate $n ---"
-            code=$(curl -sS -L -w '%{http_code}' -o "/tmp/c$n" "$u")
+            echo "--- drive candidate $n ---"
+            code=$(curl -sS -L -w '%{http_code}' -o "/tmp/d$n" "$u")
             echo "HTTP=$code"
-            file "/tmp/c$n" || true
-            wc -c "/tmp/c$n" || true
-            sha256sum "/tmp/c$n" || true
-            python -c "import struct,sys; b=open(sys.argv[1],'rb').read(24); print('PNG_DIMS=%dx%d' % struct.unpack('>II',b[16:24]) if len(b)>=24 and b[:8]==b'\\x89PNG\\r\\n\\x1a\\n' else 'NOT_PNG')" "/tmp/c$n" || true
+            file "/tmp/d$n" || true
+            wc -c "/tmp/d$n" || true
+            sha256sum "/tmp/d$n" || true
+            python -c "import struct,sys; b=open(sys.argv[1],'rb').read(24); print('PNG_DIMS=%dx%d' % struct.unpack('>II',b[16:24]) if len(b)>=24 and b[:8]==b'\\x89PNG\\r\\n\\x1a\\n' else 'NOT_PNG')" "/tmp/d$n" || true
           done
           echo "EXPECTED_SHA256=$EXPECT"
