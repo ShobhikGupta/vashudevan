@@ -24,6 +24,46 @@
       sticky.setAttribute('data-vmg-header-sticky-fix', 'true');
       document.head.appendChild(sticky);
     }
+
+    if (!document.querySelector('link[data-vmg-header-combined]')) {
+      var combined = document.createElement('link');
+      combined.rel = 'stylesheet';
+      combined.href = '/assets/css/vmg-header-combined.css?v=20260907a';
+      combined.setAttribute('data-vmg-header-combined', 'true');
+      document.head.appendChild(combined);
+    }
+  }
+
+  function upgradeHeaderBrand(attempt) {
+    attempt = attempt || 0;
+    var brands = document.querySelectorAll('.site-header.vmg-econship-header .logo');
+    if (!brands.length) {
+      if (attempt < 30) window.setTimeout(function () { upgradeHeaderBrand(attempt + 1); }, 80);
+      return;
+    }
+
+    brands.forEach(function (brand) {
+      if (brand.dataset.vmgCombinedBrand === 'true') return;
+      brand.dataset.vmgCombinedBrand = 'true';
+      brand.classList.add('vmg-logo-combined');
+      brand.setAttribute('aria-label', 'Vashudevan MetGlobal LLP home');
+
+      var image = brand.querySelector('img');
+      if (!image) {
+        image = document.createElement('img');
+        brand.insertBefore(image, brand.firstChild);
+      }
+      image.className = 'vmg-header-logo-combined';
+      image.src = '/assets/img/vmg-header-logo-combined.png';
+      image.alt = 'Vashudevan MetGlobal LLP';
+      image.removeAttribute('width');
+      image.removeAttribute('height');
+      image.decoding = 'async';
+
+      Array.prototype.slice.call(brand.children).forEach(function (child) {
+        if (child !== image) brand.removeChild(child);
+      });
+    });
   }
 
   function replaceTextNodes(element, replacements) {
@@ -163,10 +203,13 @@
 
   function createHelp() {
     ensureFixStylesheet();
+    upgradeHeaderBrand();
     polishMobileNavUtilityLinks();
     polishFooterLinks();
     enhanceContactPage();
     normalizeLegalAndBrochureLabels();
+    window.setTimeout(upgradeHeaderBrand, 350);
+    window.setTimeout(upgradeHeaderBrand, 1200);
     window.setTimeout(normalizeLegalAndBrochureLabels, 350);
     window.setTimeout(normalizeLegalAndBrochureLabels, 1200);
 
