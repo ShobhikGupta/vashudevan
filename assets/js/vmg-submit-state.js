@@ -11,7 +11,7 @@
   }
   load('/assets/js/vmg-country-phone.js?v=20260905a', 'data-vmg-country-phone');
   load('/assets/js/vmg-popup-security.js?v=20260905c', 'data-vmg-popup-security');
-  load('/assets/js/vmg-popup-premium.js?v=20260905c', 'data-vmg-popup-premium');
+  load('/assets/js/vmg-popup-premium.js?v=20260908a', 'data-vmg-popup-premium');
 })();
 
 (function () {
