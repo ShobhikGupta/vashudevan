@@ -8,6 +8,9 @@
     var style = document.createElement('style');
     style.id = 'vmg-popup-premium-style';
     style.textContent = [
+      /* Never allow the legacy/plain shell to paint. The same popup node becomes visible only after its final premium header is in place. */
+      '.opening-popup-card:not([data-vmg-premium-popup="true"]){visibility:hidden!important}',
+      '.opening-popup-card[data-vmg-premium-popup="true"]{visibility:visible!important}',
       '.opening-popup-card{border:1px solid rgba(16,24,40,.10)!important;border-radius:14px!important;box-shadow:0 24px 70px rgba(15,23,42,.22),0 4px 14px rgba(15,23,42,.07)!important;background:#fff!important}',
       '.opening-popup-header{display:block!important;position:relative!important;text-align:center!important}',
       '.opening-popup-header>div:not(.opening-popup-brand){width:100%!important;text-align:center!important}',
@@ -34,7 +37,10 @@
     var header = card.querySelector('.opening-popup-header');
     if (!header) return false;
 
-    card.dataset.vmgPremiumPopup = 'true';
+    /* Remove a stale premium block defensively, but never create a second popup/card. */
+    var staleBrand = header.querySelector('.opening-popup-brand');
+    if (staleBrand) staleBrand.remove();
+
     var brand = document.createElement('div');
     brand.className = 'opening-popup-brand';
     brand.innerHTML = [
@@ -55,33 +61,37 @@
     var titleBlock = header.querySelector('div');
     if (titleBlock) header.insertBefore(brand, titleBlock);
     else header.insertBefore(brand, header.firstChild);
+
+    /* Mark ready only after the final premium DOM exists; the CSS gate then reveals it. */
+    card.dataset.vmgPremiumPopup = 'true';
     return true;
   }
 
   function scan() {
-    var card = document.querySelector('.opening-popup-card');
-    if (card && enhance(card) && observer) {
-      observer.disconnect();
-      observer = null;
-    }
+    document.querySelectorAll('.opening-popup-card').forEach(function (card) {
+      enhance(card);
+    });
   }
 
   function init() {
     ensureStyles();
     scan();
-    if (!document.querySelector('.opening-popup-card') && window.MutationObserver) {
-      observer = new MutationObserver(function (mutations) {
-        for (var i = 0; i < mutations.length; i++) {
-          if (mutations[i].addedNodes && mutations[i].addedNodes.length) {
-            scan();
-            if (!observer) break;
-          }
+    if (!window.MutationObserver || observer) return;
+
+    /* Keep observing for the 45-second reopen cycle; the previous implementation disconnected after the first popup. */
+    observer = new MutationObserver(function (mutations) {
+      for (var i = 0; i < mutations.length; i++) {
+        if (mutations[i].addedNodes && mutations[i].addedNodes.length) {
+          scan();
+          break;
         }
-      });
-      observer.observe(document.documentElement, { childList: true, subtree: true });
-    }
+      }
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
   }
 
+  /* Install the visibility gate immediately, before the 2-second popup timer can fire. */
+  ensureStyles();
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();
 })();
