@@ -3022,7 +3022,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  window.initOpeningPopup = function initOpeningPopup(){
+  window.initLegacyOpeningPopup = function initLegacyOpeningPopup(){
     if (!isPopupEligiblePage() || submittedThisPageLoad) return;
 
     if (initialPopupTimer !== null) {
