@@ -1,5 +1,30 @@
 (function () {
   'use strict';
+
+  if (!window.__VMG_OPENING_POPUP_ENTRY_GUARD__) {
+    window.__VMG_OPENING_POPUP_ENTRY_GUARD__ = true;
+    var premiumInit = null;
+    var noop = function () {};
+
+    try {
+      Object.defineProperty(window, 'initOpeningPopup', {
+        configurable: true,
+        enumerable: true,
+        get: function () {
+          return premiumInit || noop;
+        },
+        set: function (fn) {
+          if (typeof fn !== 'function') return;
+          if (fn.name === 'initOpeningPopup') return;
+          premiumInit = fn;
+        }
+      });
+    } catch (_) {}
+  }
+})();
+
+(function () {
+  'use strict';
   if (!document || !document.head) return;
   function load(src, marker) {
     if (document.querySelector('script[' + marker + ']')) return;
@@ -11,7 +36,7 @@
   }
   load('/assets/js/vmg-country-phone.js?v=20260905a', 'data-vmg-country-phone');
   load('/assets/js/vmg-popup-security.js?v=20260905c', 'data-vmg-popup-security');
-  load('/assets/js/vmg-popup-premium.js?v=20260909a', 'data-vmg-popup-premium');
+  load('/assets/js/vmg-popup-premium.js?v=20260909b', 'data-vmg-popup-premium');
 })();
 
 (function () {
