@@ -4,40 +4,26 @@
   var VIDEO_SRC = '/assets/video/vmg-home-intro.mp4';
   var LOGO_SRC = '/assets/img/vmg-combined-logo.png';
   var HANDOFF_AT = 2.98;
-  var MOVE_MS = 680;
-  var POPUP_AFTER_INTRO_MS = 7000;
+  var MOVE_MS = 720;
+  var ARTWORK_RATE = 0.72;
+  var ARTWORK_NORMAL_AT = 0.42;
+  var POPUP_DELAY_MS = 7000;
+  var LOGO_ALPHA = { left: 30, top: 28, width: 1828, height: 665, canvasWidth: 1904, canvasHeight: 724 };
+
   var state = null;
   var popupTimer = 0;
   var popupGuard = null;
 
   function isHome() {
-    var path = (window.location.pathname || '/').replace(/\/{2,}/g, '/');
-    return path === '/' || path === '/index.html';
+    var p = (window.location.pathname || '/').replace(/\/{2,}/g, '/');
+    return p === '/' || p === '/index.html';
   }
 
   function reducedMotion() {
-    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   }
 
-  function sourceLogoRect(video) {
-    var vw = window.innerWidth;
-    var vh = window.innerHeight;
-    var iw = video.videoWidth || 1600;
-    var ih = video.videoHeight || 900;
-    var scale = Math.min(vw / iw, vh / ih);
-    var dw = iw * scale;
-    var dh = ih * scale;
-    var ox = (vw - dw) / 2;
-    var oy = (vh - dh) / 2;
-    return {
-      left: ox + 198 * scale,
-      top: oy + 200 * scale,
-      width: 1195 * scale,
-      height: 436 * scale
-    };
-  }
-
-  function targetLogoRect() {
+  function targetLogo() {
     var img = document.querySelector('.site-header.vmg-econship-header .vmg-header-logo-combined, .site-header.vmg-econship-header .logo img');
     if (!img) return null;
     var rect = img.getBoundingClientRect();
@@ -45,7 +31,38 @@
     return { img: img, rect: rect };
   }
 
-  function suppressOpeningPopup() {
+  function sourceLogoCanvasRect(video) {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var iw = video.videoWidth || 1600;
+    var ih = video.videoHeight || 900;
+    var fit = Math.min(vw / iw, vh / ih);
+    var renderedW = iw * fit;
+    var renderedH = ih * fit;
+    var ox = (vw - renderedW) / 2;
+    var oy = (vh - renderedH) / 2;
+
+    // Measured visible logo bounds in the final active MP4 frame.
+    var visible = {
+      left: ox + 198 * fit,
+      top: oy + 200 * fit,
+      width: 1195 * fit,
+      height: 436 * fit
+    };
+
+    // The PNG has transparent padding. Expand the visible MP4 bounds back to the
+    // PNG's full canvas so the crossfade does not stretch/squash the logo.
+    var sx = visible.width / LOGO_ALPHA.width;
+    var sy = visible.height / LOGO_ALPHA.height;
+    return {
+      left: visible.left - LOGO_ALPHA.left * sx,
+      top: visible.top - LOGO_ALPHA.top * sy,
+      width: LOGO_ALPHA.canvasWidth * sx,
+      height: LOGO_ALPHA.canvasHeight * sy
+    };
+  }
+
+  function suppressPopup() {
     if (!isHome()) return;
     try {
       if (window.VMGOpeningPopup && typeof window.VMGOpeningPopup.isOpen === 'function' && window.VMGOpeningPopup.isOpen()) {
@@ -54,15 +71,14 @@
       }
     } catch (_) {}
     var overlay = document.querySelector('.opening-popup-overlay');
-    if (!overlay) return;
-    var close = overlay.querySelector('.opening-popup-close');
+    var close = overlay && overlay.querySelector('.opening-popup-close');
     if (close) close.click();
   }
 
   function startPopupGuard() {
     if (!isHome() || popupGuard || !document.body) return;
-    suppressOpeningPopup();
-    popupGuard = new MutationObserver(function () { suppressOpeningPopup(); });
+    suppressPopup();
+    popupGuard = new MutationObserver(suppressPopup);
     popupGuard.observe(document.body, { childList: true, subtree: true });
   }
 
@@ -72,7 +88,7 @@
     popupGuard = null;
   }
 
-  function schedulePopupAfterIntro() {
+  function schedulePopup() {
     window.clearTimeout(popupTimer);
     popupTimer = window.setTimeout(function () {
       popupTimer = 0;
@@ -83,20 +99,32 @@
       } else if (typeof window.initOpeningPopup === 'function') {
         window.initOpeningPopup(0);
       }
-    }, POPUP_AFTER_INTRO_MS);
+    }, POPUP_DELAY_MS);
   }
 
-  function signalIntroComplete() {
+  function signalComplete() {
     if (!isHome()) return;
     window.__vmgHomeIntroComplete = true;
     document.dispatchEvent(new CustomEvent('vmg:home-intro-complete'));
-    schedulePopupAfterIntro();
+    schedulePopup();
+  }
+
+  function cancelFrameWatch() {
+    if (!state) return;
+    if (state.rafId) {
+      window.cancelAnimationFrame(state.rafId);
+      state.rafId = 0;
+    }
+    if (state.videoFrameId && state.video && typeof state.video.cancelVideoFrameCallback === 'function') {
+      try { state.video.cancelVideoFrameCallback(state.videoFrameId); } catch (_) {}
+      state.videoFrameId = 0;
+    }
   }
 
   function cleanup(reveal) {
     if (!state) return;
     window.clearTimeout(state.failTimer);
-    if (state.rafId) window.cancelAnimationFrame(state.rafId);
+    cancelFrameWatch();
     if (state.moveAnimation) {
       try { state.moveAnimation.cancel(); } catch (_) {}
     }
@@ -108,13 +136,13 @@
     if (state.root && state.root.isConnected) state.root.remove();
     state = null;
     if (reveal) document.body.style.visibility = '';
-    signalIntroComplete();
+    signalComplete();
   }
 
   function finishImmediately() {
-    if (!state) return;
+    if (!state || state.finishing) return;
     state.finishing = true;
-    if (state.rafId) window.cancelAnimationFrame(state.rafId);
+    cancelFrameWatch();
     if (state.targetImg) state.targetImg.style.opacity = '';
     state.proxy.style.opacity = '0';
     state.root.style.transition = 'opacity 180ms ease';
@@ -124,17 +152,17 @@
 
   function handoff() {
     if (!state || state.finishing) return;
-    var target = targetLogoRect();
+    var target = targetLogo();
     if (!target) {
       finishImmediately();
       return;
     }
 
     state.finishing = true;
-    if (state.rafId) window.cancelAnimationFrame(state.rafId);
+    cancelFrameWatch();
     state.targetImg = target.img;
 
-    var from = sourceLogoRect(state.video);
+    var from = sourceLogoCanvasRect(state.video);
     var to = target.rect;
     var proxy = state.proxy;
 
@@ -142,7 +170,7 @@
     proxy.style.top = from.top + 'px';
     proxy.style.width = from.width + 'px';
     proxy.style.height = from.height + 'px';
-    proxy.style.opacity = '1';
+    proxy.style.opacity = '0';
     proxy.style.visibility = 'visible';
     proxy.style.transformOrigin = '0 0';
     proxy.style.transform = 'translate3d(0,0,0) scale(1,1)';
@@ -155,16 +183,22 @@
     var sx = to.width / from.width;
     var sy = to.height / from.height;
 
+    // Tiny overlap crossfade: the moving DOM logo becomes visible while the final
+    // video logo is still present, so there is no one-frame pop or pause.
+    proxy.animate([
+      { opacity: 0 },
+      { opacity: 1 }
+    ], { duration: 90, easing: 'linear', fill: 'forwards' });
+
     state.video.animate([
       { opacity: 1 },
-      { opacity: 0, offset: 0.18 },
       { opacity: 0 }
-    ], { duration: MOVE_MS, easing: 'linear', fill: 'forwards' });
+    ], { duration: 110, easing: 'linear', fill: 'forwards' });
 
     state.backdrop.animate([
       { opacity: 1 },
-      { opacity: 0.97, offset: 0.12 },
-      { opacity: 0, offset: 0.88 },
+      { opacity: 0.96, offset: 0.10 },
+      { opacity: 0, offset: 0.90 },
       { opacity: 0 }
     ], { duration: MOVE_MS, easing: 'cubic-bezier(.22,.61,.36,1)', fill: 'forwards' });
 
@@ -175,7 +209,7 @@
       { transform: 'translate3d(' + dx + 'px,' + dy + 'px,0) scale(' + sx + ',' + sy + ')' }
     ], {
       duration: MOVE_MS,
-      easing: 'cubic-bezier(.16,1,.3,1)',
+      easing: 'cubic-bezier(.22,.61,.36,1)',
       fill: 'forwards'
     });
 
@@ -185,17 +219,40 @@
       state.proxy.style.opacity = '0';
       cleanup(true);
     };
-
     state.moveAnimation.oncancel = function () {};
   }
 
   function watchVideo() {
     if (!state || state.finishing) return;
-    if (state.video.currentTime >= HANDOFF_AT) {
-      handoff();
-      return;
+
+    function onFrame(mediaTime) {
+      if (!state || state.finishing) return;
+
+      if (!state.normalRateRestored && mediaTime >= ARTWORK_NORMAL_AT) {
+        state.video.playbackRate = 1;
+        state.normalRateRestored = true;
+      }
+
+      if (mediaTime >= HANDOFF_AT) {
+        handoff();
+        return;
+      }
+      watchVideo();
     }
-    state.rafId = window.requestAnimationFrame(watchVideo);
+
+    // This fires when the decoded video frame is actually submitted to the compositor,
+    // making the MP4 -> DOM-logo handoff tighter than polling currentTime alone.
+    if (typeof state.video.requestVideoFrameCallback === 'function') {
+      state.videoFrameId = state.video.requestVideoFrameCallback(function (_, metadata) {
+        state.videoFrameId = 0;
+        onFrame(metadata && typeof metadata.mediaTime === 'number' ? metadata.mediaTime : state.video.currentTime);
+      });
+    } else {
+      state.rafId = window.requestAnimationFrame(function () {
+        state.rafId = 0;
+        onFrame(state.video.currentTime);
+      });
+    }
   }
 
   function start() {
@@ -211,10 +268,9 @@
 
     if (reducedMotion()) {
       document.documentElement.classList.remove('vmg-home-intro-pending');
-      signalIntroComplete();
+      signalComplete();
       return;
     }
-
     if (!document.body || state) return;
 
     var root = document.createElement('div');
@@ -240,6 +296,7 @@
 
     var video = root.querySelector('video');
     var proxy = root.querySelector('.vmg-home-intro-proxy');
+    var proxyImg = proxy.querySelector('img');
     var backdrop = root.querySelector('.vmg-home-intro-backdrop');
     var previousOverflow = document.body.style.overflow;
 
@@ -257,8 +314,11 @@
       finishing: false,
       targetImg: null,
       rafId: 0,
+      videoFrameId: 0,
       failTimer: 0,
-      moveAnimation: null
+      moveAnimation: null,
+      normalRateRestored: false,
+      started: false
     };
 
     state.onResize = function () {};
@@ -272,9 +332,36 @@
       if (state && state.video.readyState < 2 && state.video.currentTime < 0.1) finishImmediately();
     }, 4000);
 
-    state.rafId = window.requestAnimationFrame(watchVideo);
-    var playPromise = video.play();
-    if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(finishImmediately);
+    video.pause();
+    video.currentTime = 0;
+    video.playbackRate = ARTWORK_RATE;
+
+    function beginPlayback() {
+      if (!state || state.started) return;
+      state.started = true;
+
+      var decoded = proxyImg && typeof proxyImg.decode === 'function'
+        ? proxyImg.decode().catch(function () {})
+        : Promise.resolve();
+
+      decoded.then(function () {
+        if (!state) return;
+        // Two paints before play guarantees the visitor actually sees frame zero.
+        // The first Krishna/peacock reveal is only ~0.3s in the MP4, so starting
+        // immediately after DOM insertion can make that animation appear skipped.
+        window.requestAnimationFrame(function () {
+          window.requestAnimationFrame(function () {
+            if (!state) return;
+            watchVideo();
+            var playPromise = video.play();
+            if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(finishImmediately);
+          });
+        });
+      });
+    }
+
+    if (video.readyState >= 2) beginPlayback();
+    else video.addEventListener('loadeddata', beginPlayback, { once: true });
   }
 
   function boot() {
