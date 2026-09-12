@@ -3,8 +3,8 @@
 
   var VIDEO_SRC = '/assets/video/vmg-home-intro.mp4';
   var LOGO_SRC = '/assets/img/vmg-combined-logo.png';
-  var HANDOFF_AT = 4.05;
-  var MOVE_MS = 720;
+  var HANDOFF_AT = 2.98;
+  var MOVE_MS = 680;
   var POPUP_AFTER_INTRO_MS = 7000;
   var state = null;
   var popupTimer = 0;
@@ -138,8 +138,6 @@
     var to = target.rect;
     var proxy = state.proxy;
 
-    // Keep the proxy at one fixed source size and animate only transform.
-    // This avoids layout/repaint on every frame and lets the browser composite on the GPU.
     proxy.style.left = from.left + 'px';
     proxy.style.top = from.top + 'px';
     proxy.style.width = from.width + 'px';
@@ -157,7 +155,6 @@
     var sx = to.width / from.width;
     var sy = to.height / from.height;
 
-    // Crossfade the baked logo into the DOM proxy instead of hard-cutting it.
     state.video.animate([
       { opacity: 1 },
       { opacity: 0, offset: 0.18 },
