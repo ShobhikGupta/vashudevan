@@ -52,6 +52,12 @@
     proxy.style.setProperty('visibility', visible ? 'visible' : 'hidden', 'important');
   }
 
+  function signalIntroComplete() {
+    if (!isHome()) return;
+    window.__vmgHomeIntroComplete = true;
+    document.dispatchEvent(new CustomEvent('vmg:home-intro-complete'));
+  }
+
   function cleanup(reveal) {
     if (!state) return;
     window.clearTimeout(state.failTimer);
@@ -64,6 +70,7 @@
     if (state.root && state.root.isConnected) state.root.remove();
     state = null;
     if (reveal) document.body.style.visibility = '';
+    signalIntroComplete();
   }
 
   function finishImmediately() {
@@ -90,27 +97,19 @@
     if (state.rafId) window.cancelAnimationFrame(state.rafId);
     state.targetImg = target.img;
 
-    // Use the exact same image asset as the real header so the landing frame is pixel-identical.
     var targetSrc = target.img.currentSrc || target.img.getAttribute('src') || LOGO_FALLBACK_SRC;
     if (targetSrc && state.proxy.getAttribute('src') !== targetSrc) state.proxy.setAttribute('src', targetSrc);
 
     var from = sourceLogoRect(state.video);
     applyRect(state.proxy, from);
-
-    // Hide the real header logo while the proxy performs the shared-element move.
     target.img.style.opacity = '0';
-
-    // Force the proxy above global lazy-image rules. The site-wide lazy loader adds
-    // loading="lazy" + .loaded to images, which otherwise overrides opacity:0.
     setProxyVisible(state.proxy, true);
 
-    // Crossfade the baked video logo to the DOM proxy, then reveal the real page below.
     state.video.style.opacity = '0';
     state.root.style.background = 'transparent';
     state.backdrop.style.opacity = '0';
     document.body.style.visibility = '';
 
-    // Lock the source geometry for one frame before applying the destination rectangle.
     state.proxy.getBoundingClientRect();
     state.proxy.style.transition =
       'left ' + MOVE_MS + 'ms cubic-bezier(.22,1,.36,1), ' +
@@ -137,10 +136,19 @@
   }
 
   function start() {
-    if (!isHome() || reducedMotion()) {
+    if (!isHome()) {
       document.documentElement.classList.remove('vmg-home-intro-pending');
       return;
     }
+
+    window.__vmgHomeIntroComplete = false;
+
+    if (reducedMotion()) {
+      document.documentElement.classList.remove('vmg-home-intro-pending');
+      signalIntroComplete();
+      return;
+    }
+
     if (!document.body || state) return;
 
     var root = document.createElement('div');
@@ -156,9 +164,9 @@
       '.vmg-home-intro-backdrop{position:absolute;inset:0;background:#fff;transition:opacity 240ms ease;will-change:opacity}',
       '.vmg-home-intro-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;transition:opacity 100ms linear;will-change:opacity}',
       '.vmg-home-intro img.vmg-home-intro-proxy{position:fixed;z-index:2;display:block;object-fit:contain;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;opacity:0!important;visibility:hidden!important;pointer-events:none;will-change:left,top,width,height,opacity}',
-      '.vmg-home-intro-skip{position:absolute;top:max(18px,env(safe-area-inset-top));left:max(18px,env(safe-area-inset-left));z-index:3;min-width:44px;min-height:44px;border:1px solid rgba(16,24,40,.14);border-radius:999px;background:rgba(255,255,255,.9);color:#344054;padding:9px 14px;font:600 12px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.01em;box-shadow:0 4px 18px rgba(16,24,40,.08);cursor:pointer;backdrop-filter:blur(8px)}',
+      '.vmg-home-intro-skip{position:absolute;top:max(18px,env(safe-area-inset-top));right:max(18px,env(safe-area-inset-right));z-index:3;min-width:44px;min-height:44px;border:1px solid rgba(16,24,40,.14);border-radius:999px;background:rgba(255,255,255,.9);color:#344054;padding:9px 14px;font:600 12px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.01em;box-shadow:0 4px 18px rgba(16,24,40,.08);cursor:pointer;backdrop-filter:blur(8px)}',
       '.vmg-home-intro-skip:hover{background:#fff;color:#101828}',
-      '@media(max-width:600px){.vmg-home-intro-skip{top:max(14px,env(safe-area-inset-top));left:max(14px,env(safe-area-inset-left));padding:8px 12px;font-size:11px}}'
+      '@media(max-width:600px){.vmg-home-intro-skip{top:max(14px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right));padding:8px 12px;font-size:11px}}'
     ].join('');
     root.appendChild(style);
     document.body.insertBefore(root, document.body.firstChild);
@@ -197,7 +205,6 @@
     video.addEventListener('ended', function () { if (state && !state.finishing) handoff(); });
     video.addEventListener('error', finishImmediately, { once: true });
 
-    // Give slow mobile networks enough time to buffer before falling back.
     state.failTimer = window.setTimeout(function () {
       if (state && state.video.readyState < 2 && state.video.currentTime < 0.1) finishImmediately();
     }, 4000);
