@@ -90,8 +90,31 @@
 }
 
 .market-page .market-custom-select-chevron {
+  position: absolute !important;
   right: 14px !important;
+  top: 50% !important;
+  width: 16px !important;
+  height: 16px !important;
+  display: grid !important;
+  place-items: center !important;
   color: #64748b !important;
+  transform: translateY(-50%) !important;
+  transition: transform 170ms ease !important;
+  pointer-events: none !important;
+}
+
+.market-page .market-custom-select-chevron svg {
+  width: 14px !important;
+  height: 14px !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 1.8 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+.market-page .market-custom-select.is-open .market-custom-select-chevron {
+  transform: translateY(-50%) rotate(180deg) !important;
 }
 
 .market-page .market-custom-select-list {

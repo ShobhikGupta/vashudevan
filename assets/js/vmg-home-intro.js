@@ -1,0 +1,381 @@
+(function () {
+  'use strict';
+
+  var VIDEO_SRC = '/assets/video/vmg-home-intro.mp4';
+  var LOGO_SRC = '/assets/img/vmg-combined-logo.png';
+  var HANDOFF_AT = 2.98;
+  var MOVE_MS = 720;
+  var ARTWORK_RATE = 0.72;
+  var ARTWORK_NORMAL_AT = 0.42;
+  var POPUP_DELAY_MS = 7000;
+  var LOGO_ALPHA = { left: 30, top: 28, width: 1828, height: 665, canvasWidth: 1904, canvasHeight: 724 };
+
+  var state = null;
+  var popupTimer = 0;
+  var popupGuard = null;
+
+  function isHome() {
+    var p = (window.location.pathname || '/').replace(/\/{2,}/g, '/');
+    return p === '/' || p === '/index.html';
+  }
+
+  function reducedMotion() {
+    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  function targetLogo() {
+    var img = document.querySelector('.site-header.vmg-econship-header .vmg-header-logo-combined, .site-header.vmg-econship-header .logo img');
+    if (!img) return null;
+    var rect = img.getBoundingClientRect();
+    if (!rect.width || !rect.height) return null;
+    return { img: img, rect: rect };
+  }
+
+  function sourceLogoCanvasRect(video) {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var iw = video.videoWidth || 1600;
+    var ih = video.videoHeight || 900;
+    var fit = Math.min(vw / iw, vh / ih);
+    var renderedW = iw * fit;
+    var renderedH = ih * fit;
+    var ox = (vw - renderedW) / 2;
+    var oy = (vh - renderedH) / 2;
+
+    // Measured visible logo bounds in the final active MP4 frame.
+    var visible = {
+      left: ox + 198 * fit,
+      top: oy + 200 * fit,
+      width: 1195 * fit,
+      height: 436 * fit
+    };
+
+    // The PNG has transparent padding. Expand the visible MP4 bounds back to the
+    // PNG's full canvas so the crossfade does not stretch/squash the logo.
+    var sx = visible.width / LOGO_ALPHA.width;
+    var sy = visible.height / LOGO_ALPHA.height;
+    return {
+      left: visible.left - LOGO_ALPHA.left * sx,
+      top: visible.top - LOGO_ALPHA.top * sy,
+      width: LOGO_ALPHA.canvasWidth * sx,
+      height: LOGO_ALPHA.canvasHeight * sy
+    };
+  }
+
+  function suppressPopup() {
+    if (!isHome()) return;
+    try {
+      if (window.VMGOpeningPopup && typeof window.VMGOpeningPopup.isOpen === 'function' && window.VMGOpeningPopup.isOpen()) {
+        window.VMGOpeningPopup.close();
+        return;
+      }
+    } catch (_) {}
+    var overlay = document.querySelector('.opening-popup-overlay');
+    var close = overlay && overlay.querySelector('.opening-popup-close');
+    if (close) close.click();
+  }
+
+  function startPopupGuard() {
+    if (!isHome() || popupGuard || !document.body) return;
+    suppressPopup();
+    popupGuard = new MutationObserver(suppressPopup);
+    popupGuard.observe(document.body, { childList: true, subtree: true });
+  }
+
+  function stopPopupGuard() {
+    if (!popupGuard) return;
+    popupGuard.disconnect();
+    popupGuard = null;
+  }
+
+  function schedulePopup() {
+    window.clearTimeout(popupTimer);
+    popupTimer = window.setTimeout(function () {
+      popupTimer = 0;
+      stopPopupGuard();
+      if (!isHome()) return;
+      if (window.VMGOpeningPopup && typeof window.VMGOpeningPopup.open === 'function') {
+        window.VMGOpeningPopup.open();
+      } else if (typeof window.initOpeningPopup === 'function') {
+        window.initOpeningPopup(0);
+      }
+    }, POPUP_DELAY_MS);
+  }
+
+  function signalComplete() {
+    if (!isHome()) return;
+    window.__vmgHomeIntroComplete = true;
+    document.dispatchEvent(new CustomEvent('vmg:home-intro-complete'));
+    schedulePopup();
+  }
+
+  function cancelFrameWatch() {
+    if (!state) return;
+    if (state.rafId) {
+      window.cancelAnimationFrame(state.rafId);
+      state.rafId = 0;
+    }
+    if (state.videoFrameId && state.video && typeof state.video.cancelVideoFrameCallback === 'function') {
+      try { state.video.cancelVideoFrameCallback(state.videoFrameId); } catch (_) {}
+      state.videoFrameId = 0;
+    }
+  }
+
+  function cleanup(reveal) {
+    if (!state) return;
+    window.clearTimeout(state.failTimer);
+    cancelFrameWatch();
+    if (state.moveAnimation) {
+      try { state.moveAnimation.cancel(); } catch (_) {}
+    }
+    window.removeEventListener('resize', state.onResize);
+    window.removeEventListener('orientationchange', state.onResize);
+    if (state.targetImg) state.targetImg.style.opacity = '';
+    document.body.style.overflow = state.previousOverflow || '';
+    document.documentElement.classList.remove('vmg-home-intro-active', 'vmg-home-intro-pending');
+    if (state.root && state.root.isConnected) state.root.remove();
+    state = null;
+    if (reveal) document.body.style.visibility = '';
+    signalComplete();
+  }
+
+  function finishImmediately() {
+    if (!state || state.finishing) return;
+    state.finishing = true;
+    cancelFrameWatch();
+    if (state.targetImg) state.targetImg.style.opacity = '';
+    state.proxy.style.opacity = '0';
+    state.root.style.transition = 'opacity 180ms ease';
+    state.root.style.opacity = '0';
+    window.setTimeout(function () { cleanup(true); }, 190);
+  }
+
+  function handoff() {
+    if (!state || state.finishing) return;
+    var target = targetLogo();
+    if (!target) {
+      finishImmediately();
+      return;
+    }
+
+    state.finishing = true;
+    cancelFrameWatch();
+    state.targetImg = target.img;
+
+    var from = sourceLogoCanvasRect(state.video);
+    var to = target.rect;
+    var proxy = state.proxy;
+
+    proxy.style.left = from.left + 'px';
+    proxy.style.top = from.top + 'px';
+    proxy.style.width = from.width + 'px';
+    proxy.style.height = from.height + 'px';
+    proxy.style.opacity = '0';
+    proxy.style.visibility = 'visible';
+    proxy.style.transformOrigin = '0 0';
+    proxy.style.transform = 'translate3d(0,0,0) scale(1,1)';
+
+    target.img.style.opacity = '0';
+    document.body.style.visibility = '';
+
+    var dx = to.left - from.left;
+    var dy = to.top - from.top;
+    var sx = to.width / from.width;
+    var sy = to.height / from.height;
+
+    // Tiny overlap crossfade: the moving DOM logo becomes visible while the final
+    // video logo is still present, so there is no one-frame pop or pause.
+    proxy.animate([
+      { opacity: 0 },
+      { opacity: 1 }
+    ], { duration: 90, easing: 'linear', fill: 'forwards' });
+
+    state.video.animate([
+      { opacity: 1 },
+      { opacity: 0 }
+    ], { duration: 110, easing: 'linear', fill: 'forwards' });
+
+    state.backdrop.animate([
+      { opacity: 1 },
+      { opacity: 0.96, offset: 0.10 },
+      { opacity: 0, offset: 0.90 },
+      { opacity: 0 }
+    ], { duration: MOVE_MS, easing: 'cubic-bezier(.22,.61,.36,1)', fill: 'forwards' });
+
+    state.root.style.background = 'transparent';
+
+    state.moveAnimation = proxy.animate([
+      { transform: 'translate3d(0,0,0) scale(1,1)' },
+      { transform: 'translate3d(' + dx + 'px,' + dy + 'px,0) scale(' + sx + ',' + sy + ')' }
+    ], {
+      duration: MOVE_MS,
+      easing: 'cubic-bezier(.22,.61,.36,1)',
+      fill: 'forwards'
+    });
+
+    state.moveAnimation.onfinish = function () {
+      if (!state) return;
+      if (state.targetImg) state.targetImg.style.opacity = '';
+      state.proxy.style.opacity = '0';
+      cleanup(true);
+    };
+    state.moveAnimation.oncancel = function () {};
+  }
+
+  function watchVideo() {
+    if (!state || state.finishing) return;
+
+    function onFrame(mediaTime) {
+      if (!state || state.finishing) return;
+
+      if (!state.normalRateRestored && mediaTime >= ARTWORK_NORMAL_AT) {
+        state.video.playbackRate = 1;
+        state.normalRateRestored = true;
+      }
+
+      if (mediaTime >= HANDOFF_AT) {
+        handoff();
+        return;
+      }
+      watchVideo();
+    }
+
+    // This fires when the decoded video frame is actually submitted to the compositor,
+    // making the MP4 -> DOM-logo handoff tighter than polling currentTime alone.
+    if (typeof state.video.requestVideoFrameCallback === 'function') {
+      state.videoFrameId = state.video.requestVideoFrameCallback(function (_, metadata) {
+        state.videoFrameId = 0;
+        onFrame(metadata && typeof metadata.mediaTime === 'number' ? metadata.mediaTime : state.video.currentTime);
+      });
+    } else {
+      state.rafId = window.requestAnimationFrame(function () {
+        state.rafId = 0;
+        onFrame(state.video.currentTime);
+      });
+    }
+  }
+
+  function start() {
+    if (!isHome()) {
+      document.documentElement.classList.remove('vmg-home-intro-pending');
+      return;
+    }
+
+    window.clearTimeout(popupTimer);
+    popupTimer = 0;
+    window.__vmgHomeIntroComplete = false;
+    startPopupGuard();
+
+    if (reducedMotion()) {
+      document.documentElement.classList.remove('vmg-home-intro-pending');
+      signalComplete();
+      return;
+    }
+    if (!document.body || state) return;
+
+    var root = document.createElement('div');
+    root.className = 'vmg-home-intro';
+    root.innerHTML = '<div class="vmg-home-intro-backdrop"></div>' +
+      '<video class="vmg-home-intro-video" muted playsinline preload="auto" aria-hidden="true"><source src="' + VIDEO_SRC + '" type="video/mp4"></video>' +
+      '<div class="vmg-home-intro-proxy" aria-hidden="true"><img src="' + LOGO_SRC + '" alt="" loading="eager" decoding="async" fetchpriority="high"></div>' +
+      '<button class="vmg-home-intro-skip" type="button" aria-label="Skip intro">Skip Intro</button>';
+
+    var style = document.createElement('style');
+    style.textContent = [
+      '.vmg-home-intro{position:fixed;inset:0;z-index:2147483000;background:#fff;overflow:hidden}',
+      '.vmg-home-intro-backdrop{position:absolute;inset:0;background:#fff;will-change:opacity}',
+      '.vmg-home-intro-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;will-change:opacity}',
+      '.vmg-home-intro-proxy{position:fixed;z-index:2;display:block;opacity:0;visibility:hidden;pointer-events:none;overflow:visible;transform-origin:0 0;will-change:transform,opacity;backface-visibility:hidden;contain:layout paint style}',
+      '.vmg-home-intro-proxy>img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;object-fit:fill!important;opacity:1!important;visibility:visible!important;transition:none!important;animation:none!important;transform:none!important;filter:none!important}',
+      '.vmg-home-intro-skip{position:absolute;top:max(18px,env(safe-area-inset-top));right:max(18px,env(safe-area-inset-right));z-index:3;min-width:44px;min-height:44px;border:1px solid rgba(16,24,40,.14);border-radius:999px;background:rgba(255,255,255,.9);color:#344054;padding:9px 14px;font:600 12px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.01em;box-shadow:0 4px 18px rgba(16,24,40,.08);cursor:pointer;backdrop-filter:blur(8px)}',
+      '.vmg-home-intro-skip:hover{background:#fff;color:#101828}',
+      '@media(max-width:600px){.vmg-home-intro-skip{top:max(14px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right));padding:8px 12px;font-size:11px}}'
+    ].join('');
+    root.appendChild(style);
+    document.body.insertBefore(root, document.body.firstChild);
+
+    var video = root.querySelector('video');
+    var proxy = root.querySelector('.vmg-home-intro-proxy');
+    var proxyImg = proxy.querySelector('img');
+    var backdrop = root.querySelector('.vmg-home-intro-backdrop');
+    var previousOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = 'hidden';
+    document.body.style.visibility = '';
+    document.documentElement.classList.add('vmg-home-intro-active');
+    document.documentElement.classList.remove('vmg-home-intro-pending');
+
+    state = {
+      root: root,
+      video: video,
+      proxy: proxy,
+      backdrop: backdrop,
+      previousOverflow: previousOverflow,
+      finishing: false,
+      targetImg: null,
+      rafId: 0,
+      videoFrameId: 0,
+      failTimer: 0,
+      moveAnimation: null,
+      normalRateRestored: false,
+      started: false
+    };
+
+    state.onResize = function () {};
+    window.addEventListener('resize', state.onResize, { passive: true });
+    window.addEventListener('orientationchange', state.onResize, { passive: true });
+    root.querySelector('.vmg-home-intro-skip').addEventListener('click', finishImmediately);
+    video.addEventListener('ended', function () { if (state && !state.finishing) handoff(); });
+    video.addEventListener('error', finishImmediately, { once: true });
+
+    state.failTimer = window.setTimeout(function () {
+      if (state && state.video.readyState < 2 && state.video.currentTime < 0.1) finishImmediately();
+    }, 4000);
+
+    video.pause();
+    video.currentTime = 0;
+    video.playbackRate = ARTWORK_RATE;
+
+    function beginPlayback() {
+      if (!state || state.started) return;
+      state.started = true;
+
+      var decoded = proxyImg && typeof proxyImg.decode === 'function'
+        ? proxyImg.decode().catch(function () {})
+        : Promise.resolve();
+
+      decoded.then(function () {
+        if (!state) return;
+        // Two paints before play guarantees the visitor actually sees frame zero.
+        // The first Krishna/peacock reveal is only ~0.3s in the MP4, so starting
+        // immediately after DOM insertion can make that animation appear skipped.
+        window.requestAnimationFrame(function () {
+          window.requestAnimationFrame(function () {
+            if (!state) return;
+            watchVideo();
+            var playPromise = video.play();
+            if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(finishImmediately);
+          });
+        });
+      });
+    }
+
+    if (video.readyState >= 2) beginPlayback();
+    else video.addEventListener('loadeddata', beginPlayback, { once: true });
+  }
+
+  function boot() {
+    if (!isHome()) {
+      document.documentElement.classList.remove('vmg-home-intro-pending');
+      return;
+    }
+    start();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
+  else boot();
+
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted && isHome() && !state) window.setTimeout(start, 0);
+  });
+})();

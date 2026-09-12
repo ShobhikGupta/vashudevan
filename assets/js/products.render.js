@@ -16,6 +16,24 @@
       .catch(function () { return { products: [] }; });
   }
 
+  function createCategoryCta() {
+    var cta = document.createElement('span');
+    cta.className = 'product-card-cta';
+
+    var label = document.createElement('span');
+    label.className = 'product-card-cta-label';
+    label.textContent = 'View Category';
+
+    var arrow = document.createElement('span');
+    arrow.className = 'product-card-cta-arrow';
+    arrow.setAttribute('aria-hidden', 'true');
+    arrow.textContent = '\u2192';
+
+    cta.appendChild(label);
+    cta.appendChild(arrow);
+    return cta;
+  }
+
   function renderCategoryCards(gridEl, categories) {
     if (!gridEl) return;
     
@@ -79,9 +97,7 @@
       var caption = document.createElement('figcaption');
       caption.textContent = displayName;
 
-      var cta = document.createElement('span');
-      cta.className = 'product-card-cta';
-      cta.textContent = 'View Category';
+      var cta = createCategoryCta();
 
       figure.appendChild(img);
       figure.appendChild(caption);
@@ -276,9 +292,7 @@
           var caption = document.createElement('figcaption');
           caption.textContent = displayName;
 
-          var cta = document.createElement('span');
-          cta.className = 'product-card-cta';
-          cta.textContent = 'View Category';
+          var cta = createCategoryCta();
           
           figure.appendChild(img);
           figure.appendChild(caption);
@@ -339,4 +353,3 @@
     });
   });
 })();
-

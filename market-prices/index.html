@@ -8,13 +8,27 @@
     <meta name="description" content="Indicative and delayed global metal market reference data from Vashudevan Met Global LLP.">
     <link rel="icon" href="/assets/img/LOGO.png">
     <link rel="stylesheet" href="/assets/css/styles.css">
-  
+
     <link rel="stylesheet" href="/assets/css/vmg-trade-nav.css" data-vmg-trade-nav="true">
     <link rel="stylesheet" href="/assets/css/vmg-nav-premium-overrides.css" data-vmg-nav-premium="true">
     <link rel="stylesheet" href="/assets/css/vmg-feedback.css" data-vmg-feedback-style="true">
     <link rel="stylesheet" href="/assets/css/vmg-footer.css" data-vmg-footer-style="true">
     <link rel="stylesheet" href="/assets/css/vmg-responsive-polish.css?v=20260821g" data-vmg-responsive-polish="true">
     <link rel="stylesheet" href="/assets/css/vmg-header-sticky-fix.css?v=20260822b" data-vmg-header-sticky-fix="true">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Vashudevan Met Global LLP">
+    <meta property="og:title" content="Vashudevan Met Global LLP">
+    <meta property="og:description" content="Global recyclable-metal supply-chain solutions. Recycle. Resource. Responsibly.">
+    <meta property="og:image" content="https://vashudevan.com/assets/img/vmg-open-graph.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="2048">
+    <meta property="og:image:height" content="682">
+    <meta property="og:image:alt" content="Vashudevan Met Global LLP logo">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Vashudevan Met Global LLP">
+    <meta name="twitter:description" content="Global recyclable-metal supply-chain solutions. Recycle. Resource. Responsibly.">
+    <meta name="twitter:image" content="https://vashudevan.com/assets/img/vmg-open-graph.png">
   </head>
   <body>
     <header class="site-header vmg-econship-header" data-vmg-static-header="true">
@@ -198,7 +212,7 @@
   </div>
 </footer>
 
-    <script src="//assets/js/config.js?v=20260822b"></script>
+    <script src="/assets/js/config.js?v=20260822b"></script>
     <script src="/assets/js/main.js"></script>
     <script>
       const VASHUDEVAN_MARKET_GROUPS = {
@@ -267,6 +281,20 @@
           quoteBasis.innerHTML = '<strong>Quote Basis:</strong> Displayed metal quotes follow the native quote basis supplied by each TradingView data provider.';
         }
 
+        function appendTradingViewScriptWhenSized(host, script) {
+          let attempts = 0;
+          function appendWhenReady() {
+            attempts += 1;
+            const rect = host.getBoundingClientRect();
+            if ((rect.width > 0 && rect.height > 0) || attempts >= 10) {
+              if (host.isConnected && !script.isConnected) host.appendChild(script);
+              return;
+            }
+            window.requestAnimationFrame(appendWhenReady);
+          }
+          window.requestAnimationFrame(appendWhenReady);
+        }
+
         function renderMarketData(groupKey) {
           if (!marketPanel) return;
           const group = VASHUDEVAN_MARKET_GROUPS[groupKey] || VASHUDEVAN_MARKET_GROUPS.metals;
@@ -308,8 +336,8 @@
             ]
           }, null, 2);
 
-          container.appendChild(script);
           marketPanel.appendChild(container);
+          appendTradingViewScriptWhenSized(container, script);
         }
 
         function tradingViewSymbolUrl(symbol) {
@@ -370,7 +398,8 @@
           script.onerror = function () {
             chartMount.classList.remove('is-loaded');
           };
-          chartMount.querySelector('.tradingview-widget-container').appendChild(script);
+          const chartContainer = chartMount.querySelector('.tradingview-widget-container');
+          if (chartContainer) appendTradingViewScriptWhenSized(chartContainer, script);
         }
 
         function closeBenchmarkDropdown() {
