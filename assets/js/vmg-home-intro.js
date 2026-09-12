@@ -4,7 +4,7 @@
   var VIDEO_SRC = '/assets/video/vmg-home-intro.mp4';
   var LOGO_SRC = '/assets/img/vmg-combined-logo.png';
   var HANDOFF_AT = 4.05;
-  var MOVE_MS = 900;
+  var MOVE_MS = 720;
   var POPUP_AFTER_INTRO_MS = 7000;
   var state = null;
   var popupTimer = 0;
@@ -29,11 +29,10 @@
     var dh = ih * scale;
     var ox = (vw - dw) / 2;
     var oy = (vh - dh) / 2;
-
     return {
-      left: ox + 196 * scale,
+      left: ox + 198 * scale,
       top: oy + 200 * scale,
-      width: 1199 * scale,
+      width: 1195 * scale,
       height: 436 * scale
     };
   }
@@ -46,13 +45,6 @@
     return { img: img, rect: rect };
   }
 
-  function applyRect(el, rect) {
-    el.style.left = rect.left + 'px';
-    el.style.top = rect.top + 'px';
-    el.style.width = rect.width + 'px';
-    el.style.height = rect.height + 'px';
-  }
-
   function suppressOpeningPopup() {
     if (!isHome()) return;
     try {
@@ -61,7 +53,6 @@
         return;
       }
     } catch (_) {}
-
     var overlay = document.querySelector('.opening-popup-overlay');
     if (!overlay) return;
     var close = overlay.querySelector('.opening-popup-close');
@@ -105,8 +96,10 @@
   function cleanup(reveal) {
     if (!state) return;
     window.clearTimeout(state.failTimer);
-    window.clearTimeout(state.finishTimer);
     if (state.rafId) window.cancelAnimationFrame(state.rafId);
+    if (state.moveAnimation) {
+      try { state.moveAnimation.cancel(); } catch (_) {}
+    }
     window.removeEventListener('resize', state.onResize);
     window.removeEventListener('orientationchange', state.onResize);
     if (state.targetImg) state.targetImg.style.opacity = '';
@@ -131,7 +124,6 @@
 
   function handoff() {
     if (!state || state.finishing) return;
-
     var target = targetLogoRect();
     if (!target) {
       finishImmediately();
@@ -143,47 +135,61 @@
     state.targetImg = target.img;
 
     var from = sourceLogoRect(state.video);
+    var to = target.rect;
     var proxy = state.proxy;
 
-    // The proxy is a DIV wrapper because the site's global img rule uses
-    // transition:none!important, which prevents an IMG from tweening.
-    proxy.style.transition = 'none';
-    applyRect(proxy, from);
+    // Keep the proxy at one fixed source size and animate only transform.
+    // This avoids layout/repaint on every frame and lets the browser composite on the GPU.
+    proxy.style.left = from.left + 'px';
+    proxy.style.top = from.top + 'px';
+    proxy.style.width = from.width + 'px';
+    proxy.style.height = from.height + 'px';
     proxy.style.opacity = '1';
     proxy.style.visibility = 'visible';
+    proxy.style.transformOrigin = '0 0';
+    proxy.style.transform = 'translate3d(0,0,0) scale(1,1)';
 
     target.img.style.opacity = '0';
-    state.video.style.opacity = '0';
     document.body.style.visibility = '';
 
-    // Commit source geometry before assigning the destination geometry.
-    proxy.getBoundingClientRect();
+    var dx = to.left - from.left;
+    var dy = to.top - from.top;
+    var sx = to.width / from.width;
+    var sy = to.height / from.height;
 
-    window.requestAnimationFrame(function () {
-      if (!state) return;
-      window.requestAnimationFrame(function () {
-        if (!state) return;
+    // Crossfade the baked logo into the DOM proxy instead of hard-cutting it.
+    state.video.animate([
+      { opacity: 1 },
+      { opacity: 0, offset: 0.18 },
+      { opacity: 0 }
+    ], { duration: MOVE_MS, easing: 'linear', fill: 'forwards' });
 
-        proxy.style.transition =
-          'left ' + MOVE_MS + 'ms cubic-bezier(.22,1,.36,1), ' +
-          'top ' + MOVE_MS + 'ms cubic-bezier(.22,1,.36,1), ' +
-          'width ' + MOVE_MS + 'ms cubic-bezier(.22,1,.36,1), ' +
-          'height ' + MOVE_MS + 'ms cubic-bezier(.22,1,.36,1)';
+    state.backdrop.animate([
+      { opacity: 1 },
+      { opacity: 0.97, offset: 0.12 },
+      { opacity: 0, offset: 0.88 },
+      { opacity: 0 }
+    ], { duration: MOVE_MS, easing: 'cubic-bezier(.22,.61,.36,1)', fill: 'forwards' });
 
-        applyRect(proxy, target.rect);
+    state.root.style.background = 'transparent';
 
-        state.root.style.background = 'transparent';
-        state.backdrop.style.transition = 'opacity 650ms cubic-bezier(.22,1,.36,1)';
-        state.backdrop.style.opacity = '0';
-      });
+    state.moveAnimation = proxy.animate([
+      { transform: 'translate3d(0,0,0) scale(1,1)' },
+      { transform: 'translate3d(' + dx + 'px,' + dy + 'px,0) scale(' + sx + ',' + sy + ')' }
+    ], {
+      duration: MOVE_MS,
+      easing: 'cubic-bezier(.16,1,.3,1)',
+      fill: 'forwards'
     });
 
-    state.finishTimer = window.setTimeout(function () {
+    state.moveAnimation.onfinish = function () {
       if (!state) return;
       if (state.targetImg) state.targetImg.style.opacity = '';
       state.proxy.style.opacity = '0';
       cleanup(true);
-    }, MOVE_MS + 120);
+    };
+
+    state.moveAnimation.oncancel = function () {};
   }
 
   function watchVideo() {
@@ -225,8 +231,8 @@
     style.textContent = [
       '.vmg-home-intro{position:fixed;inset:0;z-index:2147483000;background:#fff;overflow:hidden}',
       '.vmg-home-intro-backdrop{position:absolute;inset:0;background:#fff;will-change:opacity}',
-      '.vmg-home-intro-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;transition:opacity 100ms linear;will-change:opacity}',
-      '.vmg-home-intro-proxy{position:fixed;z-index:2;display:block;opacity:0;visibility:hidden;pointer-events:none;overflow:visible;will-change:left,top,width,height}',
+      '.vmg-home-intro-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;will-change:opacity}',
+      '.vmg-home-intro-proxy{position:fixed;z-index:2;display:block;opacity:0;visibility:hidden;pointer-events:none;overflow:visible;transform-origin:0 0;will-change:transform,opacity;backface-visibility:hidden;contain:layout paint style}',
       '.vmg-home-intro-proxy>img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;object-fit:fill!important;opacity:1!important;visibility:visible!important;transition:none!important;animation:none!important;transform:none!important;filter:none!important}',
       '.vmg-home-intro-skip{position:absolute;top:max(18px,env(safe-area-inset-top));right:max(18px,env(safe-area-inset-right));z-index:3;min-width:44px;min-height:44px;border:1px solid rgba(16,24,40,.14);border-radius:999px;background:rgba(255,255,255,.9);color:#344054;padding:9px 14px;font:600 12px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.01em;box-shadow:0 4px 18px rgba(16,24,40,.08);cursor:pointer;backdrop-filter:blur(8px)}',
       '.vmg-home-intro-skip:hover{background:#fff;color:#101828}',
@@ -255,13 +261,10 @@
       targetImg: null,
       rafId: 0,
       failTimer: 0,
-      finishTimer: 0
+      moveAnimation: null
     };
 
-    state.onResize = function () {
-      if (!state || state.finishing) return;
-    };
-
+    state.onResize = function () {};
     window.addEventListener('resize', state.onResize, { passive: true });
     window.addEventListener('orientationchange', state.onResize, { passive: true });
     root.querySelector('.vmg-home-intro-skip').addEventListener('click', finishImmediately);
