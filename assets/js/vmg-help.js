@@ -54,7 +54,7 @@
         brand.insertBefore(image, brand.firstChild);
       }
       image.className = 'vmg-header-logo-combined';
-      image.src = '/assets/img/vmg-header-logo-combined.png';
+      image.src = '/assets/img/vmg-combined-logo.png';
       image.alt = 'Vashudevan MetGlobal LLP';
       image.removeAttribute('width');
       image.removeAttribute('height');
