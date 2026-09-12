@@ -343,7 +343,6 @@
     var header = document.querySelector('.site-header.vmg-econship-header');
     var nav = header && header.querySelector('.site-nav');
     var footer = document.querySelector('footer.vmg-global-footer, footer.site-footer');
-    var backToTop = document.getElementById('back-to-top');
     if (!header || !nav || !footer) return;
 
     var desktopQuery = window.matchMedia('(min-width: 992px)');
@@ -404,11 +403,7 @@
       header.classList.toggle('vmg-menu-open', menuOpen);
       document.body.classList.toggle('vmg-footer-visible', footerVisible);
       document.body.classList.toggle('vmg-header-retreated', retreat);
-      document.body.classList.remove('scroll-top-visible');
-      if (backToTop) {
-        backToTop.classList.toggle('visible', retreat);
-        backToTop.setAttribute('aria-hidden', retreat ? 'false' : 'true');
-      }
+      // Back-to-top visibility is owned by the hero sentinel in vmg-help.js.
     }
 
     function requestState() {

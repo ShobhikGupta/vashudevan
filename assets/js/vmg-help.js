@@ -5,6 +5,8 @@
   var activeTrigger = null;
   var helpIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.5 2.5 0 0 1 4.8 1c0 1.8-2.5 2-2.5 3.6M12 17.2h.01"/></svg>';
   var brochureIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h8l4 4V20.5H6z"/><path d="M14 3.5v4h4M9 12h6M9 15h6"/></svg>';
+  var callIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.6 3.8 9 3.2l2.1 5.1-1.6 1.5c1.1 2.2 2.9 4 5.1 5.1l1.5-1.6 5.1 2.1-.6 2.4c-.4 1.5-1.8 2.5-3.3 2.3C10.2 19.2 4.8 13.8 3.9 6.7c-.2-1.5.8-2.9 2.3-3.3l.4-.1Z"/></svg>';
+  var topIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg>';
 
   function ensureFixStylesheet() {
     if (!document.head) return;
@@ -201,6 +203,127 @@
     window.setTimeout(function () { var first = root.querySelector('.vmg-help-menu a'); if (first) first.focus(); }, 20);
   }
 
+  function resolveHero() {
+    var selectors = [
+      '.home-hero', '.market-page-hero', '.who-hero', '.res-hero', '.faq-hero', '.legal-hero',
+      'main > .page-hero', 'main .page-hero'
+    ];
+    for (var i = 0; i < selectors.length; i += 1) {
+      var found = document.querySelector(selectors[i]);
+      if (found) return found;
+    }
+    var main = document.querySelector('main');
+    return main ? main.querySelector(':scope > section') : null;
+  }
+
+  function ensureWhatsappFloat() {
+    var existing = document.getElementById('whatsapp-float');
+    if (existing) return existing;
+    var link = document.createElement('a');
+    link.id = 'whatsapp-float';
+    link.className = 'whatsapp-float';
+    link.href = 'https://wa.me/919879208178?text=Hello%2C%20I%20visited%20your%20website%20and%20want%20to%20know%20more.';
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.setAttribute('aria-label', 'Chat with Vashudevan MetGlobal LLP on WhatsApp');
+    link.innerHTML = '<img src="/assets/img/whatsapp-logo.png" alt="" decoding="async"><span class="whatsapp-tooltip">Chat with us</span>';
+    document.body.appendChild(link);
+    return link;
+  }
+
+  function ensureCallButton() {
+    var button = document.getElementById('vmg-call-float');
+    if (button) return button;
+    button = document.createElement('a');
+    button.id = 'vmg-call-float';
+    button.className = 'vmg-floating-circle vmg-call-float';
+    button.href = 'tel:+919879208178';
+    button.setAttribute('aria-label', 'Call Vashudevan MetGlobal LLP');
+    button.innerHTML = callIcon;
+    return button;
+  }
+
+  function ensureTopButton() {
+    var button = document.getElementById('back-to-top');
+    if (!button) {
+      button = document.createElement('button');
+      button.type = 'button';
+      button.id = 'back-to-top';
+      button.className = 'back-to-top';
+      document.body.appendChild(button);
+    }
+    button.setAttribute('aria-label', 'Back to top');
+    button.innerHTML = topIcon;
+    if (button.dataset.vmgTopBound !== 'true') {
+      button.dataset.vmgTopBound = 'true';
+      button.addEventListener('click', function () {
+        var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+      });
+    }
+    return button;
+  }
+
+  function bindHeroVisibility(button) {
+    if (!button || button.dataset.vmgHeroVisibility === 'true') return;
+    var hero = resolveHero();
+    if (!hero) {
+      button.classList.remove('visible');
+      return;
+    }
+    button.dataset.vmgHeroVisibility = 'true';
+    var sentinel = document.createElement('span');
+    sentinel.className = 'vmg-hero-passed-sentinel';
+    sentinel.setAttribute('aria-hidden', 'true');
+    hero.insertAdjacentElement('afterend', sentinel);
+
+    function setPassed(passed) {
+      button.classList.toggle('visible', !!passed);
+      document.body.classList.toggle('scroll-top-visible', !!passed);
+    }
+    setPassed(hero.getBoundingClientRect().bottom <= 0);
+
+    if ('IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          setPassed(entry.boundingClientRect.top <= 0 && !entry.isIntersecting);
+        });
+      }, { root: null, threshold: 0 });
+      observer.observe(sentinel);
+    }
+
+    var ticking = false;
+    function syncFromHero() {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(function () {
+        setPassed(hero.getBoundingClientRect().bottom <= 0);
+        ticking = false;
+      });
+    }
+    window.addEventListener('scroll', syncFromHero, { passive: true });
+    window.addEventListener('resize', syncFromHero, { passive: true });
+    window.addEventListener('orientationchange', syncFromHero, { passive: true });
+  }
+
+  function buildFloatingActions() {
+    var help = document.getElementById(ROOT_ID);
+    if (!help) return;
+    var stack = document.querySelector('.vmg-floating-actions');
+    if (!stack) {
+      stack = document.createElement('div');
+      stack.className = 'vmg-floating-actions';
+      stack.setAttribute('aria-label', 'Quick contact actions');
+      document.body.appendChild(stack);
+    }
+    var top = ensureTopButton();
+    var call = ensureCallButton();
+    var whatsapp = ensureWhatsappFloat();
+    whatsapp.setAttribute('aria-label', 'Chat with Vashudevan MetGlobal LLP on WhatsApp');
+    [top, call, whatsapp, help].forEach(function (node) { if (node.parentNode !== stack) stack.appendChild(node); });
+    bindHeroVisibility(top);
+  }
+
   function createHelp() {
     ensureFixStylesheet();
     upgradeHeaderBrand();
@@ -235,6 +358,9 @@
     ].join('');
 
     document.body.appendChild(root);
+    buildFloatingActions();
+    window.setTimeout(buildFloatingActions, 250);
+    window.setTimeout(buildFloatingActions, 900);
     var trigger = root.querySelector('.vmg-help-trigger');
     trigger.addEventListener('click', function () { if (root.classList.contains('is-open')) closeMenu(false); else openMenu(trigger); });
     root.querySelectorAll('.vmg-help-menu a').forEach(function (link) { link.addEventListener('click', function () { closeMenu(false); }); });

@@ -189,49 +189,7 @@
     initSmoothScrolling();
   }
 
-  // Back to top button functionality
-  function initBackToTop() {
-    const backToTopButton = document.getElementById('back-to-top');
-    if (!backToTopButton) return;
-
-    // Show/hide button based on scroll position
-    function toggleBackToTop() {
-      // Get footer position for more accurate threshold
-      const footer = document.querySelector('.site-footer');
-      const footerTop = footer ? footer.offsetTop : 800;
-      const threshold = footerTop - window.innerHeight + 200; // 200px before footer comes into view
-      
-      if (window.scrollY > threshold) {
-        backToTopButton.classList.add('visible');
-        document.body.classList.add('scroll-top-visible');
-      } else {
-        backToTopButton.classList.remove('visible');
-        // Remove class immediately when scrolling up past footer
-        document.body.classList.remove('scroll-top-visible');
-      }
-    }
-
-    // Scroll to top when clicked
-    backToTopButton.addEventListener('click', function() {
-      window.scrollTo({
-        top: 0,
-        behavior: prefersReducedMotion.matches ? 'auto' : 'smooth'
-      });
-    });
-
-    // Listen for scroll events
-    window.addEventListener('scroll', toggleBackToTop, { passive: true });
-    
-    // Initial check
-    toggleBackToTop();
-  }
-
-  // Initialize back to top when DOM is loaded
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initBackToTop);
-  } else {
-    initBackToTop();
-  }
+  // Back to top visibility/click behaviour is owned globally by vmg-help.js.
 
   // Hero Carousel functionality
   function initHeroCarousel() {
@@ -1990,8 +1948,6 @@
       // Append near end of body
       (document.body || document.documentElement).appendChild(link);
 
-      // Prevent overlapping critical UI (e.g., back-to-top on right side)
-      // Button is bottom-left; ensure it doesn't block footer actions by raising z-index and keeping distance.
     } catch (e) {
       console.error('Failed to initialize WhatsApp button', e);
     }

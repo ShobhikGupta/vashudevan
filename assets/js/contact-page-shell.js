@@ -4,8 +4,6 @@
   var toggle = document.querySelector('.nav-toggle');
   var nav = document.getElementById('site-nav');
   var submenuParents = document.querySelectorAll('.site-nav .has-submenu');
-  var backToTop = document.getElementById('back-to-top');
-  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   function closeMenu() {
     if (!nav || !toggle) return;
@@ -52,11 +50,7 @@
     });
   });
 
-  if (backToTop) {
-    backToTop.addEventListener('click', function () {
-      window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
-    });
-  }
+  // Back to top is owned globally by vmg-help.js.
 
   var form = document.getElementById('contact-form');
   if (form) {

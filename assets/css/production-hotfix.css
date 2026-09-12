@@ -387,3 +387,139 @@ html body .whatsapp-float {
 @media (max-width: 991px) and (max-height: 650px) {
   .vmg-econship-header .site-nav > ul { overflow-y: auto !important; }
 }
+
+
+/* Final global floating-action authority: one right-side stack on every public page. */
+:root {
+  --vmg-float-right: 20px;
+  --vmg-float-base: 20px;
+  --vmg-float-gap: 10px;
+  --vmg-float-circle: 52px;
+}
+
+.vmg-floating-actions {
+  position: fixed;
+  right: calc(var(--vmg-float-right) + env(safe-area-inset-right));
+  bottom: calc(var(--vmg-float-base) + env(safe-area-inset-bottom));
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--vmg-float-gap);
+  pointer-events: none;
+}
+
+html body .vmg-floating-actions > .back-to-top,
+html body .vmg-floating-actions > .vmg-call-float,
+html body .vmg-floating-actions > .whatsapp-float,
+html body .vmg-floating-actions > .vmg-help {
+  position: static !important;
+  inset: auto !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  margin: 0 !important;
+}
+
+html body .vmg-floating-actions > .vmg-help {
+  display: block !important;
+  transform: none !important;
+  pointer-events: auto;
+}
+
+.vmg-floating-actions .vmg-help-menu {
+  position: absolute !important;
+  right: 0 !important;
+  left: auto !important;
+  bottom: calc(100% + var(--vmg-float-gap)) !important;
+  top: auto !important;
+  transform-origin: bottom right !important;
+}
+
+.vmg-floating-actions .vmg-help-trigger { pointer-events: auto; }
+
+.vmg-floating-actions .back-to-top,
+.vmg-floating-actions .vmg-call-float,
+.vmg-floating-actions .whatsapp-float {
+  width: var(--vmg-float-circle) !important;
+  height: var(--vmg-float-circle) !important;
+  min-width: var(--vmg-float-circle) !important;
+  min-height: var(--vmg-float-circle) !important;
+  flex: 0 0 var(--vmg-float-circle) !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  pointer-events: auto;
+  box-shadow: 0 10px 24px rgba(3, 12, 23, .18) !important;
+  transition: opacity .16s ease, visibility .16s ease, transform .16s ease, filter .16s ease !important;
+}
+
+.vmg-floating-actions .back-to-top {
+  border: 1px solid rgba(10, 23, 40, .16) !important;
+  background: #fff !important;
+  color: #0a1728 !important;
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+.vmg-floating-actions .back-to-top:not(.visible) { display: none !important; }
+.vmg-floating-actions .back-to-top svg,
+.vmg-floating-actions .vmg-call-float svg { width: 22px; height: 22px; display: block; }
+
+.vmg-floating-actions .vmg-call-float {
+  border: 1px solid rgba(255,255,255,.22);
+  background: #0b5ea8;
+  color: #fff;
+  text-decoration: none;
+}
+
+.vmg-floating-actions .whatsapp-float {
+  overflow: hidden;
+  background: #25D366 !important;
+}
+.vmg-floating-actions .whatsapp-float img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+  transform: scale(1.08);
+}
+.vmg-floating-actions .whatsapp-tooltip { left: auto !important; right: calc(100% + 10px) !important; }
+.vmg-floating-actions .whatsapp-tooltip::before {
+  left: auto !important;
+  right: -6px !important;
+  border-color: transparent transparent transparent #111827 !important;
+}
+
+.vmg-floating-actions .back-to-top:hover,
+.vmg-floating-actions .vmg-call-float:hover,
+.vmg-floating-actions .whatsapp-float:hover { transform: translateY(-2px) !important; filter: brightness(1.03); }
+.vmg-floating-actions a:focus-visible,
+.vmg-floating-actions button:focus-visible { outline: 3px solid rgba(211,163,120,.42) !important; outline-offset: 2px; }
+
+body.vmg-help-open .vmg-floating-actions > .back-to-top,
+body.vmg-help-open .vmg-floating-actions > .vmg-call-float,
+body.vmg-help-open .vmg-floating-actions > .whatsapp-float {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.vmg-hero-passed-sentinel {
+  display: block;
+  width: 1px;
+  height: 1px;
+  margin-top: -1px;
+  pointer-events: none;
+}
+
+@media (max-width: 991px) {
+  :root {
+    --vmg-float-right: 11px;
+    --vmg-float-base: 11px;
+    --vmg-float-circle: 48px;
+  }
+}
