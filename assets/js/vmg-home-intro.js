@@ -5,7 +5,10 @@
   var LOGO_FALLBACK_SRC = '/assets/img/vmg-header-logo-combined.png';
   var HANDOFF_AT = 4.05;
   var MOVE_MS = 720;
+  var POPUP_AFTER_INTRO_MS = 7000;
   var state = null;
+  var popupTimer = 0;
+  var popupGuard = null;
 
   function isHome() {
     var path = (window.location.pathname || '/').replace(/\/{2,}/g, '/');
@@ -52,10 +55,52 @@
     proxy.style.setProperty('visibility', visible ? 'visible' : 'hidden', 'important');
   }
 
+  function suppressOpeningPopup() {
+    if (!isHome()) return;
+    try {
+      if (window.VMGOpeningPopup && typeof window.VMGOpeningPopup.isOpen === 'function' && window.VMGOpeningPopup.isOpen()) {
+        window.VMGOpeningPopup.close();
+        return;
+      }
+    } catch (_) {}
+    var overlay = document.querySelector('.opening-popup-overlay');
+    if (!overlay) return;
+    var close = overlay.querySelector('.opening-popup-close');
+    if (close) close.click();
+  }
+
+  function startPopupGuard() {
+    if (!isHome() || popupGuard || !document.body) return;
+    suppressOpeningPopup();
+    popupGuard = new MutationObserver(function () { suppressOpeningPopup(); });
+    popupGuard.observe(document.body, { childList: true, subtree: true });
+  }
+
+  function stopPopupGuard() {
+    if (!popupGuard) return;
+    popupGuard.disconnect();
+    popupGuard = null;
+  }
+
+  function schedulePopupAfterIntro() {
+    window.clearTimeout(popupTimer);
+    popupTimer = window.setTimeout(function () {
+      popupTimer = 0;
+      stopPopupGuard();
+      if (!isHome()) return;
+      if (window.VMGOpeningPopup && typeof window.VMGOpeningPopup.open === 'function') {
+        window.VMGOpeningPopup.open();
+      } else if (typeof window.initOpeningPopup === 'function') {
+        window.initOpeningPopup(0);
+      }
+    }, POPUP_AFTER_INTRO_MS);
+  }
+
   function signalIntroComplete() {
     if (!isHome()) return;
     window.__vmgHomeIntroComplete = true;
     document.dispatchEvent(new CustomEvent('vmg:home-intro-complete'));
+    schedulePopupAfterIntro();
   }
 
   function cleanup(reveal) {
@@ -141,7 +186,10 @@
       return;
     }
 
+    window.clearTimeout(popupTimer);
+    popupTimer = 0;
     window.__vmgHomeIntroComplete = false;
+    startPopupGuard();
 
     if (reducedMotion()) {
       document.documentElement.classList.remove('vmg-home-intro-pending');
