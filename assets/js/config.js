@@ -18,7 +18,7 @@
   var measurementId = 'G-6CJ7X607D5';
   var publicPaths = ['/', '/index.html', '/who-we-are.html', '/our-impact.html', '/products.html', '/product.html', '/resources.html', '/faq.html', '/contact.html', '/privacy-policy.html', '/disclaimer.html', '/market-prices', '/market-prices/', '/market-prices/index.html'];
   var path = window.location.pathname || '/';
-  if (publicPaths.indexOf(path) === -1) return;
+  if (publicPaths.indexOf(path) === -1 && path.indexOf('/materials/') !== 0 && path.indexOf('/resources/guides/') !== 0) return;
   var existingGaScript = document.querySelector('script[src*="googletagmanager.com/gtag/js?id=' + measurementId + '"]');
   if (!existingGaScript) {
     window.dataLayer = window.dataLayer || [];

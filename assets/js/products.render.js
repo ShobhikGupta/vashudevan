@@ -1,4 +1,10 @@
 (function(){
+  var VMG_MATERIAL_URLS = {
+    aluminum: '/materials/aluminium/', 'auto-scrap': '/materials/auto-scrap/', brass: '/materials/brass/', copper: '/materials/copper/',
+    'copper-bearing': '/materials/copper-bearing/', ferrous: '/materials/ferrous/', lead: '/materials/lead/',
+    'shredder-scrap': '/materials/shredder-scrap/', 'stainless-steel': '/materials/stainless-steel/', zinc: '/materials/zinc/'
+  };
+  function vmgMaterialUrl(slug) { return VMG_MATERIAL_URLS[slug] || ('product.html?slug=' + encodeURIComponent(slug)); }
   function loadCatalog() {
     try {
       if (window.__CATALOG__ && Array.isArray(window.__CATALOG__.products) && window.__CATALOG__.products.length) {
@@ -84,7 +90,7 @@
       article.className = 'card product';
 
       var link = document.createElement('a');
-      link.href = 'product.html?slug=' + encodeURIComponent(cat.slug);
+      link.href = vmgMaterialUrl(cat.slug);
       link.setAttribute('aria-label', 'View ' + displayName + ' category');
 
       var figure = document.createElement('figure');
@@ -133,7 +139,7 @@
           subproductItem.className = 'subproduct-item';
           
           var subproductLink = document.createElement('a');
-          subproductLink.href = 'product.html?slug=' + encodeURIComponent(cat.slug) + '#' + encodeURIComponent(subproduct.slug);
+          subproductLink.href = vmgMaterialUrl(cat.slug) + '#' + encodeURIComponent(subproduct.slug);
           subproductLink.textContent = subproduct.name;
           subproductLink.className = 'subproduct-link';
           
@@ -224,7 +230,7 @@
     container.innerHTML = '';
 
     var pLink = document.createElement('a');
-    pLink.href = 'product.html?slug=' + encodeURIComponent(product.slug);
+    pLink.href = vmgMaterialUrl(product.slug);
     pLink.textContent = product.name;
 
     var sep = document.createElement('span');
@@ -279,7 +285,7 @@
           article.className = 'card product';
           
           var link = document.createElement('a');
-          link.href = 'product.html?slug=' + encodeURIComponent(product.slug);
+          link.href = vmgMaterialUrl(product.slug);
           link.setAttribute('aria-label', 'View ' + displayName + ' category');
           
           var figure = document.createElement('figure');

@@ -810,6 +810,23 @@
         console.error('Could not load products data for search:', error);
       });
 
+    const materialPageUrls = {
+      'aluminum': '/materials/aluminium/',
+      'auto-scrap': '/materials/auto-scrap/',
+      'brass': '/materials/brass/',
+      'copper': '/materials/copper/',
+      'copper-bearing': '/materials/copper-bearing/',
+      'ferrous': '/materials/ferrous/',
+      'lead': '/materials/lead/',
+      'shredder-scrap': '/materials/shredder-scrap/',
+      'stainless-steel': '/materials/stainless-steel/',
+      'zinc': '/materials/zinc/'
+    };
+
+    function materialPageUrl(slug) {
+      return materialPageUrls[slug] || ('product.html?slug=' + encodeURIComponent(slug));
+    }
+
     // Advanced deep-linking search function that shows individual subproduct cards
     function searchProducts(term) {
       const searchTerm = term.toLowerCase().trim();
@@ -939,7 +956,7 @@
       card.className = 'card product subproduct-search-result highlighted';
       
       // Create deep link to parent product page with subproduct anchor
-      const deepLink = `product.html?slug=${parentProduct.slug}#${subproduct.slug}`;
+      const deepLink = `${materialPageUrl(parentProduct.slug)}#${encodeURIComponent(subproduct.slug)}`;
       
       // Highlight matching characters in subproduct name with smart color detection
       // We'll apply the highlighting after the card is created and added to DOM
@@ -1010,7 +1027,7 @@
       console.log('Stored subproduct in session storage:', subproductSlug);
       
       // Navigate to the parent product page
-      const targetUrl = `product.html?slug=${parentSlug}#${subproductSlug}`;
+      const targetUrl = `${materialPageUrl(parentSlug)}#${encodeURIComponent(subproductSlug)}`;
       console.log('Navigating to URL:', targetUrl);
       window.location.href = targetUrl;
     }
@@ -1737,7 +1754,6 @@
     safe(function(){
       var phoneInput = document.getElementById('contact');
       if (!phoneInput) {
-        console.error('Phone input element not found');
         return;
       }
       
