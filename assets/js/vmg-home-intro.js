@@ -3,13 +3,15 @@
 
   var VIDEO_SRC = '/assets/video/vmg-home-intro.mp4';
   var POSTER_SRC = '/assets/img/vmg-home-intro-poster.webp';
-  var FALLBACK_SRC = '/assets/img/vmg-home-intro-fallback.webp';
+  var FALLBACK_SRC = '/assets/img/vmg-home-intro-fallback.webp?v=20260915c';
   var LOGO_SRC = '/assets/img/vmg-combined-logo.png';
-  var MIN_VIDEO_FRAME_TIME = 0.08;
-  var VIDEO_READY_MS = 700;
+  var MIN_VIDEO_FRAME_TIME = 0.20;
+  var VIDEO_READY_MS = 1600;
+  var VIDEO_HANDOFF_AT = 4.03;
   var VIDEO_SAFETY_MS = 6500;
-  var FALLBACK_DURATION_MS = 4816;
-  var MOVE_MS = 720;
+  var FALLBACK_DURATION_MS = 3900;
+  var MOVE_MS = 460;
+  var HANDOFF_EASING = 'cubic-bezier(.22,1,.36,1)';
   var POPUP_DELAY_MS = 7000;
   var LOGO_ALPHA = { left: 30, top: 28, width: 1828, height: 665, canvasWidth: 1904, canvasHeight: 724 };
 
@@ -103,6 +105,14 @@
       try { state.video.cancelVideoFrameCallback(state.videoFrameId); } catch (_) {}
       state.videoFrameId = 0;
     }
+    if (state.videoHandoffFrameId && state.video && typeof state.video.cancelVideoFrameCallback === 'function') {
+      try { state.video.cancelVideoFrameCallback(state.videoHandoffFrameId); } catch (_) {}
+      state.videoHandoffFrameId = 0;
+    }
+    if (state.videoHandoffTimer) {
+      window.clearInterval(state.videoHandoffTimer);
+      state.videoHandoffTimer = 0;
+    }
   }
 
   function destroyState(complete) {
@@ -117,6 +127,14 @@
     }
     if (state.video) {
       try { state.video.pause(); } catch (_) {}
+    }
+    if (state.fallbackAbort) {
+      try { state.fallbackAbort.abort(); } catch (_) {}
+      state.fallbackAbort = null;
+    }
+    if (state.fallbackObjectUrl) {
+      try { window.URL.revokeObjectURL(state.fallbackObjectUrl); } catch (_) {}
+      state.fallbackObjectUrl = '';
     }
     if (state.targetImg) state.targetImg.style.opacity = '';
     window.removeEventListener('resize', state.onResize);
@@ -191,12 +209,12 @@
       state.moveAnimation = proxy.animate([
         { transform: 'translate3d(0,0,0) scale(1,1)' },
         { transform: 'translate3d(' + dx + 'px,' + dy + 'px,0) scale(' + sx + ',' + sy + ')' }
-      ], { duration: MOVE_MS, easing: 'cubic-bezier(.22,.61,.36,1)', fill: 'forwards' });
+      ], { duration: MOVE_MS, easing: HANDOFF_EASING, fill: 'forwards' });
       state.moveAnimation.onfinish = finishHandoff;
       state.moveAnimation.oncancel = function () {};
       state.handoffTimer = window.setTimeout(finishHandoff, MOVE_MS + 180);
     } else {
-      proxy.style.transition = 'transform ' + MOVE_MS + 'ms cubic-bezier(.22,.61,.36,1)';
+      proxy.style.transition = 'transform ' + MOVE_MS + 'ms ' + HANDOFF_EASING;
       window.requestAnimationFrame(function () {
         if (!state) return;
         proxy.style.transform = 'translate3d(' + dx + 'px,' + dy + 'px,0) scale(' + sx + ',' + sy + ')';
@@ -235,6 +253,36 @@
     video.setAttribute('aria-hidden', 'true');
   }
 
+  function armVideoHandoffMonitor() {
+    if (!state || state.introMode !== 'video' || !state.video || state.finishing) return;
+    var video = state.video;
+
+    if (typeof video.requestVideoFrameCallback === 'function') {
+      var watchFrame = function (_, metadata) {
+        if (!state || state.introMode !== 'video' || state.finishing) return;
+        var mediaTime = metadata && typeof metadata.mediaTime === 'number' ? metadata.mediaTime : video.currentTime;
+        if (mediaTime >= VIDEO_HANDOFF_AT) {
+          state.videoHandoffFrameId = 0;
+          handoff();
+          return;
+        }
+        try { state.videoHandoffFrameId = video.requestVideoFrameCallback(watchFrame); }
+        catch (_) { state.videoHandoffFrameId = 0; }
+      };
+      try {
+        state.videoHandoffFrameId = video.requestVideoFrameCallback(watchFrame);
+        return;
+      } catch (_) {
+        state.videoHandoffFrameId = 0;
+      }
+    }
+
+    state.videoHandoffTimer = window.setInterval(function () {
+      if (!state || state.introMode !== 'video' || state.finishing) return;
+      if (video.currentTime >= VIDEO_HANDOFF_AT) handoff();
+    }, 40);
+  }
+
   function maybeSelectVideo() {
     if (!state || state.introMode !== 'pending' || !state.playResolved || !state.frameSeen) return;
     state.introMode = 'video';
@@ -243,6 +291,7 @@
     state.readinessTimer = 0;
     state.video.classList.add('is-active');
     state.poster.classList.add('is-hidden');
+    armVideoHandoffMonitor();
     state.videoSafetyTimer = window.setTimeout(function () {
       if (state && state.introMode === 'video' && !state.finishing) handoff();
     }, VIDEO_SAFETY_MS);
@@ -317,6 +366,44 @@
     }
   }
 
+  function mountFreshFallback(src, objectUrl) {
+    if (!state || state.introMode !== 'animated-fallback' || state.finishing) {
+      if (objectUrl) {
+        try { window.URL.revokeObjectURL(objectUrl); } catch (_) {}
+      }
+      return;
+    }
+
+    if (objectUrl) state.fallbackObjectUrl = objectUrl;
+    var fallback = document.createElement('img');
+    fallback.className = 'vmg-home-intro-fallback vmg-home-intro-media';
+    fallback.alt = '';
+    fallback.setAttribute('aria-hidden', 'true');
+    fallback.decoding = 'sync';
+    fallback.loading = 'eager';
+    state.fallback = fallback;
+
+    fallback.addEventListener('load', function () {
+      if (!state || state.introMode !== 'animated-fallback' || state.finishing) return;
+      window.requestAnimationFrame(function () {
+        if (!state || state.introMode !== 'animated-fallback' || state.finishing) return;
+        fallback.classList.add('is-active');
+        state.poster.classList.add('is-hidden');
+        state.fallbackStartedAt = performance.now();
+        state.fallbackTimer = window.setTimeout(function () {
+          if (state && state.introMode === 'animated-fallback' && !state.finishing) handoff();
+        }, FALLBACK_DURATION_MS);
+      });
+    }, { once: true });
+    fallback.addEventListener('error', function () {
+      if (!state || state.finishing) return;
+      state.poster.classList.add('vmg-emergency-motion');
+      state.fallbackTimer = window.setTimeout(handoff, FALLBACK_DURATION_MS);
+    }, { once: true });
+    state.root.insertBefore(fallback, state.proxy);
+    fallback.src = src;
+  }
+
   function chooseFallback(reason) {
     if (!state || state.introMode !== 'pending') return;
     state.introMode = 'animated-fallback';
@@ -330,28 +417,28 @@
     try { state.video.pause(); } catch (_) {}
     state.video.classList.remove('is-active');
 
-    var fallback = document.createElement('img');
-    fallback.className = 'vmg-home-intro-fallback vmg-home-intro-media';
-    fallback.alt = '';
-    fallback.setAttribute('aria-hidden', 'true');
-    fallback.decoding = 'async';
-    state.fallback = fallback;
+    if (window.fetch && window.URL && typeof window.URL.createObjectURL === 'function') {
+      var controller = typeof AbortController === 'function' ? new AbortController() : null;
+      state.fallbackAbort = controller;
+      var options = { cache: 'force-cache', credentials: 'same-origin' };
+      if (controller) options.signal = controller.signal;
+      window.fetch(FALLBACK_SRC, options).then(function (response) {
+        if (!response.ok) throw new Error('fallback-http-' + response.status);
+        return response.blob();
+      }).then(function (blob) {
+        if (!state || state.introMode !== 'animated-fallback' || state.finishing) return;
+        state.fallbackAbort = null;
+        var objectUrl = window.URL.createObjectURL(blob);
+        mountFreshFallback(objectUrl, objectUrl);
+      }).catch(function (error) {
+        if (!state || state.finishing || (error && error.name === 'AbortError')) return;
+        state.fallbackAbort = null;
+        mountFreshFallback(FALLBACK_SRC, false);
+      });
+      return;
+    }
 
-    fallback.addEventListener('load', function () {
-      if (!state || state.introMode !== 'animated-fallback' || state.finishing) return;
-      fallback.classList.add('is-active');
-      state.poster.classList.add('is-hidden');
-      state.fallbackTimer = window.setTimeout(function () {
-        if (state && state.introMode === 'animated-fallback' && !state.finishing) handoff();
-      }, FALLBACK_DURATION_MS);
-    }, { once: true });
-    fallback.addEventListener('error', function () {
-      if (!state || state.finishing) return;
-      state.poster.classList.add('vmg-emergency-motion');
-      state.fallbackTimer = window.setTimeout(handoff, FALLBACK_DURATION_MS);
-    }, { once: true });
-    state.root.insertBefore(fallback, state.proxy);
-    fallback.src = FALLBACK_SRC;
+    mountFreshFallback(FALLBACK_SRC, false);
   }
 
   function start() {
@@ -411,6 +498,11 @@
       videoSafetyTimer: 0,
       handoffTimer: 0,
       videoFrameId: 0,
+      videoHandoffFrameId: 0,
+      videoHandoffTimer: 0,
+      fallbackAbort: null,
+      fallbackObjectUrl: '',
+      fallbackStartedAt: 0,
       moveAnimation: null,
       onResize: function () {},
       onVisibility: null
