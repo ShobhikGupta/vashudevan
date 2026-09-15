@@ -668,10 +668,18 @@
     start();
   }
 
-  // This script is deferred, so the parsed body/static poster already exists here.
-  // Start preparation immediately instead of waiting for unrelated page resources/DCL.
-  if (document.body) boot();
-  else document.addEventListener('DOMContentLoaded', boot, { once: true });
+  // Load asynchronously before the page styles/scripts, then start as soon as the
+  // static intro shell exists. This avoids waiting for unrelated CSS/body resources.
+  if (document.body && document.querySelector('.vmg-home-intro')) {
+    boot();
+  } else {
+    var bootObserver = new MutationObserver(function () {
+      if (!document.body || !document.querySelector('.vmg-home-intro')) return;
+      bootObserver.disconnect();
+      boot();
+    });
+    bootObserver.observe(document.documentElement, { childList: true, subtree: true });
+  }
 
   window.addEventListener('pageshow', function (event) {
     if (event.persisted && isHome()) replayAfterBFCache();
