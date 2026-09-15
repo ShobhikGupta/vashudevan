@@ -24,9 +24,25 @@
     <link rel="stylesheet" href="/assets/css/vmg-footer.css" data-vmg-footer-style="true">
     <link rel="stylesheet" href="/assets/css/vmg-responsive-polish.css?v=20260821g" data-vmg-responsive-polish="true">
     <link rel="stylesheet" href="/assets/css/vmg-header-sticky-fix.css?v=20260822b" data-vmg-header-sticky-fix="true">
-    <style>html.vmg-home-intro-pending body{visibility:hidden}</style>
-    <script>document.documentElement.classList.add('vmg-home-intro-pending');</script>
-    <script src="/assets/js/vmg-home-intro.js?v=20260912a" defer></script>
+    <link rel="preload" href="/assets/img/vmg-home-intro-poster.webp" as="image" type="image/webp" fetchpriority="high">
+    <link rel="preload" href="/assets/video/vmg-home-intro.mp4" as="video" type="video/mp4">
+    <link rel="preload" href="/assets/img/vmg-home-intro-fallback.webp" as="image" type="image/webp" fetchpriority="low">
+    <style>
+      .vmg-home-intro{position:fixed;inset:0;z-index:2147483000;background:#fff;overflow:hidden;opacity:1}
+      .vmg-home-intro-poster,.vmg-home-intro-media{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff}
+      .vmg-home-intro-poster{z-index:2;opacity:1;visibility:visible;transition:opacity 90ms linear}
+      .vmg-home-intro-poster.is-hidden{opacity:0;pointer-events:none}
+      .vmg-home-intro-media{z-index:1;opacity:0;visibility:hidden;transition:opacity 90ms linear}
+      .vmg-home-intro-media.is-active{z-index:3;opacity:1;visibility:visible}
+      .vmg-home-intro-proxy{position:fixed;z-index:4;display:block;opacity:0;visibility:hidden;pointer-events:none;overflow:visible;transform-origin:0 0;will-change:transform,opacity;backface-visibility:hidden;contain:layout paint style}
+      .vmg-home-intro-proxy>img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;object-fit:fill!important;opacity:1!important;visibility:visible!important;transition:none!important;animation:none!important;transform:none!important;filter:none!important}
+      .vmg-home-intro-skip{position:absolute;top:max(18px,env(safe-area-inset-top));right:max(18px,env(safe-area-inset-right));z-index:5;min-width:44px;min-height:44px;border:1px solid rgba(16,24,40,.14);border-radius:999px;background:rgba(255,255,255,.9);color:#344054;padding:9px 14px;font:600 12px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.01em;box-shadow:0 4px 18px rgba(16,24,40,.08);cursor:pointer;backdrop-filter:blur(8px)}
+      .vmg-home-intro-skip:hover,.vmg-home-intro-skip:focus-visible{background:#fff;color:#101828;outline:2px solid rgba(10,23,40,.24);outline-offset:2px}
+      .vmg-home-intro-poster.vmg-emergency-motion{animation:vmgEmergencyIntro 4.9s cubic-bezier(.22,.61,.36,1) both}
+      @keyframes vmgEmergencyIntro{0%{transform:translate3d(-2%,0,0) scale(.985)}45%{transform:translate3d(1%,0,0) scale(1.01)}100%{transform:translate3d(0,0,0) scale(1)}}
+      @media(max-width:600px){.vmg-home-intro-skip{top:max(14px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right));padding:8px 12px;font-size:11px}}
+    </style>
+    <script src="/assets/js/vmg-home-intro.js?v=20260913a" defer></script>
 
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Vashudevan Met Global LLP">
@@ -43,6 +59,12 @@
     <meta name="twitter:image" content="https://vashudevan.com/assets/img/vmg-open-graph.png">
   </head>
   <body class="home-view">
+    <div class="vmg-home-intro" data-vmg-intro-shell="static">
+      <img class="vmg-home-intro-poster" src="/assets/img/vmg-home-intro-poster.webp" alt="" aria-hidden="true" loading="eager" decoding="sync" fetchpriority="high">
+      <div class="vmg-home-intro-proxy" aria-hidden="true"><img src="/assets/img/vmg-combined-logo.png" alt="" loading="eager" decoding="async" fetchpriority="high"></div>
+      <button class="vmg-home-intro-skip" type="button" aria-label="Skip intro">Skip Intro</button>
+    </div>
+    <noscript><style>.vmg-home-intro{display:none!important}</style></noscript>
     <header class="site-header vmg-econship-header" data-vmg-static-header="true">
   <div class="container header-inner">
     <div class="vmg-nav-brand-row">

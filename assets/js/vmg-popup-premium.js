@@ -21,6 +21,12 @@
       path === '/market-prices/index.html';
   }
 
+  function homeIntroOwnsTiming() {
+    var path = String((window.location && window.location.pathname) || '/').replace(/\/{2,}/g, '/');
+    if (path !== '/' && path !== '/index.html') return false;
+    return window.__vmgHomeIntroComplete === false || !!document.querySelector('.vmg-home-intro');
+  }
+
   function countryApi() {
     return window.VMGCountryPhone || null;
   }
@@ -287,7 +293,7 @@
   }
 
   function openPopup() {
-    if (!isEligiblePage() || submittedThisPageLoad || active) return;
+    if (!isEligiblePage() || submittedThisPageLoad || active || homeIntroOwnsTiming()) return;
     if (document.querySelector('.opening-popup-overlay')) return;
 
     ensureStyles();
@@ -334,7 +340,7 @@
   }
 
   function scheduleInitial() {
-    if (!isEligiblePage() || submittedThisPageLoad || active) return;
+    if (!isEligiblePage() || submittedThisPageLoad || active || homeIntroOwnsTiming()) return;
     clearTimer('initial');
     initialTimer = window.setTimeout(function () {
       initialTimer = null;

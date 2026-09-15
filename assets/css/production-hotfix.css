@@ -77,10 +77,16 @@
   .country-ticker-wrap,
   .country-ticker { display: block !important; contain: paint; }
 }
+@keyframes locationsTickerReducedContinuous {
+  from { translate: 0 0; }
+  to { translate: var(--vmg-country-loop-distance) 0; }
+}
 @media (prefers-reduced-motion: reduce) {
   .country-ticker-track.vmg-country-ticker-ready {
-    animation: locationsTickerContinuous 45s linear infinite !important;
+    translate: 0 0;
+    animation: locationsTickerReducedContinuous 45s linear infinite !important;
     animation-play-state: running !important;
+    will-change: translate;
   }
 }
 
