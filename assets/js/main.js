@@ -1949,7 +1949,7 @@
       link.setAttribute('aria-label', 'Chat with us on WhatsApp');
 
       // Use the provided PNG asset (with cache-busting)
-      var logoSrc = 'assets/img/whatsapp-logo.png?v=' + Date.now();
+      var logoSrc = '/assets/img/whatsapp-logo.png?v=' + Date.now();
       link.innerHTML = '\n        <img src="' + logoSrc + '" alt="WhatsApp" decoding="async" />\n        <span class="whatsapp-tooltip">Chat with us</span>\n      ';
 
       // Ensure the image becomes visible despite global lazy opacity rule
