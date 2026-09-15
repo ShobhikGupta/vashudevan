@@ -1,15 +1,15 @@
 (function () {
   'use strict';
 
-  var VIDEO_SRC = '/assets/video/vmg-home-intro.mp4';
-  var POSTER_SRC = '/assets/img/vmg-home-intro-poster.webp';
-  var FALLBACK_SRC = '/assets/img/vmg-home-intro-fallback.webp?v=20260915c';
+  var VIDEO_SRC = '/assets/video/vmg-home-intro.mp4?v=20260916a';
+  var POSTER_SRC = '/assets/img/vmg-home-intro-poster.webp?v=20260916a';
+  var FALLBACK_SRC = '/assets/img/vmg-home-intro-fallback.webp?v=20260916a';
   var LOGO_SRC = '/assets/img/vmg-combined-logo.png';
-  var MIN_VIDEO_FRAME_TIME = 0.20;
   var VIDEO_READY_MS = 1600;
-  var VIDEO_HANDOFF_AT = 4.03;
+  var VIDEO_START_TOLERANCE = 0.08;
+  var VIDEO_HANDOFF_AT = 2.90;
   var VIDEO_SAFETY_MS = 6500;
-  var FALLBACK_DURATION_MS = 3900;
+  var FALLBACK_DURATION_MS = 2900;
   var MOVE_MS = 460;
   var HANDOFF_EASING = 'cubic-bezier(.22,1,.36,1)';
   var POPUP_DELAY_MS = 7000;
@@ -97,7 +97,7 @@
 
   function clearStateTimers() {
     if (!state) return;
-    ['readinessTimer', 'retryTimer', 'fallbackTimer', 'videoSafetyTimer', 'handoffTimer'].forEach(function (key) {
+    ['readinessTimer', 'retryTimer', 'fallbackTimer', 'videoSafetyTimer', 'handoffTimer', 'startFrameTimer', 'seekTimer'].forEach(function (key) {
       if (state[key]) window.clearTimeout(state[key]);
       state[key] = 0;
     });
@@ -112,6 +112,15 @@
     if (state.videoHandoffTimer) {
       window.clearInterval(state.videoHandoffTimer);
       state.videoHandoffTimer = 0;
+    }
+    if (state.startFrameFallbackHandler && state.video) {
+      state.video.removeEventListener('playing', state.startFrameFallbackHandler);
+      state.video.removeEventListener('timeupdate', state.startFrameFallbackHandler);
+      state.startFrameFallbackHandler = null;
+    }
+    if (state.seekHandler && state.video) {
+      state.video.removeEventListener('seeked', state.seekHandler);
+      state.seekHandler = null;
     }
   }
 
@@ -140,6 +149,10 @@
     window.removeEventListener('resize', state.onResize);
     window.removeEventListener('orientationchange', state.onResize);
     document.removeEventListener('visibilitychange', state.onVisibility);
+    if (state.onVideoReady && state.video) {
+      state.video.removeEventListener('loadeddata', state.onVideoReady);
+      state.video.removeEventListener('canplay', state.onVideoReady);
+    }
     if (document.body) document.body.style.overflow = state.previousOverflow || '';
     document.documentElement.classList.remove('vmg-home-intro-active', 'vmg-home-intro-pending');
     if (state.root && state.root.isConnected) state.root.remove();
@@ -174,6 +187,11 @@
     }
 
     state.finishing = true;
+    if (state.skip) {
+      state.skip.style.pointerEvents = 'none';
+      state.skip.remove();
+      state.skip = null;
+    }
     clearStateTimers();
     state.targetImg = target.img;
 
@@ -237,14 +255,15 @@
   }
 
   function configureVideo(video) {
-    video.autoplay = true;
+    // Prepare first; do not let autoplay silently consume the opening under the poster.
+    video.autoplay = false;
     video.muted = true;
     video.defaultMuted = true;
     video.playsInline = true;
     video.preload = 'auto';
     video.controls = false;
     video.disablePictureInPicture = true;
-    video.setAttribute('autoplay', '');
+    video.removeAttribute('autoplay');
     video.setAttribute('muted', '');
     video.setAttribute('playsinline', '');
     video.setAttribute('webkit-playsinline', '');
@@ -283,12 +302,43 @@
     }, 40);
   }
 
-  function maybeSelectVideo() {
-    if (!state || state.introMode !== 'pending' || !state.playResolved || !state.frameSeen) return;
-    state.introMode = 'video';
-    state.root.setAttribute('data-vmg-intro-mode', 'video');
+  function clearStartFrameProof() {
+    if (!state || !state.video) return;
+    if (state.videoFrameId && typeof state.video.cancelVideoFrameCallback === 'function') {
+      try { state.video.cancelVideoFrameCallback(state.videoFrameId); } catch (_) {}
+      state.videoFrameId = 0;
+    }
+    if (state.startFrameFallbackHandler) {
+      state.video.removeEventListener('playing', state.startFrameFallbackHandler);
+      state.video.removeEventListener('timeupdate', state.startFrameFallbackHandler);
+      state.startFrameFallbackHandler = null;
+    }
+    if (state.startFrameTimer) {
+      window.clearTimeout(state.startFrameTimer);
+      state.startFrameTimer = 0;
+    }
+  }
+
+  function selectPreparedVideo(mediaTime) {
+    if (!state || state.introMode !== 'pending' || state.finishing) return;
+    clearStartFrameProof();
+
+    // A warm-cache playback must still reveal from the delivered opening, never mid-animation.
+    if (mediaTime > VIDEO_START_TOLERANCE) {
+      if (state.startResets < 2) {
+        state.startResets += 1;
+        beginPreparedPlayback();
+      } else {
+        chooseFallback('late-start-frame');
+      }
+      return;
+    }
+
     window.clearTimeout(state.readinessTimer);
     state.readinessTimer = 0;
+    state.frameSeen = true;
+    state.introMode = 'video';
+    state.root.setAttribute('data-vmg-intro-mode', 'video');
     state.video.classList.add('is-active');
     state.poster.classList.add('is-hidden');
     armVideoHandoffMonitor();
@@ -297,73 +347,120 @@
     }, VIDEO_SAFETY_MS);
   }
 
-  function markFrameSeen() {
-    if (!state || state.introMode !== 'pending') return;
-    state.frameSeen = true;
-    maybeSelectVideo();
-  }
-
-  function armFrameProof() {
-    if (!state || !state.video || state.introMode !== 'pending') return;
+  function armFirstVisibleFrame() {
+    if (!state || state.introMode !== 'pending' || !state.video) return;
     var video = state.video;
+    clearStartFrameProof();
+
     if (typeof video.requestVideoFrameCallback === 'function') {
       try {
         state.videoFrameId = video.requestVideoFrameCallback(function (_, metadata) {
-          if (!state) return;
+          if (!state || state.introMode !== 'pending') return;
           state.videoFrameId = 0;
           var mediaTime = metadata && typeof metadata.mediaTime === 'number' ? metadata.mediaTime : video.currentTime;
-          if (mediaTime >= MIN_VIDEO_FRAME_TIME) markFrameSeen();
-          else armFrameProof();
+          selectPreparedVideo(mediaTime);
         });
-        return;
-      } catch (_) {}
-    }
-    var onProgress = function () {
-      if (!state) return;
-      if (video.currentTime >= MIN_VIDEO_FRAME_TIME || (!video.paused && video.readyState >= 2 && video.currentTime > 0)) {
-        video.removeEventListener('timeupdate', onProgress);
-        video.removeEventListener('playing', onProgress);
-        markFrameSeen();
+      } catch (_) {
+        state.videoFrameId = 0;
       }
-    };
-    video.addEventListener('timeupdate', onProgress);
-    video.addEventListener('playing', onProgress);
+    }
+
+    if (!state.videoFrameId) {
+      state.startFrameFallbackHandler = function () {
+        if (!state || state.introMode !== 'pending') return;
+        var mediaTime = video.currentTime || 0;
+        if (mediaTime < 0 || video.readyState < 2) return;
+        selectPreparedVideo(mediaTime);
+      };
+      video.addEventListener('playing', state.startFrameFallbackHandler);
+      video.addEventListener('timeupdate', state.startFrameFallbackHandler);
+    }
+
+    state.startFrameTimer = window.setTimeout(function () {
+      if (!state || state.introMode !== 'pending') return;
+      clearStartFrameProof();
+      if (state.playAttempts < 2) schedulePreparedRetry();
+      else chooseFallback('start-frame-timeout');
+    }, 700);
   }
 
-  function schedulePlayRetry() {
+  function resetVideoToStart(done) {
+    if (!state || state.introMode !== 'pending' || !state.video) return;
+    var video = state.video;
+    try { video.pause(); } catch (_) {}
+
+    if (state.seekTimer) window.clearTimeout(state.seekTimer);
+    if (state.seekHandler) video.removeEventListener('seeked', state.seekHandler);
+
+    var settled = false;
+    var finish = function () {
+      if (settled) return;
+      settled = true;
+      if (state && state.video) {
+        state.video.removeEventListener('seeked', finish);
+        state.seekHandler = null;
+        if (state.seekTimer) window.clearTimeout(state.seekTimer);
+        state.seekTimer = 0;
+      }
+      if (state && state.introMode === 'pending') done();
+    };
+    state.seekHandler = finish;
+    video.addEventListener('seeked', finish, { once: true });
+    var alreadyAtStart = !video.seeking && Math.abs(video.currentTime || 0) <= 0.005;
+    if (!alreadyAtStart) {
+      try { video.currentTime = 0; } catch (_) {}
+    }
+    state.seekTimer = window.setTimeout(finish, 180);
+    if (alreadyAtStart) window.requestAnimationFrame(finish);
+  }
+
+  function schedulePreparedRetry() {
     if (!state || state.introMode !== 'pending' || state.playAttempts >= 2 || state.retryScheduled) return;
     state.retryScheduled = true;
-    var retry = function () {
+    state.retryTimer = window.setTimeout(function () {
       if (!state || state.introMode !== 'pending') return;
       state.retryScheduled = false;
-      attemptPlay();
-    };
-    if (state.video.readyState >= 2) state.retryTimer = window.setTimeout(retry, 80);
-    else state.video.addEventListener('canplay', retry, { once: true });
+      beginPreparedPlayback();
+    }, 80);
   }
 
-  function attemptPlay() {
-    if (!state || state.introMode !== 'pending' || state.playAttempts >= 2) return;
+  function playPreparedVideo() {
+    if (!state || state.introMode !== 'pending' || !state.video) return;
     var video = state.video;
+    state.preparing = false;
     state.playAttempts += 1;
-    configureVideo(video);
-    armFrameProof();
+    state.playResolved = false;
+    clearStartFrameProof();
+
+    var acceptPlayback = function () {
+      if (!state || state.introMode !== 'pending') return;
+      state.playResolved = true;
+      selectPreparedVideo(video.currentTime || 0);
+    };
+
     var playResult;
     try { playResult = video.play(); } catch (_) { playResult = null; }
     if (playResult && typeof playResult.then === 'function') {
-      playResult.then(function () {
+      playResult.then(acceptPlayback).catch(function () {
         if (!state || state.introMode !== 'pending') return;
-        state.playResolved = true;
-        maybeSelectVideo();
-      }).catch(function () {
-        if (!state || state.introMode !== 'pending') return;
-        if (state.playAttempts < 2) schedulePlayRetry();
+        if (state.playAttempts < 2) schedulePreparedRetry();
         else chooseFallback('play-rejected');
       });
+    } else if (playResult === null) {
+      if (state && state.playAttempts < 2) schedulePreparedRetry();
+      else if (state) chooseFallback('play-rejected');
     } else {
-      state.playResolved = true;
-      maybeSelectVideo();
+      window.requestAnimationFrame(acceptPlayback);
     }
+  }
+
+  function beginPreparedPlayback() {
+    if (!state || state.introMode !== 'pending' || !state.video || state.preparing) return;
+    var video = state.video;
+    if (video.readyState < 3) return;
+    state.preparing = true;
+    clearStartFrameProof();
+    resetVideoToStart(playPreparedVideo);
   }
 
   function mountFreshFallback(src, objectUrl) {
@@ -483,6 +580,7 @@
       video: video,
       fallback: null,
       proxy: proxy,
+      skip: skip,
       previousOverflow: previousOverflow,
       introMode: 'pending',
       fallbackReason: '',
@@ -491,12 +589,18 @@
       playAttempts: 0,
       playResolved: false,
       frameSeen: false,
+      preparing: false,
+      startResets: 0,
       retryScheduled: false,
       readinessTimer: 0,
       retryTimer: 0,
       fallbackTimer: 0,
       videoSafetyTimer: 0,
       handoffTimer: 0,
+      startFrameTimer: 0,
+      seekTimer: 0,
+      seekHandler: null,
+      startFrameFallbackHandler: null,
       videoFrameId: 0,
       videoHandoffFrameId: 0,
       videoHandoffTimer: 0,
@@ -505,7 +609,8 @@
       fallbackStartedAt: 0,
       moveAnimation: null,
       onResize: function () {},
-      onVisibility: null
+      onVisibility: null,
+      onVideoReady: null
     };
 
     skip.addEventListener('click', finishImmediately, { once: true });
@@ -517,9 +622,13 @@
       if (state.introMode === 'pending') chooseFallback('video-error');
       else if (state.introMode === 'video') handoff();
     });
-    video.addEventListener('loadeddata', function () {
-      if (state && state.introMode === 'pending' && state.playAttempts < 2 && !state.frameSeen) schedulePlayRetry();
-    }, { once: true });
+    var onVideoReady = function () {
+      if (!state || state.introMode !== 'pending') return;
+      if (video.readyState >= 3) beginPreparedPlayback();
+    };
+    video.addEventListener('loadeddata', onVideoReady);
+    video.addEventListener('canplay', onVideoReady);
+    state.onVideoReady = onVideoReady;
 
     state.onVisibility = function () {
       if (!state || document.visibilityState !== 'visible' || state.finishing) return;
@@ -539,7 +648,7 @@
     }, VIDEO_READY_MS);
 
     video.load();
-    attemptPlay();
+    if (video.readyState >= 3) window.setTimeout(beginPreparedPlayback, 0);
   }
 
   function replayAfterBFCache() {
@@ -559,8 +668,10 @@
     start();
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
-  else boot();
+  // This script is deferred, so the parsed body/static poster already exists here.
+  // Start preparation immediately instead of waiting for unrelated page resources/DCL.
+  if (document.body) boot();
+  else document.addEventListener('DOMContentLoaded', boot, { once: true });
 
   window.addEventListener('pageshow', function (event) {
     if (event.persisted && isHome()) replayAfterBFCache();
