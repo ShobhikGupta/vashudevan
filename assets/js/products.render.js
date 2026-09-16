@@ -1,10 +1,10 @@
 (function(){
   var VMG_MATERIAL_URLS = {
-    aluminum: '/materials/aluminium/', 'auto-scrap': '/materials/auto-scrap/', brass: '/materials/brass/', copper: '/materials/copper/',
-    'copper-bearing': '/materials/copper-bearing/', ferrous: '/materials/ferrous/', lead: '/materials/lead/',
-    'shredder-scrap': '/materials/shredder-scrap/', 'stainless-steel': '/materials/stainless-steel/', zinc: '/materials/zinc/'
+    aluminum: '/products/aluminium/', 'auto-scrap': '/products/auto-scrap/', brass: '/products/brass/', copper: '/products/copper/',
+    'copper-bearing': '/products/copper-bearing/', ferrous: '/products/ferrous/', lead: '/products/lead/',
+    'shredder-scrap': '/products/shredder-scrap/', 'stainless-steel': '/products/stainless-steel/', zinc: '/products/zinc/'
   };
-  function vmgMaterialUrl(slug) { return VMG_MATERIAL_URLS[slug] || ('product.html?slug=' + encodeURIComponent(slug)); }
+  function vmgMaterialUrl(slug) { return VMG_MATERIAL_URLS[slug] || '/products/'; }
   function loadCatalog() {
     try {
       if (window.__CATALOG__ && Array.isArray(window.__CATALOG__.products) && window.__CATALOG__.products.length) {
@@ -12,7 +12,7 @@
       }
     } catch (_) {}
 
-    var url = 'assets/data/products.json?v=' + Date.now();
+    var url = '/assets/data/products.json?v=' + Date.now();
     return fetch(url, { cache: 'no-cache' })
       .then(function (r) { if (!r.ok) throw new Error('Failed to load catalog: ' + r.status); return r.json(); })
       .then(function (data) {

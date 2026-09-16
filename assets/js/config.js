@@ -16,9 +16,9 @@
   'use strict';
   if (!document || !document.head) return;
   var measurementId = 'G-6CJ7X607D5';
-  var publicPaths = ['/', '/index.html', '/who-we-are.html', '/our-impact.html', '/products.html', '/product.html', '/resources.html', '/faq.html', '/contact.html', '/privacy-policy.html', '/disclaimer.html', '/market-prices', '/market-prices/', '/market-prices/index.html'];
+  var publicPaths = ['/', '/index.html', '/about/who-we-are/', '/about/our-impact/', '/products/', '/product.html', '/resources/', '/faq/', '/contact-us/', '/privacy-policy/', '/disclaimer/', '/market/'];
   var path = window.location.pathname || '/';
-  if (publicPaths.indexOf(path) === -1 && path.indexOf('/materials/') !== 0 && path.indexOf('/resources/guides/') !== 0) return;
+  if (publicPaths.indexOf(path) === -1 && path.indexOf('/products/') !== 0 && path.indexOf('/resources/guides/') !== 0) return;
   var existingGaScript = document.querySelector('script[src*="googletagmanager.com/gtag/js?id=' + measurementId + '"]');
   if (!existingGaScript) {
     window.dataLayer = window.dataLayer || [];
@@ -146,12 +146,17 @@
       link.removeAttribute('aria-current');
       var key = link.getAttribute('data-vmg-nav-path');
       var match = (key === 'home' && (path === '/' || path === '/index.html')) ||
-        (key === 'products' && (path === '/products.html' || path === '/product.html')) ||
-        (key === 'market' && (path === '/market-prices' || path === '/market-prices/index.html')) ||
-        (key === 'resources' && (path === '/resources.html' || path === '/faq.html')) ||
-        (key === 'contact' && path === '/contact.html');
+        (key === 'products' && (path === '/products' || path.indexOf('/products/') === 0 || path === '/product.html')) ||
+        (key === 'market' && path === '/market') ||
+        (key === 'resources' && (path === '/resources' || path.indexOf('/resources/guides/') === 0 || path === '/faq')) ||
+        (key === 'contact' && path === '/contact-us');
       if (match) link.setAttribute('aria-current', 'page');
     });
+    var aboutLink = document.querySelector('#site-nav > ul > li.has-submenu > a[aria-haspopup="true"]');
+    if (aboutLink) {
+      aboutLink.removeAttribute('aria-current');
+      if (path.indexOf('/about/') === 0) aboutLink.setAttribute('aria-current', 'page');
+    }
   }
 
   function routeContactIntents() {
@@ -178,9 +183,9 @@
 
       if (!type && link.closest('.market-cta-card') && /contact us/i.test(text)) type = 'quotation';
       if (!type) return;
-      if (!/^\/contact(?:\.html)?\/?$/.test(url.pathname)) return;
+      if (!/^\/contact-us\/?$/.test(url.pathname)) return;
 
-      link.setAttribute('href', '/contact.html?type=' + type + '#contact-form');
+      link.setAttribute('href', '/contact-us/?type=' + type + '#contact-form');
     });
   }
 
@@ -302,7 +307,7 @@
   }
 
   function initContactTypeSelect() {
-    if ((window.location.pathname || '') !== '/contact.html') return;
+    if ((window.location.pathname || '') !== '/contact-us/') return;
     var typeSelect = document.getElementById('type');
     if (!typeSelect) return;
 
@@ -331,7 +336,7 @@
   }
 
   function initContactCountrySelect() {
-    if ((window.location.pathname || '') !== '/contact.html') return;
+    if ((window.location.pathname || '') !== '/contact-us/') return;
     var countrySelect = document.getElementById('country');
     if (!countrySelect || countrySelect.dataset.vmgCustomSelect === 'true') return;
     if (countrySelect.dataset.vmgCountryReady !== 'true') return;

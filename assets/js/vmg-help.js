@@ -102,10 +102,10 @@
 
     document.querySelectorAll('a').forEach(function (link) {
       var text = link.textContent.trim();
-      if (/^privacy policy$/i.test(text)) link.href = '/privacy-policy.html';
+      if (/^privacy policy$/i.test(text)) link.href = '/privacy-policy/';
       if (/^(terms\s*&\s*conditions|terms and conditions|t&c)$/i.test(text)) {
         link.textContent = 'Disclaimer';
-        link.href = '/disclaimer.html';
+        link.href = '/disclaimer/';
       }
     });
   }
@@ -120,9 +120,9 @@
     }
 
     row.innerHTML = [
-      '<a href="/faq.html">FAQ</a>',
-      '<a href="/privacy-policy.html">Privacy Policy</a>',
-      '<a href="/disclaimer.html">Disclaimer</a>'
+      '<a href="/faq/">FAQ</a>',
+      '<a href="/privacy-policy/">Privacy Policy</a>',
+      '<a href="/disclaimer/">Disclaimer</a>'
     ].join('');
     row.setAttribute('aria-label', 'FAQ and legal links');
 
@@ -147,11 +147,11 @@
       return;
     }
     list.innerHTML = [
-      '<li><a href="/faq.html">FAQ</a></li>',
-      '<li><a href="/privacy-policy.html">Privacy Policy</a></li>',
-      '<li><a href="/disclaimer.html">Disclaimer</a></li>',
+      '<li><a href="/faq/">FAQ</a></li>',
+      '<li><a href="/privacy-policy/">Privacy Policy</a></li>',
+      '<li><a href="/disclaimer/">Disclaimer</a></li>',
       '<li><a href="/Vashudevan-MetGlobal-Company-Profile.pdf" target="_blank" rel="noopener">VMG Brochure</a></li>',
-      '<li><a href="/contact.html">Contact Us</a></li>'
+      '<li><a href="/contact-us/">Contact Us</a></li>'
     ].join('');
   }
 
@@ -177,9 +177,9 @@
     }
 
     var privacyLink = document.querySelector('.privacy-link');
-    if (privacyLink) privacyLink.href = '/privacy-policy.html';
+    if (privacyLink) privacyLink.href = '/privacy-policy/';
     var smallNote = document.querySelector('.cta-join .small-note');
-    if (smallNote) smallNote.innerHTML = 'Learn about our <a href="/privacy-policy.html">Privacy Policy</a> &amp; <a href="/disclaimer.html">Disclaimer</a>';
+    if (smallNote) smallNote.innerHTML = 'Learn about our <a href="/privacy-policy/">Privacy Policy</a> &amp; <a href="/disclaimer/">Disclaimer</a>';
   }
 
   function closeMenu(restoreFocus) {
@@ -345,9 +345,9 @@
       '<div class="vmg-help-menu" id="vmg-help-menu" role="menu" aria-label="VMG help options" aria-hidden="true">',
         '<p>How can we help?</p>',
         '<a role="menuitem" href="https://wa.me/919879208178" target="_blank" rel="noopener noreferrer">WhatsApp VMG</a>',
-        '<a role="menuitem" href="/contact.html?type=callback#contact-form">Call Back Request</a>',
-        '<a role="menuitem" href="/contact.html?type=seller#contact-form">Submit Material Offer</a>',
-        '<a role="menuitem" href="/contact.html?type=buyer#contact-form">Send Buying Requirement</a>',
+        '<a role="menuitem" href="/contact-us/?type=callback#contact-form">Call Back Request</a>',
+        '<a role="menuitem" href="/contact-us/?type=seller#contact-form">Submit Material Offer</a>',
+        '<a role="menuitem" href="/contact-us/?type=buyer#contact-form">Send Buying Requirement</a>',
         '<a role="menuitem" href="mailto:exim@vashudevan.com">Email Us</a>',
         '<a role="menuitem" href="/Vashudevan-MetGlobal-Company-Profile.pdf" download="Vashudevan-MetGlobal-Company-Profile.pdf">Download VMG Brochure</a>',
       '</div>',

@@ -48,11 +48,11 @@
       <div class="vmg-footer-main">\
         <div class="vmg-footer-wrap vmg-footer-main-inner">\
           <ul class="vmg-footer-mini-links" aria-label="Footer links">\
-            <li><a href="/resources.html#faq">FAQ</a></li>\
+            <li><a href="/resources/#faq">FAQ</a></li>\
             <li><button type="button" data-vmg-legal-pending="Privacy Policy">Privacy Policy</button></li>\
             <li><button type="button" data-vmg-legal-pending="Terms &amp; Conditions">Terms &amp; Conditions</button></li>\
             <li><a href="/Vashudevan-MetGlobal-Company-Profile.pdf" target="_blank" rel="noopener">Company Profile</a></li>\
-            <li><a href="/contact.html">Contact Us</a></li>\
+            <li><a href="/contact-us/">Contact Us</a></li>\
           </ul>\
           <div class="vmg-footer-subscribe-row">\
             <div class="vmg-footer-subscribe-copy"><strong>VMG Trade Updates</strong><span>Occasional recyclable-metal market updates.</span></div>\

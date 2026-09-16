@@ -16,9 +16,7 @@
     var path = String((window.location && window.location.pathname) || '/').replace(/\/{2,}/g, '/');
     return path === '/' ||
       path === '/index.html' ||
-      path === '/market-prices' ||
-      path === '/market-prices/' ||
-      path === '/market-prices/index.html';
+      path === '/market/';
   }
 
   function homeIntroOwnsTiming() {

@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var ELIGIBLE_PATHS = ['/', '/index.html', '/market-prices', '/market-prices/', '/market-prices/index.html'];
+  var ELIGIBLE_PATHS = ['/', '/index.html', '/market/'];
   var PREVIEW_SITEKEY = '1x00000000000000000000BB';
   var PROJECT_SUFFIX = '--exquisite-hotteok-531d58.netlify.app';
   var observer = null;

@@ -73,7 +73,7 @@
 
     var privacyLabel = form.querySelector('label[for="privacy"]');
     if (privacyLabel) {
-      privacyLabel.innerHTML = 'I have read the <a href="/privacy-policy.html" class="privacy-link">Privacy Policy</a> and agree to Vashudevan MetGlobal LLP processing the information and attachments I submit to respond to my enquiry.';
+      privacyLabel.innerHTML = 'I have read the <a href="/privacy-policy/" class="privacy-link">Privacy Policy</a> and agree to Vashudevan MetGlobal LLP processing the information and attachments I submit to respond to my enquiry.';
     }
 
     function ensureScript(src, marker, done) {

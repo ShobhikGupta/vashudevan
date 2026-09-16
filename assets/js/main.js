@@ -795,7 +795,7 @@
 
     // Load products data for enhanced search
     let productsData = null;
-    fetch('assets/data/products.json')
+    fetch('/assets/data/products.json')
       .then(response => {
         if (!response.ok) {
           throw new Error('Failed to load products data: ' + response.status);
@@ -811,20 +811,20 @@
       });
 
     const materialPageUrls = {
-      'aluminum': '/materials/aluminium/',
-      'auto-scrap': '/materials/auto-scrap/',
-      'brass': '/materials/brass/',
-      'copper': '/materials/copper/',
-      'copper-bearing': '/materials/copper-bearing/',
-      'ferrous': '/materials/ferrous/',
-      'lead': '/materials/lead/',
-      'shredder-scrap': '/materials/shredder-scrap/',
-      'stainless-steel': '/materials/stainless-steel/',
-      'zinc': '/materials/zinc/'
+      'aluminum': '/products/aluminium/',
+      'auto-scrap': '/products/auto-scrap/',
+      'brass': '/products/brass/',
+      'copper': '/products/copper/',
+      'copper-bearing': '/products/copper-bearing/',
+      'ferrous': '/products/ferrous/',
+      'lead': '/products/lead/',
+      'shredder-scrap': '/products/shredder-scrap/',
+      'stainless-steel': '/products/stainless-steel/',
+      'zinc': '/products/zinc/'
     };
 
     function materialPageUrl(slug) {
-      return materialPageUrls[slug] || ('product.html?slug=' + encodeURIComponent(slug));
+      return materialPageUrls[slug] || '/products/';
     }
 
     // Advanced deep-linking search function that shows individual subproduct cards
@@ -902,7 +902,7 @@
         } else {
           console.log('Products data not loaded yet, retrying...');
           // Retry loading data if not available
-          fetch('assets/data/products.json')
+          fetch('/assets/data/products.json')
             .then(response => response.json())
             .then(data => {
               productsData = data.products;
@@ -1390,7 +1390,7 @@
   };
 
   // Contact form validation and submit via configured endpoint
-  // DISABLED: Contact form now uses inline Google Apps Script handler in contact.html
+  // DISABLED: Contact form now uses inline Google Apps Script handler in /contact-us/
   // to avoid duplicate submissions. This handler is kept for reference only.
   const form = document.getElementById('contact-form');
   if (false && form) {
@@ -2165,9 +2165,9 @@ document.addEventListener('DOMContentLoaded', function() {
     var path = normalizedPopupPath();
     return path === '/' ||
       path === '/index.html' ||
-      path === '/market-prices' ||
-      path === '/market-prices/' ||
-      path === '/market-prices/index.html';
+      path === '/market/' ||
+      path === '/market/' ||
+      path === '/market/';
   }
 
   function shouldShowPopup() {

@@ -2,13 +2,12 @@
   'use strict';
 
   var PUBLIC_PATHS = [
-    '/', '/index.html', '/who-we-are.html', '/our-impact.html', '/products.html',
-    '/product.html', '/resources.html', '/faq.html', '/contact.html', '/contact', '/contact/',
-    '/privacy-policy.html', '/disclaimer.html', '/market-prices',
-    '/market-prices/', '/market-prices/index.html'
+    '/', '/index.html', '/about/who-we-are/', '/about/our-impact/', '/products/',
+    '/resources/', '/faq/', '/contact-us/', '/privacy-policy/', '/disclaimer/', '/market/'
   ];
 
-  if (PUBLIC_PATHS.indexOf(window.location.pathname || '/') === -1) return;
+  var currentPublicPath = window.location.pathname || '/';
+  if (PUBLIC_PATHS.indexOf(currentPublicPath) === -1 && currentPublicPath.indexOf('/products/') !== 0 && currentPublicPath.indexOf('/resources/guides/') !== 0) return;
 
   var body = document.body;
   if (!body) return;
@@ -55,7 +54,7 @@
 (function () {
   'use strict';
 
-  var CONTACT_PATH_RE = /^\/contact(?:\.html)?\/?$/;
+  var CONTACT_PATH_RE = /^\/contact-us\/?$/;
   var countryTickerFrame = 0;
 
   function normalizeContactRouting() {
@@ -72,23 +71,18 @@
         url.pathname === '/contact-backup.html' || /^(Contact Us|Contact VMG Desk)$/i.test(label);
       if (!isContactDestination) return;
 
-      link.setAttribute('href', '/contact.html' + (url.search || '') + (url.hash || ''));
+      link.setAttribute('href', '/contact-us/' + (url.search || '') + (url.hash || ''));
     });
 
     var currentPath = window.location.pathname || '/';
-    if (currentPath === '/contact' || currentPath === '/contact/') {
-      window.history.replaceState(window.history.state, '', '/contact.html' + window.location.search + window.location.hash);
-      currentPath = '/contact.html';
-    }
-
-    if (currentPath === '/contact.html') {
+    if (currentPath === '/contact-us/') {
       var canonical = document.querySelector('link[rel="canonical"]');
       if (!canonical) {
         canonical = document.createElement('link');
         canonical.rel = 'canonical';
         document.head.appendChild(canonical);
       }
-      canonical.href = 'https://vashudevan.com/contact.html';
+      canonical.href = 'https://vashudevan.com/contact-us/';
     }
   }
 
