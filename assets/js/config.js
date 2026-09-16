@@ -48,7 +48,9 @@
     link.rel = 'stylesheet';
     link.href = href;
     link.setAttribute(marker, 'true');
-    document.head.appendChild(link);
+    var premium = document.querySelector('link[href*="vmg-premium-system.css"]');
+    if (premium) document.head.insertBefore(link, premium);
+    else document.head.appendChild(link);
   }
   function loadScript(src, marker) {
     if (document.querySelector('script[' + marker + ']')) return;
@@ -96,46 +98,45 @@
     chevron.innerHTML = '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M6 8l4 4 4-4"/></svg>';
   }
 
-  function ensureToast() {
-    var toast = document.querySelector('.vmg-track-toast');
-    if (toast) return toast;
-    toast = document.createElement('div');
-    toast.className = 'vmg-track-toast';
-    toast.setAttribute('role', 'status');
-    toast.setAttribute('aria-live', 'polite');
-    document.body.appendChild(toast);
-    return toast;
+  function ensureTrackStatus(trackRoot) {
+    if (!trackRoot) return null;
+    var status = trackRoot.querySelector(':scope > .vmg-track-toast');
+    if (status) return status;
+    status = document.createElement('div');
+    status.className = 'vmg-track-toast';
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
+    trackRoot.appendChild(status);
+    return status;
   }
 
-  function closeMobileNavBeforeToast(callback) {
+  function closeMobileNavAfterTrackStatus() {
     var nav = document.getElementById('site-nav');
     var toggle = document.querySelector('.nav-toggle');
     if (window.matchMedia('(max-width: 991px)').matches && nav && nav.classList.contains('open') && toggle) {
       toggle.click();
-      window.setTimeout(callback, 170);
-      return;
     }
-    callback();
   }
 
   function bindTrackForms() {
-    var toast = ensureToast();
-    var timer = null;
     document.querySelectorAll('[data-vmg-track-form]').forEach(function (form) {
       if (form.dataset.bound === 'true') return;
       form.dataset.bound = 'true';
       form.addEventListener('submit', function (event) {
         event.preventDefault();
+        var trackRoot = form.closest('.vmg-track-shipment');
+        var status = ensureTrackStatus(trackRoot);
+        if (!status) return;
         var input = form.querySelector('.vmg-track-input');
-        var message = input && input.value.trim()
-          ? 'Shipment tracking portal is coming soon. Your reference has not been submitted.'
-          : 'Shipment tracking portal is coming soon.';
-        closeMobileNavBeforeToast(function () {
-          toast.textContent = message;
-          toast.classList.add('is-visible');
-          window.clearTimeout(timer);
-          timer = window.setTimeout(function () { toast.classList.remove('is-visible'); }, 3200);
-        });
+        status.textContent = input && input.value.trim()
+          ? 'Tracking coming soon. Your reference has not been submitted.'
+          : 'Tracking coming soon.';
+        status.classList.add('is-visible');
+        window.clearTimeout(status._vmgDismissTimer);
+        status._vmgDismissTimer = window.setTimeout(function () {
+          status.classList.remove('is-visible');
+          window.setTimeout(closeMobileNavAfterTrackStatus, 170);
+        }, 2200);
       });
     });
   }

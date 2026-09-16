@@ -1765,7 +1765,8 @@
             link.id='__iti_css__'; 
             link.rel='stylesheet'; 
             link.href=href; 
-            document.head.appendChild(link); 
+            var premium=document.querySelector('link[href*="vmg-premium-system.css"]');
+            if (premium) document.head.insertBefore(link,premium); else document.head.appendChild(link);
             console.log('intl-tel-input CSS loaded');
           } 
         } catch(e) {
@@ -2582,7 +2583,8 @@ document.addEventListener('DOMContentLoaded', function() {
         link.id = '__iti_css__';
         link.rel = 'stylesheet'; 
         link.href = href; 
-        document.head.appendChild(link);
+        var premium=document.querySelector('link[href*="vmg-premium-system.css"]');
+        if (premium) document.head.insertBefore(link,premium); else document.head.appendChild(link);
       }
       
       function loadScript(src, cb){

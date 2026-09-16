@@ -16,7 +16,9 @@
       link.rel = 'stylesheet';
       link.href = '/assets/css/vmg-chatgpt-mobile-fixes.css?v=20260821h';
       link.setAttribute('data-vmg-chatgpt-mobile-fixes', 'true');
-      document.head.appendChild(link);
+      var premium = document.querySelector('link[href*="vmg-premium-system.css"]');
+      if (premium) document.head.insertBefore(link, premium);
+      else document.head.appendChild(link);
     }
 
     if (!document.querySelector('link[data-vmg-header-sticky-fix]')) {
@@ -24,7 +26,9 @@
       sticky.rel = 'stylesheet';
       sticky.href = '/assets/css/vmg-header-sticky-fix.css?v=20260822b';
       sticky.setAttribute('data-vmg-header-sticky-fix', 'true');
-      document.head.appendChild(sticky);
+      var premium = document.querySelector('link[href*="vmg-premium-system.css"]');
+      if (premium) document.head.insertBefore(sticky, premium);
+      else document.head.appendChild(sticky);
     }
 
     if (!document.querySelector('link[data-vmg-header-combined]')) {
@@ -32,7 +36,9 @@
       combined.rel = 'stylesheet';
       combined.href = '/assets/css/vmg-header-combined.css?v=20260907a';
       combined.setAttribute('data-vmg-header-combined', 'true');
-      document.head.appendChild(combined);
+      var premium = document.querySelector('link[href*="vmg-premium-system.css"]');
+      if (premium) document.head.insertBefore(combined, premium);
+      else document.head.appendChild(combined);
     }
   }
 
@@ -91,6 +97,8 @@
     ];
 
     document.querySelectorAll('a, button, h1, h2, h3, h4, .section-label, .eyebrow').forEach(function (element) {
+      // FAQ visible copy must remain byte/meaning aligned with its FAQPage JSON-LD.
+      if (element.closest && element.closest('.faq-list')) return;
       replaceTextNodes(element, brochureReplacements);
       ['aria-label', 'title'].forEach(function (attribute) {
         var value = element.getAttribute && element.getAttribute(attribute);

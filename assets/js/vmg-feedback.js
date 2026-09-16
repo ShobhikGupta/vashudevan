@@ -7,7 +7,9 @@
     link.rel='stylesheet';
     link.href=href;
     link.setAttribute(marker,'true');
-    document.head.appendChild(link);
+    var premium=document.querySelector('link[href*="vmg-premium-system.css"]');
+    if (premium) document.head.insertBefore(link,premium);
+    else document.head.appendChild(link);
   }
 
   function ensureScript(src, marker) {
