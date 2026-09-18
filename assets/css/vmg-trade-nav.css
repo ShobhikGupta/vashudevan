@@ -71,22 +71,38 @@
 .vmg-track-title {
   flex: 0 0 auto;
   color: #0a1728;
-  font-size: .91rem;
-  font-weight: 720;
+  font-size: .86rem;
+  font-weight: 700;
   white-space: nowrap;
 }
 
 .vmg-track-form {
   display: grid;
-  grid-template-columns: minmax(170px,225px) auto;
+  grid-template-columns: 38px minmax(0,1fr) 72px;
   align-items: stretch;
-  min-width: 0;
+  width: 330px;
+  min-width: 330px;
+  height: 44px;
+  min-height: 44px;
+  flex: 0 0 330px;
+  box-sizing: border-box;
   overflow: hidden;
   border: 1px solid #cfd7e1;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #fff;
-  box-shadow: 0 3px 10px rgba(15,23,42,.035);
+  box-shadow: none;
   transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.vmg-track-form::before {
+  content: "";
+  grid-column: 1;
+  grid-row: 1;
+  width: 38px;
+  height: 100%;
+  min-height: 0;
+  background: center/17px 17px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23526173' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='10.5' cy='10.5' r='5.5'/%3E%3Cpath d='m15 15 4 4'/%3E%3Cpath d='M8 8.5h5M8 11.5h3.5'/%3E%3C/svg%3E");
+  pointer-events: none;
 }
 
 .vmg-track-form:focus-within {
@@ -95,9 +111,11 @@
 }
 
 .vmg-track-input {
+  grid-column: 2;
+  grid-row: 1;
   min-width: 0;
-  height: 42px;
-  padding: 0 12px;
+  height: 100%;
+  padding: 0 10px 0 0;
   border: 0;
   outline: 0;
   color: #0f172a;
@@ -106,19 +124,26 @@
   font-size: .82rem;
 }
 
-.vmg-track-input::placeholder { color: #9aa5b4; }
+.vmg-track-input::placeholder { color: #8b98aa; }
 
 .vmg-track-button {
+  grid-column: 3;
+  grid-row: 1;
+  width: 72px;
   min-width: 72px;
+  height: 100%;
+  min-height: 0;
   border: 0;
-  border-left: 1px solid rgba(184,121,67,.18);
-  padding: 0 14px;
+  border-left: 1px solid rgba(10,23,40,.08);
+  border-radius: 0;
+  padding: 0 12px;
   color: #fff;
   background: #b87943;
   font: inherit;
   font-size: .82rem;
-  font-weight: 760;
+  font-weight: 700;
   cursor: pointer;
+  box-shadow: none;
   transition: background-color 180ms ease;
 }
 
@@ -126,34 +151,6 @@
 .vmg-track-button:focus-visible {
   background: #9e6739;
   outline: none;
-}
-
-.vmg-track-toast {
-  position: fixed;
-  top: 146px;
-  left: 50%;
-  z-index: 1200;
-  min-width: min(360px,calc(100% - 32px));
-  padding: 13px 16px;
-  transform: translate(-50%,-8px);
-  opacity: 0;
-  visibility: hidden;
-  border: 1px solid #d9e0e8;
-  border-left: 3px solid #b87943;
-  border-radius: 10px;
-  background: #fff;
-  color: #0a1728;
-  box-shadow: 0 16px 34px rgba(10,23,40,.14);
-  font-size: .88rem;
-  font-weight: 650;
-  text-align: center;
-  transition: opacity 180ms ease, transform 180ms ease, visibility 180ms ease;
-}
-
-.vmg-track-toast.is-visible {
-  opacity: 1;
-  visibility: visible;
-  transform: translate(-50%,0);
 }
 
 .vmg-econship-header .nav-toggle { display:none; }
@@ -301,7 +298,9 @@
   }
   .vmg-track-shipment {gap:8px}
   .vmg-track-title {font-size:.82rem}
-  .vmg-track-form {grid-template-columns:minmax(135px,180px) auto}
+  .vmg-track-form {width:285px;min-width:285px;flex-basis:285px;grid-template-columns:34px minmax(0,1fr) 68px}
+  .vmg-track-form::before {width:34px;background-size:16px 16px}
+  .vmg-track-button {width:68px;min-width:68px}
   .vmg-track-input {font-size:.76rem}
 }
 
@@ -415,13 +414,15 @@
   }
   .vmg-mobile-tracker-item .vmg-track-form {
     width:100%;
-    grid-template-columns:minmax(0,1fr) auto;
-    border-color:rgba(255,255,255,.2);
-    background:rgba(255,255,255,.07);
+    min-width:0;
+    flex:0 1 auto;
+    grid-template-columns:38px minmax(0,1fr) 72px;
+    border-color:rgba(255,255,255,.22);
+    background:#fff;
     box-shadow:none;
   }
-  .vmg-mobile-tracker-item .vmg-track-input {color:#fff;background:transparent}
-  .vmg-mobile-tracker-item .vmg-track-input::placeholder {color:rgba(255,255,255,.48)}
+  .vmg-mobile-tracker-item .vmg-track-input {color:#0f172a;background:transparent}
+  .vmg-mobile-tracker-item .vmg-track-input::placeholder {color:#8b98aa}
 
   .vmg-econship-header .site-nav > ul > li:not(.vmg-mobile-tracker-item) {
     width:100%;
@@ -499,8 +500,6 @@
     background:rgba(255,255,255,.035);
     padding-left:17px;
   }
-
-  .vmg-track-toast {top:78px}
 }
 
 @media (max-width:430px) {
@@ -517,6 +516,5 @@
   .vmg-econship-header .site-nav > ul,
   .vmg-econship-header .site-nav > ul > li > a,
   .vmg-econship-header .site-nav .submenu,
-  .vmg-track-toast,
   .vmg-track-form {transition:none}
 }

@@ -160,25 +160,60 @@ Rules:
 - Current product audit: Related Guidance sections are often compact-content sections using standard padding; these should move to Compact density.
 ## 7. Alignment Rules
 
-Alignment should follow information hierarchy, not a site-wide “center everything” rule.
+**Centred for presentation. Left-aligned for reading.**
 
-### Center by default
+VMG should retain a premium, centred/symmetrical presentation without centring dense information that people need to scan or read.
 
-- Primary marketing hero.
-- Major final conversion CTA where appropriate.
-- Trust/member/verification presentation when the layout benefits from symmetry.
-- Locations/map presentation where the map is the focal object.
+### Centred presentation mode
 
-### Left-align by default
+Keep these visually centred where appropriate:
 
-- Editorial and guide sections.
-- Documentation and Resources content.
-- Product/material explanatory sections.
-- Grade/search-term explanation sections.
-- Legal/policy long-form sections.
-- Long FAQ/context blocks where reading flow matters.
+- Hero eyebrow, H1, subtitle, and the primary hero CTA group.
+- Major section-introduction headings.
+- Category and catalogue section headings.
+- Related Guidance headings.
+- Major final CTA headings.
+- Locations title/presentation.
+- Trust/member/verification presentation.
 
-Cards may have locally centered elements when semantically appropriate, but a centered card grid does not require every section heading and paragraph to be centered.
+### Left-aligned reading mode
+
+Within content areas, keep actual reading content left aligned:
+
+- Paragraphs and bullet lists.
+- Card body text.
+- Product captions.
+- Enquiry instructions.
+- Legal and policy copy.
+- FAQ questions/answers.
+- Documentation and detailed Resources copy.
+
+Never centre long paragraphs or dense informational text.
+
+### Premium two-column / four-quadrant rule
+
+For sections that visually resemble four imaginary quadrants, do not try to fill every quadrant. Use controlled asymmetry.
+
+Preferred pattern:
+
+- **Left side:** eyebrow, section heading, body copy, and an optional important note/callout.
+- **Right side:** supporting card, checklist, enquiry requirements, or supporting visual/information.
+
+The unused lower-right area may remain empty. Empty space is intentional; do not insert filler merely to create symmetry.
+
+For product Material Overview sections, preserve the balanced two-column split: left-side explanatory content and callout, right-side supporting enquiry/checklist card. The section can feel visually balanced while the reading content itself remains left aligned.
+
+### Product-page hierarchy
+
+- Hero: centred.
+- Material Overview: balanced two-column split; reading content left aligned.
+- Grades & Search Terms: section introduction centred; individual cards left aligned internally.
+- Current Catalogue: section introduction centred; grid aligned to the container; captions left aligned.
+- Related Guidance: centred.
+- Final CTA: centred or balanced within the existing layout.
+- Trust: centred.
+
+Guides and Resources retain their premium hierarchy, but article/operational copy remains left aligned. Privacy, Disclaimer, FAQ, and other long-form content remain left aligned for reading.
 ## 8. Button System
 
 All buttons belong to one visual family, but different button roles must remain distinct.
@@ -460,15 +495,16 @@ Header requirements:
 - Social icons should be optically equal in size even when source marks differ.
 - Utility controls may be visually compact but must remain accessible.
 
-### Track Shipment audit
+### Track Shipment status
 
-Current root cause of the “Coming Soon” message following the page:
+Track Shipment is an informational utility until an actual shipment-tracking backend exists.
 
-- `assets/js/config.js` creates `.vmg-track-toast`, appends it directly to `document.body`, and currently dismisses it after about 3200ms.
-- `assets/css/vmg-trade-nav.css` positions `.vmg-track-toast` as `fixed` (desktop around `top:146px`, with a mobile top override).
-- A later hotfix layer also enforces fixed positioning/z-index.
-
-Future target: place/anchor the status directly below the relevant Track control, keep it attached to the header/control area so it scrolls away with that area, and auto-close after about **2–2.5 seconds**. Do not let it follow the visitor down the page.
+- The input and Track action should read as one compact integrated control.
+- The typed BL / Container / CTO reference must not be submitted or exposed to any shipment API.
+- Status uses one reusable `.vmg-track-status-rail` owned by the header, positioned directly below the navigation without adding document-flow height.
+- The notice enters quickly from the left, remains stationary for reading, and exits left; repeated Track actions reuse the same notice and restart its timer.
+- Reduced-motion users receive fade-only status feedback with no horizontal travel.
+- The status must never become an independent viewport-fixed toast that follows the visitor down the page.
 ## 21. Floating Actions / Need Help
 
 Normal stack order remains:

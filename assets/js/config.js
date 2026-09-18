@@ -98,24 +98,86 @@
     chevron.innerHTML = '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M6 8l4 4 4-4"/></svg>';
   }
 
-  function ensureTrackStatus(trackRoot) {
-    if (!trackRoot) return null;
-    var status = trackRoot.querySelector(':scope > .vmg-track-toast');
+  var TRACK_STATUS_MESSAGE = 'Online shipment tracking is being prepared. For current BL / Container / CTO status, contact the VMG Desk.';
+  var TRACK_ENTRY_MS = 280;
+  var TRACK_READING_MS = 3400;
+  var TRACK_EXIT_MS = 240;
+
+  function ensureTrackStatus() {
+    var header = document.querySelector('.site-header.vmg-econship-header');
+    if (!header) return null;
+    var status = header.querySelector(':scope > .vmg-track-status-rail');
     if (status) return status;
     status = document.createElement('div');
-    status.className = 'vmg-track-toast';
+    status.className = 'vmg-track-status-rail';
     status.setAttribute('role', 'status');
     status.setAttribute('aria-live', 'polite');
-    trackRoot.appendChild(status);
+    status.setAttribute('aria-atomic', 'true');
+    status.textContent = TRACK_STATUS_MESSAGE;
+    status.hidden = true;
+    header.appendChild(status);
+    status._vmgScrollBound = true;
+    window.addEventListener('scroll', function () {
+      if (!window.matchMedia('(max-width: 991px)').matches) return;
+      if (!status.classList.contains('is-visible') && !status.classList.contains('is-exiting')) return;
+      var startY = typeof status._vmgStartScrollY === 'number' ? status._vmgStartScrollY : window.scrollY;
+      status.style.setProperty('--vmg-track-scroll-offset', (startY - window.scrollY) + 'px');
+    }, { passive: true });
     return status;
   }
 
-  function closeMobileNavAfterTrackStatus() {
+  function clearTrackStatusTimers(status) {
+    if (!status) return;
+    window.clearTimeout(status._vmgReadTimer);
+    window.clearTimeout(status._vmgHideTimer);
+    status._vmgReadTimer = 0;
+    status._vmgHideTimer = 0;
+  }
+
+  function closeMobileNavForTrack() {
     var nav = document.getElementById('site-nav');
     var toggle = document.querySelector('.nav-toggle');
     if (window.matchMedia('(max-width: 991px)').matches && nav && nav.classList.contains('open') && toggle) {
       toggle.click();
+      return true;
     }
+    return false;
+  }
+
+  function showTrackStatus() {
+    var status = ensureTrackStatus();
+    if (!status) return;
+
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var entryDuration = reducedMotion ? 160 : TRACK_ENTRY_MS;
+    var exitDuration = reducedMotion ? 160 : TRACK_EXIT_MS;
+    var wasVisible = status.classList.contains('is-visible') && !status.classList.contains('is-exiting');
+    var wasExiting = status.classList.contains('is-exiting');
+
+    clearTrackStatusTimers(status);
+    status.hidden = false;
+    status.textContent = TRACK_STATUS_MESSAGE;
+    status._vmgStartScrollY = window.scrollY;
+    status.style.setProperty('--vmg-track-scroll-offset', '0px');
+    status.classList.remove('is-exiting');
+
+    if (!wasVisible) {
+      if (!wasExiting) {
+        status.classList.remove('is-visible');
+        void status.offsetWidth;
+      }
+      status.classList.add('is-visible');
+    }
+
+    status._vmgReadTimer = window.setTimeout(function () {
+      status.classList.remove('is-visible');
+      status.classList.add('is-exiting');
+      status._vmgHideTimer = window.setTimeout(function () {
+        status.classList.remove('is-exiting');
+        status.hidden = true;
+        status.style.removeProperty('--vmg-track-scroll-offset');
+      }, exitDuration);
+    }, (wasVisible ? 0 : entryDuration) + TRACK_READING_MS);
   }
 
   function bindTrackForms() {
@@ -124,19 +186,9 @@
       form.dataset.bound = 'true';
       form.addEventListener('submit', function (event) {
         event.preventDefault();
-        var trackRoot = form.closest('.vmg-track-shipment');
-        var status = ensureTrackStatus(trackRoot);
-        if (!status) return;
-        var input = form.querySelector('.vmg-track-input');
-        status.textContent = input && input.value.trim()
-          ? 'Tracking coming soon. Your reference has not been submitted.'
-          : 'Tracking coming soon.';
-        status.classList.add('is-visible');
-        window.clearTimeout(status._vmgDismissTimer);
-        status._vmgDismissTimer = window.setTimeout(function () {
-          status.classList.remove('is-visible');
-          window.setTimeout(closeMobileNavAfterTrackStatus, 170);
-        }, 2200);
+        var closedMobileNav = closeMobileNavForTrack();
+        if (closedMobileNav) window.setTimeout(showTrackStatus, 220);
+        else showTrackStatus();
       });
     });
   }
