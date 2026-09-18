@@ -1,0 +1,44 @@
+/* PR #12: combined VMG header brand only. */
+.vmg-econship-header .logo.vmg-logo-combined {
+  gap: 0 !important;
+  min-width: 0;
+  line-height: 0;
+}
+
+.vmg-econship-header .logo.vmg-logo-combined .vmg-header-logo-combined {
+  display: block;
+  width: clamp(190px, 18vw, 216px) !important;
+  max-width: 100%;
+  height: auto !important;
+  object-fit: contain;
+  object-position: center;
+  flex: 0 1 auto;
+}
+
+@media (max-width: 1100px) and (min-width: 992px) {
+  .vmg-econship-header .logo.vmg-logo-combined .vmg-header-logo-combined {
+    width: 190px !important;
+    height: auto !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .vmg-econship-header .logo.vmg-logo-combined {
+    min-width: 0;
+    justify-content: flex-start;
+  }
+
+  .vmg-econship-header .logo.vmg-logo-combined .vmg-header-logo-combined {
+    width: min(170px, calc(100vw - 92px)) !important;
+    max-width: 100%;
+    height: auto !important;
+    flex: 0 1 auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .vmg-econship-header .logo.vmg-logo-combined .vmg-header-logo-combined {
+    width: min(154px, calc(100vw - 84px)) !important;
+    height: auto !important;
+  }
+}

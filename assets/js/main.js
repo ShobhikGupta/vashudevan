@@ -189,49 +189,7 @@
     initSmoothScrolling();
   }
 
-  // Back to top button functionality
-  function initBackToTop() {
-    const backToTopButton = document.getElementById('back-to-top');
-    if (!backToTopButton) return;
-
-    // Show/hide button based on scroll position
-    function toggleBackToTop() {
-      // Get footer position for more accurate threshold
-      const footer = document.querySelector('.site-footer');
-      const footerTop = footer ? footer.offsetTop : 800;
-      const threshold = footerTop - window.innerHeight + 200; // 200px before footer comes into view
-      
-      if (window.scrollY > threshold) {
-        backToTopButton.classList.add('visible');
-        document.body.classList.add('scroll-top-visible');
-      } else {
-        backToTopButton.classList.remove('visible');
-        // Remove class immediately when scrolling up past footer
-        document.body.classList.remove('scroll-top-visible');
-      }
-    }
-
-    // Scroll to top when clicked
-    backToTopButton.addEventListener('click', function() {
-      window.scrollTo({
-        top: 0,
-        behavior: prefersReducedMotion.matches ? 'auto' : 'smooth'
-      });
-    });
-
-    // Listen for scroll events
-    window.addEventListener('scroll', toggleBackToTop, { passive: true });
-    
-    // Initial check
-    toggleBackToTop();
-  }
-
-  // Initialize back to top when DOM is loaded
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initBackToTop);
-  } else {
-    initBackToTop();
-  }
+  // Back to top visibility/click behaviour is owned globally by vmg-help.js.
 
   // Hero Carousel functionality
   function initHeroCarousel() {
@@ -837,7 +795,7 @@
 
     // Load products data for enhanced search
     let productsData = null;
-    fetch('assets/data/products.json')
+    fetch('/assets/data/products.json')
       .then(response => {
         if (!response.ok) {
           throw new Error('Failed to load products data: ' + response.status);
@@ -851,6 +809,23 @@
       .catch(error => {
         console.error('Could not load products data for search:', error);
       });
+
+    const materialPageUrls = {
+      'aluminum': '/products/aluminium/',
+      'auto-scrap': '/products/auto-scrap/',
+      'brass': '/products/brass/',
+      'copper': '/products/copper/',
+      'copper-bearing': '/products/copper-bearing/',
+      'ferrous': '/products/ferrous/',
+      'lead': '/products/lead/',
+      'shredder-scrap': '/products/shredder-scrap/',
+      'stainless-steel': '/products/stainless-steel/',
+      'zinc': '/products/zinc/'
+    };
+
+    function materialPageUrl(slug) {
+      return materialPageUrls[slug] || '/products/';
+    }
 
     // Advanced deep-linking search function that shows individual subproduct cards
     function searchProducts(term) {
@@ -927,7 +902,7 @@
         } else {
           console.log('Products data not loaded yet, retrying...');
           // Retry loading data if not available
-          fetch('assets/data/products.json')
+          fetch('/assets/data/products.json')
             .then(response => response.json())
             .then(data => {
               productsData = data.products;
@@ -981,7 +956,7 @@
       card.className = 'card product subproduct-search-result highlighted';
       
       // Create deep link to parent product page with subproduct anchor
-      const deepLink = `product.html?slug=${parentProduct.slug}#${subproduct.slug}`;
+      const deepLink = `${materialPageUrl(parentProduct.slug)}#${encodeURIComponent(subproduct.slug)}`;
       
       // Highlight matching characters in subproduct name with smart color detection
       // We'll apply the highlighting after the card is created and added to DOM
@@ -1052,7 +1027,7 @@
       console.log('Stored subproduct in session storage:', subproductSlug);
       
       // Navigate to the parent product page
-      const targetUrl = `product.html?slug=${parentSlug}#${subproductSlug}`;
+      const targetUrl = `${materialPageUrl(parentSlug)}#${encodeURIComponent(subproductSlug)}`;
       console.log('Navigating to URL:', targetUrl);
       window.location.href = targetUrl;
     }
@@ -1415,7 +1390,7 @@
   };
 
   // Contact form validation and submit via configured endpoint
-  // DISABLED: Contact form now uses inline Google Apps Script handler in contact.html
+  // DISABLED: Contact form now uses inline Google Apps Script handler in /contact-us/
   // to avoid duplicate submissions. This handler is kept for reference only.
   const form = document.getElementById('contact-form');
   if (false && form) {
@@ -1779,7 +1754,6 @@
     safe(function(){
       var phoneInput = document.getElementById('contact');
       if (!phoneInput) {
-        console.error('Phone input element not found');
         return;
       }
       
@@ -1791,7 +1765,8 @@
             link.id='__iti_css__'; 
             link.rel='stylesheet'; 
             link.href=href; 
-            document.head.appendChild(link); 
+            var premium=document.querySelector('link[href*="vmg-premium-system.css"]');
+            if (premium) document.head.insertBefore(link,premium); else document.head.appendChild(link);
             console.log('intl-tel-input CSS loaded');
           } 
         } catch(e) {
@@ -1975,7 +1950,7 @@
       link.setAttribute('aria-label', 'Chat with us on WhatsApp');
 
       // Use the provided PNG asset (with cache-busting)
-      var logoSrc = 'assets/img/whatsapp-logo.png?v=' + Date.now();
+      var logoSrc = '/assets/img/whatsapp-logo.png?v=' + Date.now();
       link.innerHTML = '\n        <img src="' + logoSrc + '" alt="WhatsApp" decoding="async" />\n        <span class="whatsapp-tooltip">Chat with us</span>\n      ';
 
       // Ensure the image becomes visible despite global lazy opacity rule
@@ -1990,8 +1965,6 @@
       // Append near end of body
       (document.body || document.documentElement).appendChild(link);
 
-      // Prevent overlapping critical UI (e.g., back-to-top on right side)
-      // Button is bottom-left; ensure it doesn't block footer actions by raising z-index and keeping distance.
     } catch (e) {
       console.error('Failed to initialize WhatsApp button', e);
     }
@@ -2171,40 +2144,53 @@ document.addEventListener('DOMContentLoaded', function() {
   } catch(_){ }
 });
 
-// Opening popup form (auto after load, once per user)
+// Opening popup form (Home + Market; document-lifecycle state)
 (function(){
-  var STORAGE_KEY = 'openingPopupCompleted';
   var SHOW_DELAY_MS = 2000;
+  var REOPEN_DELAY_MS = 45000;
+  var submittedThisPageLoad = false;
+  var isPopupOpen = false;
+  var popupReopenTimer = null;
+  var initialPopupTimer = null;
 
-  function isHomePage() {
+  function normalizedPopupPath() {
     try {
       var path = (window.location && window.location.pathname) ? window.location.pathname : '/';
-      if (path === '/' || path === '') return true;
-      // Handle common index paths both on server and local file URLs
-      if (path === '/index.html' || path === 'index.html') return true;
-      if (path.slice(-11) === '/index.html') return true;
+      if (!path) return '/';
+      return path.replace(/\/{2,}/g, '/');
     } catch(e) {}
-    return false;
+    return '/';
   }
 
-  function hasCompleted() {
-    // Single source of truth: localStorage only
-    try {
-      return localStorage.getItem(STORAGE_KEY) === '1';
-    } catch(e) {}
-    return false;
+  function isPopupEligiblePage() {
+    var path = normalizedPopupPath();
+    return path === '/' ||
+      path === '/index.html' ||
+      path === '/market/' ||
+      path === '/market/' ||
+      path === '/market/';
   }
 
   function shouldShowPopup() {
-    // Only show on home page and if user has not already completed the popup
-    if (!isHomePage()) return false;
-    if (hasCompleted()) return false;
-    return true;
+    return isPopupEligiblePage() && !submittedThisPageLoad && !isPopupOpen;
   }
 
-  function markCompleted() {
-    // Persist completion once; localStorage is enough for this static site
-    try { localStorage.setItem(STORAGE_KEY, '1'); } catch(e) {}
+  function clearPopupReopenTimer() {
+    if (popupReopenTimer === null) return;
+    window.clearTimeout(popupReopenTimer);
+    popupReopenTimer = null;
+  }
+
+  function schedulePopupReopen() {
+    clearPopupReopenTimer();
+    if (!isPopupEligiblePage() || submittedThisPageLoad) return;
+
+    popupReopenTimer = window.setTimeout(function(){
+      popupReopenTimer = null;
+      if (!submittedThisPageLoad && !isPopupOpen) {
+        createPopup();
+      }
+    }, REOPEN_DELAY_MS);
   }
 
   function buildCountryOptions() {
@@ -2462,6 +2448,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     overlay.appendChild(card);
     document.body.appendChild(overlay);
+    clearPopupReopenTimer();
+    isPopupOpen = true;
 
     // Lock body scroll while popup is open
     var __prevBodyOverflow = document.body.style.overflow;
@@ -2595,7 +2583,8 @@ document.addEventListener('DOMContentLoaded', function() {
         link.id = '__iti_css__';
         link.rel = 'stylesheet'; 
         link.href = href; 
-        document.head.appendChild(link);
+        var premium=document.querySelector('link[href*="vmg-premium-system.css"]');
+        if (premium) document.head.insertBefore(link,premium); else document.head.appendChild(link);
       }
       
       function loadScript(src, cb){
@@ -2794,10 +2783,11 @@ document.addEventListener('DOMContentLoaded', function() {
     })();
 
     function removePopup() {
-      if (!card) return;
+      if (!isPopupOpen) return;
+      isPopupOpen = false;
       card.classList.add('fade-out');
       setTimeout(function(){
-        overlay.remove();
+        if (overlay.isConnected) overlay.remove();
         // Restore body scroll
         document.body.style.overflow = __prevBodyOverflow || '';
       }, 240);
@@ -2857,8 +2847,9 @@ document.addEventListener('DOMContentLoaded', function() {
     updateSubmitState();
 
     function onClose() {
-      // Just close the popup; completion is only recorded on successful submit
+      if (!isPopupOpen) return;
       removePopup();
+      schedulePopupReopen();
     }
 
     // Prevent overlay clicks from dismissing the popup or interacting with the page
@@ -2880,16 +2871,17 @@ document.addEventListener('DOMContentLoaded', function() {
       var values = { country: country, phone: phone, email: email };
       if (!validate(values)) return;
 
+      submittedThisPageLoad = true;
+      clearPopupReopenTimer();
       submitBtn.disabled = true;
 
       // Prepare data and send to Google Apps Script used on the site
       var scriptUrl = (window.AppConfig && window.AppConfig.googleScriptUrl) || '';
       if (!scriptUrl) {
-        // fallback: mark completed so we don't annoy users
+        // Preserve the existing client-side thank-you behavior if no endpoint is configured.
         successEl.style.display = 'block';
         successEl.textContent = "Thank you! Your details have been submitted.";
-        markCompleted();
-        setTimeout(onClose, 1600);
+        setTimeout(removePopup, 1600);
         return;
       }
 
@@ -2997,16 +2989,25 @@ document.addEventListener('DOMContentLoaded', function() {
         // User feedback
         successEl.style.display = 'block';
         successEl.textContent = "Thank you! Your details have been submitted.";
-        markCompleted();
-        setTimeout(onClose, 1400);
+        setTimeout(removePopup, 1400);
       } finally {
         setTimeout(function(){ submitBtn.disabled = false; }, 1600);
       }
     });
   }
 
-  window.initOpeningPopup = function initOpeningPopup(){
-    if (!shouldShowPopup()) return;
-    setTimeout(createPopup, SHOW_DELAY_MS);
+  window.initLegacyOpeningPopup = function initLegacyOpeningPopup(){
+    if (!isPopupEligiblePage() || submittedThisPageLoad) return;
+
+    if (initialPopupTimer !== null) {
+      window.clearTimeout(initialPopupTimer);
+    }
+
+    initialPopupTimer = window.setTimeout(function(){
+      initialPopupTimer = null;
+      if (!submittedThisPageLoad) {
+        createPopup();
+      }
+    }, SHOW_DELAY_MS);
   };
 })();

@@ -1,3 +1,10 @@
+
+var VMG_SIMPLE_PRODUCT_URLS = {
+  aluminum: '/products/aluminium/', 'auto-scrap': '/products/auto-scrap/', brass: '/products/brass/', copper: '/products/copper/',
+  'copper-bearing': '/products/copper-bearing/', ferrous: '/products/ferrous/', lead: '/products/lead/',
+  'shredder-scrap': '/products/shredder-scrap/', 'stainless-steel': '/products/stainless-steel/', zinc: '/products/zinc/'
+};
+
 // Simple products render script
 console.log('Simple products render script loaded');
 
@@ -5,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('DOM loaded, starting products render');
     
     // Load products from JSON
-    fetch('assets/data/products.json')
+    fetch('/assets/data/products.json')
         .then(response => {
             console.log('Response status:', response.status);
             if (!response.ok) {
@@ -47,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
         
         if (slug) {
             // Load products and find the matching one
-            fetch('assets/data/products.json')
+            fetch('/assets/data/products.json')
                 .then(response => response.json())
                 .then(data => {
                     var product = data.products.find(function(p) { return p.slug === slug; });
@@ -91,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 article.setAttribute('data-subproduct-slug', subproduct.slug);
                                 
                                 var link = document.createElement('a');
-                                link.href = 'product.html?slug=' + encodeURIComponent(product.slug) + '#' + encodeURIComponent(subproduct.slug);
+                                link.href = (VMG_SIMPLE_PRODUCT_URLS[product.slug] || '/products/') + '#' + encodeURIComponent(subproduct.slug);
                                 link.setAttribute('aria-label', subproduct.name);
                                 
                                 var figure = document.createElement('figure');

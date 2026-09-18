@@ -57,52 +57,12 @@
     reveals.forEach(function (element) { observer.observe(element); });
   }
 
-  function initTradeDocket(reducedMotion) {
+  function initTradeDocket() {
     var docket = document.querySelector('[data-trade-docket]');
     if (!docket) return;
     var status = docket.querySelector('[data-docket-status]');
-    var printButton = docket.querySelector('[data-docket-print]');
-    var printLabel = docket.querySelector('[data-docket-print-label]');
-    var timers = [];
-    var labels = {
-      idle: 'Ready To Print',
-      processing: 'Preparing Trade Docket',
-      printing: 'Generating Supply-Chain Process',
-      complete: 'Trade Docket Ready'
-    };
-    var buttonLabels = {
-      idle: 'Print Trade Docket',
-      processing: 'Processing…',
-      printing: 'Printing…',
-      complete: 'Print Again'
-    };
-
-    function clearTimers() {
-      timers.forEach(function (timer) { window.clearTimeout(timer); });
-      timers = [];
-    }
-
-    function setStage(stage) {
-      docket.setAttribute('data-stage', stage);
-      if (status) status.textContent = labels[stage];
-      if (printLabel) printLabel.textContent = buttonLabels[stage];
-    }
-
-    function run() {
-      clearTimers();
-      if (reducedMotion) {
-        setStage('complete');
-        return;
-      }
-      setStage('processing');
-      timers.push(window.setTimeout(function () {
-        setStage('printing');
-        timers.push(window.setTimeout(function () { setStage('complete'); }, 2050));
-      }, 520));
-    }
-
-    if (printButton) printButton.addEventListener('click', run);
-    setStage('idle');
+    docket.setAttribute('data-stage', 'complete');
+    if (status) status.textContent = 'Trade Docket Ready';
   }
 
   function initFaq() {
@@ -135,7 +95,7 @@
     var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     initTabs();
     initReveals(reducedMotion);
-    initTradeDocket(reducedMotion);
+    initTradeDocket();
     initFaq();
   }
 
