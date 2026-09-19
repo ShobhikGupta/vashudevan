@@ -308,11 +308,12 @@ export async function runResearchJob(jobId:string){
 }
 
 export async function exportReport(report:any,type:string){
-  const r=report.report_json||{},company=r.identity?.legal_name||report.company?.legal_name||"Company",evidence=report.evidence_rows||r.evidence||[],sources=report.source_rows||[];
+  const r=report.report_json||{},defs=report.report_defaults||{},company=r.identity?.legal_name||report.company?.legal_name||"Company",evidence=report.evidence_rows||r.evidence||[],sources=report.source_rows||[];
   const periods=Array.isArray(r.financials?.periods)?r.financials.periods:[];
   const last=periods.at(-1)||{};
   const pick=(obj:any,keys:string[])=>{for(const k of keys)if(obj?.[k]!=null&&obj[k]!=="")return obj[k];return"UNKNOWN"};
-  const val=(v:any)=>v==null||v===""?"UNKNOWN":typeof v==="object"?Array.isArray(v)?v.map((x:any)=>typeof x==="object"?(x.name||x.material||x.finding||JSON.stringify(x)):x).join(", "):JSON.stringify(v):String(v);
+  const val=(v:any)=>{if(v==null||v==="")return"UNKNOWN";if(v&&typeof v==="object"&&!Array.isArray(v)&&"value" in v){const suffix=[v.currency,v.unit].filter(Boolean).join(" ");return String(v.value??"UNKNOWN")+(suffix?" "+suffix:"")}return typeof v==="object"?Array.isArray(v)?v.map((x:any)=>typeof x==="object"?(x.name||x.material||x.finding||("value" in x?val(x):JSON.stringify(x))):x).join(", "):JSON.stringify(v):String(v)};
+  const num=(v:any)=>typeof v==="number"?v:(v&&typeof v==="object"&&typeof v.value==="number"?v.value:NaN);
   const keyFinancials=[
     ["Revenue",pick(last,["revenue","turnover","sales"])],["EBITDA",pick(last,["ebitda"])],["PAT",pick(last,["pat","net_profit","profit_after_tax"])],
     ["Operating Cash Flow",pick(last,["operating_cash_flow","ocf","cash_from_operations"])],["Net Worth",pick(last,["net_worth","networth"])],["Debt",r.debt?.summary||pick(last,["debt","total_debt","borrowings"])]
@@ -321,11 +322,11 @@ export async function exportReport(report:any,type:string){
   const credit=(evidence.find((x:any)=>x.finding_key==="risk.credit_safety")?.value_json)||"CREDIT SAFETY NOT SUFFICIENTLY VERIFIED";
   const opportunity=(r.opportunities||[])[0]?.finding||(r.opportunities||[])[0]?.opportunity||(r.procurement||[])[0]?.material||"UNKNOWN";
   const sections:any[]=[
-    ["Identity",r.identity],["Directors & Ownership",{directors:r.directors,ownership:r.ownership}],["Business",r.business],["Operations",r.operations],
-    ["Financials",r.financials],["Debt & Charges",{debt:r.debt,charges:r.charges}],["Credit Ratings",r.credit_ratings],["Legal & Insolvency",{legal:r.legal,insolvency:r.insolvency}],
-    ["Trade",{trade:r.trade,buyers:r.buyers,suppliers:r.suppliers}],["Competitors",r.competitors],["Procurement",r.procurement],["Commercial Opportunity",r.opportunities],
-    ["Risks",r.risks],["Information Gaps",r.information_gaps],["Management Takeaways",r.management_takeaways]
-  ];
+    ["Identity",r.identity,true],["Directors & Ownership",{directors:r.directors,ownership:r.ownership},true],["Business",r.business,true],["Operations",r.operations,true],
+    ["Financials",r.financials,defs.five_year_financials!==false],["Debt & Charges",{debt:r.debt,charges:r.charges},defs.credit_safety!==false],["Credit Ratings",r.credit_ratings,defs.credit_safety!==false],["Legal & Insolvency",{legal:r.legal,insolvency:r.insolvency},true],
+    ["Trade",{trade:r.trade,buyers:r.buyers,suppliers:r.suppliers},true],["Competitors",r.competitors,defs.competitor_analysis!==false],["Procurement",r.procurement,defs.procurement_opportunity!==false],["Commercial Opportunity",r.opportunities,defs.procurement_opportunity!==false],
+    ["Risks",r.risks,defs.credit_safety!==false],["Information Gaps",r.information_gaps,defs.information_gaps!==false],["Management Takeaways",r.management_takeaways,defs.management_takeaways!==false]
+  ].filter((x:any)=>x[2]);
   const flatten=(x:any,prefix=""):{key:string,value:string}[]=>{
     if(x==null)return[{key:prefix||"Value",value:"UNKNOWN"}];
     if(Array.isArray(x))return x.flatMap((v,i)=>flatten(v,`${prefix}${prefix?" ":""}#${i+1}`));
@@ -341,15 +342,14 @@ export async function exportReport(report:any,type:string){
     const text=(t:string,size=9,b=false,x=margin)=>{const F=b?bold:font;for(const raw of String(t||"").split("\n")){const words=raw.split(/\s+/),max=W-margin-x;let line="";for(const w of words){const test=line?line+" "+w:w;if(F.widthOfTextAtSize(test,size)>max&&line){page.drawText(line,{x,y,size,font:F,color:rgb(.09,.12,.18)});y-=size+4;line=w}else line=test}if(line){page.drawText(line,{x,y,size,font:F,color:rgb(.09,.12,.18)});y-=size+4}if(y<58)newPage()}};
     const rule=()=>{page.drawLine({start:{x:margin,y},end:{x:W-margin,y},thickness:.6,color:rgb(.82,.79,.74)});y-=10};
     text("VMG COMPANY INTELLIGENCE",9,true);text(company,21,true);text(`Research date: ${String(report.created_at||"").slice(0,10)}   •   Evidence coverage: ${report.evidence_coverage??"N/A"}%   •   Sources: ${report.source_count??sources.length}`,9);y-=7;rule();
-    text("KEY FINANCIALS",10,true);for(const [k,v] of keyFinancials){text(`${k}: ${val(v)}`,10,k==="Revenue"||k==="Debt")}y-=4;
-    text("CREDIT / PAYMENT SAFETY",10,true);text(val(credit),10);y-=4;text("MAIN CONCERN",10,true);text(val(mainConcern),10);y-=4;text("MAIN COMMERCIAL OPPORTUNITY",10,true);text(val(opportunity),10);
-    if(periods.length>=2){
+    if(defs.executive_summary!==false){if(defs.five_year_financials!==false){text("KEY FINANCIALS",10,true);for(const [k,v] of keyFinancials){text(`${k}: ${val(v)}`,10,k==="Revenue"||k==="Debt")}y-=4}if(defs.credit_safety!==false){text("CREDIT / PAYMENT SAFETY",10,true);text(val(credit),10);y-=4}text("MAIN CONCERN",10,true);text(val(mainConcern),10);if(defs.procurement_opportunity!==false){y-=4;text("MAIN COMMERCIAL OPPORTUNITY",10,true);text(val(opportunity),10)}}
+    if(defs.graphs!==false&&defs.five_year_financials!==false&&periods.length>=2){
       newPage();text("FINANCIAL TRENDS",15,true);text("Charts use only numeric values present in the structured report. Missing values are not fabricated.",8);y-=10;
-      const drawChart=(title:string,keys:string[])=>{const vals=periods.map((p:any,i:number)=>({label:p.period||p.fy||p.year||String(i+1),value:Number(pick(p,keys))})).filter((x:any)=>Number.isFinite(x.value));text(title,10,true);if(vals.length<2){text("Insufficient Verified Data",9);y-=14;return}const cw=480,ch=110,cx=margin,cy=y-ch;const min=Math.min(...vals.map((x:any)=>x.value)),max=Math.max(...vals.map((x:any)=>x.value)),span=max-min||1;const pts=vals.map((x:any,i:number)=>({x:cx+i*(cw/(vals.length-1)),y:cy+15+(x.value-min)/span*(ch-30)}));for(let i=1;i<pts.length;i++)page.drawLine({start:pts[i-1],end:pts[i],thickness:1.7,color:rgb(.19,.37,.62)});for(const p of pts)page.drawCircle({x:p.x,y:p.y,size:2.4,color:rgb(.19,.37,.62)});for(let i=0;i<vals.length;i++)page.drawText(String(vals[i].label),{x:pts[i].x-8,y:cy,size:7,font,color:rgb(.45,.49,.55)});y=cy-18;if(y<170)newPage()};
+      const drawChart=(title:string,keys:string[])=>{const vals=periods.map((p:any,i:number)=>({label:p.period||p.fy||p.year||String(i+1),value:num(pick(p,keys))})).filter((x:any)=>Number.isFinite(x.value));text(title,10,true);if(vals.length<2){text("Insufficient Verified Data",9);y-=14;return}const cw=480,ch=110,cx=margin,cy=y-ch;const min=Math.min(...vals.map((x:any)=>x.value)),max=Math.max(...vals.map((x:any)=>x.value)),span=max-min||1;const pts=vals.map((x:any,i:number)=>({x:cx+i*(cw/(vals.length-1)),y:cy+15+(x.value-min)/span*(ch-30)}));for(let i=1;i<pts.length;i++)page.drawLine({start:pts[i-1],end:pts[i],thickness:1.7,color:rgb(.19,.37,.62)});for(const p of pts)page.drawCircle({x:p.x,y:p.y,size:2.4,color:rgb(.19,.37,.62)});for(let i=0;i<vals.length;i++)page.drawText(String(vals[i].label),{x:pts[i].x-8,y:cy,size:7,font,color:rgb(.45,.49,.55)});y=cy-18;if(y<170)newPage()};
       drawChart("Revenue Trend",["revenue","turnover","sales"]);drawChart("Profit Trend",["pat","net_profit","profit_after_tax"]);drawChart("Operating Cash Flow",["operating_cash_flow","ocf","cash_from_operations"]);
     }
     for(const [title,data] of sections){newPage();text(String(title).toUpperCase(),14,true);rule();for(const row of flatten(data).slice(0,80)){text(row.key,8,true);text(row.value,9);y-=2}}
-    newPage();text("SOURCE / EVIDENCE REGISTER",14,true);rule();for(const ev of evidence.slice(0,100)){text(`${ev.label||ev.finding_key||"Finding"} [${ev.evidence_class||"UNKNOWN"} | ${ev.confidence||"INSUFFICIENT"}]`,8,true);text(`${val(ev.value_json??ev.value)}${ev.period?" • "+ev.period:""}`,8)}if(sources.length){y-=7;text("SOURCES",10,true);for(const src of sources.slice(0,100)){text(src.title||src.url,8,true);text(`${src.publisher||""} ${src.url||""}`,7)}}
+    if(defs.evidence_labels!==false||defs.sources!==false){newPage();text("SOURCE / EVIDENCE REGISTER",14,true);rule();if(defs.evidence_labels!==false)for(const ev of evidence.slice(0,100)){text(`${ev.label||ev.finding_key||"Finding"} [${ev.evidence_class||"UNKNOWN"} | ${ev.confidence||"INSUFFICIENT"}]`,8,true);text(`${val(ev.value_json??ev.value)}${ev.period?" • "+ev.period:""}`,8)}if(defs.sources!==false&&sources.length){y-=7;text("SOURCES",10,true);for(const src of sources.slice(0,100)){text(src.title||src.url,8,true);text(`${src.publisher||""} ${src.url||""}`,7)}}}
     return{bytes:await pdf.save(),mime:"application/pdf",ext:"pdf"};
   }
 
@@ -358,15 +358,11 @@ export async function exportReport(report:any,type:string){
       new Paragraph({text:"VMG Company Intelligence",heading:HeadingLevel.TITLE}),
       new Paragraph({text:company,heading:HeadingLevel.HEADING_1}),
       new Paragraph({text:`Research date: ${String(report.created_at||"").slice(0,10)} | Evidence coverage: ${report.evidence_coverage??"N/A"}% | Sources: ${report.source_count??sources.length}`}),
-      new Paragraph({text:"Executive Summary",heading:HeadingLevel.HEADING_1}),
-      ...keyFinancials.map(([k,v])=>new Paragraph({text:`${k}: ${val(v)}`})),
-      new Paragraph({text:"Credit / Payment Safety",heading:HeadingLevel.HEADING_2}),new Paragraph({text:val(credit)}),
-      new Paragraph({text:"Main Concern",heading:HeadingLevel.HEADING_2}),new Paragraph({text:val(mainConcern)}),
-      new Paragraph({text:"Main Commercial Opportunity",heading:HeadingLevel.HEADING_2}),new Paragraph({text:val(opportunity)})
+      ...(defs.executive_summary!==false?[new Paragraph({text:"Executive Summary",heading:HeadingLevel.HEADING_1}),...(defs.five_year_financials!==false?keyFinancials.map(([k,v])=>new Paragraph({text:`${k}: ${val(v)}`})) : []),...(defs.credit_safety!==false?[new Paragraph({text:"Credit / Payment Safety",heading:HeadingLevel.HEADING_2}),new Paragraph({text:val(credit)})]:[]),new Paragraph({text:"Main Concern",heading:HeadingLevel.HEADING_2}),new Paragraph({text:val(mainConcern)}),...(defs.procurement_opportunity!==false?[new Paragraph({text:"Main Commercial Opportunity",heading:HeadingLevel.HEADING_2}),new Paragraph({text:val(opportunity)})]:[])]:[])
     ];
     for(const [title,data] of sections){children.push(new Paragraph({text:String(title),heading:HeadingLevel.HEADING_1}));for(const row of flatten(data).slice(0,120))children.push(new Paragraph({text:`${row.key}: ${row.value}`}))}
-    children.push(new Paragraph({text:"Evidence Register",heading:HeadingLevel.HEADING_1}));for(const ev of evidence.slice(0,150))children.push(new Paragraph({text:`${ev.label||ev.finding_key||"Finding"} | ${ev.evidence_class||"UNKNOWN"} | ${ev.confidence||"INSUFFICIENT"} | ${val(ev.value_json??ev.value)}`}));
-    children.push(new Paragraph({text:"Sources",heading:HeadingLevel.HEADING_1}));for(const src of sources.slice(0,150))children.push(new Paragraph({text:`${src.title||src.url} — ${src.url||""}`}));
+    if(defs.evidence_labels!==false){children.push(new Paragraph({text:"Evidence Register",heading:HeadingLevel.HEADING_1}));for(const ev of evidence.slice(0,150))children.push(new Paragraph({text:`${ev.label||ev.finding_key||"Finding"} | ${ev.evidence_class||"UNKNOWN"} | ${ev.confidence||"INSUFFICIENT"} | ${val(ev.value_json??ev.value)}`}))}
+    if(defs.sources!==false){children.push(new Paragraph({text:"Sources",heading:HeadingLevel.HEADING_1}));for(const src of sources.slice(0,150))children.push(new Paragraph({text:`${src.title||src.url} — ${src.url||""}`}))}
     return{bytes:await Packer.toBuffer(new Document({sections:[{children}]})),mime:"application/vnd.openxmlformats-officedocument.wordprocessingml.document",ext:"docx"};
   }
 
@@ -374,8 +370,8 @@ export async function exportReport(report:any,type:string){
     const wb=XLSX.utils.book_new();
     const add=(name:string,rows:any[])=>XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows.length?rows:[{Status:"No verified data"}]),name.slice(0,31));
     const arr=(v:any)=>Array.isArray(v)?v:(v==null?[]:[v]);const objRows=(v:any)=>arr(v).map((x:any)=>typeof x==="object"?x:{value:x});
-    add("Executive Summary",[{Company:company,ResearchDate:report.created_at,EvidenceCoverage:report.evidence_coverage,SourceCount:report.source_count,CreditSafety:val(credit),MainConcern:val(mainConcern),MainOpportunity:val(opportunity)}]);
-    add("Identity",objRows(r.identity));add("Directors",objRows(r.directors));add("Ownership",objRows(r.ownership));add("Financials",objRows(periods));add("Ratios",objRows(r.financials?.ratios));add("Debt & Charges",[...objRows(r.debt?.borrowings),...objRows(r.charges)]);add("Credit Ratings",objRows(r.credit_ratings));add("Legal",[...objRows(r.legal),...objRows(r.insolvency)]);add("Trade",[...objRows(r.trade?.imports),...objRows(r.trade?.exports)]);add("Buyers",objRows(r.buyers));add("Suppliers",objRows(r.suppliers));add("Competitors",objRows(r.competitors));add("Procurement",objRows(r.procurement));add("Evidence",objRows(evidence));add("Sources",objRows(sources));
+    if(defs.executive_summary!==false)add("Executive Summary",[{Company:company,ResearchDate:report.created_at,EvidenceCoverage:report.evidence_coverage,SourceCount:report.source_count,CreditSafety:val(credit),MainConcern:val(mainConcern),MainOpportunity:val(opportunity)}]);
+    add("Identity",objRows(r.identity));add("Directors",objRows(r.directors));add("Ownership",objRows(r.ownership));if(defs.five_year_financials!==false){add("Financials",objRows(periods));add("Ratios",objRows(r.financials?.ratios))}if(defs.credit_safety!==false){add("Debt & Charges",[...objRows(r.debt?.borrowings),...objRows(r.charges)]);add("Credit Ratings",objRows(r.credit_ratings))}add("Legal",[...objRows(r.legal),...objRows(r.insolvency)]);add("Trade",[...objRows(r.trade?.imports),...objRows(r.trade?.exports)]);add("Buyers",objRows(r.buyers));add("Suppliers",objRows(r.suppliers));if(defs.competitor_analysis!==false)add("Competitors",objRows(r.competitors));if(defs.procurement_opportunity!==false)add("Procurement",objRows(r.procurement));if(defs.evidence_labels!==false)add("Evidence",objRows(evidence));if(defs.sources!==false)add("Sources",objRows(sources));
     return{bytes:XLSX.write(wb,{type:"buffer",bookType:"xlsx"}),mime:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",ext:"xlsx"};
   }
   throw new Error("type must be pdf, docx or xlsx");
