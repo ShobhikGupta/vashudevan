@@ -36,7 +36,28 @@ export const TEMPLATE_RULES:Record<string,string>={
   quick_company_check:"Use a lower-depth screening: exact identity, business, approximate scale only where evidenced, material red flags, latest financial/credit signals, and whether full due diligence is warranted."
 };
 
+export const TEMPLATE_GROUPS:Record<string,string[]>={
+  vmg_full_due_diligence:["identity","business","financial","legal","trade","market"],
+  credit_counterparty_safety:["identity","financial","legal","trade"],
+  supplier_due_diligence:["identity","business","financial","legal","market"],
+  buyer_intelligence:["identity","business","financial","legal","trade"],
+  procurement_opportunity:["identity","business","trade","market"],
+  quick_company_check:["identity","business","financial","legal"]
+};
+
 export function templateInstruction(key:string){return TEMPLATE_RULES[key]||TEMPLATE_RULES.vmg_full_due_diligence}
+export function templateGroups(key:string){return TEMPLATE_GROUPS[key]||TEMPLATE_GROUPS.vmg_full_due_diligence}
+export function enabledStagesForGroup(g:any,defaults:any){
+  const map:Record<number,boolean>={
+    2:true,3:defaults.directors_promoters!==false,4:true,
+    5:true,6:true,7:true,8:true,9:true,
+    10:defaults.debt_charges!==false,11:defaults.debt_charges!==false,12:defaults.credit_ratings!==false,
+    13:defaults.litigation_insolvency!==false,14:defaults.litigation_insolvency!==false,21:defaults.negative_signals!==false,
+    15:defaults.imports_exports!==false,16:defaults.buyers_suppliers!==false,17:defaults.buyers_suppliers!==false,
+    18:defaults.competitors!==false,19:defaults.procurement!==false,20:defaults.procurement!==false
+  };
+  return g.stages.filter((n:number)=>map[n]!==false);
+}
 
 export function env(name:string){ try{return Netlify.env.get(name)||""}catch{return""} }
 export function config(){
@@ -102,34 +123,39 @@ export async function researchStrategy(){
 export async function uploadStorage(path:string,bytes:ArrayBuffer,mime:string){const c=config();if(!c.supabaseUrl||!c.supabaseSecret)throw new Error("Supabase is not configured.");const r=await fetch(`${c.supabaseUrl}/storage/v1/object/company-documents/${path}`,{method:"POST",headers:{apikey:c.supabaseSecret,authorization:`Bearer ${c.supabaseSecret}`,"content-type":mime||"application/octet-stream","x-upsert":"false"},body:bytes});const t=await r.text();if(!r.ok)throw new Error(`Storage ${r.status}: ${t.slice(0,500)}`);return t?JSON.parse(t):{}}
 
 export async function recordUsage(provider:string,operation:string,success:boolean,meta:any={}){
-  try{const ws=await workspace();await insert("provider_usage",{workspace_id:ws.id,usage_day:dayKey(),provider,operation,request_count:1,success,prompt_tokens:meta.prompt_tokens||null,output_tokens:meta.output_tokens||null,estimated_cost_usd:meta.estimated_cost_usd??null,metadata:meta.metadata||{}},false)}catch{}
+  try{const ws=await workspace();await insert("provider_usage",{
+    workspace_id:ws.id,research_job_id:meta.research_job_id||null,usage_day:dayKey(),provider,model:meta.model||null,operation,
+    request_count:1,search_calls:meta.search_calls||0,tavily_credits:meta.tavily_credits||0,success,
+    prompt_tokens:meta.prompt_tokens||null,output_tokens:meta.output_tokens||null,duration_ms:meta.duration_ms||meta.metadata?.duration_ms||null,
+    estimated_cost_usd:meta.estimated_cost_usd??null,metadata:meta.metadata||{}
+  },false)}catch{}
 }
 function geminiText(p:any){return (p?.candidates?.[0]?.content?.parts||[]).map((x:any)=>x.text||"").join("\n").trim()}
 function geminiSources(p:any){const out:any[]=[],seen=new Set<string>();for(const ch of p?.candidates?.[0]?.groundingMetadata?.groundingChunks||[]){const w=ch?.web;if(w?.uri&&!seen.has(w.uri)){seen.add(w.uri);out.push({title:w.title||w.uri,url:w.uri,publisher:w.title||""})}}return out}
-export async function geminiGrounded(prompt:string){
+export async function geminiGrounded(prompt:string,researchJobId:string|null=null){
   const key=await providerSecret("gemini");if(!key)throw new Error("Research provider is not configured. Connect Gemini in Settings.");
-  const start=Date.now();const r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},body:JSON.stringify({contents:[{role:"user",parts:[{text:prompt}]}],tools:[{google_search:{}}],generationConfig:{temperature:.15}})});const p=await r.json();if(!r.ok){await recordUsage("gemini","grounded_search",false,{metadata:{status:r.status}});throw new Error(`Gemini ${r.status}: ${JSON.stringify(p).slice(0,600)}`)}const u=p?.usageMetadata||{};await recordUsage("gemini","grounded_search",true,{prompt_tokens:u.promptTokenCount,output_tokens:u.candidatesTokenCount,metadata:{duration_ms:Date.now()-start}});return{text:geminiText(p),sources:geminiSources(p)}
+  const start=Date.now();const r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},body:JSON.stringify({contents:[{role:"user",parts:[{text:prompt}]}],tools:[{google_search:{}}],generationConfig:{temperature:.15}})});const p=await r.json();if(!r.ok){await recordUsage("gemini","grounded_search",false,{research_job_id:researchJobId,model:"gemini-2.5-flash",search_calls:1,metadata:{status:r.status}});throw new Error(`Gemini ${r.status}: ${JSON.stringify(p).slice(0,600)}`)}const u=p?.usageMetadata||{};const gc=await providerConnection("gemini");const geminiCost=gc?.billing_mode==="paid"?(Number(u.promptTokenCount||0)/1e6*.30+Number(u.candidatesTokenCount||0)/1e6*2.50):0;await recordUsage("gemini","grounded_search",true,{research_job_id:researchJobId,model:"gemini-2.5-flash",search_calls:1,prompt_tokens:u.promptTokenCount,output_tokens:u.candidatesTokenCount,duration_ms:Date.now()-start,estimated_cost_usd:geminiCost});return{text:geminiText(p),sources:geminiSources(p)}
 }
-export async function geminiJson(prompt:string){
+export async function geminiJson(prompt:string,researchJobId:string|null=null){
   const key=await providerSecret("gemini");if(!key)throw new Error("Research provider is not configured. Connect Gemini in Settings.");
-  const r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},body:JSON.stringify({contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{temperature:.05,responseMimeType:"application/json"}})});const p=await r.json();if(!r.ok){await recordUsage("gemini","structured_synthesis",false,{metadata:{status:r.status}});throw new Error(`Gemini ${r.status}: ${JSON.stringify(p).slice(0,600)}`)}const u=p?.usageMetadata||{};await recordUsage("gemini","structured_synthesis",true,{prompt_tokens:u.promptTokenCount,output_tokens:u.candidatesTokenCount});const t=geminiText(p);try{return JSON.parse(t)}catch{const m=t.match(/\{[\s\S]*\}/);if(!m)throw new Error("Gemini returned invalid JSON.");return JSON.parse(m[0])}}
-export async function tavily(query:string){const key=await providerSecret("tavily");if(!key)return{text:"",sources:[]};const r=await fetch("https://api.tavily.com/search",{method:"POST",headers:{"content-type":"application/json",authorization:`Bearer ${key}`},body:JSON.stringify({query,search_depth:"advanced",max_results:8,include_answer:true})});const p=await r.json();if(!r.ok){await recordUsage("tavily","search",false,{metadata:{status:r.status}});throw new Error(`Tavily ${r.status}`)}await recordUsage("tavily","search",true);const sources=(p.results||[]).map((x:any)=>({title:x.title||x.url,url:x.url,publisher:(()=>{try{return new URL(x.url).hostname}catch{return""}})(),snippet:String(x.content||"").slice(0,500)}));return{text:[p.answer||"",...sources.map((s:any)=>`${s.title}: ${s.snippet}`)].join("\n"),sources}}
+  const r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},body:JSON.stringify({contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{temperature:.05,responseMimeType:"application/json"}})});const p=await r.json();if(!r.ok){await recordUsage("gemini","structured_synthesis",false,{research_job_id:researchJobId,model:"gemini-2.5-flash",metadata:{status:r.status}});throw new Error(`Gemini ${r.status}: ${JSON.stringify(p).slice(0,600)}`)}const u=p?.usageMetadata||{};const gc=await providerConnection("gemini");const geminiCost=gc?.billing_mode==="paid"?(Number(u.promptTokenCount||0)/1e6*.30+Number(u.candidatesTokenCount||0)/1e6*2.50):0;await recordUsage("gemini","structured_synthesis",true,{research_job_id:researchJobId,model:"gemini-2.5-flash",prompt_tokens:u.promptTokenCount,output_tokens:u.candidatesTokenCount,estimated_cost_usd:geminiCost});const t=geminiText(p);try{return JSON.parse(t)}catch{const m=t.match(/\{[\s\S]*\}/);if(!m)throw new Error("Gemini returned invalid JSON.");return JSON.parse(m[0])}}
+export async function tavily(query:string,researchJobId:string|null=null){const key=await providerSecret("tavily");if(!key)return{text:"",sources:[]};const r=await fetch("https://api.tavily.com/search",{method:"POST",headers:{"content-type":"application/json",authorization:`Bearer ${key}`},body:JSON.stringify({query,search_depth:"advanced",max_results:8,include_answer:true})});const p=await r.json();if(!r.ok){await recordUsage("tavily","search",false,{research_job_id:researchJobId,model:"advanced-search",search_calls:1,tavily_credits:2,metadata:{status:r.status}});throw new Error(`Tavily ${r.status}`)}const tc=await providerConnection("tavily");await recordUsage("tavily","search",true,{research_job_id:researchJobId,model:"advanced-search",search_calls:1,tavily_credits:2,estimated_cost_usd:tc?.billing_mode==="paid"?.016:0});const sources=(p.results||[]).map((x:any)=>({title:x.title||x.url,url:x.url,publisher:(()=>{try{return new URL(x.url).hostname}catch{return""}})(),snippet:String(x.content||"").slice(0,500)}));return{text:[p.answer||"",...sources.map((s:any)=>`${s.title}: ${s.snippet}`)].join("\n"),sources}}
 
 function openAIText(p:any){if(typeof p?.output_text==="string")return p.output_text;return (p?.output||[]).flatMap((o:any)=>o?.content||[]).map((c:any)=>c?.text||"").join("\n").trim()}
 function openAISources(p:any){const out:any[]=[],seen=new Set<string>();for(const o of p?.output||[])for(const c of o?.content||[])for(const a of c?.annotations||[]){const u=a?.url||a?.url_citation?.url,t=a?.title||a?.url_citation?.title||u;if(u&&!seen.has(u)){seen.add(u);out.push({title:t||u,url:u,publisher:(()=>{try{return new URL(u).hostname}catch{return""}})()})}}return out}
 function openAICost(model:string,input=0,output=0){const m:any={"gpt-5.6-luna":[.20,1.20],"gpt-5.6-terra":[2,12],"gpt-5.6-sol":[4,20],"gpt-6-astra":[10,50]};const p=m[model]||m["gpt-5.6-luna"];return input/1e6*p[0]+output/1e6*p[1]}
-export async function openAIGrounded(prompt:string,model="gpt-5.6-luna"){
+export async function openAIGrounded(prompt:string,model="gpt-5.6-luna",researchJobId:string|null=null){
   const key=await providerSecret("openai");if(!key)throw new Error("OpenAI is not connected.");
   const started=Date.now();const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{"content-type":"application/json",authorization:`Bearer ${key}`},body:JSON.stringify({model,input:prompt,tools:[{type:"web_search"}]})});const p=await r.json();
-  const u=p?.usage||{};if(!r.ok){await recordUsage("openai","web_research",false,{metadata:{status:r.status,model}});throw new Error(`OpenAI ${r.status}: ${safeError(p?.error?.message||"request failed")}`)}
-  await recordUsage("openai","web_research",true,{prompt_tokens:u.input_tokens,output_tokens:u.output_tokens,estimated_cost_usd:openAICost(model,u.input_tokens,u.output_tokens),metadata:{model,duration_ms:Date.now()-started}});
+  const u=p?.usage||{};if(!r.ok){await recordUsage("openai","web_research",false,{research_job_id:researchJobId,model,search_calls:1,metadata:{status:r.status,model}});throw new Error(`OpenAI ${r.status}: ${safeError(p?.error?.message||"request failed")}`)}
+  await recordUsage("openai","web_research",true,{research_job_id:researchJobId,model,search_calls:1,prompt_tokens:u.input_tokens,output_tokens:u.output_tokens,duration_ms:Date.now()-started,estimated_cost_usd:openAICost(model,u.input_tokens,u.output_tokens),metadata:{model}});
   return{text:openAIText(p),sources:openAISources(p)};
 }
-export async function openAIJson(prompt:string,model="gpt-5.6-luna"){
+export async function openAIJson(prompt:string,model="gpt-5.6-luna",researchJobId:string|null=null){
   const key=await providerSecret("openai");if(!key)throw new Error("OpenAI is not connected.");
   const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{"content-type":"application/json",authorization:`Bearer ${key}`},body:JSON.stringify({model,input:prompt})});const p=await r.json();const u=p?.usage||{};
-  if(!r.ok){await recordUsage("openai","structured_synthesis",false,{metadata:{status:r.status,model}});throw new Error(`OpenAI ${r.status}: ${safeError(p?.error?.message||"request failed")}`)}
-  await recordUsage("openai","structured_synthesis",true,{prompt_tokens:u.input_tokens,output_tokens:u.output_tokens,estimated_cost_usd:openAICost(model,u.input_tokens,u.output_tokens),metadata:{model}});
+  if(!r.ok){await recordUsage("openai","structured_synthesis",false,{research_job_id:researchJobId,model,metadata:{status:r.status,model}});throw new Error(`OpenAI ${r.status}: ${safeError(p?.error?.message||"request failed")}`)}
+  await recordUsage("openai","structured_synthesis",true,{research_job_id:researchJobId,model,prompt_tokens:u.input_tokens,output_tokens:u.output_tokens,estimated_cost_usd:openAICost(model,u.input_tokens,u.output_tokens),metadata:{model}});
   const t=openAIText(p);try{return JSON.parse(t)}catch{const m=t.match(/\{[\s\S]*\}/);if(!m)throw new Error("OpenAI returned invalid JSON.");return JSON.parse(m[0])}
 }
 
@@ -160,12 +186,17 @@ financial.net_worth.latest, debt.current, operations.capacity, credit.latest_rat
 legal.material_cases, trade.top_buyers, trade.top_suppliers, procurement.primary_inputs,
 risk.credit_safety, risk.biggest_concern.
 Never rely on evidence array position to identify a metric.
+FINANCIAL NUMERIC SCHEMA:
+For each financial period, keep period/fy as text and represent numeric metrics as structured objects:
+{"value":487,"currency":"INR","unit":"crore","evidence_class":"VERIFIED","confidence":"HIGH","source_keys":["..."]}
+Use this for revenue, ebitda, pat, operating_cash_flow, net_worth, debt, working_capital, receivable_days, creditor_days and other numeric financial metrics when known.
+The "value" field must be a raw number without currency symbols or commas. If a comparable numeric value cannot be verified, use null/UNKNOWN rather than parsing or inventing it.
 `}
 
 async function stagePatch(jobId:string,n:number,patch:any){await update("research_job_stages",`research_job_id=eq.${encodeURIComponent(jobId)}&stage_no=eq.${n}`,patch,false)}
-async function stageMany(jobId:string,nums:number[],status:string,result:any=null){for(const n of nums)await stagePatch(jobId,n,{status,result_json:result??undefined,started_at:status==="RUNNING"?new Date().toISOString():undefined,completed_at:["COMPLETE","PARTIAL","NO RELIABLE DATA","FAILED"].includes(status)?new Date().toISOString():undefined})}
+async function stageMany(jobId:string,nums:number[],status:string,result:any=null){for(const n of nums)await stagePatch(jobId,n,{status,result_json:result??undefined,started_at:status==="RUNNING"?new Date().toISOString():undefined,completed_at:["COMPLETE","PARTIAL","NO RELIABLE DATA","FAILED","SKIPPED"].includes(status)?new Date().toISOString():undefined})}
 export function uniqueSources(arr:any[]){const m=new Map<string,any>();for(const s of arr||[])if(s?.url&&!m.has(s.url))m.set(s.url,s);return [...m.values()]}
-export function coverage(stages:any[]){const a:any={identity:[1,2,3,4],business:[5,6],operations:[7,8],financials:[9],debt:[10,11,12],legal:[13,14,21],trade:[15,16,17],market:[18],procurement:[19,20],evidence:[22,23,24]};const score=(s:string)=>s==="COMPLETE"?1:s==="PARTIAL"?.6:s==="NO RELIABLE DATA"?.25:0;const b:any={};for(const[k,ns]of Object.entries(a)){const vals=(ns as number[]).map(n=>score(stages.find(x=>x.stage_no===n)?.status||""));b[k]=Math.round(vals.reduce((x,y)=>x+y,0)/vals.length*100)}return{overall:Math.round(Object.values(b).reduce((x:any,y:any)=>x+y,0)/Object.keys(b).length),breakdown:b,formula:"COMPLETE=100%, PARTIAL=60%, NO RELIABLE DATA=25%, FAILED/UNRUN=0%; area averages are equally weighted."}}
+export function coverage(stages:any[]){const a:any={identity:[1,2,3,4],business:[5,6],operations:[7,8],financials:[9],debt:[10,11,12],legal:[13,14,21],trade:[15,16,17],market:[18],procurement:[19,20],evidence:[22,23,24]};const score=(s:string)=>s==="COMPLETE"?1:s==="PARTIAL"?.6:s==="NO RELIABLE DATA"?.25:0;const b:any={};for(const[k,ns]of Object.entries(a)){const applicable=(ns as number[]).map(n=>stages.find(x=>x.stage_no===n)).filter(x=>x&&x.status!=="SKIPPED");if(!applicable.length){b[k]=null;continue}const vals=applicable.map(x=>score(x.status||""));b[k]=Math.round(vals.reduce((x:number,y:number)=>x+y,0)/vals.length*100)}const scored=Object.values(b).filter((x:any)=>typeof x==="number") as number[];return{overall:scored.length?Math.round(scored.reduce((x,y)=>x+y,0)/scored.length):0,breakdown:b,formula:"COMPLETE=100%, PARTIAL=60%, NO RELIABLE DATA=25%, FAILED/UNRUN=0%; SKIPPED stages are excluded from coverage denominators."}}
 
 export async function runResearchJob(jobId:string){
   const route=await researchStrategy();
