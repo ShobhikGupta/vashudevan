@@ -41,7 +41,7 @@ async function loadStatus(){
     const [p,h]=await Promise.all([api("/api/provider-status"),api("/api/system-health").catch(()=>null)]);
     S.providers=p;S.providerMeta=p.metadata||{};S.systemHealth=h;renderProviders();renderSystemConnections();
     const ready=p?.supabase?.connected&&(p?.gemini?.connected||p?.openai?.connected);
-    document.getElementById("startBtn").disabled=!ready;
+    document.getElementById("startBtn").disabled=!ready;document.getElementById("resolveBtn").disabled=!ready;
     const n=document.getElementById("configNotice");n.className="notice";
     if(!p?.supabase?.connected){
       n.hidden=false;n.innerHTML='<b>SYSTEM SETUP REQUIRED</b><br>1. Connect database<br>2. Apply Company Intelligence migrations<br>3. Configure Admin Settings Lock<br>4. Then connect Gemini / Tavily / OpenAI from Settings<br><br><button class="btn" id="setupInstructionsBtn">View Setup Instructions</button>';
@@ -301,14 +301,14 @@ function renderFinancials(r,em){
   const alias=(p,k)=>{for(const a of maps[k])if(p?.[a]!=null)return p[a];return"—"},findKey=names=>names.find(n=>periods.some(p=>p?.[n]!=null))||names[0];
   const rows=periods.map(p=>[periodLabel(p),alias(p,"revenue"),alias(p,"ebitda"),alias(p,"pat"),alias(p,"ocf"),alias(p,"networth"),alias(p,"debt"),alias(p,"wc"),alias(p,"rd"),alias(p,"cd")]);
   const debtKey=findKey(maps.debt),nwKey=findKey(maps.networth);
-  document.getElementById("financialContent").innerHTML='<div class="financekpi">'+kpis.map(x=>'<div class="panel mini" data-evidence-key="'+x[2]+'"><span>'+esc(x[0])+'</span><b>'+esc(displayVal(x[1]))+'</b><small>'+esc(periodLabel(lp)||"Latest verified period")+'</small></div>').join("")+'</div>'+
-    '<div class="charts">'+
+  const defs=S.settings.report_defaults||{},charts=defs.graphs===false?'':('<div class="charts">'+
       lineChart(periods,findKey(maps.revenue),"Revenue Trend")+lineChart(periods,findKey(maps.pat),"PAT Trend")+
       lineChart(periods,findKey(maps.ebitda),"EBITDA Trend")+lineChart(periods,findKey(maps.ocf),"Operating Cash Flow")+
       lineChart(periods,nwKey,"Net Worth")+lineChart(periods,debtKey,"Debt")+
       dualChart(periods,debtKey,nwKey,"Debt vs Net Worth")+lineChart(periods,findKey(maps.wc),"Working Capital")+
-      lineChart(periods,findKey(maps.rd),"Receivable Days")+lineChart(periods,findKey(maps.cd),"Creditor Days")+
-    '</div><div class="panel card"><h3>Five-year financial table</h3>'+renderTable(heads,rows)+'</div>';
+      lineChart(periods,findKey(maps.rd),"Receivable Days")+lineChart(periods,findKey(maps.cd),"Creditor Days")+'</div>');
+  document.getElementById("financialContent").innerHTML='<div class="financekpi">'+kpis.map(x=>'<div class="panel mini" data-evidence-key="'+x[2]+'"><span>'+esc(x[0])+'</span><b>'+esc(displayVal(x[1]))+'</b><small>'+esc(periodLabel(lp)||"Latest verified period")+'</small></div>').join("")+'</div>'+charts+
+    (defs.five_year_financials===false?'<div class="notice">Five-year financial table is hidden by Report Defaults.</div>':'<div class="panel card"><h3>Five-year financial table</h3>'+renderTable(heads,rows)+'</div>');
   bindEvidence();
 }
 function renderTable(heads,rows){
@@ -345,8 +345,8 @@ function renderTrade(r){
   document.getElementById("tradeContent").innerHTML='<div class="sectiongrid"><div class="panel card"><h3>Import activity</h3>'+renderList(t.imports||[],"No reliable import activity found.")+'</div><div class="panel card"><h3>Export activity</h3>'+renderList(t.exports||[],"No reliable export activity found.")+'</div><div class="panel card"><h3>Known buyers</h3>'+renderList(r.buyers||[],"No reliable buyers identified.")+'</div><div class="panel card"><h3>Known suppliers</h3>'+renderList(r.suppliers||[],"No reliable suppliers identified.")+'</div></div>';
 }
 function renderLegal(r){document.getElementById("legalContent").innerHTML='<div class="sectiongrid"><div class="panel card"><h3>Legal matters</h3>'+renderList(r.legal||[],"No reliable legal findings found.")+'</div><div class="panel card"><h3>Insolvency / defaults</h3>'+renderList(r.insolvency||[],"No reliable insolvency findings found. Absence of results is not proof of absence.")+'</div></div>'}
-function renderCompetitors(r){document.getElementById("competitorsContent").innerHTML='<div class="panel card"><h3>Competitors</h3>'+renderList(r.competitors||[],"No reliable competitor list available.")+'</div>'}
-function renderProcurement(r){document.getElementById("procurementContent").innerHTML='<div class="sectiongrid"><div class="panel card"><h3>Procurement requirements</h3>'+renderList(r.procurement||[],"No reliable procurement requirement identified.")+'</div><div class="panel card"><h3>Commercial opportunity</h3>'+renderList(r.opportunities||[],"No evidence-supported opportunity stored.")+'</div></div>'}
+function renderCompetitors(r){document.getElementById("competitorsContent").innerHTML=S.settings.report_defaults?.competitor_analysis===false?'<div class="notice">Competitor Analysis is hidden by Report Defaults.</div>':'<div class="panel card"><h3>Competitors</h3>'+renderList(r.competitors||[],"No reliable competitor list available.")+'</div>'}
+function renderProcurement(r){document.getElementById("procurementContent").innerHTML=S.settings.report_defaults?.procurement_opportunity===false?'<div class="notice">Procurement Opportunity is hidden by Report Defaults.</div>':'<div class="sectiongrid"><div class="panel card"><h3>Procurement requirements</h3>'+renderList(r.procurement||[],"No reliable procurement requirement identified.")+'</div><div class="panel card"><h3>Commercial opportunity</h3>'+renderList(r.opportunities||[],"No evidence-supported opportunity stored.")+'</div></div>'}
 function renderList(arr,empty){
   if(!Array.isArray(arr)||!arr.length)return '<div class="empty">'+esc(empty)+'</div>';
   return '<div class="list">'+arr.map(x=>{if(!isObj(x))return'<div class="listitem"><b>'+esc(x)+'</b></div>';const title=x.name||x.material||x.finding||x.summary||x.counterparty||x.agency||x.opportunity_type||x.category||"Finding";const rest=Object.entries(x).filter(([k])=>!["name","material","finding","summary","counterparty","agency","opportunity_type","category","source_keys"].includes(k)).slice(0,5).map(([k,v])=>k.replaceAll("_"," ")+": "+displayVal(v)).join(" • ");return'<div class="listitem"><b>'+esc(title)+'</b><p>'+esc(rest)+'</p></div>'}).join("")+'</div>';
