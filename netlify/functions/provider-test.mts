@@ -9,7 +9,7 @@ export default async (req:Request,_ctx:Context)=>{
     const b=await readJson(req),provider=String(b.provider||"").toLowerCase(),key=await providerKey(provider);
     if(!key)return json({error:"Provider is not connected."},409);
     const result=await testProvider(provider,key,String(b.selected_model||""));
-    try{const ws=await workspace();await update("provider_connections",`workspace_id=eq.${ws.id}&provider=eq.${provider}`,{last_verified_at:new Date().toISOString(),last_latency_ms:result.latency_ms,health:"CONNECTED",status:"CONNECTED",updated_at:new Date().toISOString()},false)}catch{}
+    try{const ws=await workspace();await update("provider_connections",`workspace_id=eq.${ws.id}&provider=eq.${provider}`,{last_verified_at:new Date().toISOString(),last_latency_ms:result.latency_ms,health:"CONNECTED",status:"CONNECTED",provider_metadata:{grounding_verified:result.grounding_verified===true},updated_at:new Date().toISOString()},false)}catch{}
     return json({pass:true,timestamp:new Date().toISOString(),latency_ms:result.latency_ms});
   }catch(e){return json({pass:false,error:safeError(e),timestamp:new Date().toISOString()},400)}
 };
