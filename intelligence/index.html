@@ -21,7 +21,7 @@
       <button data-view="reports" aria-label="Reports"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6zM9 11h6M9 15h6"/></svg><span>Reports</span></button>
       <button data-view="templates" aria-label="Templates"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM8 9h8M8 13h5"/></svg><span>Templates</span></button>
       <button data-view="compare" aria-label="Compare"><svg viewBox="0 0 24 24"><path d="M8 4v16M16 4v16M4 8h8M12 16h8"/></svg><span>Compare</span></button>
-      <button data-view="usage" aria-label="Usage"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg><span>Usage</span></button>
+      <button data-view="usage" aria-label="Usage"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg><span>Usage</span><span id="alertBadge" class="tag bad" hidden>!</span></button>
       <button data-view="settings" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.4 1a7 7 0 0 0-1.8-1L14.4 3h-4.8L9.3 6a7 7 0 0 0-1.8 1l-2.4-1-2 3.5L5.1 11a7 7 0 0 0 0 2l-2 1.5 2 3.5 2.4-1a7 7 0 0 0 1.8 1l.3 3h4.8l.3-3a7 7 0 0 0 1.8-1l2.4 1 2-3.5-2-1.5a7 7 0 0 0 .1-1z"/></svg><span>Settings</span></button>
     </nav>
     <div class="sidefoot">Evidence first. Unknown stays unknown. Commercial opportunity and credit safety are evaluated separately.</div>
@@ -35,7 +35,7 @@
 
     <section id="dashboard" class="view active">
       <div class="head"><div><div class="eyebrow">Management overview</div><h2>Company intelligence workspace</h2></div><p>Live provider health, saved counterparties, research usage and evidence coverage.</p></div>
-      <div id="configNotice" class="notice" hidden></div>
+      <div id="configNotice" class="notice" hidden></div><div id="alertsBanner" class="notice warn" hidden style="margin-top:8px"></div>
       <div class="kpis">
         <div class="panel kpi"><span>Companies</span><b id="kCompanies">—</b><small>Persistent profiles</small></div>
         <div class="panel kpi"><span>Reports</span><b id="kReports">—</b><small>Versioned outputs</small></div>
@@ -108,7 +108,7 @@
         <div class="panel kpi"><span>Failed calls</span><b id="uFailed">—</b><small>Provider activity</small></div>
         <div class="panel kpi"><span>Estimated API cost</span><b id="uCost">—</b><small>Today</small></div>
       </div>
-      <div class="grid2"><div class="panel card"><h3>Capacity estimate</h3><div class="status" id="usageCapacity"></div></div><div class="panel card"><h3>Reset & notes</h3><div class="status" id="usageReset"></div></div></div>
+      <div class="grid2"><div class="panel card"><h3>Capacity estimate</h3><div class="status" id="usageCapacity"></div></div><div class="panel card"><h3>Reset & notes</h3><div class="status" id="usageReset"></div></div></div><div class="grid2" style="margin-top:10px"><div class="panel card"><h3>Week & month</h3><div class="status" id="usagePeriods"></div></div><div class="panel card"><h3>Average cost / full report</h3><div class="status" id="usageAverageCost"></div></div></div>
     </section>
 
     <section id="settings" class="view">
