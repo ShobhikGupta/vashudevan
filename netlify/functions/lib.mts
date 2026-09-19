@@ -198,40 +198,98 @@ async function stageMany(jobId:string,nums:number[],status:string,result:any=nul
 export function uniqueSources(arr:any[]){const m=new Map<string,any>();for(const s of arr||[])if(s?.url&&!m.has(s.url))m.set(s.url,s);return [...m.values()]}
 export function coverage(stages:any[]){const a:any={identity:[1,2,3,4],business:[5,6],operations:[7,8],financials:[9],debt:[10,11,12],legal:[13,14,21],trade:[15,16,17],market:[18],procurement:[19,20],evidence:[22,23,24]};const score=(s:string)=>s==="COMPLETE"?1:s==="PARTIAL"?.6:s==="NO RELIABLE DATA"?.25:0;const b:any={};for(const[k,ns]of Object.entries(a)){const applicable=(ns as number[]).map(n=>stages.find(x=>x.stage_no===n)).filter(x=>x&&x.status!=="SKIPPED");if(!applicable.length){b[k]=null;continue}const vals=applicable.map(x=>score(x.status||""));b[k]=Math.round(vals.reduce((x:number,y:number)=>x+y,0)/vals.length*100)}const scored=Object.values(b).filter((x:any)=>typeof x==="number") as number[];return{overall:scored.length?Math.round(scored.reduce((x,y)=>x+y,0)/scored.length):0,breakdown:b,formula:"COMPLETE=100%, PARTIAL=60%, NO RELIABLE DATA=25%, FAILED/UNRUN=0%; SKIPPED stages are excluded from coverage denominators."}}
 
+async function estimatedSpendUsd(q:string){
+  try{const ws=await workspace();const rows=await select("provider_usage",`workspace_id=eq.${ws.id}&${q}&select=estimated_cost_usd`);return (rows||[]).reduce((a:number,x:any)=>a+Number(x.estimated_cost_usd||0),0)}catch{return 0}
+}
+async function paidBudgetStatus(jobId:string,settings:any){
+  const cost=settings.cost_protection||{};if(cost.allow_paid_api_usage!==true)return{allowed:false,reason:"Paid API usage is disabled."};
+  const fx=Number(cost.usd_inr_reference||0);if(!(fx>0))return{allowed:false,reason:"Set a USD/INR cost conversion reference in Cost Protection before paid API use."};
+  const now=new Date(),week=new Date(now.getTime()-7*86400000).toISOString(),month=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),1)).toISOString();
+  const [jobUsd,dayUsd,weekUsd,monthUsd]=await Promise.all([
+    estimatedSpendUsd(`research_job_id=eq.${encodeURIComponent(jobId)}`),
+    estimatedSpendUsd(`usage_day=eq.${dayKey()}`),
+    estimatedSpendUsd(`created_at=gte.${encodeURIComponent(week)}`),
+    estimatedSpendUsd(`created_at=gte.${encodeURIComponent(month)}`)
+  ]);
+  const checks=[
+    ["Maximum cost / report",Number(cost.max_cost_per_report_inr||0),jobUsd*fx],
+    ["Daily API budget",Number(cost.daily_budget_inr||0),dayUsd*fx],
+    ["Weekly API budget",Number(cost.weekly_budget_inr||0),weekUsd*fx],
+    ["Monthly API budget",Number(cost.monthly_budget_inr||0),monthUsd*fx]
+  ];
+  for(const [label,cap,spent] of checks as any[])if(cap<=0||spent>=cap)return{allowed:false,reason:`RESEARCH STOPPED BY COST PROTECTION — ${label} reached or not configured.`,fx,spent_inr:spent,cap_inr:cap};
+  return{allowed:true,fx,job_inr:jobUsd*fx,day_inr:dayUsd*fx,week_inr:weekUsd*fx,month_inr:monthUsd*fx};
+}
+function metricNumber(v:any){if(typeof v==="number"&&Number.isFinite(v))return v;if(v&&typeof v==="object"&&typeof v.value==="number"&&Number.isFinite(v.value))return v.value;return null}
+function metricMeta(v:any){return v&&typeof v==="object"?v:{}}
+async function persistFinancials(job:any,row:any,report:any){
+  const periods=Array.isArray(report?.financials?.periods)?report.financials.periods:[],keys=["revenue","ebitda","pat","operating_cash_flow","net_worth","debt","working_capital","receivable_days","creditor_days","inventory_days","interest","assets","liabilities","inventory","receivables","payables"];
+  for(const p of periods){
+    const label=String(p?.period||p?.fy||p?.year||"").trim();if(!label)continue;
+    const fp=await insert("financial_periods",{workspace_id:job.workspace_id,company_id:job.company_id,report_id:row.id,period_label:label});const periodRow=fp?.[0];if(!periodRow)continue;
+    for(const key of keys){const raw=p?.[key],num=metricNumber(raw);if(num==null)continue;const m=metricMeta(raw);await insert("financial_metrics",{workspace_id:job.workspace_id,company_id:job.company_id,financial_period_id:periodRow.id,metric_key:key,value_numeric:num,value_text:null,currency:m.currency||p.currency||null,unit:m.unit||p.unit||null,evidence_class:m.evidence_class||null,confidence:m.confidence||null,source_keys:Array.isArray(m.source_keys)?m.source_keys:[]},false)}
+  }
+}
 export async function runResearchJob(jobId:string){
   const route=await researchStrategy();
   const js=await select("research_jobs",`id=eq.${encodeURIComponent(jobId)}&select=*&limit=1`);if(!js?.length)throw new Error("Research job not found.");const job=js[0];
   const cs=await select("companies",`id=eq.${encodeURIComponent(job.company_id)}&select=*&limit=1`);if(!cs?.length)throw new Error("Company not found.");const company={...cs[0],...(job.input_seed?.confirmed_entity||{})};
-  const settings=route.settings||{},defaults=settings.research_defaults||{},privacy=settings.privacy||{},cost=settings.cost_protection||{};
+  const settings=route.settings||{},defaults=settings.research_defaults||{},privacy=settings.privacy||{},cost=settings.cost_protection||{},active=new Set(templateGroups(job.template_key));
   const extra=[templateInstruction(job.template_key),job.custom_prompt?("USER CUSTOM INSTRUCTIONS (cannot override VMG evidence/safety rules):\n"+job.custom_prompt):""].filter(Boolean).join("\n\n");
-  const mainResearch=async(prompt:string)=>route.provider==="openai"?await openAIGrounded(prompt,route.model):await geminiGrounded(prompt);
-  const synth=async(prompt:string)=>route.provider==="openai"?await openAIJson(prompt,route.model):await geminiJson(prompt);
-  const tavilyKey=await providerSecret("tavily");const tavilyConn=await providerConnection("tavily");
+  const isPaid=route.provider==="openai"||(await providerConnection(route.provider))?.billing_mode==="paid";
+  const budget=async()=>isPaid?await paidBudgetStatus(job.id,settings):({allowed:true});
+  const mainResearch=async(prompt:string)=>{
+    const b=await budget();if(!b.allowed)throw Object.assign(new Error(b.reason),{code:"COST_PROTECTION"});
+    return route.provider==="openai"?await openAIGrounded(prompt,route.model,job.id):await geminiGrounded(prompt,job.id)
+  };
+  const synth=async(prompt:string)=>{
+    const b=await budget();if(!b.allowed)throw Object.assign(new Error(b.reason),{code:"COST_PROTECTION"});
+    return route.provider==="openai"?await openAIJson(prompt,route.model,job.id):await geminiJson(prompt,job.id)
+  };
+  const tavilyKey=await providerSecret("tavily"),tavilyConn=await providerConnection("tavily");
   const tavilyAllowed=Boolean(tavilyKey)&&defaults.tavily_when_weak!==false&&!(cost.free_only_mode!==false&&tavilyConn?.billing_mode==="paid");
   try{await insert("activity_logs",{workspace_id:job.workspace_id,action:"research_started",company_id:job.company_id,research_job_id:job.id,metadata:{template_key:job.template_key,provider:route.provider,model:route.model}},false)}catch{}
   await update("research_jobs",`id=eq.${job.id}`,{status:"RUNNING",started_at:new Date().toISOString(),provider:route.provider+":"+route.model},false);await stageMany(job.id,[1],"COMPLETE",{entity:job.input_seed?.confirmed_entity||company});
   const groups:any[]=[],all:any[]=[];
   for(const g of GROUPS){
-    await stageMany(job.id,g.stages,"RUNNING");
+    if(!active.has(g.key)){await stageMany(job.id,g.stages,"SKIPPED",{reason:"Disabled by selected research template."});continue}
+    const enabled=enabledStagesForGroup(g,defaults),disabled=g.stages.filter((n:number)=>!enabled.includes(n));
+    if(disabled.length)await stageMany(job.id,disabled,"SKIPPED",{reason:"Disabled by Research Defaults."});
+    if(!enabled.length)continue;
+    await stageMany(job.id,enabled,"RUNNING");
     try{
-      const p=await mainResearch(groupPrompt(company,g,extra));let text=p.text,sources=uniqueSources(p.sources);
-      if((sources.length<Number(defaults.minimum_preferred_sources||5)||text.length<300)&&tavilyAllowed){
-        try{const t=await tavily(`"${company.legal_name}" ${g.title}`);text+="\n\nINDEPENDENT FALLBACK SEARCH:\n"+t.text;sources=uniqueSources([...sources,...t.sources])}catch{}
+      const scope=`SETTINGS SCOPE: Research only enabled stage numbers ${enabled.join(", ")} for this track. Do not spend research effort on disabled stage numbers ${disabled.join(", ")||"none"}. Follow related entities only when ${defaults.follow_related_entities!==false?"materially relevant":"necessary to resolve the exact target entity; otherwise do not expand related entities"}.`;
+      const p=await mainResearch(groupPrompt(company,g,extra+"\n"+scope));let bodyText=p.text,sources=uniqueSources(p.sources);
+      if((sources.length<Number(defaults.minimum_preferred_sources||5)||bodyText.length<300)&&tavilyAllowed){
+        try{const t=await tavily(`"${company.legal_name}" ${g.title}`,job.id);bodyText+="\n\nINDEPENDENT FALLBACK SEARCH:\n"+t.text;sources=uniqueSources([...sources,...t.sources])}catch{}
       }
       const sourceKeys:string[]=[];
       for(const src of sources){
         const rows=await insert("sources",{workspace_id:job.workspace_id,company_id:job.company_id,research_job_id:job.id,title:src.title,url:src.url,publisher:src.publisher||null,retrieved_at:new Date().toISOString(),source_type:"web",metadata:{stage_group:g.key,research_provider:route.provider}});
         const row=rows?.[0];if(row){sourceKeys.push(row.id);if(privacy.store_source_snapshots!==false&&src.snippet)await insert("source_snapshots",{workspace_id:job.workspace_id,source_id:row.id,excerpt:String(src.snippet).slice(0,1200)},false)}
       }
-      const st=!text.trim()&&!sources.length?"NO RELIABLE DATA":sources.length<2?"PARTIAL":"COMPLETE";
-      await stageMany(job.id,g.stages,st,{summary:text.slice(0,12000),source_count:sources.length,research_provider:route.provider});
-      groups.push({key:g.key,title:g.title,text,source_keys:sourceKeys});all.push(...sources.map((x:any,i:number)=>({...x,source_key:sourceKeys[i]})));
-    }catch(e:any){await stageMany(job.id,g.stages,"FAILED",{error:safeError(e)});groups.push({key:g.key,title:g.title,text:"",source_keys:[]})}
+      const st=!bodyText.trim()&&!sources.length?"NO RELIABLE DATA":sources.length<2?"PARTIAL":"COMPLETE";
+      await stageMany(job.id,enabled,st,{summary:bodyText.slice(0,12000),source_count:sources.length,research_provider:route.provider});
+      groups.push({key:g.key,title:g.title,text:bodyText,source_keys:sourceKeys});all.push(...sources.map((x:any,i:number)=>({...x,source_key:sourceKeys[i]})));
+    }catch(e:any){
+      if(e?.code==="COST_PROTECTION"||String(e?.message||"").includes("COST PROTECTION")){
+        await stageMany(job.id,enabled,"PARTIAL",{error:safeError(e),reason:"cost_protection"});
+        for(const future of GROUPS.slice(GROUPS.indexOf(g)+1)){const en=enabledStagesForGroup(future,defaults);if(active.has(future.key)&&en.length)await stageMany(job.id,en,"SKIPPED",{reason:"Research stopped by cost protection."})}
+        await stageMany(job.id,[22],"PARTIAL",{reason:"Research stopped by cost protection.",unique_source_count:uniqueSources(all).length});await stageMany(job.id,[23,24],"SKIPPED",{reason:"Research stopped before synthesis."});
+        await update("research_jobs",`id=eq.${job.id}`,{status:"PARTIAL",error_message:safeError(e),completed_at:new Date().toISOString(),source_count:uniqueSources(all).length},false);
+        try{await insert("activity_logs",{workspace_id:job.workspace_id,action:"research_stopped_cost_protection",company_id:job.company_id,research_job_id:job.id,metadata:{reason:safeError(e)}},false)}catch{}
+        return;
+      }
+      await stageMany(job.id,enabled,"FAILED",{error:safeError(e)});groups.push({key:g.key,title:g.title,text:"",source_keys:[]})
+    }
   }
   await stageMany(job.id,[22],"RUNNING");const uniq=uniqueSources(all);await stageMany(job.id,[22],uniq.length>=Number(defaults.minimum_preferred_sources||5)?"COMPLETE":"PARTIAL",{unique_source_count:uniq.length});
   await stageMany(job.id,[23,24],"RUNNING");let report:any;
   try{report=await synth(synthPrompt(company,groups,all.filter(x=>x.source_key).map(x=>({source_key:x.source_key,title:x.title,url:x.url,publisher:x.publisher||""}))));await stageMany(job.id,[23],"COMPLETE")}
-  catch(e:any){await stageMany(job.id,[23,24],"FAILED",{error:safeError(e)});await update("research_jobs",`id=eq.${job.id}`,{status:"FAILED",error_message:safeError(e),completed_at:new Date().toISOString()},false);throw e}
+  catch(e:any){
+    if(e?.code==="COST_PROTECTION"||String(e?.message||"").includes("COST PROTECTION")){await stageMany(job.id,[23],"PARTIAL",{error:safeError(e)});await stageMany(job.id,[24],"SKIPPED",{reason:"Research stopped before final report generation."});await update("research_jobs",`id=eq.${job.id}`,{status:"PARTIAL",error_message:safeError(e),completed_at:new Date().toISOString(),source_count:uniq.length},false);return}
+    await stageMany(job.id,[23,24],"FAILED",{error:safeError(e)});await update("research_jobs",`id=eq.${job.id}`,{status:"FAILED",error_message:safeError(e),completed_at:new Date().toISOString()},false);throw e
+  }
   const sts=await select("research_job_stages",`research_job_id=eq.${job.id}&select=*&order=stage_no.asc`);const cov=coverage(sts||[]);
   report.research_metadata={...(report.research_metadata||{}),job_id:job.id,company_id:job.company_id,template_key:job.template_key,researched_at:new Date().toISOString(),provider:route.provider,model:route.model,evidence_coverage:cov};
   const prev=await select("research_reports",`company_id=eq.${job.company_id}&select=version_no&order=version_no.desc&limit=1`);const version=(prev?.[0]?.version_no||0)+1;
@@ -240,6 +298,7 @@ export async function runResearchJob(jobId:string){
     await insert("report_versions",{workspace_id:job.workspace_id,company_id:job.company_id,report_id:row.id,version_no:version},false);
     await update("companies",`id=eq.${job.company_id}`,{current_report_id:row.id,updated_at:new Date().toISOString()},false);
     for(const ev of Array.isArray(report.evidence)?report.evidence:[])await insert("evidence_items",{workspace_id:job.workspace_id,company_id:job.company_id,research_job_id:job.id,report_id:row.id,finding_key:ev.finding_key||ev.label||crypto.randomUUID(),label:ev.label||ev.finding_key||"Finding",value_json:ev.value??null,period:ev.period||null,evidence_class:ev.evidence_class||"UNKNOWN",confidence:ev.confidence||"INSUFFICIENT",notes:ev.notes||null,conflict_status:ev.conflict_status||"NONE",source_keys:Array.isArray(ev.source_keys)?ev.source_keys:[]},false);
+    await persistFinancials(job,row,report);
   }
   await stageMany(job.id,[24],"COMPLETE",{report_id:row?.id,version_no:version});await update("research_jobs",`id=eq.${job.id}`,{status:"COMPLETE",completed_at:new Date().toISOString(),source_count:uniq.length,evidence_coverage:cov.overall,report_id:row?.id||null},false);
   try{await insert("activity_logs",{workspace_id:job.workspace_id,action:"research_completed",company_id:job.company_id,research_job_id:job.id,metadata:{report_id:row?.id||null,version_no:version,source_count:uniq.length,evidence_coverage:cov.overall,provider:route.provider,model:route.model}},false)}catch{}
