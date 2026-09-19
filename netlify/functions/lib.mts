@@ -87,7 +87,7 @@ export function json(data:any,status=200,headers:Record<string,string>={}) {
   return new Response(JSON.stringify(data),{status,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store",...headers}});
 }
 export async function readJson(req:Request){ if(!(req.headers.get("content-type")||"").includes("application/json"))throw new Error("Expected application/json");return await req.json() as any; }
-export function safeError(e:any){return String(e?.message||e||"Unknown error").replace(/(AIza[0-9A-Za-z_-]{20,}|tvly-[0-9A-Za-z_-]+|sb_secret_[0-9A-Za-z_-]+)/g,"[redacted]")}
+export function safeError(e:any){return String(e?.message||e||"Unknown error").replace(/(AIza[0-9A-Za-z_-]{20,}|tvly-[0-9A-Za-z_-]+|sb_secret_[0-9A-Za-z_-]+|sk-[0-9A-Za-z_-]{12,})/g,"[redacted]")}
 export function dayKey(date=new Date()){const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Los_Angeles",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(date);const m:any=Object.fromEntries(parts.map(p=>[p.type,p.value]));return `${m.year}-${m.month}-${m.day}`}
 export function nextReset(now=new Date()){const p:any=Object.fromEntries(new Intl.DateTimeFormat("en-US",{timeZone:"America/Los_Angeles",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).formatToParts(now).map(x=>[x.type,x.value]));const localAsUtc=Date.UTC(+p.year,+p.month-1,+p.day,+p.hour,+p.minute,+p.second);const offset=now.getTime()-localAsUtc;return new Date(Date.UTC(+p.year,+p.month-1,+p.day+1,0,0,0)+offset).toISOString()}
 
