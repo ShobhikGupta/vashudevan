@@ -143,6 +143,7 @@ function renderAlerts(u){
   if(a.quota_low!==false&&c.grounding_remaining_estimate!=null&&c.grounding_allowance_reference&&c.grounding_remaining_estimate/c.grounding_allowance_reference<=.2&&c.grounding_remaining_estimate>0)msgs.push("Gemini grounding allowance is running low based on application-recorded usage.");
   if(a.quota_exhausted!==false&&c.grounding_remaining_estimate===0)msgs.push("Application-recorded Gemini grounding allowance estimate is exhausted.");
   if(a.provider_disconnected!==false&&S.providers?.supabase?.connected&&!S.providers?.gemini?.configured)msgs.push("Gemini is not connected.");
+  if(a.auth_error!==false&&["AUTH_ERROR","DEGRADED"].includes(String(S.providers?.gemini?.health||"")))msgs.push("Gemini provider health requires attention: "+String(S.providers.gemini.health).replaceAll("_"," ")+".");
   const cp=S.settings.cost_protection||{},monthly=Number(cp.monthly_budget_inr||0);if(a.budget_threshold!==false&&monthly>0&&u.month?.estimated_cost_inr!=null&&Number(u.month.estimated_cost_inr)>=monthly*.8)msgs.push("API spend has reached at least 80% of the configured monthly budget.");
   const box=document.getElementById("alertsBanner"),badge=document.getElementById("alertBadge");box.hidden=!msgs.length;badge.hidden=!msgs.length;if(msgs.length)box.innerHTML='<b>Attention</b><br>'+msgs.map(esc).join("<br>");
 }
@@ -359,12 +360,15 @@ async function renderHistory(companyId,current){
   }catch(e){document.getElementById("historyContent").innerHTML='<div class="notice error">'+esc(e.message)+'</div>'}
 }
 function diffReports(a,b){
+  const names=v=>Array.isArray(v)?v.map(x=>x?.name||x?.owner_name||x?.material||x?.category||x).filter(x=>typeof x==="string").slice(0,8).join(", "):"";
+  const latest=(r,k)=>displayVal(latestMetric(r,k));
   const defs=[
-    ["Revenue","financials.periods",x=>latestMetric({financials:x},"revenue")],["Debt","debt.summary",x=>x],["Credit Rating","credit_ratings",x=>displayVal(Array.isArray(x)?x.at(-1)?.rating:x)],
-    ["Directors","directors",x=>displayVal(Array.isArray(x)?x.map(v=>v.name||v):x)],["Ownership","ownership",x=>displayVal(x)],["Operations","operations.capacity",x=>displayVal(x)],
-    ["Legal","legal",x=>String(Array.isArray(x)?x.length:displayVal(x))],["Trade","trade.coverage",x=>displayVal(x)],["Buyers","buyers",x=>String(Array.isArray(x)?x.length:0)],["Suppliers","suppliers",x=>String(Array.isArray(x)?x.length:0)],["Procurement","procurement",x=>displayVal(x)],["Information Gaps","information_gaps",x=>displayVal(x)]
+    ["Revenue",r=>latest(r,"revenue")],["PAT",r=>latest(r,"pat")],["Net Worth",r=>latest(r,"net_worth")],["Debt",r=>displayVal(r.debt?.summary||latestMetric(r,"debt"))],
+    ["Credit Rating",r=>displayVal((r.credit_ratings||[]).at(-1)?.rating)],["Directors",r=>names(r.directors)],["Ownership",r=>names(r.ownership)],
+    ["Operations",r=>names(r.operations?.capacity)],["Legal",r=>String((r.legal||[]).length)],["Trade",r=>displayVal(r.trade?.coverage)],
+    ["Buyers",r=>String((r.buyers||[]).length)],["Suppliers",r=>String((r.suppliers||[]).length)],["Procurement",r=>names(r.procurement)],["Information Gaps",r=>String((r.information_gaps||[]).length)]
   ];
-  const out=[];for(const [label,path,fn] of defs){const av=fn(valueAt(a,path)),bv=fn(valueAt(b,path));if(av&&bv&&av!=="UNKNOWN"&&bv!=="UNKNOWN"&&String(av)!==String(bv))out.push({label,before:bv,after:av})}return out.slice(0,12);
+  const out=[];for(const [label,fn] of defs){const av=fn(a),bv=fn(b);if(av&&bv&&av!=="UNKNOWN"&&bv!=="UNKNOWN"&&String(av)!==String(bv))out.push({label,before:bv,after:av})}return out.slice(0,14);
 }
 function prefillResearch(companyId){
   const c=S.companies.find(x=>x.id===companyId);if(c){document.getElementById("seed").value=c.website||c.legal_name;S.entity={legal_name:c.legal_name,brand:c.brand,country:c.country,state_region:c.state_region,website:c.website};S.currentCompany=c.id}show("new");
