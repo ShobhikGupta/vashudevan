@@ -32,6 +32,19 @@ create table if not exists workspace_settings (
 alter table provider_connections enable row level security;
 alter table workspace_settings enable row level security;
 
+-- Compatibility upgrades if migration 001 was applied before later V1 usage tracking improvements.
+alter table provider_usage add column if not exists research_job_id uuid references research_jobs(id) on delete set null;
+alter table provider_usage add column if not exists model text;
+alter table provider_usage add column if not exists search_calls int not null default 0;
+alter table provider_usage add column if not exists tavily_credits numeric not null default 0;
+alter table provider_usage add column if not exists duration_ms int;
+create index if not exists idx_usage_job on provider_usage(research_job_id, created_at);
+create unique index if not exists uq_company_identifier_normalized
+  on company_identifiers(workspace_id, lower(identifier_type), upper(identifier_value));
+create unique index if not exists uq_company_name_jurisdiction_normalized
+  on companies(workspace_id, regexp_replace(lower(legal_name), '[^a-z0-9]+', '', 'g'), coalesce(lower(country),''));
+
+
 insert into workspace_settings(workspace_id,settings_json)
 select id, jsonb_build_object(
   'ai_strategy','free_first',
@@ -63,7 +76,8 @@ select id, jsonb_build_object(
     'max_cost_per_report_inr',0,
     'daily_budget_inr',0,
     'weekly_budget_inr',0,
-    'monthly_budget_inr',0
+    'monthly_budget_inr',0,
+    'usd_inr_reference',0
   ),
   'alerts',jsonb_build_object(
     'warn_70',false,'warn_80',true,'warn_90',true,
