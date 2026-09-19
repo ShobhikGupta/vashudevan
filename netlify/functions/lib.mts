@@ -114,7 +114,7 @@ export async function researchStrategy(){
   const ensureOpenAI=(model:string)=>{if(!paid)throw new Error("OpenAI is a paid API provider. Paid API usage is currently disabled.");if(!openai)throw new Error("OpenAI is not connected.");return{provider:"openai",model,settings}};
   if(strategy==="openai_only")return ensureOpenAI(settings.openai_model||"gpt-5.6-luna");
   if(strategy==="gemini_only")return ensureGemini();
-  if(strategy==="best_available"){if(paid&&openai)return ensureOpenAI(settings.openai_model||"gpt-5.6-sol");return ensureGemini()}
+  if(strategy==="best_available"){if(paid&&openai&&settings.research_defaults?.automatically_use_paid_provider===true&&cost.auto_switch_paid_provider===true)return ensureOpenAI(settings.openai_model||"gpt-5.6-sol");return ensureGemini()}
   if(strategy==="custom"){
     const primary=settings.primary_ai||"gemini";
     if(primary==="openai")return ensureOpenAI(settings.openai_model||"gpt-5.6-luna");
