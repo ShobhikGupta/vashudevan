@@ -146,7 +146,7 @@ export async function tavily(query:string,researchJobId:string|null=null){const 
 
 function openAIText(p:any){if(typeof p?.output_text==="string")return p.output_text;return (p?.output||[]).flatMap((o:any)=>o?.content||[]).map((c:any)=>c?.text||"").join("\n").trim()}
 function openAISources(p:any){const out:any[]=[],seen=new Set<string>();for(const o of p?.output||[])for(const c of o?.content||[])for(const a of c?.annotations||[]){const u=a?.url||a?.url_citation?.url,t=a?.title||a?.url_citation?.title||u;if(u&&!seen.has(u)){seen.add(u);out.push({title:t||u,url:u,publisher:(()=>{try{return new URL(u).hostname}catch{return""}})()})}}return out}
-function openAICost(model:string,input=0,output=0){const m:any={"gpt-5.6-luna":[.20,1.20],"gpt-5.6-terra":[2,12],"gpt-5.6-sol":[4,20],"gpt-6-astra":[10,50]};const p=m[model]||m["gpt-5.6-luna"];return input/1e6*p[0]+output/1e6*p[1]}
+function openAICost(model:string,input=0,output=0){const m:any={"gpt-5.6-luna":[.20,1.20],"gpt-5.6-terra":[2,12],"gpt-5.6-sol":[5,30]};const p=m[model]||m["gpt-5.6-luna"];return input/1e6*p[0]+output/1e6*p[1]}
 export async function openAIGrounded(prompt:string,model="gpt-5.6-luna",researchJobId:string|null=null){
   const key=await providerSecret("openai");if(!key)throw new Error("OpenAI is not connected.");
   const started=Date.now();const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{"content-type":"application/json",authorization:`Bearer ${key}`},body:JSON.stringify({model,input:prompt,tools:[{type:"web_search"}]})});const p=await r.json();
