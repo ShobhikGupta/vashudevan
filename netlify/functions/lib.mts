@@ -84,6 +84,21 @@ export async function select(table:string,q=""){return await rest(`${table}?${q}
 export async function insert(table:string,rows:any,returnRows=true){return await rest(table,{method:"POST",headers:{Prefer:returnRows?"return=representation":"return=minimal"},body:JSON.stringify(rows)})}
 export async function update(table:string,q:string,patch:any,returnRows=true){const clean=Object.fromEntries(Object.entries(patch).filter(([,v])=>v!==undefined));return await rest(`${table}?${q}`,{method:"PATCH",headers:{Prefer:returnRows?"return=representation":"return=minimal"},body:JSON.stringify(clean)})}
 export async function workspace(){const r=await select("workspaces","slug=eq.VMG&select=id,slug,name&limit=1");if(!r?.length)throw new Error("VMG workspace is not initialized. Apply the Supabase migration first.");return r[0]}
+export async function workspaceSettings(){try{const ws=await workspace();const r=await select("workspace_settings",`workspace_id=eq.${ws.id}&select=settings_json&limit=1`);return r?.[0]?.settings_json||{}}catch{return{}}}
+export async function providerConnection(provider:string){try{const ws=await workspace();const r=await select("provider_connections",`workspace_id=eq.${ws.id}&provider=eq.${provider}&select=provider,status,selected_model,billing_mode,health,provider_metadata&limit=1`);return r?.[0]||null}catch{return null}}
+export async function researchStrategy(){
+  const settings=await workspaceSettings();const strategy=settings.ai_strategy||"free_first";const paid=settings.cost_protection?.allow_paid_api_usage===true;
+  const gemini=Boolean(await providerSecret("gemini")),openai=Boolean(await providerSecret("openai"));
+  if(strategy==="openai_only"){if(!paid)throw new Error("OpenAI is a paid API provider. Paid API usage is currently disabled.");if(!openai)throw new Error("OpenAI is not connected.");return{provider:"openai",model:settings.openai_model||"gpt-5.6-luna",settings}}
+  if(strategy==="gemini_only"){if(!gemini)throw new Error("Gemini is not connected.");return{provider:"gemini",model:"gemini-2.5-flash",settings}}
+  if(strategy==="best_available"&&paid&&openai){return{provider:"openai",model:settings.openai_model||"gpt-5.6-sol",settings}}
+  if(strategy==="custom"){
+    const primary=settings.primary_ai||"gemini";
+    if(primary==="openai"){if(!paid)throw new Error("Paid API usage is disabled.");if(!openai)throw new Error("OpenAI is not connected.");return{provider:"openai",model:settings.openai_model||"gpt-5.6-luna",settings}}
+  }
+  if(!gemini)throw new Error("Gemini is not connected. Free First requires Gemini.");
+  return{provider:"gemini",model:"gemini-2.5-flash",settings};
+}
 export async function uploadStorage(path:string,bytes:ArrayBuffer,mime:string){const c=config();if(!c.supabaseUrl||!c.supabaseSecret)throw new Error("Supabase is not configured.");const r=await fetch(`${c.supabaseUrl}/storage/v1/object/company-documents/${path}`,{method:"POST",headers:{apikey:c.supabaseSecret,authorization:`Bearer ${c.supabaseSecret}`,"content-type":mime||"application/octet-stream","x-upsert":"false"},body:bytes});const t=await r.text();if(!r.ok)throw new Error(`Storage ${r.status}: ${t.slice(0,500)}`);return t?JSON.parse(t):{}}
 
 export async function recordUsage(provider:string,operation:string,success:boolean,meta:any={}){
@@ -99,6 +114,24 @@ export async function geminiJson(prompt:string){
   const key=await providerSecret("gemini");if(!key)throw new Error("Research provider is not configured. Connect Gemini in Settings.");
   const r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},body:JSON.stringify({contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{temperature:.05,responseMimeType:"application/json"}})});const p=await r.json();if(!r.ok){await recordUsage("gemini","structured_synthesis",false,{metadata:{status:r.status}});throw new Error(`Gemini ${r.status}: ${JSON.stringify(p).slice(0,600)}`)}const u=p?.usageMetadata||{};await recordUsage("gemini","structured_synthesis",true,{prompt_tokens:u.promptTokenCount,output_tokens:u.candidatesTokenCount});const t=geminiText(p);try{return JSON.parse(t)}catch{const m=t.match(/\{[\s\S]*\}/);if(!m)throw new Error("Gemini returned invalid JSON.");return JSON.parse(m[0])}}
 export async function tavily(query:string){const key=await providerSecret("tavily");if(!key)return{text:"",sources:[]};const r=await fetch("https://api.tavily.com/search",{method:"POST",headers:{"content-type":"application/json",authorization:`Bearer ${key}`},body:JSON.stringify({query,search_depth:"advanced",max_results:8,include_answer:true})});const p=await r.json();if(!r.ok){await recordUsage("tavily","search",false,{metadata:{status:r.status}});throw new Error(`Tavily ${r.status}`)}await recordUsage("tavily","search",true);const sources=(p.results||[]).map((x:any)=>({title:x.title||x.url,url:x.url,publisher:(()=>{try{return new URL(x.url).hostname}catch{return""}})(),snippet:String(x.content||"").slice(0,500)}));return{text:[p.answer||"",...sources.map((s:any)=>`${s.title}: ${s.snippet}`)].join("\n"),sources}}
+
+function openAIText(p:any){if(typeof p?.output_text==="string")return p.output_text;return (p?.output||[]).flatMap((o:any)=>o?.content||[]).map((c:any)=>c?.text||"").join("\n").trim()}
+function openAISources(p:any){const out:any[]=[],seen=new Set<string>();for(const o of p?.output||[])for(const c of o?.content||[])for(const a of c?.annotations||[]){const u=a?.url||a?.url_citation?.url,t=a?.title||a?.url_citation?.title||u;if(u&&!seen.has(u)){seen.add(u);out.push({title:t||u,url:u,publisher:(()=>{try{return new URL(u).hostname}catch{return""}})()})}}return out}
+function openAICost(model:string,input=0,output=0){const m:any={"gpt-5.6-luna":[.20,1.20],"gpt-5.6-terra":[2,12],"gpt-5.6-sol":[4,20],"gpt-6-astra":[10,50]};const p=m[model]||m["gpt-5.6-luna"];return input/1e6*p[0]+output/1e6*p[1]}
+export async function openAIGrounded(prompt:string,model="gpt-5.6-luna"){
+  const key=await providerSecret("openai");if(!key)throw new Error("OpenAI is not connected.");
+  const started=Date.now();const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{"content-type":"application/json",authorization:`Bearer ${key}`},body:JSON.stringify({model,input:prompt,tools:[{type:"web_search"}]})});const p=await r.json();
+  const u=p?.usage||{};if(!r.ok){await recordUsage("openai","web_research",false,{metadata:{status:r.status,model}});throw new Error(`OpenAI ${r.status}: ${safeError(p?.error?.message||"request failed")}`)}
+  await recordUsage("openai","web_research",true,{prompt_tokens:u.input_tokens,output_tokens:u.output_tokens,estimated_cost_usd:openAICost(model,u.input_tokens,u.output_tokens),metadata:{model,duration_ms:Date.now()-started}});
+  return{text:openAIText(p),sources:openAISources(p)};
+}
+export async function openAIJson(prompt:string,model="gpt-5.6-luna"){
+  const key=await providerSecret("openai");if(!key)throw new Error("OpenAI is not connected.");
+  const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{"content-type":"application/json",authorization:`Bearer ${key}`},body:JSON.stringify({model,input:prompt})});const p=await r.json();const u=p?.usage||{};
+  if(!r.ok){await recordUsage("openai","structured_synthesis",false,{metadata:{status:r.status,model}});throw new Error(`OpenAI ${r.status}: ${safeError(p?.error?.message||"request failed")}`)}
+  await recordUsage("openai","structured_synthesis",true,{prompt_tokens:u.input_tokens,output_tokens:u.output_tokens,estimated_cost_usd:openAICost(model,u.input_tokens,u.output_tokens),metadata:{model}});
+  const t=openAIText(p);try{return JSON.parse(t)}catch{const m=t.match(/\{[\s\S]*\}/);if(!m)throw new Error("OpenAI returned invalid JSON.");return JSON.parse(m[0])}
+}
 
 export function entityPrompt(seed:string){return `${SYSTEM_RULES}
 Resolve this entity seed using live web evidence: ${seed}
