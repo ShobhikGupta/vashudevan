@@ -1,0 +1,14 @@
+{
+  "name":"vmg-company-intelligence",
+  "private":true,
+  "version":"0.1.0",
+  "type":"module",
+  "engines":{"node":">=20"},
+  "scripts":{"build":"node -e \"console.log('VMG Company Intelligence build')\""},
+  "dependencies":{
+    "@netlify/functions":"^3.1.10",
+    "docx":"^9.5.1",
+    "pdf-lib":"^1.17.1",
+    "xlsx":"^0.18.5"
+  }
+}
