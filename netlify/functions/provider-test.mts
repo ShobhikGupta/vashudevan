@@ -11,6 +11,6 @@ export default async (req:Request,_ctx:Context)=>{
     const result=await testProvider(provider,key,String(b.selected_model||""));
     try{const ws=await workspace();await update("provider_connections",`workspace_id=eq.${ws.id}&provider=eq.${provider}`,{last_verified_at:new Date().toISOString(),last_latency_ms:result.latency_ms,health:"CONNECTED",status:"CONNECTED",provider_metadata:{grounding_verified:result.grounding_verified===true},updated_at:new Date().toISOString()},false)}catch{}
     return json({pass:true,timestamp:new Date().toISOString(),latency_ms:result.latency_ms});
-  }catch(e){return json({pass:false,error:safeError(e),timestamp:new Date().toISOString()},400)}
+  }catch(e){try{const b=await req.clone().json() as any,provider=String(b?.provider||"").toLowerCase(),ws=await workspace();await update("provider_connections",`workspace_id=eq.${ws.id}&provider=eq.${provider}`,{health:"AUTH_ERROR",status:"AUTH_ERROR",last_verified_at:new Date().toISOString(),updated_at:new Date().toISOString()},false)}catch{}return json({pass:false,error:safeError(e),timestamp:new Date().toISOString()},400)}
 };
 export const config:Config={path:"/api/provider-test"};
