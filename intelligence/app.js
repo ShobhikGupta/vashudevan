@@ -208,15 +208,17 @@ async function openCompany(id){
 async function openReport(id){
   try{
     const j=await api("/api/reports?id="+encodeURIComponent(id));S.currentReport=id;S.currentCompany=j.report.company_id;S.currentReportData=j.report;S.currentEvidence=j.evidence||[];S.currentSources=j.sources||[];
-    const c=j.company||S.companies.find(x=>x.id===j.report.company_id)||{legal_name:"Company"};
-    document.getElementById("profileName").textContent=c.legal_name;document.getElementById("profileMeta").innerHTML='Version '+esc(j.report.version_no)+' • Evidence coverage '+esc(j.report.evidence_coverage??"—")+'% • '+esc(j.report.source_count??0)+' sources • '+esc(fmtShort(j.report.created_at))+' &nbsp; <a href="/api/report-export?report_id='+j.report.id+'&type=pdf">PDF</a> · <a href="/api/report-export?report_id='+j.report.id+'&type=docx">DOCX</a> · <a href="/api/report-export?report_id='+j.report.id+'&type=xlsx">XLSX</a>';
-    await renderReport(j.report.report_json||{},j.evidence||[],j.sources||[],c,j.report);
-    show("profile");
+    const c=j.company||S.companies.find(x=>x.id===j.report.company_id)||{legal_name:"Company"},d=S.settings.report_defaults||{},links=[];
+    if(d.pdf!==false)links.push('<a href="/api/report-export?report_id='+j.report.id+'&type=pdf">PDF</a>');
+    if(d.docx!==false)links.push('<a href="/api/report-export?report_id='+j.report.id+'&type=docx">DOCX</a>');
+    if(d.xlsx!==false)links.push('<a href="/api/report-export?report_id='+j.report.id+'&type=xlsx">XLSX</a>');
+    document.getElementById("profileName").textContent=c.legal_name;document.getElementById("profileMeta").innerHTML='Version '+esc(j.report.version_no)+' • Evidence coverage '+esc(j.report.evidence_coverage??"—")+'% • '+esc(j.report.source_count??0)+' sources • '+esc(fmtShort(j.report.created_at))+(links.length?' &nbsp; '+links.join(" · "):"");
+    await renderReport(j.report.report_json||{},j.evidence||[],j.sources||[],c,j.report);show("profile");
   }catch(e){toast(e.message)}
 }
 function evidenceMap(evidence){return Object.fromEntries((evidence||[]).filter(x=>x.finding_key).map(x=>[x.finding_key,x]))}
 function valueAt(obj,path){return path.split(".").reduce((a,k)=>a?.[k],obj)}
-function displayVal(v){if(v===null||v===undefined||v==="")return"UNKNOWN";if(typeof v==="number")return Number.isInteger(v)?String(v):v.toFixed(2);if(Array.isArray(v))return v.map(x=>isObj(x)?(x.name||x.material||x.legal_name||x.counterparty||JSON.stringify(x)):x).join(", ")||"UNKNOWN";if(isObj(v))return v.value??v.amount??v.name??v.summary??"See detail";return String(v)}
+function displayVal(v){if(v===null||v===undefined||v==="")return"UNKNOWN";if(typeof v==="number")return Number.isInteger(v)?String(v):v.toFixed(2);if(Array.isArray(v))return v.map(x=>isObj(x)?(x.name||x.material||x.legal_name||x.counterparty||("value" in x?displayVal(x):JSON.stringify(x))):x).join(", ")||"UNKNOWN";if(isObj(v)){if("value" in v){const suffix=[v.currency,v.unit].filter(Boolean).join(" ");return displayVal(v.value)+(suffix?" "+suffix:"")}return v.amount??v.name??v.summary??"See detail"}return String(v)}
 function metricHtml(label,value,key,eMap,period=""){
   const ev=eMap[key];const cls=ev?.evidence_class||"UNKNOWN",conf=ev?.confidence||"INSUFFICIENT";
   return '<div class="metric" data-evidence-key="'+esc(key)+'"><label>'+esc(label)+'</label><strong>'+esc(displayVal(value))+'</strong><div class="sub">'+esc(period||ev?.period||"")+(period||ev?.period?" • ":"")+esc(cls)+' • '+esc(conf)+'</div></div>';
@@ -264,7 +266,7 @@ function openEvidence(key){
   ].map(x=>'<div class="statusline"><span>'+esc(x[0])+'</span><b>'+esc(x[1])+'</b></div>').join("")+'</div><h4 style="margin-top:18px">Sources</h4>'+(src.map(s=>'<div class="source"><b>'+esc(s.title||s.url)+'</b><p>'+esc(s.publisher||"")+" • Retrieved "+esc(fmtShort(s.retrieved_at))+'</p><a href="'+esc(s.url)+'" target="_blank" rel="noopener">Open source</a></div>').join("")||'<div class="notice">No exact linked source is stored for this finding.</div>');
   document.getElementById("drawer").classList.add("open");
 }
-function normalizeNumber(v){if(typeof v==="number")return v;if(typeof v==="string"){const n=Number(v.replace(/[,₹$€£%]/g,"").replace(/\s*(cr|crore|mn|million|bn|billion).*$/i,""));return Number.isFinite(n)?n:null}return null}
+function normalizeNumber(v){if(typeof v==="number"&&Number.isFinite(v))return v;if(isObj(v)&&typeof v.value==="number"&&Number.isFinite(v.value))return v.value;return null}
 function lineChart(periods,key,title){
   const vals=periods.map(p=>({label:periodLabel(p),value:normalizeNumber(p[key])})).filter(x=>x.value!=null);
   if(vals.length<2)return '<div class="panel chart"><h4>'+esc(title)+'</h4><div class="empty">Insufficient Verified Data</div></div>';
@@ -272,17 +274,30 @@ function lineChart(periods,key,title){
   const pts=vals.map((x,i)=>({x:pad+i*((w-pad*2)/(vals.length-1)),y:h-pad-(x.value-min)/span*(h-pad*2),...x}));
   return '<div class="panel chart"><h4>'+esc(title)+'</h4><svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="'+esc(title)+'"><path d="'+pts.map((p,i)=>(i?"L":"M")+p.x.toFixed(1)+" "+p.y.toFixed(1)).join(" ")+'" fill="none" stroke="currentColor" stroke-width="2"/>'+pts.map(p=>'<circle cx="'+p.x+'" cy="'+p.y+'" r="3" fill="currentColor"><title>'+esc(p.label+": "+p.value)+'</title></circle>').join("")+'<line x1="'+pad+'" x2="'+(w-pad)+'" y1="'+(h-pad)+'" y2="'+(h-pad)+'" stroke="#d8d1c7"/>'+pts.map(p=>'<text x="'+p.x+'" y="'+(h-5)+'" text-anchor="middle" font-size="9" fill="#7a8491">'+esc(p.label)+'</text>').join("")+'</svg></div>';
 }
+function dualChart(periods,keyA,keyB,title){
+  const vals=periods.map(p=>({label:periodLabel(p),a:normalizeNumber(p[keyA]),b:normalizeNumber(p[keyB])})).filter(x=>x.a!=null&&x.b!=null);
+  if(vals.length<2)return '<div class="panel chart"><h4>'+esc(title)+'</h4><div class="empty">Insufficient Verified Data</div></div>';
+  const w=520,h=150,pad=22,all=vals.flatMap(x=>[x.a,x.b]),min=Math.min(...all),max=Math.max(...all),span=max-min||1;
+  const mk=k=>vals.map((x,i)=>({x:pad+i*((w-pad*2)/(vals.length-1)),y:h-pad-(x[k]-min)/span*(h-pad*2)}));
+  const a=mk("a"),b=mk("b"),path=pts=>pts.map((p,i)=>(i?"L":"M")+p.x.toFixed(1)+" "+p.y.toFixed(1)).join(" ");
+  return '<div class="panel chart"><h4>'+esc(title)+'</h4><svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="'+esc(title)+'"><path d="'+path(a)+'" fill="none" stroke="currentColor" stroke-width="2"/><path d="'+path(b)+'" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4"/><text x="24" y="14" font-size="9">Debt — solid • Net worth — dashed</text>'+vals.map((x,i)=>'<text x="'+a[i].x+'" y="'+(h-5)+'" text-anchor="middle" font-size="9" fill="#7a8491">'+esc(x.label)+'</text>').join("")+'</svg></div>';
+}
 function renderFinancials(r,em){
   const periods=r.financials?.periods||[],lp=latestPeriod(periods);
   const kpis=[["Revenue",latestMetric(r,"revenue"),"financial.revenue.latest"],["EBITDA",latestMetric(r,"ebitda"),"financial.ebitda.latest"],["PAT",latestMetric(r,"pat"),"financial.pat.latest"],["Operating Cash",latestMetric(r,"operating_cash_flow"),"financial.operating_cash_flow.latest"],["Net Worth",latestMetric(r,"net_worth"),"financial.net_worth.latest"]];
   const heads=["Period","Revenue","EBITDA","PAT","Operating Cash Flow","Net Worth","Debt","Working Capital","Receivable Days","Creditor Days"];
-  const alias=(p,k)=>{const maps={revenue:["revenue","turnover","sales"],ebitda:["ebitda"],pat:["pat","net_profit","profit_after_tax"],ocf:["operating_cash_flow","ocf","cash_from_operations"],networth:["net_worth","networth"],debt:["debt","total_debt","borrowings"],wc:["working_capital"],rd:["receivable_days","debtor_days"],cd:["creditor_days","payable_days"]};for(const a of maps[k])if(p?.[a]!=null)return p[a];return"—"};
+  const maps={revenue:["revenue","turnover","sales"],ebitda:["ebitda"],pat:["pat","net_profit","profit_after_tax"],ocf:["operating_cash_flow","ocf","cash_from_operations"],networth:["net_worth","networth"],debt:["debt","total_debt","borrowings"],wc:["working_capital"],rd:["receivable_days","debtor_days"],cd:["creditor_days","payable_days"]};
+  const alias=(p,k)=>{for(const a of maps[k])if(p?.[a]!=null)return p[a];return"—"},findKey=names=>names.find(n=>periods.some(p=>p?.[n]!=null))||names[0];
   const rows=periods.map(p=>[periodLabel(p),alias(p,"revenue"),alias(p,"ebitda"),alias(p,"pat"),alias(p,"ocf"),alias(p,"networth"),alias(p,"debt"),alias(p,"wc"),alias(p,"rd"),alias(p,"cd")]);
-  const findKey=(names)=>names.find(n=>periods.some(p=>p?.[n]!=null))||names[0];
-  document.getElementById("financialContent").innerHTML=
-    '<div class="financekpi">'+kpis.map(x=>'<div class="panel mini" data-evidence-key="'+x[2]+'"><span>'+esc(x[0])+'</span><b>'+esc(displayVal(x[1]))+'</b><small>'+esc(periodLabel(lp)||"Latest verified period")+'</small></div>').join("")+'</div>'+
-    '<div class="charts">'+lineChart(periods,findKey(["revenue","turnover","sales"]),"Revenue Trend")+lineChart(periods,findKey(["pat","net_profit","profit_after_tax"]),"Profit Trend")+lineChart(periods,findKey(["operating_cash_flow","ocf","cash_from_operations"]),"Operating Cash Flow")+lineChart(periods,findKey(["working_capital"]),"Working Capital")+'</div>'+
-    '<div class="panel card"><h3>Five-year financial table</h3>'+renderTable(heads,rows)+'</div>';
+  const debtKey=findKey(maps.debt),nwKey=findKey(maps.networth);
+  document.getElementById("financialContent").innerHTML='<div class="financekpi">'+kpis.map(x=>'<div class="panel mini" data-evidence-key="'+x[2]+'"><span>'+esc(x[0])+'</span><b>'+esc(displayVal(x[1]))+'</b><small>'+esc(periodLabel(lp)||"Latest verified period")+'</small></div>').join("")+'</div>'+
+    '<div class="charts">'+
+      lineChart(periods,findKey(maps.revenue),"Revenue Trend")+lineChart(periods,findKey(maps.pat),"PAT Trend")+
+      lineChart(periods,findKey(maps.ebitda),"EBITDA Trend")+lineChart(periods,findKey(maps.ocf),"Operating Cash Flow")+
+      lineChart(periods,nwKey,"Net Worth")+lineChart(periods,debtKey,"Debt")+
+      dualChart(periods,debtKey,nwKey,"Debt vs Net Worth")+lineChart(periods,findKey(maps.wc),"Working Capital")+
+      lineChart(periods,findKey(maps.rd),"Receivable Days")+lineChart(periods,findKey(maps.cd),"Creditor Days")+
+    '</div><div class="panel card"><h3>Five-year financial table</h3>'+renderTable(heads,rows)+'</div>';
   bindEvidence();
 }
 function renderTable(heads,rows){
@@ -300,8 +315,18 @@ function renderOperations(r){
   document.getElementById("operationsContent").innerHTML='<div class="sectiongrid"><div class="panel card"><h3>Facilities</h3>'+renderTable(["Facility","Type","Address","Capacity"],arrRows(o.facilities||[],[{key:"name"},{key:"facility_type"},{key:"address"},{key:"installed_capacity"}]))+'</div><div class="panel card"><h3>Machinery / capacity</h3>'+renderList([...(o.capacity||[]),...(o.machinery||[])],"No verified machinery or capacity data.")+'</div></div>';
 }
 function renderCredit(r,em){
-  const borrowings=r.debt?.borrowings||[],charges=r.charges||[],risks=r.risks||[];
-  document.getElementById("creditContent").innerHTML='<div class="panel card" style="margin-bottom:9px"><h3>Payment & credit safety</h3><div class="notice '+(em["risk.credit_safety"]?.evidence_class==="VERIFIED"?"info":"error")+'">'+esc(displayVal(em["risk.credit_safety"]?.value_json||"CREDIT SAFETY NOT SUFFICIENTLY VERIFIED"))+'</div></div><div class="sectiongrid"><div class="panel card"><h3>Borrowings</h3>'+renderTable(["Lender","Type","Amount","As of","Evidence"],arrRows(borrowings,[{key:"lender"},{key:"borrowing_type"},{key:"amount"},{key:"as_of_date"},{key:"evidence_class"}]))+'</div><div class="panel card"><h3>Charges / lenders</h3>'+renderTable(["Lender","Charge amount","Status","Created","Satisfied"],arrRows(charges,[{key:"lender"},{key:"charge_amount"},{key:"status"},{key:"created_date"},{key:"satisfied_date"}]))+'</div></div><div class="panel card" style="margin-top:9px"><h3>Risk findings</h3>'+renderList(risks,"No material risk findings stored.")+'</div>';
+  const borrowings=r.debt?.borrowings||[],charges=r.charges||[],risks=r.risks||[],lp=latestPeriod(r.financials?.periods||[]),ratings=r.credit_ratings||[],latestRating=ratings.at(-1)||{},ratios=r.financials?.ratios||[];
+  const ratio=name=>{const n=name.toLowerCase().replace(/[^a-z]/g,"");const x=ratios.find(x=>String(x.metric_key||x.name||x.ratio||"").toLowerCase().replace(/[^a-z]/g,"")===n);return x?.value??x?.value_numeric??"UNKNOWN"};
+  const recovery=(r.legal||[]).filter(x=>/recover|default|cheque|supplier|payment/i.test(JSON.stringify(x))),ibc=(r.insolvency||[]).filter(x=>/ibc|nclt|insolven/i.test(JSON.stringify(x)));
+  const supplier=em["credit.supplier_payment"]?.value_json||em["supplier.payment_behaviour"]?.value_json||"UNKNOWN";
+  document.getElementById("creditContent").innerHTML='<div class="panel card" style="margin-bottom:9px"><h3>Payment & credit safety</h3><div class="notice '+(em["risk.credit_safety"]?.evidence_class==="VERIFIED"?"info":"error")+'">'+esc(displayVal(em["risk.credit_safety"]?.value_json||"CREDIT SAFETY NOT SUFFICIENTLY VERIFIED"))+'</div></div>'+
+    '<div class="financekpi">'+[
+      ["Verified current debt",latestMetric(r,"debt")],["Registered charges",charges.length?charges.length+" filing(s)":"UNKNOWN"],["Credit rating",latestRating.rating||"UNKNOWN"],
+      ["Operating cash flow",latestMetric(r,"operating_cash_flow")],["Current ratio",ratio("currentratio")],["Debt / equity",ratio("debtequity")],["Creditor ageing",lp.creditor_ageing||latestMetric(r,"creditor_days")],["Supplier payment evidence",supplier],["Recovery/default cases",recovery.length],["IBC / NCLT",ibc.length]
+    ].map(x=>'<div class="panel mini"><span>'+esc(x[0])+'</span><b>'+esc(displayVal(x[1]))+'</b></div>').join("")+'</div>'+
+    '<div class="notice" style="margin-bottom:9px">Registered charge amounts are shown separately and are <b>not treated as current debt</b>.</div>'+
+    '<div class="sectiongrid"><div class="panel card"><h3>Borrowings</h3>'+renderTable(["Lender","Type","Amount","As of","Evidence"],arrRows(borrowings,[{key:"lender"},{key:"borrowing_type"},{key:"amount"},{key:"as_of_date"},{key:"evidence_class"}]))+'</div><div class="panel card"><h3>Charges / lenders</h3>'+renderTable(["Lender","Charge amount","Status","Created","Satisfied"],arrRows(charges,[{key:"lender"},{key:"charge_amount"},{key:"status"},{key:"created_date"},{key:"satisfied_date"}]))+'</div></div>'+
+    '<div class="panel card" style="margin-top:9px"><h3>Risk findings</h3>'+renderList(risks,"No material risk findings stored.")+'</div>';
 }
 function renderRatings(r){document.getElementById("ratingsContent").innerHTML='<div class="panel card"><h3>Credit ratings</h3>'+renderTable(["Agency","Date","Facility","Amount","Rating","Outlook","Rationale"],arrRows(r.credit_ratings||[],[{key:"agency"},{key:"rating_date"},{key:"facility"},{key:"facility_amount"},{key:"rating"},{key:"outlook"},{key:"rationale"}]))+'</div>'}
 function renderTrade(r){
@@ -355,28 +380,32 @@ function renderCompareChips(){
 }
 async function runCompare(){
   try{
-    const j=await api("/api/compare-companies?ids="+encodeURIComponent(S.compareIds.join(",")));
-    const metrics=["identity","financials","debt","credit_ratings","operations","legal","procurement"];
-    document.getElementById("compareOut").innerHTML='<div class="tablewrap"><table><thead><tr><th>Area</th>'+j.companies.map(x=>'<th>'+esc(x.company.legal_name)+'</th>').join("")+'</tr></thead><tbody>'+metrics.map(m=>'<tr><td><b>'+esc(m.replaceAll("_"," "))+'</b></td>'+j.companies.map(x=>'<td>'+esc(compactMetric(x.metrics?.[m]))+'</td>').join("")+'</tr>').join("")+'</tbody></table></div><div class="notice" style="margin-top:10px">'+esc(j.note||"")+'</div>';
+    const j=await api("/api/compare-companies?ids="+encodeURIComponent(S.compareIds.join(","))),companies=j.companies||[];
+    const defs=[
+      ["Revenue","revenue"],["PAT","pat"],["Net Worth","net_worth"],["Debt","debt"],["Debt / Equity","debt_equity"],["Credit Rating","credit_rating"],
+      ["Capacity","capacity"],["Products","products"],["Plants","plants"],["Exports","exports"],["Legal Signals","legal_signals"],["Procurement Relevance","procurement_relevance"]
+    ];
+    const cell=x=>{const v=x?.value,period=x?.period;return '<b>'+esc(displayVal(v))+'</b>'+(period?'<br><small>'+esc(period)+'</small>':'')};
+    document.getElementById("compareOut").innerHTML='<div class="tablewrap"><table><thead><tr><th>Metric</th>'+companies.map(x=>'<th>'+esc(x.company.legal_name)+'</th>').join("")+'</tr></thead><tbody>'+defs.map(([label,key])=>'<tr><td><b>'+esc(label)+'</b></td>'+companies.map(x=>'<td>'+cell(x.comparison?.[key])+'</td>').join("")+'</tr>').join("")+'</tbody></table></div><div class="notice" style="margin-top:10px">'+esc(j.note||"")+'</div>';
   }catch(e){toast(e.message)}
 }
 function compactMetric(v){if(v==null)return"UNKNOWN";if(typeof v==="string")return v;if(Array.isArray(v))return v.length+" recorded item(s)";if(isObj(v)){if(v.summary)return displayVal(v.summary);const ks=Object.keys(v);return ks.length?ks.slice(0,4).map(k=>k.replaceAll("_"," ")+": "+displayVal(v[k])).join(" • "):"UNKNOWN"}return displayVal(v)}
 
 async function loadAdminState(){
-  try{S.admin=await api("/api/settings-auth");renderSettingsLock();if(S.admin.authorized)await Promise.allSettled([loadConnections(),loadSettings()]);else renderLockedSettings()}catch(e){S.admin={configured:false,authorized:false};renderSettingsLock();renderLockedSettings()}
+  try{
+    S.admin=await api("/api/settings-auth");renderSettingsLock();
+    await Promise.allSettled([loadConnections(),loadSettings()]);renderProviderSettings();renderSettingForms();renderSystemConnections();
+  }catch(e){S.admin={configured:false,authorized:false};renderSettingsLock();await Promise.allSettled([loadConnections(),loadSettings()]);renderProviderSettings();renderSettingForms();renderSystemConnections()}
 }
 function renderSettingsLock(){
   const b=document.getElementById("settingsLockBanner");
-  if(!S.admin.configured){b.className="notice error";b.innerHTML='<b>Admin Settings Lock is not configured.</b><br>Add <code>SETTINGS_ADMIN_SECRET</code> to the Netlify environment before provider credentials or paid-usage settings can be changed.';return}
-  if(!S.admin.authorized){b.className="notice info";b.innerHTML='<b>Private settings are locked.</b> <button class="btn" id="unlockSettings" style="margin-left:8px">Unlock Admin Settings</button>';document.getElementById("unlockSettings").onclick=()=>document.getElementById("adminModal").classList.add("open");return}
-  b.className="notice success";b.innerHTML='<b>Admin settings unlocked for this browser session.</b> <button class="btn" id="lockSettings" style="margin-left:8px">Lock</button>';document.getElementById("lockSettings").onclick=async()=>{await api("/api/settings-auth",{method:"DELETE"});S.admin.authorized=false;renderSettingsLock();renderLockedSettings()};
+  if(!S.admin.configured){b.className="notice error";b.innerHTML='<b>Admin Settings Lock is not configured.</b><br>Viewing is available, but provider credentials and policy changes remain disabled until <code>SETTINGS_ADMIN_SECRET</code> is added to Netlify.';return}
+  if(!S.admin.authorized){b.className="notice info";b.innerHTML='<b>Settings are view-only.</b> 🔒 Unlock Admin Settings to change provider credentials, research policy, privacy or budgets. <button class="btn" id="unlockSettings" style="margin-left:8px">Unlock Admin Settings</button>';document.getElementById("unlockSettings").onclick=()=>document.getElementById("adminModal").classList.add("open");return}
+  b.className="notice success";b.innerHTML='<b>Admin settings unlocked for this browser session.</b> <button class="btn" id="lockSettings" style="margin-left:8px">Lock</button>';document.getElementById("lockSettings").onclick=async()=>{await api("/api/settings-auth",{method:"DELETE"});S.admin.authorized=false;renderSettingsLock();renderProviderSettings();renderSettingForms()};
 }
-function renderLockedSettings(){
-  ["researchProviderCards","searchProviderCards","apiConnectionRows","aiStrategyForm","researchDefaultsForm","costProtectionForm","alertsForm","privacyForm","reportDefaultsForm"].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<div class="notice">Unlock Admin Settings to view or change private connection and policy settings.</div>'});
-  renderSystemConnections();
-}
-async function loadConnections(){try{const j=await api("/api/provider-connections");S.connections=j.connections||[];S.providerMeta=j.metadata||S.providerMeta;renderProviderSettings()}catch(e){toast(e.message)}}
-async function loadSettings(){try{const j=await api("/api/settings");S.settings=j.settings||{};renderSettingForms()}catch(e){toast(e.message)}}
+function renderLockedSettings(){renderProviderSettings();renderSettingForms();renderSystemConnections()}
+async function loadConnections(){try{const j=await api("/api/provider-connections");S.connections=j.connections||[];S.providerMeta=j.metadata||S.providerMeta}catch(e){S.connections=[]}}
+async function loadSettings(){try{const j=await api("/api/settings");S.settings=j.settings||{}}catch(e){S.settings={}}}
 function con(provider){return S.connections.find(x=>x.provider===provider)||null}
 function providerCard(provider){
   const m=S.providerMeta?.[provider]||{},c=con(provider),connected=Boolean(c?.status==="CONNECTED"||S.providers?.[provider]?.connected),health=c?.health||(connected?"CONNECTED":"NOT CONNECTED");
