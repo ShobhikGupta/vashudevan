@@ -108,17 +108,20 @@ export async function workspace(){const r=await select("workspaces","slug=eq.VMG
 export async function workspaceSettings(){try{const ws=await workspace();const r=await select("workspace_settings",`workspace_id=eq.${ws.id}&select=settings_json&limit=1`);return r?.[0]?.settings_json||{}}catch{return{}}}
 export async function providerConnection(provider:string){try{const ws=await workspace();const r=await select("provider_connections",`workspace_id=eq.${ws.id}&provider=eq.${provider}&select=provider,status,selected_model,billing_mode,health,provider_metadata&limit=1`);return r?.[0]||null}catch{return null}}
 export async function researchStrategy(){
-  const settings=await workspaceSettings();const strategy=settings.ai_strategy||"free_first";const paid=settings.cost_protection?.allow_paid_api_usage===true;
-  const gemini=Boolean(await providerSecret("gemini")),openai=Boolean(await providerSecret("openai"));
-  if(strategy==="openai_only"){if(!paid)throw new Error("OpenAI is a paid API provider. Paid API usage is currently disabled.");if(!openai)throw new Error("OpenAI is not connected.");return{provider:"openai",model:settings.openai_model||"gpt-5.6-luna",settings}}
-  if(strategy==="gemini_only"){if(!gemini)throw new Error("Gemini is not connected.");return{provider:"gemini",model:"gemini-2.5-flash",settings}}
-  if(strategy==="best_available"&&paid&&openai){return{provider:"openai",model:settings.openai_model||"gpt-5.6-sol",settings}}
+  const settings=await workspaceSettings(),strategy=settings.ai_strategy||"free_first",cost=settings.cost_protection||{},paid=cost.allow_paid_api_usage===true,freeOnly=cost.free_only_mode!==false;
+  const gemini=Boolean(await providerSecret("gemini")),openai=Boolean(await providerSecret("openai")),geminiConn=await providerConnection("gemini");
+  const ensureGemini=()=>{if(!gemini)throw new Error("Gemini is not connected.");if(freeOnly&&geminiConn?.billing_mode==="paid")throw new Error("Gemini is connected as a paid provider, but Free-only mode is enabled.");return{provider:"gemini",model:"gemini-2.5-flash",settings}};
+  const ensureOpenAI=(model:string)=>{if(!paid)throw new Error("OpenAI is a paid API provider. Paid API usage is currently disabled.");if(!openai)throw new Error("OpenAI is not connected.");return{provider:"openai",model,settings}};
+  if(strategy==="openai_only")return ensureOpenAI(settings.openai_model||"gpt-5.6-luna");
+  if(strategy==="gemini_only")return ensureGemini();
+  if(strategy==="best_available"){if(paid&&openai)return ensureOpenAI(settings.openai_model||"gpt-5.6-sol");return ensureGemini()}
   if(strategy==="custom"){
     const primary=settings.primary_ai||"gemini";
-    if(primary==="openai"){if(!paid)throw new Error("Paid API usage is disabled.");if(!openai)throw new Error("OpenAI is not connected.");return{provider:"openai",model:settings.openai_model||"gpt-5.6-luna",settings}}
+    if(primary==="openai")return ensureOpenAI(settings.openai_model||"gpt-5.6-luna");
+    return ensureGemini();
   }
   if(!gemini)throw new Error("Gemini is not connected. Free First requires Gemini.");
-  return{provider:"gemini",model:"gemini-2.5-flash",settings};
+  return ensureGemini();
 }
 export async function uploadStorage(path:string,bytes:ArrayBuffer,mime:string){const c=config();if(!c.supabaseUrl||!c.supabaseSecret)throw new Error("Supabase is not configured.");const r=await fetch(`${c.supabaseUrl}/storage/v1/object/company-documents/${path}`,{method:"POST",headers:{apikey:c.supabaseSecret,authorization:`Bearer ${c.supabaseSecret}`,"content-type":mime||"application/octet-stream","x-upsert":"false"},body:bytes});const t=await r.text();if(!r.ok)throw new Error(`Storage ${r.status}: ${t.slice(0,500)}`);return t?JSON.parse(t):{}}
 
