@@ -69,6 +69,7 @@ function renderProviders(){
   document.getElementById("providerMini").innerHTML=rows.map(([a,b])=>'<div class="statusline"><span>'+esc(a)+'</span><b>'+tag(String(b).replaceAll("_"," "),statusKind(b))+'</b></div>').join("");
 }
 async function loadTemplates(){
+  if(!S.providers?.supabase?.connected){S.templates=[];renderTemplates();return}
   try{const j=await api("/api/templates");S.templates=j.templates||[]}catch{S.templates=[]}
   renderTemplates();
 }
@@ -89,6 +90,7 @@ function renderTemplates(){
   document.querySelectorAll("[data-template]").forEach(b=>b.onclick=()=>{S.selectedTemplate=b.dataset.template;document.querySelectorAll("[data-template]").forEach(x=>x.classList.toggle("active",x.dataset.template===S.selectedTemplate))});
 }
 async function loadCompanies(){
+  if(!S.providers?.supabase?.connected){S.companies=[];document.getElementById("kCompanies").textContent="—";renderCompanies();renderCompareOptions();return}
   try{const j=await api("/api/companies");S.companies=j.companies||[];document.getElementById("kCompanies").textContent=S.companies.length;renderCompanies();renderCompareOptions()}catch{document.getElementById("kCompanies").textContent="—"}
 }
 function renderCompanies(){
@@ -100,9 +102,8 @@ function renderCompanies(){
   document.querySelectorAll("[data-open-company]").forEach(b=>b.onclick=()=>openCompany(b.dataset.openCompany));
 }
 async function loadReports(){
-  try{
-    const j=await api("/api/reports");S.reports=j.reports||[];document.getElementById("kReports").textContent=S.reports.length;renderReports();
-  }catch{document.getElementById("kReports").textContent="—"}
+  if(!S.providers?.supabase?.connected){S.reports=[];document.getElementById("kReports").textContent="—";renderReports();return}
+  try{const j=await api("/api/reports");S.reports=j.reports||[];document.getElementById("kReports").textContent=S.reports.length;renderReports()}catch{document.getElementById("kReports").textContent="—"}
 }
 function renderReports(){
   const defs=S.settings.report_defaults||{},exportBtn=(r,type,label)=>defs[type]===false?'<span class="tag neutral">'+label+' off</span>':'<a class="btn" href="/api/report-export?report_id='+r.id+'&type='+type+'">'+label+'</a>';
@@ -114,6 +115,12 @@ function renderReports(){
   document.querySelectorAll("[data-rerun]").forEach(b=>b.onclick=()=>prefillResearch(b.dataset.rerun));
 }
 async function loadUsage(){
+  if(!S.providers?.supabase?.connected){
+    document.getElementById("kJobs").textContent="—";document.getElementById("kCalls").textContent="—";document.getElementById("kAvailable").textContent="—";
+    ["uJobs","uGemini","uTavily","uFailed","uCost"].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent="—"});
+    ["usageCapacity","usageReset","usagePeriods","usageAverageCost","settingsUsage"].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML='<div class="notice">Database setup is required before usage history is available.</div>'});
+    return;
+  }
   try{
     const u=await api("/api/usage"),t=u.today||{},c=u.capacity||{},w=u.week||{},m=u.month||{},fx=u.currency_reference;
     document.getElementById("kJobs").textContent=t.full_reports??"—";document.getElementById("kCalls").textContent=t.gemini_grounded_calls??"—";document.getElementById("kAvailable").textContent=c.available_today_estimate??"—";
@@ -411,8 +418,8 @@ function renderSettingsLock(){
   b.className="notice success";b.innerHTML='<b>Admin settings unlocked for this browser session.</b> <button class="btn" id="lockSettings" style="margin-left:8px">Lock</button>';document.getElementById("lockSettings").onclick=async()=>{await api("/api/settings-auth",{method:"DELETE"});S.admin.authorized=false;renderSettingsLock();renderProviderSettings();renderSettingForms()};
 }
 function renderLockedSettings(){renderProviderSettings();renderSettingForms();renderSystemConnections()}
-async function loadConnections(){try{const j=await api("/api/provider-connections");S.connections=j.connections||[];S.providerMeta=j.metadata||S.providerMeta}catch(e){S.connections=[]}}
-async function loadSettings(){try{const j=await api("/api/settings");S.settings=j.settings||{}}catch(e){S.settings={}}}
+async function loadConnections(){if(!S.providers?.supabase?.connected){S.connections=[];return}try{const j=await api("/api/provider-connections");S.connections=j.connections||[];S.providerMeta=j.metadata||S.providerMeta}catch(e){S.connections=[]}}
+async function loadSettings(){if(!S.providers?.supabase?.connected){S.settings={};return}try{const j=await api("/api/settings");S.settings=j.settings||{}}catch(e){S.settings={}}}
 function con(provider){return S.connections.find(x=>x.provider===provider)||null}
 function providerCard(provider){
   const m=S.providerMeta?.[provider]||{},c=con(provider),ps=S.providers?.[provider]||{},status=ps.status||c?.status||(ps.configured?"CONFIGURED":"NOT_CONFIGURED"),connected=status==="CONNECTED",model=c?.selected_model||ps.selected_model||m.model||m.display_model||"—",locked=!S.admin.authorized;
