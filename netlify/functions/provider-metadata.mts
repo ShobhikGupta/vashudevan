@@ -27,10 +27,11 @@ export const PROVIDER_METADATA={
     models:[
       {id:"gpt-5.6-luna",name:"GPT-5.6 Luna",note:"Lowest-cost GPT-5.6 option",input_per_million:0.20,output_per_million:1.20},
       {id:"gpt-5.6-terra",name:"GPT-5.6 Terra",note:"Balanced cost and intelligence",input_per_million:2.00,output_per_million:12.00},
-      {id:"gpt-5.6-sol",name:"GPT-5.6 Sol",note:"High-quality professional research",input_per_million:5.00,output_per_million:30.00}
+      {id:"gpt-5.6-sol",name:"GPT-5.6 Sol",note:"High-quality professional research",input_per_million:4.00,output_per_million:20.00},
+      {id:"gpt-6-astra",name:"GPT-6 Astra",note:"Highest-capability option",input_per_million:10.00,output_per_million:50.00}
     ],
     reset_rule:"Usage and rate limits depend on the OpenAI API usage tier.",
-    allowance:"The official API model table shows no free API tier for GPT-5.6 Luna, Terra or Sol. Paid API usage must be explicitly enabled before VMG can use OpenAI automatically.",
+    allowance:"OpenAI API model usage is paid for these models. Web search tool calls are also billed separately. Paid API usage must be explicitly enabled before VMG can use OpenAI automatically.",
     official_reference:["https://developers.openai.com/api/docs/models","https://developers.openai.com/api/docs/models/compare"],
     last_verified_date:"2026-09-19"
   }
