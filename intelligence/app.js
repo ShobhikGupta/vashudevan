@@ -28,9 +28,12 @@ async function api(path,opt={}){
 }
 function statusKind(value){const v=String(value||"").toUpperCase();if(["CONNECTED","AVAILABLE","PASS","OPERATIONAL","COMPLETE"].includes(v))return"ok";if(["PARTIAL","QUOTA LOW","DEGRADED"].includes(v))return"warn";if(["FAILED","AUTH ERROR","QUOTA EXHAUSTED","ERROR"].includes(v))return"bad";if(["RUNNING"].includes(v))return"info";return"neutral"}
 
+let lastFocus=null;
+function openDialog(id,focusId){lastFocus=document.activeElement;const el=document.getElementById(id);el?.classList.add("open");setTimeout(()=>document.getElementById(focusId)?.focus()||el?.querySelector("button,input,select,textarea,a")?.focus(),0)}
+function closeDialog(id){document.getElementById(id)?.classList.remove("open");if(lastFocus&&typeof lastFocus.focus==="function")lastFocus.focus();lastFocus=null}
 document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>show(b.dataset.view));
 document.querySelectorAll("[data-jump]").forEach(b=>b.onclick=()=>show(b.dataset.jump));
-document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>document.getElementById(b.dataset.close)?.classList.remove("open"));
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>closeDialog(b.dataset.close));
 document.getElementById("closeDrawer").onclick=()=>document.getElementById("drawer").classList.remove("open");
 
 async function loadStatus(){
@@ -160,8 +163,8 @@ async function resolveEntity(autoStart=false){
     toast("Resolving legal entity…");const j=await api("/api/entity-resolve",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({seed})});
     if(!j.resolved||!j.candidates?.length)throw new Error("ENTITY NOT SUFFICIENTLY RESOLVED");
     document.getElementById("entityChoices").innerHTML=j.candidates.map((c,i)=>'<div class="listitem" style="margin-bottom:8px;display:flex;justify-content:space-between;gap:12px"><div><b>'+esc(c.legal_name)+'</b><p>'+esc([c.brand,c.state_region,c.country,c.registration_id,c.tax_id].filter(Boolean).join(" • "))+'</p><p>'+esc(c.evidence_summary||"")+'</p><div>'+tag(c.confidence||"UNKNOWN",c.confidence==="HIGH"?"ok":c.confidence==="MEDIUM"?"warn":"neutral")+'</div></div><button class="btn '+(i===0?"primary":"")+'" data-candidate="'+i+'">Select</button></div>').join("");
-    document.querySelectorAll("[data-candidate]").forEach(b=>b.onclick=()=>{S.entity=j.candidates[+b.dataset.candidate];document.getElementById("entityModal").classList.remove("open");toast("Entity confirmed: "+S.entity.legal_name);if(autoStart)createResearch()});
-    document.getElementById("entityModal").classList.add("open");
+    document.querySelectorAll("[data-candidate]").forEach(b=>b.onclick=()=>{S.entity=j.candidates[+b.dataset.candidate];closeDialog("entityModal");toast("Entity confirmed: "+S.entity.legal_name);if(autoStart)createResearch()});
+    openDialog("entityModal","entityChoices");
   }catch(e){toast(e.message)}
 }
 async function uploadQueued(companyId,jobId){
@@ -404,7 +407,7 @@ async function loadAdminState(){
 function renderSettingsLock(){
   const b=document.getElementById("settingsLockBanner");
   if(!S.admin.configured){b.className="notice error";b.innerHTML='<b>Admin Settings Lock is not configured.</b><br>Viewing is available, but provider credentials and policy changes remain disabled until <code>SETTINGS_ADMIN_SECRET</code> is added to Netlify.';return}
-  if(!S.admin.authorized){b.className="notice info";b.innerHTML='<b>Settings are view-only.</b> 🔒 Unlock Admin Settings to change provider credentials, research policy, privacy or budgets. <button class="btn" id="unlockSettings" style="margin-left:8px">Unlock Admin Settings</button>';document.getElementById("unlockSettings").onclick=()=>document.getElementById("adminModal").classList.add("open");return}
+  if(!S.admin.authorized){b.className="notice info";b.innerHTML='<b>Settings are view-only.</b> 🔒 Unlock Admin Settings to change provider credentials, research policy, privacy or budgets. <button class="btn" id="unlockSettings" style="margin-left:8px">Unlock Admin Settings</button>';document.getElementById("unlockSettings").onclick=()=>openDialog("adminModal","adminSecret");return}
   b.className="notice success";b.innerHTML='<b>Admin settings unlocked for this browser session.</b> <button class="btn" id="lockSettings" style="margin-left:8px">Lock</button>';document.getElementById("lockSettings").onclick=async()=>{await api("/api/settings-auth",{method:"DELETE"});S.admin.authorized=false;renderSettingsLock();renderProviderSettings();renderSettingForms()};
 }
 function renderLockedSettings(){renderProviderSettings();renderSettingForms();renderSystemConnections()}
@@ -447,9 +450,9 @@ function openConnect(provider){
   if(provider==="openai")modelSelect='<div class="field"><label for="connectModel">Model</label><select id="connectModel" class="select">'+(m.models||[]).map(x=>'<option value="'+x.id+'">'+esc(x.name+" — "+x.note)+'</option>').join("")+'</select></div>';
   document.getElementById("connectTitle").textContent="Connect "+(m.provider||provider);
   document.getElementById("connectBody").innerHTML='<div class="modalsteps"><div class="step"><b>Step 1 — Open provider dashboard</b><p>Sign in on the official provider website and create or select an API credential.</p><a class="btn" href="'+dash+'" target="_blank" rel="noopener">Open Provider Dashboard</a></div><div class="step"><b>Step 2 — Paste the credential once</b><p>It is validated server-side. After validation, VMG stores it in encrypted server-side secret storage and never returns it to browser code.</p><div class="field"><label for="connectSecret">API credential</label><input id="connectSecret" class="input" type="password" autocomplete="off" placeholder="••••••••••••••••"></div>'+modelSelect+'<div class="field" style="margin-top:8px"><label for="connectBilling">Provider account mode</label><select id="connectBilling" class="select"><option value="free">Free / free allowance</option><option value="paid">Paid account</option><option value="unknown">Not sure</option></select></div></div><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" data-close-connect>Cancel</button><button class="btn primary" id="verifyConnect">Verify & Connect</button></div></div>';
-  document.querySelector("[data-close-connect]").onclick=()=>document.getElementById("connectModal").classList.remove("open");
+  document.querySelector("[data-close-connect]").onclick=()=>closeDialog("connectModal");
   document.getElementById("verifyConnect").onclick=()=>connectProvider(provider);
-  document.getElementById("connectModal").classList.add("open");
+  openDialog("connectModal","connectSecret");
 }
 async function connectProvider(provider){
   const input=document.getElementById("connectSecret"),secret=input.value.trim(),model=document.getElementById("connectModel")?.value;
@@ -460,7 +463,7 @@ async function connectProvider(provider){
     input.value="";
     const m=S.providerMeta?.[provider]||{},ground=provider==="gemini"?"<div class='statusline'><span>Google Search Grounding</span><b>"+tag("Available","ok")+"</b></div>":"";
     document.getElementById("connectBody").innerHTML='<div class="notice success"><b>✓ CONNECTION SUCCESSFUL</b><br>'+esc(m.provider||provider)+' is now connected to VMG Company Intelligence.</div><div class="status" style="margin-top:12px"><div class="statusline"><span>Model</span><b>'+esc(j.selected_model||m.display_model||"—")+'</b></div>'+ground+'<div class="statusline"><span>Last tested</span><b>'+esc(fmtDate(j.connected_at))+'</b></div><div class="statusline"><span>Latency</span><b>'+esc(j.latency_ms)+" ms</b></div><div class='statusline'><span>Key</span><b>••••"+esc(j.masked_suffix||"")+"</b></div></div><div style='display:flex;justify-content:flex-end;margin-top:12px'><button class='btn primary' id='connectDone'>Done</button></div>";
-    document.getElementById("connectDone").onclick=()=>document.getElementById("connectModal").classList.remove("open");
+    document.getElementById("connectDone").onclick=()=>closeDialog("connectModal");
     await Promise.all([loadStatus(),loadConnections()]);renderProviderSettings();
   }catch(e){if(input)input.value="";toast(e.message)}finally{const b=document.getElementById("verifyConnect");if(b){b.disabled=false;b.textContent="Verify & Connect"}}
 }
@@ -532,7 +535,7 @@ function renderSystemConnections(){
   ].map(x=>'<div class="statusline"><span>'+esc(x[0])+'</span><b>'+tag(String(x[1]).replaceAll("_"," "),statusKind(x[1]))+'</b></div>').join("");
 }
 document.querySelectorAll("[data-setting]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-setting]").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".settings-pane").forEach(x=>x.classList.toggle("active",x.id==="setting-"+b.dataset.setting))});
-document.getElementById("adminUnlockBtn").onclick=async()=>{try{await api("/api/settings-auth",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({secret:document.getElementById("adminSecret").value})});document.getElementById("adminSecret").value="";document.getElementById("adminModal").classList.remove("open");await loadAdminState();toast("Admin settings unlocked.")}catch(e){toast(e.message)}};
+document.getElementById("adminUnlockBtn").onclick=async()=>{try{await api("/api/settings-auth",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({secret:document.getElementById("adminSecret").value})});document.getElementById("adminSecret").value="";closeDialog("adminModal");await loadAdminState();toast("Admin settings unlocked.")}catch(e){toast(e.message)}};
 
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".tabpanel").forEach(x=>x.classList.toggle("active",x.id==="tab-"+b.dataset.tab))});
 document.getElementById("resolveBtn").onclick=()=>resolveEntity(false);
@@ -549,4 +552,12 @@ async function init(){await loadStatus();await Promise.allSettled([loadTemplates
 init();
 
 
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){document.querySelectorAll(".modalwrap.open").forEach(x=>x.classList.remove("open"));document.getElementById("drawer").classList.remove("open")}});
+document.addEventListener("keydown",e=>{
+  const modal=document.querySelector(".modalwrap.open");
+  if(e.key==="Escape"){if(modal)closeDialog(modal.id);document.getElementById("drawer").classList.remove("open");return}
+  if(e.key==="Tab"&&modal){
+    const focusable=[...modal.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')];
+    if(!focusable.length)return;const first=focusable[0],last=focusable[focusable.length-1];
+    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
+  }
+});
