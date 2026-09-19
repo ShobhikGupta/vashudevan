@@ -2,7 +2,7 @@ const S={
   providers:null,providerMeta:{},templates:[],companies:[],reports:[],entity:null,
   selectedTemplate:"vmg_full_due_diligence",currentJob:null,currentCompany:null,currentReport:null,
   poll:null,files:[],compareIds:[],admin:{configured:false,authorized:false},connections:[],settings:{},
-  currentReportData:null,currentEvidence:[],currentSources:[]
+  currentReportData:null,currentEvidence:[],currentSources:[],systemHealth:null,alertKeys:new Set()
 };
 
 const titles={dashboard:"Dashboard",new:"New Research",progress:"Research Progress",companies:"Companies",reports:"Reports",templates:"Research Templates",compare:"Compare Companies",usage:"Usage & Limits",settings:"Settings",profile:"Company Profile"};
@@ -35,25 +35,35 @@ document.getElementById("closeDrawer").onclick=()=>document.getElementById("draw
 
 async function loadStatus(){
   try{
-    S.providers=await api("/api/provider-status");S.providerMeta=S.providers.metadata||{};renderProviders();
-    const ready=S.providers?.supabase?.connected&&(S.providers?.gemini?.connected||S.providers?.openai?.connected);
+    const [p,h]=await Promise.all([api("/api/provider-status"),api("/api/system-health").catch(()=>null)]);
+    S.providers=p;S.providerMeta=p.metadata||{};S.systemHealth=h;renderProviders();renderSystemConnections();
+    const ready=p?.supabase?.connected&&(p?.gemini?.connected||p?.openai?.connected);
     document.getElementById("startBtn").disabled=!ready;
-    const n=document.getElementById("configNotice");
-    n.hidden=ready;
-    if(!ready)n.textContent="Live research is blocked until the database and an allowed AI research provider are connected. Open Settings for guided connection steps.";
+    const n=document.getElementById("configNotice");n.className="notice";
+    if(!p?.supabase?.connected){
+      n.hidden=false;n.innerHTML='<b>SYSTEM SETUP REQUIRED</b><br>1. Connect database<br>2. Apply Company Intelligence migrations<br>3. Configure Admin Settings Lock<br>4. Then connect Gemini / Tavily / OpenAI from Settings<br><br><button class="btn" id="setupInstructionsBtn">View Setup Instructions</button>';
+      document.getElementById("setupInstructionsBtn").onclick=openSetupInstructions;
+    }else if(!ready){
+      n.hidden=false;n.innerHTML='<b>AI RESEARCH PROVIDER REQUIRED</b><br>The database is connected. Open Settings and connect/test Gemini for the free-first workflow, or an explicitly allowed alternative.';
+    }else n.hidden=true;
   }catch(e){const n=document.getElementById("configNotice");n.hidden=false;n.className="notice error";n.textContent=e.message}
+}
+function openSetupInstructions(){
+  document.getElementById("drawerTitle").textContent="System setup instructions";
+  document.getElementById("drawerBody").innerHTML='<div class="notice info"><b>Bootstrap must happen on the server first.</b> Supabase cannot be safely connected from this public preview until its server-side credentials exist.</div><div class="list" style="margin-top:12px"><div class="listitem"><b>Step 1 — Create/connect the dedicated Supabase project</b><p>Add <code>SUPABASE_URL</code> and <code>SUPABASE_SERVICE_ROLE_KEY</code> as Netlify site environment variables. Do not put them in frontend code or netlify.toml.</p></div><div class="listitem"><b>Step 2 — Apply the migrations</b><p>Run <code>001_company_intelligence.sql</code> first, then <code>002_provider_connections_and_settings.sql</code>. This creates the VMG workspace, private document bucket, Vault functions, settings and research tables.</p></div><div class="listitem"><b>Step 3 — Configure the admin lock</b><p>Add <code>SETTINGS_ADMIN_SECRET</code> as a secret Netlify environment variable. Recommended preview values also include <code>APP_ENV=preview</code> and <code>RESEARCH_DAILY_COMPANY_LIMIT=20</code>.</p></div><div class="listitem"><b>Step 4 — Redeploy this preview</b><p>The exact deploy being tested must receive the environment variables.</p></div><div class="listitem"><b>Step 5 — Connect Gemini</b><p>Open Settings → Research Providers → Gemini → Connect. Tavily and OpenAI remain optional.</p></div></div>';
+  document.getElementById("drawer").classList.add("open");
 }
 function renderProviders(){
   const p=S.providers||{};
+  const state=(x)=>x?.status||x?.health||(x?.connected?"CONNECTED":x?.configured?"CONFIGURED":"NOT_CONFIGURED");
   const rows=[
-    ["Gemini",p.gemini?.connected?"Connected":"Not connected"],
-    ["Google Search",p.google_search_grounding?.available?"Available":"Unavailable"],
-    ["Tavily",p.tavily?.connected?"Fallback ready":"Not connected"],
-    ["OpenAI",p.openai?.connected?"Connected":"Not connected"],
-    ["Supabase",p.supabase?.connected?"Connected":"Not connected"]
+    ["Gemini",state(p.gemini)],
+    ["Google Search Grounding",p.google_search_grounding?.status||"NOT_CONFIGURED"],
+    ["Tavily",state(p.tavily)],
+    ["OpenAI",state(p.openai)],
+    ["Supabase",p.supabase?.connected?"CONNECTED":p.supabase?.configured?"CONFIGURED":"NOT_CONFIGURED"]
   ];
-  document.getElementById("providerMini").innerHTML=rows.map(([a,b])=>'<div class="statusline"><span>'+esc(a)+'</span><b>'+tag(b,statusKind(b))+'</b></div>').join("");
-  renderSystemConnections();
+  document.getElementById("providerMini").innerHTML=rows.map(([a,b])=>'<div class="statusline"><span>'+esc(a)+'</span><b>'+tag(String(b).replaceAll("_"," "),statusKind(b))+'</b></div>').join("");
 }
 async function loadTemplates(){
   try{const j=await api("/api/templates");S.templates=j.templates||[]}catch{S.templates=[]}
@@ -92,47 +102,53 @@ async function loadReports(){
   }catch{document.getElementById("kReports").textContent="—"}
 }
 function renderReports(){
+  const defs=S.settings.report_defaults||{},exportBtn=(r,type,label)=>defs[type]===false?'<span class="tag neutral">'+label+' off</span>':'<a class="btn" href="/api/report-export?report_id='+r.id+'&type='+type+'">'+label+'</a>';
   document.getElementById("reportRows").innerHTML=S.reports.map(r=>{
     const name=r.company?.legal_name||S.companies.find(c=>c.id===r.company_id)?.legal_name||"Company";
-    return '<tr><td><b>'+esc(name)+'</b></td><td>V'+esc(r.version_no)+'</td><td>'+esc(templateArray().find(t=>t[0]===r.template_key)?.[1]||r.template_key||"—")+'</td><td>'+esc(r.evidence_coverage??"—")+'%</td><td>'+esc(r.source_count??0)+'</td><td>'+esc(fmtShort(r.created_at))+'</td><td><button class="btn" data-open-report="'+r.id+'">Open</button> <a class="btn" href="/api/report-export?report_id='+r.id+'&type=pdf">PDF</a> <a class="btn" href="/api/report-export?report_id='+r.id+'&type=docx">DOCX</a> <a class="btn" href="/api/report-export?report_id='+r.id+'&type=xlsx">XLSX</a> <button class="btn" data-rerun="'+r.company_id+'">Re-run</button></td></tr>';
+    return '<tr><td><b>'+esc(name)+'</b></td><td>V'+esc(r.version_no)+'</td><td>'+esc(templateArray().find(t=>t[0]===r.template_key)?.[1]||r.template_key||"—")+'</td><td>'+esc(r.evidence_coverage??"—")+'%</td><td>'+esc(r.source_count??0)+'</td><td>'+esc(fmtShort(r.created_at))+'</td><td><button class="btn" data-open-report="'+r.id+'">Open</button> '+exportBtn(r,"pdf","PDF")+' '+exportBtn(r,"docx","DOCX")+' '+exportBtn(r,"xlsx","XLSX")+' <button class="btn" data-rerun="'+r.company_id+'">Re-run</button></td></tr>';
   }).join("")||'<tr><td colspan="7">No reports yet.</td></tr>';
   document.querySelectorAll("[data-open-report]").forEach(b=>b.onclick=()=>openReport(b.dataset.openReport));
   document.querySelectorAll("[data-rerun]").forEach(b=>b.onclick=()=>prefillResearch(b.dataset.rerun));
 }
 async function loadUsage(){
   try{
-    const u=await api("/api/usage");
-    document.getElementById("kJobs").textContent=u.full_research_jobs;
-    document.getElementById("kCalls").textContent=u.gemini_grounded_calls;
-    document.getElementById("kAvailable").textContent=u.available_today_estimate??"—";
-    document.getElementById("uJobs").textContent=u.full_research_jobs+" / "+u.application_limit;
-    document.getElementById("uJobsSub").textContent="Application safety cap";
-    document.getElementById("uGemini").textContent=u.gemini_grounded_calls;
-    document.getElementById("uTavily").textContent=u.tavily_calls;
-    document.getElementById("uFailed").textContent=u.failed_calls;
-    document.getElementById("uCost").textContent=u.estimated_api_cost_usd_today?"$"+Number(u.estimated_api_cost_usd_today).toFixed(2):"$0.00";
+    const u=await api("/api/usage"),t=u.today||{},c=u.capacity||{},w=u.week||{},m=u.month||{},fx=u.currency_reference;
+    document.getElementById("kJobs").textContent=t.full_reports??"—";document.getElementById("kCalls").textContent=t.gemini_grounded_calls??"—";document.getElementById("kAvailable").textContent=c.available_today_estimate??"—";
+    document.getElementById("uJobs").textContent=(t.full_reports??0)+" / "+(t.application_limit??20);document.getElementById("uJobsSub").textContent="Application safety cap";
+    document.getElementById("uGemini").textContent=t.gemini_grounded_calls??0;document.getElementById("uTavily").textContent=t.tavily_credits??t.tavily_calls??0;document.getElementById("uFailed").textContent=t.failed_calls??0;
+    document.getElementById("uCost").textContent=t.estimated_cost_inr!=null?"₹"+Number(t.estimated_cost_inr).toFixed(2):"$"+Number(t.estimated_cost_usd||0).toFixed(2);
     document.getElementById("usageCapacity").innerHTML=[
-      ["Application cap remaining",u.approx_remaining_full_jobs],
-      ["Provider grounding remainder",u.provider_grounding_remaining_estimate],
-      ["Recent average grounded calls/report",u.rolling_average_grounded_calls_per_full_report==null?"Not enough history":Number(u.rolling_average_grounded_calls_per_full_report).toFixed(1)],
-      ["Provider-estimated report capacity",u.provider_estimated_reports_remaining??"Not enough history"],
-      ["Available today",u.available_today_estimate??"Not enough history"]
+      ["Application cap remaining",c.application_remaining??"—"],["Provider grounding remainder",c.grounding_remaining_estimate??"—"],
+      ["Recent average grounded calls/report",c.rolling_average_grounded_calls_per_full_report==null?"Not enough history":Number(c.rolling_average_grounded_calls_per_full_report).toFixed(1)],
+      ["Provider-estimated capacity",c.provider_estimated_reports_remaining??"Not enough history"],["Available today",c.available_today_estimate??"Not enough history"]
     ].map(x=>'<div class="statusline"><span>'+esc(x[0])+'</span><b>'+esc(x[1])+'</b></div>').join("");
     document.getElementById("usageReset").innerHTML=[
-      ["Gemini reset",fmtDate(u.next_reset)],
-      ["Your local time",new Date(u.next_reset).toLocaleString()],
-      ["Estimate basis",u.estimation_note||u.remaining_basis],
-      ["OpenAI calls",u.openai_calls??0],
-      ["Gemini synthesis calls",u.gemini_synthesis_calls??0]
+      ["Gemini reset",fmtDate(u.next_reset)],["Local-time equivalent",u.next_reset?new Date(u.next_reset).toLocaleString():"—"],
+      ["Estimate basis",c.estimation_note||"Application-recorded estimate"],["Gemini synthesis",t.gemini_synthesis_calls??0],["OpenAI web research",t.openai_web_calls??0],["Retries",t.retries??0]
     ].map(x=>'<div class="statusline"><span>'+esc(x[0])+'</span><b>'+esc(x[1])+'</b></div>').join("");
-    document.getElementById("settingsUsage").innerHTML=document.getElementById("usageCapacity").outerHTML+document.getElementById("usageReset").outerHTML;
+    document.getElementById("usagePeriods").innerHTML=[
+      ["This week — full reports",w.full_reports??0],["This week — API spend",costText(w.estimated_cost_inr,w.estimated_cost_usd)],
+      ["This month — full reports",m.full_reports??0],["This month — API spend",costText(m.estimated_cost_inr,m.estimated_cost_usd)],["Projected month",costText(m.projected_cost_inr,m.projected_cost_usd)]
+    ].map(x=>'<div class="statusline"><span>'+esc(x[0])+'</span><b>'+esc(x[1])+'</b></div>').join("");
+    const avg=u.average_cost_per_full_report_inr||u.average_cost_per_full_report_usd||{},sym=u.average_cost_per_full_report_inr?"₹":"$";
+    document.getElementById("usageAverageCost").innerHTML=[["Last 5",avg.last_5],["Last 10",avg.last_10],["Last 30",avg.last_30],["Conversion",fx?("₹ per $ = "+fx.usd_inr+" • estimated"):"USD shown; no INR conversion reference set"]].map(x=>'<div class="statusline"><span>'+esc(x[0])+'</span><b>'+esc(typeof x[1]==="number"?sym+Number(x[1]).toFixed(2):(x[1]??"Not enough history"))+'</b></div>').join("");
+    if(document.getElementById("settingsUsage"))document.getElementById("settingsUsage").innerHTML=document.getElementById("usageCapacity").outerHTML+document.getElementById("usagePeriods").outerHTML+document.getElementById("usageAverageCost").outerHTML;
+    renderAlerts(u);
   }catch(e){document.getElementById("kJobs").textContent="—";document.getElementById("kCalls").textContent="—";document.getElementById("kAvailable").textContent="—"}
 }
-
+function costText(inr,usd){return inr!=null?"₹"+Number(inr).toFixed(2)+" estimated":"$"+Number(usd||0).toFixed(2)+" estimated"}
+function renderAlerts(u){
+  const a=S.settings.alerts||{},msgs=[],t=u.today||{},pct=t.application_limit?100*Number(t.full_reports||0)/Number(t.application_limit):0,c=u.capacity||{};
+  if((a.warn_90!==false&&pct>=90)||(a.warn_80!==false&&pct>=80)||(a.warn_70===true&&pct>=70))msgs.push("Research usage is "+Math.round(pct)+"% of the daily application cap.");
+  if(a.quota_low!==false&&c.grounding_remaining_estimate!=null&&c.grounding_allowance_reference&&c.grounding_remaining_estimate/c.grounding_allowance_reference<=.2&&c.grounding_remaining_estimate>0)msgs.push("Gemini grounding allowance is running low based on application-recorded usage.");
+  if(a.quota_exhausted!==false&&c.grounding_remaining_estimate===0)msgs.push("Application-recorded Gemini grounding allowance estimate is exhausted.");
+  if(a.provider_disconnected!==false&&S.providers?.supabase?.connected&&!S.providers?.gemini?.configured)msgs.push("Gemini is not connected.");
+  const cp=S.settings.cost_protection||{},monthly=Number(cp.monthly_budget_inr||0);if(a.budget_threshold!==false&&monthly>0&&u.month?.estimated_cost_inr!=null&&Number(u.month.estimated_cost_inr)>=monthly*.8)msgs.push("API spend has reached at least 80% of the configured monthly budget.");
+  const box=document.getElementById("alertsBanner"),badge=document.getElementById("alertBadge");box.hidden=!msgs.length;badge.hidden=!msgs.length;if(msgs.length)box.innerHTML='<b>Attention</b><br>'+msgs.map(esc).join("<br>");
+}
 function renderFiles(){
-  document.getElementById("fileList").innerHTML=S.files.map((x,i)=>'<div class="filerow"><div><b>'+esc(x.file.name)+'</b><small>'+esc((x.file.size/1024/1024).toFixed(2))+' MB • '+esc(x.file.type||"unknown")+'</small></div><select class="select" data-file-class="'+i+'"><option value="private" '+(x.classification==="private"?"selected":"")+'>Private</option><option value="public" '+(x.classification==="public"?"selected":"")+'>Public</option></select><label style="font-size:10px"><input type="checkbox" data-file-ai="'+i+'" '+(x.externalAI?"checked":"")+' '+(x.classification==="private"&&!x.externalAI?"":"")+'> Allow external AI</label><button class="btn" data-file-remove="'+i+'">Remove</button></div>').join("");
-  document.querySelectorAll("[data-file-class]").forEach(el=>el.onchange=()=>{const x=S.files[+el.dataset.fileClass];x.classification=el.value;if(el.value==="private")x.externalAI=false;renderFiles()});
-  document.querySelectorAll("[data-file-ai]").forEach(el=>el.onchange=()=>{S.files[+el.dataset.fileAi].externalAI=el.checked;if(el.checked&&S.files[+el.dataset.fileAi].classification==="private")toast("Private document AI processing was explicitly enabled for this file.")});
+  document.getElementById("fileList").innerHTML=S.files.map((x,i)=>'<div class="filerow"><div><b>'+esc(x.file.name)+'</b><small>'+esc((x.file.size/1024/1024).toFixed(2))+' MB • '+esc(x.file.type||"unknown")+(x.status?" • "+esc(x.status):"")+'</small></div><select class="select" data-file-class="'+i+'"><option value="private" '+(x.classification==="private"?"selected":"")+'>Private</option><option value="public" '+(x.classification==="public"?"selected":"")+'>Public</option></select><div><span class="tag neutral">AI analysis off</span><small style="display:block;margin-top:4px">Stored only; AI document analysis is not enabled yet.</small></div><button class="btn" data-file-remove="'+i+'">Remove</button></div>').join("");
+  document.querySelectorAll("[data-file-class]").forEach(el=>el.onchange=()=>{S.files[+el.dataset.fileClass].classification=el.value;renderFiles()});
   document.querySelectorAll("[data-file-remove]").forEach(el=>el.onclick=()=>{S.files.splice(+el.dataset.fileRemove,1);renderFiles()});
 }
 document.getElementById("fileInput").onchange=e=>{for(const file of [...e.target.files])S.files.push({file,classification:"private",externalAI:false,status:"queued"});e.target.value="";renderFiles()};
@@ -165,19 +181,23 @@ async function createResearch(){
     show("progress");document.getElementById("progressTitle").textContent=S.entity.legal_name;document.getElementById("jobMeta").textContent="Live research job";startPolling();
   }catch(e){toast(e.message)}
 }
-function stageClass(status){if(status==="COMPLETE")return"complete";if(status==="PARTIAL")return"partial";if(status==="NO RELIABLE DATA")return"none";if(status==="FAILED")return"failed";if(status==="RUNNING")return"running";return""}
+function stageClass(status){if(status==="COMPLETE")return"complete";if(status==="PARTIAL")return"partial";if(status==="NO RELIABLE DATA"||status==="SKIPPED")return"none";if(status==="FAILED")return"failed";if(status==="RUNNING")return"running";return""}
 function renderStages(stages){
-  document.getElementById("stageList").innerHTML=(stages||[]).map(s=>'<div class="stage '+stageClass(s.status)+'"><i>'+esc(s.stage_no)+'</i><div><b>'+esc(s.stage_name)+'</b><br><small>'+esc(s.status)+'</small></div><span>'+esc(s.status==="COMPLETE"?"✓":s.status==="PARTIAL"?"~":s.status==="FAILED"?"!":s.status==="RUNNING"?"●":"○")+'</span></div>').join("");
+  document.getElementById("stageList").innerHTML=(stages||[]).map(s=>'<div class="stage '+stageClass(s.status)+'"><i>'+esc(s.stage_no)+'</i><div><b>'+esc(s.stage_name)+'</b><br><small>'+esc(s.status==="SKIPPED"?"SKIPPED / DISABLED":s.status)+'</small></div><span>'+esc(s.status==="COMPLETE"?"✓":s.status==="PARTIAL"?"~":s.status==="SKIPPED"?"–":s.status==="FAILED"?"!":s.status==="RUNNING"?"●":"○")+'</span></div>').join("");
 }
 function startPolling(){
   clearInterval(S.poll);
   const poll=async()=>{
     try{
       const j=await api("/api/research-status?job_id="+encodeURIComponent(S.currentJob));renderStages(j.stages);
-      const finished=(j.stages||[]).filter(s=>["COMPLETE","PARTIAL","NO RELIABLE DATA","FAILED"].includes(s.status)).length;
+      const finished=(j.stages||[]).filter(s=>["COMPLETE","PARTIAL","NO RELIABLE DATA","FAILED","SKIPPED"].includes(s.status)).length;
       document.getElementById("progressBar").style.width=Math.round(finished/24*100)+"%";document.getElementById("progressCount").textContent=finished+" / 24";document.getElementById("jobState").textContent=j.job.status;
       const er=document.getElementById("jobError");er.hidden=!j.job.error_message;er.textContent=j.job.error_message||"";
-      if(["COMPLETE","FAILED"].includes(j.job.status)){clearInterval(S.poll);document.getElementById("openProfileBtn").disabled=j.job.status!=="COMPLETE";S.currentCompany=j.job.company_id;S.currentReport=j.job.report_id;if(j.job.status==="COMPLETE"){toast("Research completed.");await Promise.allSettled([loadCompanies(),loadReports(),loadUsage()])}}
+      if(["COMPLETE","FAILED","PARTIAL"].includes(j.job.status)){
+        clearInterval(S.poll);S.currentCompany=j.job.company_id;S.currentReport=j.job.report_id||null;document.getElementById("openProfileBtn").disabled=!j.job.report_id;
+        const al=S.settings.alerts||{};if(j.job.status==="COMPLETE"&&al.research_completed!==false)toast("Research completed.");else if(j.job.status==="FAILED"&&al.research_failed!==false)toast("Research failed. See the status message.");else if(j.job.status==="PARTIAL"&&al.partial_evidence!==false)toast("Research completed only partially.");
+        await Promise.allSettled([loadCompanies(),loadReports(),loadUsage()]);
+      }
     }catch(e){toast(e.message)}
   };
   poll();S.poll=setInterval(poll,2500);
