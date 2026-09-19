@@ -12,9 +12,9 @@ export const PROVIDER_METADATA={
   },
   tavily:{
     provider:"Tavily",model:"Search + Extract",display_model:"Tavily Search + Extract",role:"Fallback / Independent Web Research",
-    badge:"FREE SEARCH ALLOWANCE",free_tier:true,
+    badge:"FREE TIER AVAILABLE",free_tier:true,
     description:"Tavily finds additional public web evidence when Gemini's search does not find enough reliable information.",
-    pricing:{currency:"USD",free_credits_monthly:1000,payg_per_credit:0.008,project_monthly:30,project_credits:4000},
+    pricing:{currency:"USD",free_credits_monthly:1000,payg_per_credit:0.008,project_credits:4000},
     reset_rule:"Monthly API credits reset on the first day of each month.",
     allowance:"Researcher plan includes 1,000 API credits/month with no card required. Request credit cost depends on endpoint and search depth.",
     official_reference:["https://www.tavily.com/pricing"],
@@ -27,11 +27,10 @@ export const PROVIDER_METADATA={
     models:[
       {id:"gpt-5.6-luna",name:"GPT-5.6 Luna",note:"Lowest-cost GPT-5.6 option",input_per_million:0.20,output_per_million:1.20},
       {id:"gpt-5.6-terra",name:"GPT-5.6 Terra",note:"Balanced cost and intelligence",input_per_million:2.00,output_per_million:12.00},
-      {id:"gpt-5.6-sol",name:"GPT-5.6 Sol",note:"High-quality professional research",input_per_million:4.00,output_per_million:20.00},
-      {id:"gpt-6-astra",name:"GPT-6 Astra",note:"Highest-capability option",input_per_million:10.00,output_per_million:50.00}
+      {id:"gpt-5.6-sol",name:"GPT-5.6 Sol",note:"High-quality professional research",input_per_million:5.00,output_per_million:30.00}
     ],
     reset_rule:"Usage and rate limits depend on the OpenAI API usage tier.",
-    allowance:"GPT-5.6 Sol API free tier is not supported. Paid API usage must be explicitly enabled before VMG can use OpenAI automatically.",
+    allowance:"The official API model table shows no free API tier for GPT-5.6 Luna, Terra or Sol. Paid API usage must be explicitly enabled before VMG can use OpenAI automatically.",
     official_reference:["https://developers.openai.com/api/docs/models","https://developers.openai.com/api/docs/models/compare"],
     last_verified_date:"2026-09-19"
   }
