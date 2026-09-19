@@ -380,13 +380,18 @@ create table if not exists exports (
 create table if not exists provider_usage (
   id uuid primary key default gen_random_uuid(),
   workspace_id uuid not null references workspaces(id) on delete cascade,
+  research_job_id uuid references research_jobs(id) on delete set null,
   usage_day text not null,
   provider text not null,
+  model text,
   operation text not null,
   request_count int not null default 1,
+  search_calls int not null default 0,
+  tavily_credits numeric not null default 0,
   success boolean not null default true,
   prompt_tokens bigint,
   output_tokens bigint,
+  duration_ms int,
   estimated_cost_usd numeric,
   metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
@@ -403,12 +408,21 @@ create table if not exists activity_logs (
 );
 
 create index if not exists idx_companies_workspace on companies(workspace_id);
+create unique index if not exists uq_company_identifier_normalized
+  on company_identifiers(workspace_id, lower(identifier_type), upper(identifier_value));
+create unique index if not exists uq_company_name_jurisdiction_normalized
+  on companies(
+    workspace_id,
+    regexp_replace(lower(legal_name), '[^a-z0-9]+', '', 'g'),
+    coalesce(lower(country),'')
+  );
 create index if not exists idx_jobs_workspace_day on research_jobs(workspace_id, usage_day);
 create index if not exists idx_stages_job on research_job_stages(research_job_id, stage_no);
 create index if not exists idx_reports_company on research_reports(company_id, version_no desc);
 create index if not exists idx_sources_job on sources(research_job_id);
 create index if not exists idx_evidence_report on evidence_items(report_id);
 create index if not exists idx_usage_day on provider_usage(workspace_id, usage_day);
+create index if not exists idx_usage_job on provider_usage(research_job_id, created_at);
 
 insert into workspaces(slug,name) values ('VMG','Vashudevan MetGlobal LLP') on conflict(slug) do nothing;
 
