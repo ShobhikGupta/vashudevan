@@ -507,8 +507,8 @@ function renderSettingForms(){
     toggleControl("Store source snapshots",pr+"store_source_snapshots",getSetting(pr+"store_source_snapshots",true))+
     toggleControl("Store research history",pr+"store_research_history",getSetting(pr+"store_research_history",true))+
     toggleControl("Preserve report versions",pr+"preserve_report_versions",getSetting(pr+"preserve_report_versions",true))+
-    toggleControl("Allow AI to process PUBLIC research documents",pr+"public_document_ai",false,"AI document analysis is not enabled in V1; uploads are stored only.")+
-    toggleControl("Send PRIVATE uploaded files to external AI",pr+"private_document_ai",false,"AI document analysis is not enabled yet. Private uploads remain external-AI OFF.");
+    '<div class="toggleline"><div><b>Allow AI to process PUBLIC research documents</b><small>AI document analysis is not enabled in V1. Uploaded files are stored and attached only.</small></div><label class="switch"><input type="checkbox" disabled><span class="slider"></span></label></div>'+
+    '<div class="toggleline"><div><b>Send PRIVATE uploaded files to external AI</b><small>AI document analysis is not enabled yet. Private uploads remain external-AI OFF.</small></div><label class="switch"><input type="checkbox" disabled><span class="slider"></span></label></div>';
   const rp="report_defaults.";
   document.getElementById("reportDefaultsForm").innerHTML=
     selectControl("Default template",rp+"template",getSetting(rp+"template","vmg_full_due_diligence"),templateArray().map(x=>[x[0],x[1]]))+
