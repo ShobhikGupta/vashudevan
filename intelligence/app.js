@@ -464,7 +464,6 @@ async function connectProvider(provider){
     await Promise.all([loadStatus(),loadConnections()]);
   }catch(e){if(input)input.value="";toast(e.message)}finally{const b=document.getElementById("verifyConnect");if(b){b.disabled=false;b.textContent="Verify & Connect"}}
 }
-async function testProvider(provider)
 async function testProvider(provider){try{toast("Testing "+provider+"…");const j=await api("/api/provider-test",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({provider})});toast("PASS • "+j.latency_ms+" ms");await loadConnections()}catch(e){toast("FAIL • "+e.message)}}
 async function disconnectProvider(provider){
   if(!confirm("Disconnect "+provider+"? VMG Company Intelligence will no longer use this provider until it is connected again."))return;
