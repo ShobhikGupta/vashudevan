@@ -119,7 +119,7 @@ async function loadUsage(){
   if(!S.providers?.supabase?.connected){
     document.getElementById("kJobs").textContent="—";document.getElementById("kCalls").textContent="—";document.getElementById("kAvailable").textContent="—";
     ["uJobs","uGemini","uTavily","uFailed","uCost"].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent="—"});
-    ["usageCapacity","usageReset","usagePeriods","usageAverageCost","settingsUsage"].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML='<div class="notice">Database setup is required before usage history is available.</div>'});
+    ["usageCapacity","usageReset","usagePeriods","usageAverageCost","settingsUsage"].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML='<div class="notice">Database setup is required before usage history is available.</div>'});const pb=document.getElementById("usageProviderBreakdown");if(pb)pb.innerHTML='<tr><td colspan="3">Database setup is required.</td></tr>';
     return;
   }
   try{
@@ -143,6 +143,7 @@ async function loadUsage(){
     ].map(x=>'<div class="statusline"><span>'+esc(x[0])+'</span><b>'+esc(x[1])+'</b></div>').join("");
     const avg=u.average_cost_per_full_report_inr||u.average_cost_per_full_report_usd||{},sym=u.average_cost_per_full_report_inr?"₹":"$";
     document.getElementById("usageAverageCost").innerHTML=[["Last 5",avg.last_5],["Last 10",avg.last_10],["Last 30",avg.last_30],["Conversion",fx?("₹ per $ = "+fx.usd_inr+" • estimated"):"USD shown; no INR conversion reference set"]].map(x=>'<div class="statusline"><span>'+esc(x[0])+'</span><b>'+esc(typeof x[1]==="number"?sym+Number(x[1]).toFixed(2):(x[1]??"Not enough history"))+'</b></div>').join("");
+    const pb=document.getElementById("usageProviderBreakdown");if(pb)pb.innerHTML=(u.provider_breakdown||[]).map(x=>'<tr><td><b>'+esc(String(x.provider||"").replace(/^./,c=>c.toUpperCase()))+'</b></td><td>'+esc(x.calls??0)+'</td><td>'+esc("$"+Number(x.cost_usd||0).toFixed(2)+" estimated")+'</td></tr>').join("")||'<tr><td colspan="3">No provider usage recorded this month.</td></tr>';
     if(document.getElementById("settingsUsage"))document.getElementById("settingsUsage").innerHTML=document.getElementById("usageCapacity").outerHTML+document.getElementById("usagePeriods").outerHTML+document.getElementById("usageAverageCost").outerHTML;
     renderAlerts(u);
   }catch(e){document.getElementById("kJobs").textContent="—";document.getElementById("kCalls").textContent="—";document.getElementById("kAvailable").textContent="—"}
@@ -537,6 +538,7 @@ function renderSystemConnections(){
   document.getElementById("systemConnections").innerHTML=[
     ["Database — Supabase",h.database?.status||(p.supabase?.connected?"CONNECTED":"NOT_CONFIGURED")],
     ["Migrations",h.migrations?.status||"NOT_CONFIGURED"],
+    ["Secrets — Supabase Vault",h.vault?.status||"NOT_CONFIGURED"],
     ["Storage — Supabase Storage",h.storage?.status||"NOT_CONFIGURED"],
     ["Server — Netlify Functions",h.functions?.status||"UNKNOWN"],
     ["Environment",h.environment||p.app_env||"preview"],
