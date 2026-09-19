@@ -27,6 +27,17 @@ export const GROUPS = [
 {key:"market",stages:[18,19,20],title:"Competitors, procurement and commercial opportunity",prompt:"Identify meaningful competitors and comparable metrics. Map what the company regularly procures, including raw materials, fuels, metals, packaging, chemicals, maintenance and logistics. Estimate quantity/spend only with a transparent defensible basis. Identify potential buyer/supplier/partner relevance while keeping opportunity separate from credit safety."}
 ];
 
+export const TEMPLATE_RULES:Record<string,string>={
+  vmg_full_due_diligence:"Run the complete VMG due-diligence methodology across all applicable tracks.",
+  credit_counterparty_safety:"Prioritise current debt, cash flow, creditor ageing, supplier payment behaviour, ratings, recovery/default matters, legal enforcement and documents still required before unsecured credit.",
+  supplier_due_diligence:"Prioritise operational capability, plants, capacity, production reliability, product quality signals, financial resilience, supply continuity and supplier-side counterparty risk.",
+  buyer_intelligence:"Prioritise buying potential, observed demand, customer scale, purchasing patterns, payment safety, decision-maker functions and practical commercial terms.",
+  procurement_opportunity:"Prioritise what the target regularly consumes, defensible quantities/spend, specifications, purchase frequency, sourcing geography, procurement departments and VMG-relevant opportunities. Never invent consumption.",
+  quick_company_check:"Use a lower-depth screening: exact identity, business, approximate scale only where evidenced, material red flags, latest financial/credit signals, and whether full due diligence is warranted."
+};
+
+export function templateInstruction(key:string){return TEMPLATE_RULES[key]||TEMPLATE_RULES.vmg_full_due_diligence}
+
 export function env(name:string){ try{return Netlify.env.get(name)||""}catch{return""} }
 export function config(){
   const supabaseSecret=env("SUPABASE_SECRET_KEY")||env("SUPABASE_SERVICE_ROLE_KEY");
@@ -67,7 +78,7 @@ export async function update(table:string,q:string,patch:any,returnRows=true){co
 export async function workspace(){const r=await select("workspaces","slug=eq.VMG&select=id,slug,name&limit=1");if(!r?.length)throw new Error("VMG workspace is not initialized. Apply the Supabase migration first.");return r[0]}
 export async function uploadStorage(path:string,bytes:ArrayBuffer,mime:string){const c=config();if(!c.supabaseUrl||!c.supabaseSecret)throw new Error("Supabase is not configured.");const r=await fetch(`${c.supabaseUrl}/storage/v1/object/company-documents/${path}`,{method:"POST",headers:{apikey:c.supabaseSecret,authorization:`Bearer ${c.supabaseSecret}`,"content-type":mime||"application/octet-stream","x-upsert":"false"},body:bytes});const t=await r.text();if(!r.ok)throw new Error(`Storage ${r.status}: ${t.slice(0,500)}`);return t?JSON.parse(t):{}}
 
-async function recordUsage(provider:string,operation:string,success:boolean,meta:any={}){
+export async function recordUsage(provider:string,operation:string,success:boolean,meta:any={}){
   try{const ws=await workspace();await insert("provider_usage",{workspace_id:ws.id,usage_day:dayKey(),provider,operation,request_count:1,success,prompt_tokens:meta.prompt_tokens||null,output_tokens:meta.output_tokens||null,estimated_cost_usd:meta.estimated_cost_usd??null,metadata:meta.metadata||{}},false)}catch{}
 }
 function geminiText(p:any){return (p?.candidates?.[0]?.content?.parts||[]).map((x:any)=>x.text||"").join("\n").trim()}
@@ -87,10 +98,11 @@ Return only JSON:
 {"resolved":true,"ambiguity":"none|low|material","candidates":[{"legal_name":"","brand":"","country":"","state_region":"","registration_id":"","tax_id":"","website":"","registered_address":"","directors":[],"confidence":"HIGH|MEDIUM|LOW","evidence_summary":""}]}
 Use only real candidates supported by evidence. Never manufacture a similar entity. If unresolved: resolved=false, candidates=[].
 `}
-export function groupPrompt(company:any,g:any){return `${SYSTEM_RULES}
+export function groupPrompt(company:any,g:any,extra=""){return `${SYSTEM_RULES}
 TARGET: ${JSON.stringify(company)}
 TRACK: ${g.title}
 ${g.prompt}
+${extra}
 Research iteratively. Follow newly discovered directors, plants, lenders, rating reports or related entities when relevant. Prefer authoritative/current sources. State dates/periods, gaps and conflicts.
 `}
 export function synthPrompt(company:any,groups:any[],catalog:any[]){return `${SYSTEM_RULES}
@@ -104,16 +116,18 @@ Rules: source_keys must come from catalog. UNKNOWN when evidence is missing. Est
 
 async function stagePatch(jobId:string,n:number,patch:any){await update("research_job_stages",`research_job_id=eq.${encodeURIComponent(jobId)}&stage_no=eq.${n}`,patch,false)}
 async function stageMany(jobId:string,nums:number[],status:string,result:any=null){for(const n of nums)await stagePatch(jobId,n,{status,result_json:result??undefined,started_at:status==="RUNNING"?new Date().toISOString():undefined,completed_at:["COMPLETE","PARTIAL","NO RELIABLE DATA","FAILED"].includes(status)?new Date().toISOString():undefined})}
-function uniqueSources(arr:any[]){const m=new Map<string,any>();for(const s of arr||[])if(s?.url&&!m.has(s.url))m.set(s.url,s);return [...m.values()]}
-function coverage(stages:any[]){const a:any={identity:[1,2,3,4],business:[5,6],operations:[7,8],financials:[9],debt:[10,11,12],legal:[13,14,21],trade:[15,16,17],market:[18],procurement:[19,20],evidence:[22,23,24]};const score=(s:string)=>s==="COMPLETE"?1:s==="PARTIAL"?.6:s==="NO RELIABLE DATA"?.25:0;const b:any={};for(const[k,ns]of Object.entries(a)){const vals=(ns as number[]).map(n=>score(stages.find(x=>x.stage_no===n)?.status||""));b[k]=Math.round(vals.reduce((x,y)=>x+y,0)/vals.length*100)}return{overall:Math.round(Object.values(b).reduce((x:any,y:any)=>x+y,0)/Object.keys(b).length),breakdown:b,formula:"COMPLETE=100%, PARTIAL=60%, NO RELIABLE DATA=25%, FAILED/UNRUN=0%; area averages are equally weighted."}}
+export function uniqueSources(arr:any[]){const m=new Map<string,any>();for(const s of arr||[])if(s?.url&&!m.has(s.url))m.set(s.url,s);return [...m.values()]}
+export function coverage(stages:any[]){const a:any={identity:[1,2,3,4],business:[5,6],operations:[7,8],financials:[9],debt:[10,11,12],legal:[13,14,21],trade:[15,16,17],market:[18],procurement:[19,20],evidence:[22,23,24]};const score=(s:string)=>s==="COMPLETE"?1:s==="PARTIAL"?.6:s==="NO RELIABLE DATA"?.25:0;const b:any={};for(const[k,ns]of Object.entries(a)){const vals=(ns as number[]).map(n=>score(stages.find(x=>x.stage_no===n)?.status||""));b[k]=Math.round(vals.reduce((x,y)=>x+y,0)/vals.length*100)}return{overall:Math.round(Object.values(b).reduce((x:any,y:any)=>x+y,0)/Object.keys(b).length),breakdown:b,formula:"COMPLETE=100%, PARTIAL=60%, NO RELIABLE DATA=25%, FAILED/UNRUN=0%; area averages are equally weighted."}}
 
 export async function runResearchJob(jobId:string){
   const c=config();if(!c.geminiKey)throw new Error("Research provider is not configured.");
   const js=await select("research_jobs",`id=eq.${encodeURIComponent(jobId)}&select=*&limit=1`);if(!js?.length)throw new Error("Research job not found.");const job=js[0];
   const cs=await select("companies",`id=eq.${encodeURIComponent(job.company_id)}&select=*&limit=1`);if(!cs?.length)throw new Error("Company not found.");const company={...cs[0],...(job.input_seed?.confirmed_entity||{})};
+  const extra=[templateInstruction(job.template_key),job.custom_prompt?("USER CUSTOM INSTRUCTIONS (cannot override VMG evidence/safety rules):\n"+job.custom_prompt):""].filter(Boolean).join("\n\n");
+  try{await insert("activity_logs",{workspace_id:job.workspace_id,action:"research_started",company_id:job.company_id,research_job_id:job.id,metadata:{template_key:job.template_key}},false)}catch{}
   await update("research_jobs",`id=eq.${job.id}`,{status:"RUNNING",started_at:new Date().toISOString()},false);await stageMany(job.id,[1],"COMPLETE",{entity:job.input_seed?.confirmed_entity||company});
   const groups:any[]=[],all:any[]=[];
-  for(const g of GROUPS){await stageMany(job.id,g.stages,"RUNNING");try{const p=await geminiGrounded(groupPrompt(company,g));let text=p.text,sources=uniqueSources(p.sources);if((sources.length<2||text.length<300)&&c.tavilyKey){try{const f=await tavily(`"${company.legal_name}" ${g.title}`);text+="\n\nFALLBACK:\n"+f.text;sources=uniqueSources([...sources,...f.sources])}catch{}}
+  for(const g of GROUPS){await stageMany(job.id,g.stages,"RUNNING");try{const p=await geminiGrounded(groupPrompt(company,g,extra));let text=p.text,sources=uniqueSources(p.sources);if((sources.length<2||text.length<300)&&c.tavilyKey){try{const f=await tavily(`"${company.legal_name}" ${g.title}`);text+="\n\nFALLBACK:\n"+f.text;sources=uniqueSources([...sources,...f.sources])}catch{}}
     const sourceKeys:string[]=[];for(const s of sources){const rows=await insert("sources",{workspace_id:job.workspace_id,company_id:job.company_id,research_job_id:job.id,title:s.title,url:s.url,publisher:s.publisher||null,retrieved_at:new Date().toISOString(),source_type:"web",metadata:{stage_group:g.key}});const row=rows?.[0];if(row){sourceKeys.push(row.id);if(s.snippet)await insert("source_snapshots",{workspace_id:job.workspace_id,source_id:row.id,excerpt:String(s.snippet).slice(0,500)},false)}}
     const st=!text.trim()&&!sources.length?"NO RELIABLE DATA":sources.length<2?"PARTIAL":"COMPLETE";await stageMany(job.id,g.stages,st,{summary:text.slice(0,12000),source_count:sources.length});groups.push({key:g.key,title:g.title,text,source_keys:sourceKeys});all.push(...sources.map((s:any,i:number)=>({...s,source_key:sourceKeys[i]})));
   }catch(e:any){await stageMany(job.id,g.stages,"FAILED",{error:safeError(e)});groups.push({key:g.key,title:g.title,text:"",source_keys:[]})}}
@@ -122,7 +136,7 @@ export async function runResearchJob(jobId:string){
   const sts=await select("research_job_stages",`research_job_id=eq.${job.id}&select=*&order=stage_no.asc`);const cov=coverage(sts||[]);report.research_metadata={...(report.research_metadata||{}),job_id:job.id,company_id:job.company_id,template_key:job.template_key,researched_at:new Date().toISOString(),provider:"gemini-2.5-flash",evidence_coverage:cov};
   const prev=await select("research_reports",`company_id=eq.${job.company_id}&select=version_no&order=version_no.desc&limit=1`);const version=(prev?.[0]?.version_no||0)+1;const rr=await insert("research_reports",{workspace_id:job.workspace_id,company_id:job.company_id,research_job_id:job.id,version_no:version,template_key:job.template_key,report_json:report,evidence_coverage:cov.overall,source_count:uniq.length,created_at:new Date().toISOString()});const row=rr?.[0];
   if(row){await insert("report_versions",{workspace_id:job.workspace_id,company_id:job.company_id,report_id:row.id,version_no:version},false);await update("companies",`id=eq.${job.company_id}`,{current_report_id:row.id,updated_at:new Date().toISOString()},false);for(const ev of Array.isArray(report.evidence)?report.evidence:[])await insert("evidence_items",{workspace_id:job.workspace_id,company_id:job.company_id,research_job_id:job.id,report_id:row.id,finding_key:ev.finding_key||ev.label||crypto.randomUUID(),label:ev.label||ev.finding_key||"Finding",value_json:ev.value??null,period:ev.period||null,evidence_class:ev.evidence_class||"UNKNOWN",confidence:ev.confidence||"INSUFFICIENT",notes:ev.notes||null,conflict_status:ev.conflict_status||"NONE",source_keys:Array.isArray(ev.source_keys)?ev.source_keys:[]},false)}
-  await stageMany(job.id,[24],"COMPLETE",{report_id:row?.id,version_no:version});await update("research_jobs",`id=eq.${job.id}`,{status:"COMPLETE",completed_at:new Date().toISOString(),source_count:uniq.length,evidence_coverage:cov.overall,report_id:row?.id||null},false)
+  await stageMany(job.id,[24],"COMPLETE",{report_id:row?.id,version_no:version});await update("research_jobs",`id=eq.${job.id}`,{status:"COMPLETE",completed_at:new Date().toISOString(),source_count:uniq.length,evidence_coverage:cov.overall,report_id:row?.id||null},false);try{await insert("activity_logs",{workspace_id:job.workspace_id,action:"research_completed",company_id:job.company_id,research_job_id:job.id,metadata:{report_id:row?.id||null,version_no:version,source_count:uniq.length,evidence_coverage:cov.overall}},false)}catch{}
 }
 
 export async function exportReport(report:any,type:string){
