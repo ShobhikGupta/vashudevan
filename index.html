@@ -3,144 +3,379 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Vashudevan Intelligence — Preview</title>
+<title>Vashudevan Intelligence — Counterparty Risk</title>
 <style>
-:root{--bg:#f4f6f8;--panel:#fff;--ink:#111827;--muted:#667085;--line:#e4e7ec;--dark:#0f172a;--dark2:#1e293b;--good:#13795b;--warn:#9a6700;--bad:#b42318}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
-button,input{font:inherit}.shell{display:grid;grid-template-columns:260px 1fr;min-height:100vh}.side{background:#0b1220;color:white;padding:26px 20px;display:flex;flex-direction:column}.brand{display:flex;gap:12px;align-items:center}.logo{width:42px;height:42px;border:1px solid #334155;border-radius:13px;display:grid;place-items:center;font-weight:900}.brand b{font-size:14px}.brand small{display:block;color:#94a3b8;margin-top:2px}.nav{display:grid;gap:8px;margin-top:34px}.nav button{border:0;background:transparent;color:#94a3b8;text-align:left;padding:12px 13px;border-radius:11px;cursor:pointer}.nav button.active,.nav button:hover{background:#172033;color:#fff}.aside-note{margin-top:auto;border:1px solid #263247;border-radius:14px;padding:14px;color:#b6c1d2;font-size:11px;line-height:1.55}.main{padding:28px 32px 60px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.14em;font-weight:800;color:#7c8a9d}.top h1{margin:5px 0 0;font-size:27px;letter-spacing:-.04em}.btn{border:1px solid var(--line);background:#fff;border-radius:11px;padding:10px 14px;font-weight:750;cursor:pointer}.btn.primary{background:#111827;color:#fff;border-color:#111827}.hero{background:linear-gradient(135deg,#fff,#f8fafc);border:1px solid var(--line);border-radius:22px;padding:24px;display:grid;grid-template-columns:.85fr 1.15fr;gap:28px;box-shadow:0 18px 50px rgba(15,23,42,.06)}.hero h2{font-size:25px;line-height:1.15;margin:0 0 10px;letter-spacing:-.035em}.hero p{font-size:13px;line-height:1.65;color:var(--muted);margin:0}.inputbox label{display:block;font-size:11px;font-weight:800;margin-bottom:8px}.row{display:grid;grid-template-columns:1fr auto;gap:10px}.row input{border:1px solid #d8dee7;border-radius:12px;padding:13px 14px;min-width:0}.hint{margin-top:8px;font-size:10px;color:#8b98aa}.status{display:none;margin:15px 0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px;font-size:12px}.page{background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px;margin-top:20px;box-shadow:0 18px 50px rgba(15,23,42,.05)}.pagehead{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}.pagehead h2{margin:5px 0 0;font-size:28px;letter-spacing:-.04em}.coverage{width:96px;height:96px;border:9px solid #e8edf2;border-radius:50%;display:grid;place-items:center;text-align:center}.coverage b{font-size:22px}.coverage small{font-size:8px;color:var(--muted);max-width:60px}.label{font-size:9px;text-transform:uppercase;letter-spacing:.14em;font-weight:800;color:#8b98aa;margin:22px 0 12px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;grid-auto-flow:row dense}.card{border:1px solid var(--line);border-radius:15px;padding:15px 16px;background:#fff}.card.identity{grid-row:span 2;background:linear-gradient(145deg,#111827,#1e293b);color:#fff;border-color:#1e293b}.card h3{margin:0 0 11px;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#7a8799}.card.identity h3{color:#aab8cc}.metric{display:grid;grid-template-columns:26px 1fr;gap:8px;margin:9px 0}.ref{font-size:10px;font-weight:800;color:#8a99ac}.name{font-size:10px;color:#78869a}.identity .name{color:#9fb0c5}.value{font-size:14px;font-weight:800;line-height:1.25;margin-top:1px}.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}.tag{font-size:8px;font-weight:800;letter-spacing:.03em;border:1px solid #d8dee7;border-radius:999px;padding:2px 6px;color:#637187;background:#f8fafc}.identity .tag{background:#25334a;border-color:#3a4a63;color:#c3d0df}.tag.good{color:var(--good);background:#eef8f4;border-color:#cde8dd}.tag.warn{color:var(--warn);background:#fff7df;border-color:#f0dd98}.tag.bad{color:var(--bad);background:#fff1f0;border-color:#f3ccc8}.charts{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.chart{border:1px solid var(--line);border-radius:15px;padding:15px}.chart h3{font-size:12px;margin:0 0 4px}.chart p{font-size:9px;color:#8794a6;margin:0 0 14px}.bars{height:150px;display:flex;align-items:end;gap:14px;border-left:1px solid #d7dde5;border-bottom:1px solid #d7dde5;padding:0 12px}.barwrap{flex:1;height:100%;display:flex;align-items:end;justify-content:center;gap:4px;position:relative}.bar{width:22px;background:#1f2937;border-radius:5px 5px 0 0}.bar.alt{background:#94a3b8}.barwrap span{position:absolute;bottom:-22px;font-size:8px;color:#7b8797}.gate{border:1px solid var(--line);border-radius:15px;overflow:hidden}.ghead,.grow{display:grid;grid-template-columns:1.1fr 1fr 1.8fr .8fr;gap:10px;padding:9px 12px}.ghead{background:#f7f9fb;font-size:8px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:#7d8a9c}.grow{border-top:1px solid var(--line);font-size:10px}.section{border:1px solid var(--line);border-radius:15px;padding:17px;margin-top:10px}.section h3{font-size:15px;margin:0 0 8px}.section p,.section li{font-size:11px;line-height:1.65;color:#4d5b6f}.notice{background:#fff8e8;border:1px solid #f1d9a4;color:#7f5b08;border-radius:12px;padding:11px 13px;font-size:11px;margin-top:14px}.hidden{display:none}@media(max-width:920px){.shell{grid-template-columns:1fr}.side{position:static}.aside-note{display:none}.main{padding:20px}.hero,.grid,.charts{grid-template-columns:1fr}.card.identity{grid-row:auto}.ghead{display:none}.grow{grid-template-columns:1fr;gap:4px}}
+:root{
+  --bg:#f3f5f7;--panel:#ffffff;--panel2:#f8fafb;--ink:#0d1625;--muted:#667085;
+  --muted2:#8c98a8;--line:#e4e9ef;--nav:#0b1220;--nav2:#111b2e;--accent:#2558d9;
+  --green:#17795b;--greenbg:#edf8f4;--amber:#9b6900;--amberbg:#fff8e6;--red:#b42318;
+  --redbg:#fff1f0;--shadow:0 14px 40px rgba(15,23,42,.065)
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+.app{display:grid;grid-template-columns:224px minmax(0,1fr);min-height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;background:linear-gradient(180deg,#09111f 0%,#0d1728 100%);color:#fff;padding:22px 16px;border-right:1px solid #172238;display:flex;flex-direction:column;z-index:10}
+.brand{display:flex;align-items:center;gap:11px;padding:0 7px 22px}
+.mark{width:35px;height:35px;border-radius:11px;border:1px solid #35445c;background:linear-gradient(145deg,#162238,#0c1423);display:grid;place-items:center;font-size:11px;font-weight:900;letter-spacing:.08em}
+.brand-text b{display:block;font-size:12px;letter-spacing:-.01em}.brand-text span{display:block;font-size:9px;color:#8da0bc;margin-top:2px}
+.nav-section{font-size:8px;text-transform:uppercase;letter-spacing:.16em;color:#60748f;padding:9px 10px 8px;font-weight:800}
+.nav{display:grid;gap:5px}
+.nav-btn{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;color:#94a5bd;text-align:left;border-radius:10px;padding:10px 11px;font-size:11px;font-weight:650}
+.nav-btn:hover,.nav-btn.active{background:#17233a;color:#fff}
+.ico{width:18px;height:18px;border-radius:6px;display:grid;place-items:center;background:#1b2941;color:#aebbd0;font-size:10px}
+.nav-btn.active .ico{background:#244fc4;color:#fff}
+.side-card{margin-top:auto;border:1px solid #243249;background:#101b2d;border-radius:13px;padding:12px}
+.side-card .tiny{font-size:8px;text-transform:uppercase;letter-spacing:.12em;color:#70839f;font-weight:800}
+.side-card strong{display:block;font-size:11px;margin:5px 0 4px}
+.side-card p{font-size:9px;line-height:1.5;color:#92a4be;margin:0}
+.content{min-width:0;padding:0 30px 60px}
+.topbar{height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px;position:sticky;top:0;background:rgba(243,245,247,.88);backdrop-filter:blur(14px);z-index:8;border-bottom:1px solid rgba(228,233,239,.75)}
+.topbar-title .kicker{font-size:8px;letter-spacing:.17em;text-transform:uppercase;color:#8591a3;font-weight:800}
+.topbar-title h1{font-size:20px;letter-spacing:-.025em;margin:4px 0 0}
+.top-actions{display:flex;align-items:center;gap:8px}
+.badge{display:inline-flex;align-items:center;gap:6px;border:1px solid #dce3ea;border-radius:999px;padding:6px 9px;font-size:9px;font-weight:750;background:#fff;color:#5c6879}
+.dot{width:6px;height:6px;border-radius:50%;background:#d89b16}
+.btn{border:1px solid #d9e0e8;background:#fff;color:#182334;border-radius:10px;padding:9px 12px;font-size:10px;font-weight:800;box-shadow:0 1px 2px rgba(15,23,42,.03)}
+.btn:hover{border-color:#bdc8d5;background:#fbfcfd}
+.btn.primary{background:#101827;color:#fff;border-color:#101827}
+.btn.primary:hover{background:#182337}
+.btn.ghost{background:transparent;box-shadow:none}
+.view{display:none}.view.active{display:block}
+.research-shell{padding-top:22px}
+.search-card{background:linear-gradient(135deg,#fff 0%,#f9fbfc 100%);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:18px;padding:20px;display:grid;grid-template-columns:.82fr 1.18fr;gap:28px;align-items:center}
+.search-copy .kicker{font-size:8px;text-transform:uppercase;letter-spacing:.16em;color:#7e8b9d;font-weight:800}
+.search-copy h2{font-size:22px;letter-spacing:-.035em;line-height:1.1;margin:7px 0 8px}
+.search-copy p{font-size:11px;line-height:1.6;color:var(--muted);margin:0;max-width:430px}
+.field-label{display:flex;justify-content:space-between;align-items:center;font-size:9px;font-weight:800;margin:0 0 7px}
+.seed-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.seed-row input{width:100%;border:1px solid #d5dde6;border-radius:10px;background:#fff;padding:12px 13px;color:#172033;outline:none;font-size:11px}
+.seed-row input:focus{border-color:#6f8fdf;box-shadow:0 0 0 3px rgba(37,88,217,.08)}
+.helper{font-size:8.5px;color:#8b97a8;margin-top:7px}
+.progress{display:none;margin-top:12px;background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px 14px;box-shadow:0 5px 18px rgba(15,23,42,.03)}
+.progress.active{display:block}
+.progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.progress-title{font-size:10px;font-weight:800}.progress-pct{font-size:9px;color:#6c7889}
+.track{height:5px;background:#e8edf2;border-radius:10px;overflow:hidden}.track>i{display:block;height:100%;width:0;background:#2858d5;transition:width .35s ease}
+.steps{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.step{font-size:8px;color:#8d99aa}.step.done{color:#2458d6;font-weight:800}
+.preview-note{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding:10px 12px;background:#fff8e8;border:1px solid #f1dfb8;border-radius:12px;color:#795709;font-size:9px}
+.report{margin-top:14px}
+.report-head{background:#fff;border:1px solid var(--line);border-radius:18px 18px 0 0;padding:20px 20px 15px;box-shadow:var(--shadow)}
+.company-line{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.company-id .kicker{font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:#7c899b;font-weight:800}
+.company-id h2{font-size:25px;margin:6px 0 4px;letter-spacing:-.035em}
+.company-id p{margin:0;color:#6c7888;font-size:10px}
+.head-stats{display:flex;gap:8px;align-items:center}.mini-stat{border:1px solid var(--line);background:#fafbfc;border-radius:11px;padding:8px 10px;min-width:88px}.mini-stat span{display:block;font-size:8px;color:#8793a4}.mini-stat b{display:block;font-size:13px;margin-top:2px}
+.report-tabs{display:flex;gap:3px;margin-top:17px;padding:3px;background:#f1f4f7;border-radius:10px;width:max-content;max-width:100%;overflow:auto}
+.report-tab{border:0;background:transparent;padding:7px 10px;border-radius:8px;font-size:9px;font-weight:800;color:#718095;white-space:nowrap}.report-tab.active{background:#fff;color:#172033;box-shadow:0 1px 3px rgba(15,23,42,.08)}
+.report-body{background:#fff;border:1px solid var(--line);border-top:0;border-radius:0 0 18px 18px;padding:20px;box-shadow:var(--shadow)}
+.tabpanel{display:none}.tabpanel.active{display:block}
+.section-title{display:flex;justify-content:space-between;gap:16px;align-items:end;margin-bottom:13px}
+.section-title .kicker{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#8591a2;font-weight:800}
+.section-title h3{font-size:16px;margin:4px 0 0}.section-title p{font-size:9px;color:#8b97a7;margin:0}
+.dashboard{display:grid;grid-template-columns:1.15fr .85fr;gap:10px;grid-auto-flow:row dense}
+.card{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;min-width:0}
+.card.dark{background:linear-gradient(145deg,#111b2d,#0c1524);border-color:#14223a;color:#fff}
+.card.span2{grid-row:span 2}
+.card.wide{grid-column:1/-1}
+.card-title{font-size:8px;text-transform:uppercase;letter-spacing:.14em;font-weight:850;color:#7f8da1;margin-bottom:10px}.dark .card-title{color:#8ca0bd}
+.metric{display:grid;grid-template-columns:22px minmax(0,1fr);gap:7px;padding:7px 0;border-top:1px solid #edf1f4}.metric:first-of-type{border-top:0;padding-top:0}.dark .metric{border-color:#203047}
+.ref{font-size:8px;font-weight:900;color:#9aa6b6;padding-top:2px}.metric-label{font-size:8px;color:#8290a2}.dark .metric-label{color:#8fa2be}.metric-value{font-size:11px;font-weight:800;margin-top:2px;line-height:1.35;overflow-wrap:anywhere}
+.meta{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.chip{font-size:7px;line-height:1;border-radius:999px;padding:3px 5px;font-weight:900;border:1px solid #dce3ea;color:#647286;background:#f9fafb}.dark .chip{background:#192840;border-color:#31415b;color:#c4d0df}.chip.ok{color:var(--green);background:var(--greenbg);border-color:#cfe8df}.chip.warn{color:var(--amber);background:var(--amberbg);border-color:#efdca8}.chip.bad{color:var(--red);background:var(--redbg);border-color:#efcbc8}
+.callout{margin-top:10px;border-radius:11px;padding:10px 11px;background:#fff8e8;border:1px solid #eedcb2;font-size:9px;color:#72520c;line-height:1.5}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.chart-card{border:1px solid var(--line);border-radius:14px;padding:14px;min-height:170px}.chart-card h4{font-size:11px;margin:0 0 3px}.chart-card p{font-size:8px;color:#8996a6;margin:0 0 13px}
+.empty-chart{height:105px;border:1px dashed #dce3ea;border-radius:10px;background:repeating-linear-gradient(135deg,#fbfcfd,#fbfcfd 8px,#f7f9fb 8px,#f7f9fb 16px);display:grid;place-items:center;text-align:center;color:#8b97a8;font-size:9px;padding:14px}
+.coverage-bars{display:grid;gap:8px}.coverage-row{display:grid;grid-template-columns:110px 1fr 38px;gap:8px;align-items:center;font-size:9px}.cbar{height:6px;background:#edf1f4;border-radius:10px;overflow:hidden}.cbar i{display:block;height:100%;background:#22324a;border-radius:10px}.coverage-row strong{text-align:right;font-size:9px}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}table{width:100%;border-collapse:collapse;min-width:720px}th{background:#f7f9fb;text-align:left;font-size:7.5px;letter-spacing:.08em;text-transform:uppercase;color:#7f8c9d;padding:9px 10px;border-bottom:1px solid var(--line)}td{font-size:9px;padding:10px;border-bottom:1px solid #edf1f4;vertical-align:top}tr:last-child td{border-bottom:0}
+.risk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.risk-item{border:1px solid var(--line);border-radius:12px;padding:12px}.risk-item b{font-size:10px}.risk-item p{font-size:9px;color:#6d798a;line-height:1.5;margin:5px 0 0}
+.hard-stop{background:#fff3f1;border:1px solid #efccc7;border-radius:13px;padding:14px;margin-top:10px}.hard-stop .title{font-size:10px;font-weight:900;color:#9d271e}.hard-stop p{font-size:9px;line-height:1.55;color:#70413d;margin:6px 0 0}
+.history-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.history-card{background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);border-radius:16px;padding:16px}.history-card h3{font-size:14px;margin:5px 0}.history-card p{font-size:9px;color:#7c899a;line-height:1.5}.history-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.method-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:20px;box-shadow:var(--shadow);max-width:980px}.method-card h2{font-size:22px;margin:0 0 8px}.method-card>p{font-size:10px;color:#6f7b8c;line-height:1.65;max-width:780px}.method-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:16px}.method-pill{border:1px solid var(--line);border-radius:12px;padding:12px}.method-pill b{font-size:9px}.method-pill p{font-size:8px;color:#7f8b9b;line-height:1.45;margin:5px 0 0}
+.footer-note{font-size:8px;color:#96a1b0;text-align:center;margin-top:12px}
+@media(max-width:980px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto;flex-direction:row;align-items:center;gap:12px;padding:12px}.brand{padding:0}.nav-section,.side-card{display:none}.nav{display:flex;margin-left:auto}.nav-btn{width:auto}.content{padding:0 18px 40px}.topbar{top:0}.search-card{grid-template-columns:1fr}.dashboard,.grid2,.grid3,.risk-grid,.history-grid{grid-template-columns:1fr}.card.span2{grid-row:auto}.method-grid{grid-template-columns:1fr 1fr}.head-stats{display:none}}
+@media(max-width:640px){.sidebar{overflow:auto}.brand-text span{display:none}.nav-btn{font-size:0;padding:8px}.nav-btn .ico{font-size:10px}.top-actions .badge{display:none}.content{padding:0 12px 30px}.topbar{height:62px}.company-line{display:block}.seed-row{grid-template-columns:1fr}.report-tabs{width:100%}.method-grid{grid-template-columns:1fr}}
+@media print{
+  body{background:#fff}.sidebar,.topbar,.search-card,.preview-note,.report-tabs,.footer-note{display:none!important}.content{padding:0}.report{margin:0}.report-head,.report-body{box-shadow:none;border-color:#ddd;border-radius:0}.tabpanel{display:block!important;page-break-before:always}.tabpanel:first-child{page-break-before:auto}.btn{display:none!important}
+}
 </style>
 </head>
 <body>
-<div class="shell">
-<aside class="side">
-  <div class="brand"><div class="logo">VI</div><div><b>Vashudevan Intelligence</b><small>Counterparty Risk System</small></div></div>
-  <div class="nav">
-    <button class="active" onclick="showView('research',this)">New research</button>
-    <button onclick="showView('history',this)">Research history</button>
-    <button onclick="showView('method',this)">Methodology</button>
-  </div>
-  <div class="aside-note"><b>Evidence-first.</b><br>Unknown data stays unknown. Estimates must show assumptions and confidence.</div>
-</aside>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="mark">VI</div><div class="brand-text"><b>Vashudevan Intelligence</b><span>Counterparty Risk System</span></div></div>
+    <div class="nav-section">Workspace</div>
+    <nav class="nav">
+      <button class="nav-btn active" data-view="research"><span class="ico">⌕</span>New research</button>
+      <button class="nav-btn" data-view="history"><span class="ico">↺</span>Research history</button>
+      <button class="nav-btn" data-view="watchlist"><span class="ico">◎</span>Watchlist</button>
+      <button class="nav-btn" data-view="method"><span class="ico">i</span>Methodology</button>
+    </nav>
+    <div class="side-card"><div class="tiny">Evidence standard</div><strong>Unknown stays unknown.</strong><p>Estimates require assumptions. Credit safety is kept separate from business opportunity.</p></div>
+  </aside>
 
-<main class="main">
-<div class="top"><div><div class="eyebrow">Internal intelligence workspace</div><h1 id="title">Research a company</h1></div><button class="btn" onclick="window.print()">Export PDF</button></div>
+  <main class="content">
+    <header class="topbar">
+      <div class="topbar-title"><div class="kicker">Internal intelligence workspace</div><h1 id="pageTitle">Research a company</h1></div>
+      <div class="top-actions"><span class="badge"><span class="dot"></span>Preview mode</span><button class="btn" id="newBtn">New</button><button class="btn primary" id="exportBtn">Export PDF</button></div>
+    </header>
 
-<section id="research">
-  <div class="hero">
-    <div><h2>Start with anything that identifies the company.</h2><p>Website, company name, GSTIN, CIN, tax ID or a short note. The final system first resolves the legal entity, then researches independent sources and separates commercial opportunity from credit safety.</p></div>
-    <div class="inputbox">
-      <label>Company seed</label>
-      <div class="row"><input id="seed" value="https://www.ascolite.in/" placeholder="Website, GSTIN, CIN or company name"><button class="btn primary" onclick="runDemo()">Research company</button></div>
-      <div class="hint">Temporary UI preview. This demo shows the intended output structure; live research is not connected on this preview branch.</div>
-    </div>
-  </div>
-  <div class="status" id="status">Verifying legal entity → financials → debt → payment safety → trade counterparties → legal/compliance…</div>
-
-  <article id="report">
-    <section class="page">
-      <div class="pagehead"><div><div class="eyebrow">Business intelligence • growth • credit • commercial due diligence</div><h2>Aswani Industries Private Limited</h2><p style="color:#667085;font-size:12px">Brand: Ascolite • Building Materials & Construction Chemicals • India</p></div><div class="coverage"><b>62%</b><small>Research coverage</small></div></div>
-      <div class="label">PAGE 1 — COMPANY INTELLIGENCE DASHBOARD</div>
-      <div class="grid">
-        <div class="card identity"><h3>Company Identity</h3>
-          <div class="metric"><div class="ref">01</div><div><div class="name">Legal name</div><div class="value">Aswani Industries Private Limited</div><div class="tags"><span class="tag">VERIFIED</span><span class="tag">High</span></div></div></div>
-          <div class="metric"><div class="ref">02</div><div><div class="name">Brand</div><div class="value">Ascolite</div><div class="tags"><span class="tag">VERIFIED</span></div></div></div>
-          <div class="metric"><div class="ref">03</div><div><div class="name">Industry</div><div class="value">Building materials & construction chemicals</div><div class="tags"><span class="tag">VERIFIED</span></div></div></div>
-          <div class="metric"><div class="ref">04</div><div><div class="name">Headquarters</div><div class="value">Surat, Gujarat, India</div><div class="tags"><span class="tag">VERIFIED</span></div></div></div>
-          <div class="metric"><div class="ref">05</div><div><div class="name">Website</div><div class="value">ascolite.in</div><div class="tags"><span class="tag">VERIFIED</span></div></div></div>
-          <div class="metric"><div class="ref">06</div><div><div class="name">GSTIN / CIN</div><div class="value">To be verified from official registry in live run</div><div class="tags"><span class="tag warn">UNKNOWN</span></div></div></div>
-        </div>
-
-        <div class="card"><h3>Financial Snapshot</h3>
-          <div class="metric"><div class="ref">07</div><div><div class="name">Latest turnover</div><div class="value">UNKNOWN — not publicly verified in demo</div><div class="tags"><span class="tag warn">UNKNOWN</span></div></div></div>
-          <div class="metric"><div class="ref">08</div><div><div class="name">Net profit</div><div class="value">UNKNOWN</div><div class="tags"><span class="tag warn">UNKNOWN</span></div></div></div>
-          <div class="metric"><div class="ref">09</div><div><div class="name">Operating cash flow</div><div class="value">UNKNOWN</div><div class="tags"><span class="tag warn">UNKNOWN</span></div></div></div>
-        </div>
-
-        <div class="card"><h3>Products & Market</h3>
-          <div class="metric"><div class="ref">10</div><div><div class="name">Main products</div><div class="value">AAC blocks, tile adhesives, waterproofing, repair materials</div><div class="tags"><span class="tag good">VERIFIED</span></div></div></div>
-          <div class="metric"><div class="ref">11</div><div><div class="name">Highest-selling product</div><div class="value">UNKNOWN — not publicly verified</div><div class="tags"><span class="tag warn">UNKNOWN</span></div></div></div>
-        </div>
-
-        <div class="card"><h3>Plant, Machinery & Production</h3>
-          <div class="metric"><div class="ref">12</div><div><div class="name">Plants</div><div class="value">Multiple Surat-area operations reported</div><div class="tags"><span class="tag">PARTIAL</span></div></div></div>
-          <div class="metric"><div class="ref">13</div><div><div class="name">Installed capacity</div><div class="value">UNKNOWN</div><div class="tags"><span class="tag warn">UNKNOWN</span></div></div></div>
-          <div class="metric"><div class="ref">14</div><div><div class="name">Machine count</div><div class="value">UNKNOWN</div><div class="tags"><span class="tag warn">UNKNOWN</span></div></div></div>
-        </div>
-
-        <div class="card"><h3>Buyers & Suppliers</h3>
-          <div class="metric"><div class="ref">15</div><div><div class="name">Top 5 known buyers</div><div class="value">Not established in demo evidence</div><div class="tags"><span class="tag warn">UNKNOWN</span></div></div></div>
-          <div class="metric"><div class="ref">16</div><div><div class="name">Top 5 known suppliers</div><div class="value">Not established in demo evidence</div><div class="tags"><span class="tag warn">UNKNOWN</span></div></div></div>
-        </div>
-
-        <div class="card"><h3>Debt & Payment Safety</h3>
-          <div class="metric"><div class="ref">17</div><div><div class="name">Current debt</div><div class="value">UNKNOWN — current outstanding not verified</div><div class="tags"><span class="tag warn">UNKNOWN</span></div></div></div>
-          <div class="metric"><div class="ref">18</div><div><div class="name">Supplier payment behaviour</div><div class="value">NOT SUFFICIENTLY VERIFIED</div><div class="tags"><span class="tag warn">HARD STOP</span></div></div></div>
-          <div class="metric"><div class="ref">19</div><div><div class="name">Initial credit posture</div><div class="value">Advance / LC / controlled exposure until verified</div><div class="tags"><span class="tag bad">CAUTION</span></div></div></div>
-        </div>
-
-        <div class="card"><h3>Management & Group Exposure</h3>
-          <div class="metric"><div class="ref">20</div><div><div class="name">Management</div><div class="value">Public leadership identified; official director verification needed</div><div class="tags"><span class="tag">PARTIAL</span></div></div></div>
-          <div class="metric"><div class="ref">21</div><div><div class="name">Group exposure</div><div class="value">Requires related-company debt review</div><div class="tags"><span class="tag warn">UNKNOWN</span></div></div></div>
-        </div>
-
-        <div class="card"><h3>Legal & Compliance</h3>
-          <div class="metric"><div class="ref">22</div><div><div class="name">Recovery / insolvency</div><div class="value">No conclusion until formal registry search is completed</div><div class="tags"><span class="tag warn">UNKNOWN</span></div></div></div>
-          <div class="metric"><div class="ref">23</div><div><div class="name">Regulatory position</div><div class="value">Plant/product-specific verification required</div><div class="tags"><span class="tag warn">PARTIAL</span></div></div></div>
-        </div>
-
-        <div class="card"><h3>Growth & Opportunity</h3>
-          <div class="metric"><div class="ref">24</div><div><div class="name">Hiring activity</div><div class="value">Active hiring observed</div><div class="tags"><span class="tag good">VERIFIED</span></div></div></div>
-          <div class="metric"><div class="ref">25</div><div><div class="name">Growth rate</div><div class="value">UNKNOWN — hiring alone is not proof of financial growth</div><div class="tags"><span class="tag warn">UNKNOWN</span></div></div></div>
-        </div>
-
-        <div class="card"><h3>Commercial Action</h3>
-          <div class="metric"><div class="ref">26</div><div><div class="name">Opportunity</div><div class="value">Broad construction-material portfolio and regional footprint</div><div class="tags"><span class="tag">DERIVED</span></div></div></div>
-          <div class="metric"><div class="ref">27</div><div><div class="name">Biggest concern</div><div class="value">Financial and supplier-payment evidence incomplete</div><div class="tags"><span class="tag warn">CAUTION</span></div></div></div>
+    <section id="view-research" class="view active research-shell">
+      <div class="search-card">
+        <div class="search-copy"><div class="kicker">Entity-first research</div><h2>Start with one identifier.<br>We resolve the company first.</h2><p>Enter a website, company name, GSTIN, CIN or tax ID. The production version will then investigate financials, debt, payment behaviour, operations, buyers, suppliers, legal risk and commercial opportunity.</p></div>
+        <div>
+          <div class="field-label"><span>Company seed</span><span style="color:#8a97a8;font-weight:600">Website / GSTIN / CIN / name</span></div>
+          <div class="seed-row"><input id="seed" value="https://www.ascolite.in/" placeholder="e.g. https://company.com or GSTIN"><button class="btn primary" id="researchBtn">Research company</button></div>
+          <div class="helper">The live research API is not connected to this temporary preview. All UI controls below work using the Ascolite demo dossier.</div>
+          <div class="progress" id="progress"><div class="progress-top"><span class="progress-title" id="progressTitle">Resolving entity…</span><span class="progress-pct" id="progressPct">0%</span></div><div class="track"><i id="progressBar"></i></div><div class="steps"><span class="step">Identity</span><span class="step">Financials</span><span class="step">Debt</span><span class="step">Payments</span><span class="step">Trade</span><span class="step">Legal</span></div></div>
         </div>
       </div>
-      <div class="notice"><b>Important:</b> this preview intentionally does not call the company “safe” merely because it looks established. The live version will keep payment safety separate from business opportunity.</div>
+
+      <div class="preview-note"><span><b>Temporary preview:</b> this is the redesigned working UI. The report demonstrates the format without inventing missing financial data.</span><button class="btn ghost" id="dismissNote">Dismiss</button></div>
+
+      <div class="report" id="report">
+        <div class="report-head">
+          <div class="company-line">
+            <div class="company-id"><div class="kicker">Business intelligence • growth • credit • commercial due diligence</div><h2 id="companyTitle">Aswani Industries Private Limited</h2><p>Brand: Ascolite &nbsp;•&nbsp; Building Materials & Construction Chemicals &nbsp;•&nbsp; India</p></div>
+            <div class="head-stats"><div class="mini-stat"><span>Research coverage</span><b>62%</b></div><div class="mini-stat"><span>Credit verification</span><b style="color:#a36700">Incomplete</b></div></div>
+          </div>
+          <div class="report-tabs">
+            <button class="report-tab active" data-tab="overview">Overview</button>
+            <button class="report-tab" data-tab="financials">Financials</button>
+            <button class="report-tab" data-tab="counterparties">Buyers & suppliers</button>
+            <button class="report-tab" data-tab="risk">Money safety</button>
+            <button class="report-tab" data-tab="evidence">Evidence</button>
+          </div>
+        </div>
+
+        <div class="report-body">
+          <section class="tabpanel active" id="tab-overview">
+            <div class="section-title"><div><div class="kicker">Page 1 — Company intelligence dashboard</div><h3>Decision dashboard</h3></div><p>Flexible layout • evidence over symmetry</p></div>
+            <div class="dashboard">
+              <div class="card dark span2">
+                <div class="card-title">Company identity</div>
+                <div class="metric"><div class="ref">01</div><div><div class="metric-label">Legal name</div><div class="metric-value">Aswani Industries Private Limited</div><div class="meta"><span class="chip">VERIFIED</span><span class="chip">High</span></div></div></div>
+                <div class="metric"><div class="ref">02</div><div><div class="metric-label">Brand</div><div class="metric-value">Ascolite</div><div class="meta"><span class="chip">VERIFIED</span></div></div></div>
+                <div class="metric"><div class="ref">03</div><div><div class="metric-label">Industry</div><div class="metric-value">Building materials & construction chemicals</div><div class="meta"><span class="chip">VERIFIED</span></div></div></div>
+                <div class="metric"><div class="ref">04</div><div><div class="metric-label">Headquarters</div><div class="metric-value">Surat, Gujarat, India</div><div class="meta"><span class="chip">VERIFIED</span></div></div></div>
+                <div class="metric"><div class="ref">05</div><div><div class="metric-label">Website</div><div class="metric-value">ascolite.in</div><div class="meta"><span class="chip">VERIFIED</span></div></div></div>
+                <div class="metric"><div class="ref">06</div><div><div class="metric-label">GSTIN / CIN</div><div class="metric-value">Not verified in this preview dataset</div><div class="meta"><span class="chip warn">UNKNOWN</span></div></div></div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">Financial snapshot</div>
+                <div class="metric"><div class="ref">07</div><div><div class="metric-label">Latest turnover</div><div class="metric-value">Not publicly verified</div><div class="meta"><span class="chip warn">UNKNOWN</span></div></div></div>
+                <div class="metric"><div class="ref">08</div><div><div class="metric-label">Net profit</div><div class="metric-value">Not publicly verified</div><div class="meta"><span class="chip warn">UNKNOWN</span></div></div></div>
+                <div class="metric"><div class="ref">09</div><div><div class="metric-label">Operating cash flow</div><div class="metric-value">Not publicly verified</div><div class="meta"><span class="chip warn">UNKNOWN</span></div></div></div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">Products & market</div>
+                <div class="metric"><div class="ref">10</div><div><div class="metric-label">Main product families</div><div class="metric-value">AAC blocks, tile adhesives, waterproofing, repair materials</div><div class="meta"><span class="chip ok">VERIFIED</span></div></div></div>
+                <div class="metric"><div class="ref">11</div><div><div class="metric-label">Highest-selling product</div><div class="metric-value">Not publicly verified</div><div class="meta"><span class="chip warn">UNKNOWN</span></div></div></div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">Plant, machinery & production</div>
+                <div class="metric"><div class="ref">12</div><div><div class="metric-label">Operations</div><div class="metric-value">Multiple Surat-area facilities reported</div><div class="meta"><span class="chip">PARTIAL</span></div></div></div>
+                <div class="metric"><div class="ref">13</div><div><div class="metric-label">Installed capacity</div><div class="metric-value">Not verified</div><div class="meta"><span class="chip warn">UNKNOWN</span></div></div></div>
+                <div class="metric"><div class="ref">14</div><div><div class="metric-label">Machine count</div><div class="metric-value">Not verified</div><div class="meta"><span class="chip warn">UNKNOWN</span></div></div></div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">Buyers & suppliers</div>
+                <div class="metric"><div class="ref">15</div><div><div class="metric-label">Top 5 known buyers</div><div class="metric-value">Insufficient public transaction evidence</div><div class="meta"><span class="chip warn">UNKNOWN</span></div></div></div>
+                <div class="metric"><div class="ref">16</div><div><div class="metric-label">Top 5 known suppliers</div><div class="metric-value">Insufficient public transaction evidence</div><div class="meta"><span class="chip warn">UNKNOWN</span></div></div></div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">Debt & payment safety</div>
+                <div class="metric"><div class="ref">17</div><div><div class="metric-label">Current debt</div><div class="metric-value">Exact outstanding not verified</div><div class="meta"><span class="chip warn">UNKNOWN</span></div></div></div>
+                <div class="metric"><div class="ref">18</div><div><div class="metric-label">Supplier payment behaviour</div><div class="metric-value">Credit safety not sufficiently verified</div><div class="meta"><span class="chip bad">HARD STOP</span></div></div></div>
+                <div class="metric"><div class="ref">19</div><div><div class="metric-label">Initial commercial terms</div><div class="metric-value">Advance / LC / controlled exposure until verified</div><div class="meta"><span class="chip bad">CAUTION</span></div></div></div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">Management & group exposure</div>
+                <div class="metric"><div class="ref">20</div><div><div class="metric-label">Leadership</div><div class="metric-value">Public leadership identified; official director verification required</div><div class="meta"><span class="chip">PARTIAL</span></div></div></div>
+                <div class="metric"><div class="ref">21</div><div><div class="metric-label">Group exposure</div><div class="metric-value">Related-company debt review required</div><div class="meta"><span class="chip warn">UNKNOWN</span></div></div></div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">Legal & compliance</div>
+                <div class="metric"><div class="ref">22</div><div><div class="metric-label">Recovery / insolvency</div><div class="metric-value">No conclusion until formal search is complete</div><div class="meta"><span class="chip warn">UNKNOWN</span></div></div></div>
+                <div class="metric"><div class="ref">23</div><div><div class="metric-label">Regulatory position</div><div class="metric-value">Plant/product-specific verification required</div><div class="meta"><span class="chip">PARTIAL</span></div></div></div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">Growth & opportunity</div>
+                <div class="metric"><div class="ref">24</div><div><div class="metric-label">Hiring activity</div><div class="metric-value">Active hiring observed</div><div class="meta"><span class="chip ok">VERIFIED</span></div></div></div>
+                <div class="metric"><div class="ref">25</div><div><div class="metric-label">Growth rate</div><div class="metric-value">Unknown — hiring alone is not financial growth</div><div class="meta"><span class="chip warn">UNKNOWN</span></div></div></div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">Commercial action</div>
+                <div class="metric"><div class="ref">26</div><div><div class="metric-label">Opportunity</div><div class="metric-value">Broad construction-material portfolio and regional footprint</div><div class="meta"><span class="chip">DERIVED</span></div></div></div>
+                <div class="metric"><div class="ref">27</div><div><div class="metric-label">Primary concern</div><div class="metric-value">Financial and supplier-payment evidence incomplete</div><div class="meta"><span class="chip bad">CAUTION</span></div></div></div>
+              </div>
+            </div>
+            <div class="callout"><b>Decision rule:</b> an established brand is not automatically a safe credit counterparty. Business opportunity and payment safety remain separate.</div>
+
+            <div class="section-title" style="margin-top:22px"><div><div class="kicker">Page 2 — Analytics</div><h3>Charts only when the data supports them</h3></div><p>No fake financial series</p></div>
+            <div class="grid2">
+              <div class="chart-card"><h4>5-year revenue trend</h4><p>Waiting for verified historical financials</p><div class="empty-chart">No defensible 5-year revenue series is loaded in this preview.</div></div>
+              <div class="chart-card"><h4>Profit vs operating cash flow</h4><p>Core money-safety comparison</p><div class="empty-chart">This chart appears only after both profit and cash-flow data are verified.</div></div>
+              <div class="chart-card"><h4>Debt vs net worth</h4><p>Leverage and balance-sheet trend</p><div class="empty-chart">Registered charges alone will never be plotted as current debt.</div></div>
+              <div class="chart-card"><h4>Research coverage</h4><p>Coverage quality, not a company score</p><div class="coverage-bars"><div class="coverage-row"><span>Identity</span><div class="cbar"><i style="width:82%"></i></div><strong>82%</strong></div><div class="coverage-row"><span>Products</span><div class="cbar"><i style="width:90%"></i></div><strong>90%</strong></div><div class="coverage-row"><span>Financials</span><div class="cbar"><i style="width:18%"></i></div><strong>18%</strong></div><div class="coverage-row"><span>Debt</span><div class="cbar"><i style="width:12%"></i></div><strong>12%</strong></div><div class="coverage-row"><span>Payments</span><div class="cbar"><i style="width:10%"></i></div><strong>10%</strong></div></div></div>
+            </div>
+          </section>
+
+          <section class="tabpanel" id="tab-financials">
+            <div class="section-title"><div><div class="kicker">Financial intelligence</div><h3>Five-year master financial table</h3></div><p>Missing data remains explicit</p></div>
+            <div class="table-wrap"><table><thead><tr><th>FY</th><th>Revenue</th><th>EBITDA</th><th>Net profit</th><th>Operating cash</th><th>Net worth</th><th>Total debt</th><th>Creditor days</th></tr></thead><tbody><tr><td>FY2022</td><td colspan="7">N/A — not publicly verified in preview</td></tr><tr><td>FY2023</td><td colspan="7">N/A — not publicly verified in preview</td></tr><tr><td>FY2024</td><td colspan="7">N/A — not publicly verified in preview</td></tr><tr><td>FY2025</td><td colspan="7">N/A — not publicly verified in preview</td></tr><tr><td>FY2026</td><td colspan="7">N/A — not publicly verified in preview</td></tr></tbody></table></div>
+            <div class="grid3" style="margin-top:10px"><div class="card"><div class="card-title">Revenue CAGR</div><div class="metric-value">UNKNOWN</div><div class="meta"><span class="chip warn">INSUFFICIENT DATA</span></div></div><div class="card"><div class="card-title">Debt / EBITDA</div><div class="metric-value">UNKNOWN</div><div class="meta"><span class="chip warn">INSUFFICIENT DATA</span></div></div><div class="card"><div class="card-title">Interest coverage</div><div class="metric-value">UNKNOWN</div><div class="meta"><span class="chip warn">INSUFFICIENT DATA</span></div></div></div>
+          </section>
+
+          <section class="tabpanel" id="tab-counterparties">
+            <div class="section-title"><div><div class="kicker">Trade intelligence</div><h3>Known buyers & suppliers</h3></div><p>Partial trade data is never treated as the whole book</p></div>
+            <div class="grid2">
+              <div class="card"><div class="card-title">Top 5 known buyers</div><div class="empty-chart">No sufficiently verified transaction dataset loaded in this preview.<br><br>Live report will show buyer, country, product, value, quantity, transaction count, average order and average interval.</div></div>
+              <div class="card"><div class="card-title">Top 5 known suppliers</div><div class="empty-chart">No sufficiently verified transaction dataset loaded in this preview.<br><br>Live report will show supplier, country, material, value, quantity, frequency and trend.</div></div>
+            </div>
+            <div class="callout"><b>Coverage label required:</b> Complete / Partial / Customs Only / Import Only / Export Only / Unknown.</div>
+          </section>
+
+          <section class="tabpanel" id="tab-risk">
+            <div class="section-title"><div><div class="kicker">Credit risk</div><h3>Could our money get stuck?</h3></div><p>Highest-priority commercial check</p></div>
+            <div class="risk-grid">
+              <div class="risk-item"><b>Operating cash flow</b><p>Not publicly verified. Profit cannot substitute for cash generation.</p></div>
+              <div class="risk-item"><b>Current debt</b><p>Not verified. Registered charge amount must not be treated as loan outstanding.</p></div>
+              <div class="risk-item"><b>Creditor ageing</b><p>Not verified. Request supplier ageing before meaningful unsecured credit.</p></div>
+              <div class="risk-item"><b>Supplier payment behaviour</b><p>Not sufficiently verified. Absence of online complaints is not proof of timely payment.</p></div>
+              <div class="risk-item"><b>Recovery / insolvency</b><p>Requires formal court, insolvency and recovery searches in the live research run.</p></div>
+              <div class="risk-item"><b>Group-company exposure</b><p>Requires related-company debt, guarantees and shared security review.</p></div>
+            </div>
+            <div class="hard-stop"><div class="title">CREDIT SAFETY NOT SUFFICIENTLY VERIFIED</div><p>Until recent debt, bank utilisation, creditor ageing, supplier behaviour and operating cash are verified, start with advance, LC, bank-backed terms or a tightly controlled credit limit.</p></div>
+          </section>
+
+          <section class="tabpanel" id="tab-evidence">
+            <div class="section-title"><div><div class="kicker">Research gate</div><h3>Evidence completion matrix</h3></div><p>Every critical track must be attempted</p></div>
+            <div class="table-wrap"><table><thead><tr><th>Research area</th><th>Status</th><th>Key evidence</th><th>Confidence</th></tr></thead><tbody>
+              <tr><td>Legal identity</td><td>FOUND — PARTIAL</td><td>Legal entity, brand and locations identified; registry fields incomplete in preview.</td><td>Medium</td></tr>
+              <tr><td>Products</td><td>FOUND — STRONG</td><td>Major product families identified from company materials.</td><td>High</td></tr>
+              <tr><td>Plants / production</td><td>FOUND — PARTIAL</td><td>Locations identified; capacity and actual production remain unverified.</td><td>Medium</td></tr>
+              <tr><td>5Y financials</td><td>SEARCHED — NO RELIABLE DATA</td><td>No verified five-year series loaded in preview.</td><td>Insufficient</td></tr>
+              <tr><td>Debt</td><td>SEARCHED — NO RELIABLE DATA</td><td>Exact current debt not established.</td><td>Insufficient</td></tr>
+              <tr><td>Supplier payments</td><td>SEARCHED — NO RELIABLE DATA</td><td>Payment quality cannot be described as strong.</td><td>Insufficient</td></tr>
+              <tr><td>Buyers / suppliers</td><td>SEARCHED — NO RELIABLE DATA</td><td>No complete or sufficiently verified trade dataset in preview.</td><td>Insufficient</td></tr>
+              <tr><td>Legal / recovery</td><td>NOT COMPLETED IN PREVIEW</td><td>Live system must search court, insolvency and recovery sources.</td><td>Insufficient</td></tr>
+            </tbody></table></div>
+          </section>
+        </div>
+      </div>
+      <div class="footer-note">Vashudevan Intelligence • internal preview • no live research API connected yet</div>
     </section>
 
-    <section class="page">
-      <div class="label">PAGE 2 — ANALYTICAL CHARTS & TRENDS</div>
-      <div class="pagehead"><div><h2>Performance at a glance</h2><p style="color:#667085;font-size:12px">Charts appear only when defensible multi-period data exists.</p></div></div>
-      <div class="charts">
-        <div class="chart"><h3>Example: Revenue Trend</h3><p>Illustrative layout only • values intentionally omitted</p><div class="bars"><div class="barwrap"><div class="bar" style="height:34%"></div><span>FY22</span></div><div class="barwrap"><div class="bar" style="height:48%"></div><span>FY23</span></div><div class="barwrap"><div class="bar" style="height:63%"></div><span>FY24</span></div><div class="barwrap"><div class="bar" style="height:72%"></div><span>FY25</span></div></div></div>
-        <div class="chart"><h3>Example: Profit vs Operating Cash</h3><p>Used to expose profit-without-cash situations</p><div class="bars"><div class="barwrap"><div class="bar" style="height:60%"></div><div class="bar alt" style="height:28%"></div><span>FY23</span></div><div class="barwrap"><div class="bar" style="height:72%"></div><div class="bar alt" style="height:38%"></div><span>FY24</span></div><div class="barwrap"><div class="bar" style="height:80%"></div><div class="bar alt" style="height:22%"></div><span>FY25</span></div></div></div>
+    <section id="view-history" class="view research-shell">
+      <div class="section-title"><div><div class="kicker">Saved research</div><h3 style="font-size:22px">Research history</h3></div><p>Demo workspace</p></div>
+      <div class="history-grid">
+        <div class="history-card"><div class="kicker">19 Sep 2026 • Preview</div><h3>Aswani Industries Private Limited</h3><p>Ascolite • Building materials & construction chemicals • India</p><div class="history-meta"><span class="chip">62% coverage</span><span class="chip warn">Credit incomplete</span><button class="btn" onclick="openDemoReport()">Open report</button></div></div>
+        <div class="history-card"><div class="kicker">Future capability</div><h3>What changed since last review</h3><p>Once the database is connected, repeat research will highlight debt, ratings, cases, filings, trade relationships and capacity changes.</p><div class="history-meta"><span class="chip">V2</span></div></div>
       </div>
     </section>
 
-    <section class="page">
-      <div class="label">PAGE 3+ — DETAILED EVIDENCE & ANALYSIS</div>
-      <h2 style="margin-top:0">Research dossier</h2>
-      <div class="gate">
-        <div class="ghead"><div>Research area</div><div>Status</div><div>Key evidence</div><div>Confidence</div></div>
-        <div class="grow"><div><b>Legal identity</b></div><div>FOUND — PARTIAL</div><div>Brand/legal entity and locations identified; official registry verification remains.</div><div>Medium</div></div>
-        <div class="grow"><div><b>Products</b></div><div>FOUND — STRONG</div><div>Major product families identified.</div><div>High</div></div>
-        <div class="grow"><div><b>5Y Financials</b></div><div>SEARCHED — NO RELIABLE DATA</div><div>No verified five-year series in this demo.</div><div>Insufficient</div></div>
-        <div class="grow"><div><b>Debt</b></div><div>SEARCHED — NO RELIABLE DATA</div><div>Do not infer debt from company size.</div><div>Insufficient</div></div>
-        <div class="grow"><div><b>Supplier payments</b></div><div>SEARCHED — NO RELIABLE DATA</div><div>Payment quality cannot be described as strong.</div><div>Insufficient</div></div>
-      </div>
-      <div class="section"><h3>19. Could our money get stuck?</h3><p>The live version checks current debt, operating cash, creditor ageing, supplier disputes, MSME delayed-payment complaints, recovery cases, cheque dishonour, insolvency, bank enforcement, auditor warnings and group-company stress. If recent evidence is missing, the result must say <b>CREDIT SAFETY NOT SUFFICIENTLY VERIFIED</b>.</p></div>
-      <div class="section"><h3>26. Commercial opportunity</h3><p>The opportunity engine is separate from the credit engine. A company can be commercially attractive while still requiring advance, LC, secured terms or a small controlled credit limit.</p></div>
+    <section id="view-watchlist" class="view research-shell">
+      <div class="method-card"><div class="kicker">Monitoring</div><h2>Counterparty watchlist</h2><p>This screen will monitor researched companies for material changes: new charges, rating changes, insolvency filings, recovery matters, new plants, new buyers/suppliers and other evidence that can alter a commercial decision.</p><div class="callout">Watchlist monitoring is intentionally not simulated in this preview. It will be connected after the database and live research layer are added.</div></div>
     </section>
-  </article>
-</section>
 
-<section id="history" class="hidden"><div class="page"><h2>Research history</h2><p style="color:#667085">V1 will store researched companies, previous reports and later show what changed since the last review.</p></div></section>
-<section id="method" class="hidden"><div class="page"><h2>Methodology</h2><p style="color:#4d5b6f;line-height:1.7">Every important fact is classified as VERIFIED, DERIVED, ESTIMATED, PREDICTED or UNKNOWN. Registered bank charge is never treated as current debt. High turnover is never treated as proof of liquidity. No negative news is never treated as proof of good supplier payment behaviour.</p></div></section>
-</main>
+    <section id="view-method" class="view research-shell">
+      <div class="method-card"><div class="kicker">Evidence standard</div><h2>How the system treats information</h2><p>The product is designed to stop a polished-looking company profile from being mistaken for genuine counterparty due diligence. Every important number carries an evidence state and missing data remains visible.</p>
+        <div class="method-grid">
+          <div class="method-pill"><b>VERIFIED</b><p>Directly supported by a reliable primary or high-quality source.</p></div>
+          <div class="method-pill"><b>DERIVED</b><p>Calculated from verified inputs using transparent maths.</p></div>
+          <div class="method-pill"><b>ESTIMATED</b><p>Evidence-backed range with explicit formula and assumptions.</p></div>
+          <div class="method-pill"><b>PREDICTED</b><p>Future scenario with low/base/high cases and assumptions.</p></div>
+          <div class="method-pill"><b>UNKNOWN</b><p>Not sufficiently verifiable. Never filled with a guess.</p></div>
+        </div>
+        <div class="hard-stop"><div class="title">Credit hard stop</div><p>High turnover ≠ liquidity. Profit ≠ cash. Active tax registration ≠ creditworthiness. Bank finance ≠ supplier payment quality. No court case found ≠ no payment dispute.</p></div>
+      </div>
+    </section>
+  </main>
 </div>
+
 <script>
-function showView(id,btn){
-  ['research','history','method'].forEach(x=>document.getElementById(x).classList.toggle('hidden',x!==id));
-  document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');
-  document.getElementById('title').textContent=id==='research'?'Research a company':id==='history'?'Research history':'Methodology';
+const navBtns=[...document.querySelectorAll('.nav-btn')];
+const views=[...document.querySelectorAll('.view')];
+const pageTitle=document.getElementById('pageTitle');
+const titles={research:'Research a company',history:'Research history',watchlist:'Counterparty watchlist',method:'Methodology'};
+function showView(name){
+  views.forEach(v=>v.classList.toggle('active',v.id==='view-'+name));
+  navBtns.forEach(b=>b.classList.toggle('active',b.dataset.view===name));
+  pageTitle.textContent=titles[name]||'Vashudevan Intelligence';
+  window.scrollTo({top:0,behavior:'smooth'});
 }
-function runDemo(){
-  const s=document.getElementById('status');s.style.display='block';
-  s.textContent='Verifying legal entity → financials → debt → payment safety → trade counterparties → legal/compliance…';
-  setTimeout(()=>{s.textContent='Preview complete — showing the intended report format for '+(document.getElementById('seed').value||'the company')+'.';document.getElementById('report').scrollIntoView({behavior:'smooth',block:'start'});},900);
+navBtns.forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+
+const tabs=[...document.querySelectorAll('.report-tab')];
+tabs.forEach(btn=>btn.addEventListener('click',()=>{
+  tabs.forEach(x=>x.classList.toggle('active',x===btn));
+  document.querySelectorAll('.tabpanel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+btn.dataset.tab));
+}));
+
+document.getElementById('exportBtn').addEventListener('click',()=>window.print());
+document.getElementById('newBtn').addEventListener('click',()=>{
+  showView('research');
+  document.getElementById('seed').focus();
+  document.getElementById('seed').select();
+});
+document.getElementById('dismissNote').addEventListener('click',e=>e.currentTarget.parentElement.remove());
+
+function openDemoReport(){
+  showView('research');
+  document.getElementById('report').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+let running=false;
+document.getElementById('researchBtn').addEventListener('click',runResearch);
+document.getElementById('seed').addEventListener('keydown',e=>{if(e.key==='Enter')runResearch()});
+function runResearch(){
+  if(running)return;
+  const seed=document.getElementById('seed').value.trim();
+  if(!seed){document.getElementById('seed').focus();return}
+  running=true;
+  const box=document.getElementById('progress'), bar=document.getElementById('progressBar'), pct=document.getElementById('progressPct'), title=document.getElementById('progressTitle');
+  const steps=[...box.querySelectorAll('.step')];
+  const phases=[
+    ['Resolving exact legal entity…',14],
+    ['Checking financial evidence…',30],
+    ['Investigating debt and charges…',48],
+    ['Checking supplier payment risk…',64],
+    ['Mapping trade counterparties…',79],
+    ['Reviewing legal and regulatory evidence…',92],
+    ['Compiling decision report…',100]
+  ];
+  box.classList.add('active'); steps.forEach(s=>s.classList.remove('done'));
+  let i=0;
+  function next(){
+    const [label,val]=phases[i];
+    title.textContent=label;pct.textContent=val+'%';bar.style.width=val+'%';
+    const doneCount=Math.min(steps.length,Math.ceil((val/100)*steps.length));
+    steps.forEach((s,idx)=>s.classList.toggle('done',idx<doneCount));
+    i++;
+    if(i<phases.length){setTimeout(next,330)}
+    else{
+      setTimeout(()=>{
+        title.textContent='Preview dossier ready';running=false;
+        const lower=seed.toLowerCase();
+        document.getElementById('companyTitle').textContent=lower.includes('ascolite')?'Aswani Industries Private Limited':'Preview company dossier';
+        document.getElementById('report').scrollIntoView({behavior:'smooth',block:'start'});
+      },350)
+    }
+  }
+  next();
 }
 </script>
 </body>
