@@ -40,11 +40,12 @@ async function loadStatus(){
   try{
     const [p,h]=await Promise.all([api("/api/provider-status"),api("/api/system-health").catch(()=>null)]);
     S.providers=p;S.providerMeta=p.metadata||{};S.systemHealth=h;renderProviders();renderSystemConnections();
-    const ready=p?.supabase?.connected&&(p?.gemini?.connected||p?.openai?.connected);
+    const infraReady=p?.supabase?.connected&&h?.migrations?.status==="CONNECTED"&&h?.storage?.status==="CONNECTED";
+    const ready=infraReady&&(p?.gemini?.connected||p?.openai?.connected);
     document.getElementById("startBtn").disabled=!ready;document.getElementById("resolveBtn").disabled=!ready;
     const n=document.getElementById("configNotice");n.className="notice";
-    if(!p?.supabase?.connected){
-      n.hidden=false;n.innerHTML='<b>SYSTEM SETUP REQUIRED</b><br>1. Connect database<br>2. Apply Company Intelligence migrations<br>3. Configure Admin Settings Lock<br>4. Then connect Gemini / Tavily / OpenAI from Settings<br><br><button class="btn" id="setupInstructionsBtn">View Setup Instructions</button>';
+    if(!infraReady){
+      n.hidden=false;n.innerHTML='<b>SYSTEM SETUP REQUIRED</b><br>1. Connect database<br>2. Apply Company Intelligence migrations<br>3. Verify private company-documents storage<br>4. Configure Admin Settings Lock<br>5. Then connect Gemini / Tavily / OpenAI from Settings<br><br><button class="btn" id="setupInstructionsBtn">View Setup Instructions</button>';
       document.getElementById("setupInstructionsBtn").onclick=openSetupInstructions;
     }else if(!ready){
       n.hidden=false;n.innerHTML='<b>AI RESEARCH PROVIDER REQUIRED</b><br>The database is connected. Open Settings and connect/test Gemini for the free-first workflow, or an explicitly allowed alternative.';
@@ -535,6 +536,7 @@ function renderSystemConnections(){
   const h=S.systemHealth||{},p=S.providers||{},checked=h.checked_at||p.checked_at||new Date().toISOString();
   document.getElementById("systemConnections").innerHTML=[
     ["Database — Supabase",h.database?.status||(p.supabase?.connected?"CONNECTED":"NOT_CONFIGURED")],
+    ["Migrations",h.migrations?.status||"NOT_CONFIGURED"],
     ["Storage — Supabase Storage",h.storage?.status||"NOT_CONFIGURED"],
     ["Server — Netlify Functions",h.functions?.status||"UNKNOWN"],
     ["Environment",h.environment||p.app_env||"preview"],
