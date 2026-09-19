@@ -408,22 +408,25 @@ async function loadConnections(){try{const j=await api("/api/provider-connection
 async function loadSettings(){try{const j=await api("/api/settings");S.settings=j.settings||{}}catch(e){S.settings={}}}
 function con(provider){return S.connections.find(x=>x.provider===provider)||null}
 function providerCard(provider){
-  const m=S.providerMeta?.[provider]||{},c=con(provider),connected=Boolean(c?.status==="CONNECTED"||S.providers?.[provider]?.connected),health=c?.health||(connected?"CONNECTED":"NOT CONNECTED");
-  const model=c?.selected_model||m.model||m.display_model||"—";
-  const pricing=provider==="gemini"?"Free tier input/output: Free. Paid reference: $0.30 input / $2.50 output per 1M tokens.":provider==="tavily"?"1,000 free API credits/month. PAYG reference: $0.008/credit.":provider==="openai"?"Paid API. GPT-5.6 Luna from $0.20 input / $1.20 output per 1M tokens.":"";
-  return '<div class="panel provider"><div class="providerhead"><div><div class="eyebrow">'+esc(m.badge||"PROVIDER")+'</div><h3>'+esc(m.provider||provider)+'</h3><div style="font-size:11px;font-weight:800">'+esc(model)+'</div></div><button class="btn infoBtn" data-provider-info="'+provider+'" aria-label="Provider information">ⓘ</button></div><p>'+esc(m.description||"")+'</p><div class="status"><div class="statusline"><span>Status</span><b>'+tag(health,statusKind(health))+'</b></div><div class="statusline"><span>Role</span><b>'+esc(m.role||"—")+'</b></div><div class="statusline"><span>Pricing checked</span><b>'+esc(m.last_verified_date||"—")+'</b></div><div class="statusline"><span>Usage / reset</span><b>'+esc(m.reset_rule||"—")+'</b></div></div><p>'+esc(pricing)+'</p><div class="provideractions">'+(connected?'<button class="btn" data-provider-test="'+provider+'">Test Connection</button><button class="btn" data-provider-connect="'+provider+'">Reconnect</button><button class="btn danger" data-provider-disconnect="'+provider+'">Disconnect</button>':'<button class="btn primary" data-provider-connect="'+provider+'">Connect</button>')+'</div></div>';
+  const m=S.providerMeta?.[provider]||{},c=con(provider),ps=S.providers?.[provider]||{},status=ps.status||c?.status||(ps.configured?"CONFIGURED":"NOT_CONFIGURED"),connected=status==="CONNECTED",model=c?.selected_model||ps.selected_model||m.model||m.display_model||"—",locked=!S.admin.authorized;
+  const pricing=provider==="gemini"?"Free tier available. Paid reference: $0.30 input / $2.50 output per 1M tokens.":provider==="tavily"?"1,000 free API credits/month. PAYG reference: $0.008/credit.":provider==="openai"?"Paid API. Current model pricing is shown in the info drawer.":"";
+  const lockNote=locked?'<small style="display:block;margin-top:8px">🔒 Unlock Admin Settings to change this.</small>':"";
+  const actions=connected
+    ?'<button class="btn" data-provider-test="'+provider+'" '+(locked?"disabled":"")+'>Test Connection</button><button class="btn" data-provider-connect="'+provider+'" '+(locked?"disabled":"")+'>Reconnect</button><button class="btn danger" data-provider-disconnect="'+provider+'" '+(locked?"disabled":"")+'>Disconnect</button>'
+    :'<button class="btn primary" data-provider-connect="'+provider+'" '+(locked?"disabled":"")+'>Connect</button>';
+  return '<div class="panel provider"><div class="providerhead"><div><div class="eyebrow">'+esc(m.badge||"PROVIDER")+'</div><h3>'+esc(m.provider||provider)+'</h3><div style="font-size:11px;font-weight:800">'+esc(model)+'</div></div><button class="btn infoBtn" data-provider-info="'+provider+'" aria-label="Provider information">ⓘ</button></div><p>'+esc(m.description||"")+'</p><div class="status"><div class="statusline"><span>Status</span><b>'+tag(String(status).replaceAll("_"," "),statusKind(status))+'</b></div><div class="statusline"><span>Role</span><b>'+esc(m.role||"—")+'</b></div><div class="statusline"><span>Last tested</span><b>'+esc(fmtDate(c?.last_verified_at||ps.last_verified_at))+'</b></div><div class="statusline"><span>Latency</span><b>'+esc(c?.last_latency_ms?c.last_latency_ms+" ms":"Not tested")+'</b></div><div class="statusline"><span>Pricing checked</span><b>'+esc(m.last_verified_date||"—")+'</b></div><div class="statusline"><span>Usage / reset</span><b>'+esc(m.reset_rule||"—")+'</b></div></div><p>'+esc(pricing)+'</p><div class="provideractions">'+actions+'</div>'+lockNote+'</div>';
 }
 function renderProviderSettings(){
   document.getElementById("researchProviderCards").innerHTML=providerCard("gemini")+providerCard("openai");
-  const g=S.providerMeta?.gemini||{},t=S.providerMeta?.tavily||{};
-  document.getElementById("searchProviderCards").innerHTML='<div class="panel provider"><div class="providerhead"><div><div class="eyebrow">PRIMARY LIVE SEARCH</div><h3>Google Search Grounding</h3><div style="font-size:11px;font-weight:800">Uses Gemini connection</div></div><button class="btn infoBtn" data-provider-info="gemini">ⓘ</button></div><p>You do not need another Google Search API key. Google Search grounding is used through the Gemini API.</p><div class="statusline"><span>Status</span><b>'+tag(S.providers?.google_search_grounding?.available?"Available":"Unavailable",S.providers?.google_search_grounding?.available?"ok":"neutral")+'</b></div></div>'+providerCard("tavily");
-  document.getElementById("apiConnectionRows").innerHTML=["gemini","tavily","openai"].map(p=>{const c=con(p),m=S.providerMeta?.[p]||{};return'<div class="statusline"><span><b>'+esc(m.provider||p)+'</b><br><small>'+esc(c?.selected_model||m.model||"")+'</small></span><b>'+(c?tag(c.status,statusKind(c.status))+" ••••"+esc(c.masked_suffix||"")+" • "+esc(c.last_latency_ms?c.last_latency_ms+" ms":"not tested"):"Not connected")+'</b></div>'}).join("");
+  const gs=S.providers?.google_search_grounding||{},gsStatus=gs.status||"NOT_CONFIGURED";
+  document.getElementById("searchProviderCards").innerHTML='<div class="panel provider"><div class="providerhead"><div><div class="eyebrow">PRIMARY LIVE SEARCH</div><h3>Google Search Grounding</h3><div style="font-size:11px;font-weight:800">Uses Gemini connection</div></div><button class="btn infoBtn" data-provider-info="gemini">ⓘ</button></div><p>You do not need another Google Search API key. Google Search grounding is used through the Gemini API.</p><div class="statusline"><span>Status</span><b>'+tag(String(gsStatus).replaceAll("_"," "),statusKind(gsStatus))+'</b></div></div>'+providerCard("tavily");
+  document.getElementById("apiConnectionRows").innerHTML=["gemini","tavily","openai"].map(p=>{const c=con(p),m=S.providerMeta?.[p]||{},ps=S.providers?.[p]||{};return'<div class="statusline"><span><b>'+esc(m.provider||p)+'</b><br><small>'+esc(c?.selected_model||ps.selected_model||m.model||"")+'</small></span><b>'+tag(String(ps.status||c?.status||"NOT_CONFIGURED").replaceAll("_"," "),statusKind(ps.status||c?.status))+(c?.masked_suffix?" ••••"+esc(c.masked_suffix):"")+(c?.last_latency_ms?" • "+esc(c.last_latency_ms)+" ms":"")+'</b></div>'}).join("");
   bindProviderActions();
 }
 function bindProviderActions(){
-  document.querySelectorAll("[data-provider-connect]").forEach(b=>b.onclick=()=>openConnect(b.dataset.providerConnect));
-  document.querySelectorAll("[data-provider-test]").forEach(b=>b.onclick=()=>testProvider(b.dataset.providerTest));
-  document.querySelectorAll("[data-provider-disconnect]").forEach(b=>b.onclick=()=>disconnectProvider(b.dataset.providerDisconnect));
+  document.querySelectorAll("[data-provider-connect]:not([disabled])").forEach(b=>b.onclick=()=>openConnect(b.dataset.providerConnect));
+  document.querySelectorAll("[data-provider-test]:not([disabled])").forEach(b=>b.onclick=()=>testProvider(b.dataset.providerTest));
+  document.querySelectorAll("[data-provider-disconnect]:not([disabled])").forEach(b=>b.onclick=()=>disconnectProvider(b.dataset.providerDisconnect));
   document.querySelectorAll("[data-provider-info]").forEach(b=>b.onclick=()=>providerInfo(b.dataset.providerInfo));
 }
 function providerInfo(provider){
@@ -445,26 +448,33 @@ function openConnect(provider){
   document.getElementById("connectModal").classList.add("open");
 }
 async function connectProvider(provider){
-  const secret=document.getElementById("connectSecret").value.trim(),model=document.getElementById("connectModel")?.value;
+  const input=document.getElementById("connectSecret"),secret=input.value.trim(),model=document.getElementById("connectModel")?.value;
   if(!secret)return toast("Paste the API credential.");
   try{
-    document.getElementById("verifyConnect").disabled=true;document.getElementById("verifyConnect").textContent="Verifying…";
+    const btn=document.getElementById("verifyConnect");btn.disabled=true;btn.textContent="Verifying…";
     const j=await api("/api/provider-connect",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({provider,secret,selected_model:model,billing_mode:document.getElementById("connectBilling").value})});
-    document.getElementById("connectModal").classList.remove("open");toast("Connection successful.");await Promise.all([loadStatus(),loadConnections()]);
-  }catch(e){toast(e.message)}finally{const b=document.getElementById("verifyConnect");if(b){b.disabled=false;b.textContent="Verify & Connect"}}
+    input.value="";
+    const m=S.providerMeta?.[provider]||{},ground=provider==="gemini"?"<div class='statusline'><span>Google Search Grounding</span><b>"+tag("Available","ok")+"</b></div>":"";
+    document.getElementById("connectBody").innerHTML='<div class="notice success"><b>✓ CONNECTION SUCCESSFUL</b><br>'+esc(m.provider||provider)+' is now connected to VMG Company Intelligence.</div><div class="status" style="margin-top:12px"><div class="statusline"><span>Model</span><b>'+esc(j.selected_model||m.display_model||"—")+'</b></div>'+ground+'<div class="statusline"><span>Last tested</span><b>'+esc(fmtDate(j.connected_at))+'</b></div><div class="statusline"><span>Latency</span><b>'+esc(j.latency_ms)+" ms</b></div><div class='statusline'><span>Key</span><b>••••"+esc(j.masked_suffix||"")+"</b></div></div><div style='display:flex;justify-content:flex-end;margin-top:12px'><button class='btn primary' id='connectDone'>Done</button></div>";
+    document.getElementById("connectDone").onclick=()=>document.getElementById("connectModal").classList.remove("open");
+    await Promise.all([loadStatus(),loadConnections()]);
+  }catch(e){if(input)input.value="";toast(e.message)}finally{const b=document.getElementById("verifyConnect");if(b){b.disabled=false;b.textContent="Verify & Connect"}}
 }
+async function testProvider(provider)
 async function testProvider(provider){try{toast("Testing "+provider+"…");const j=await api("/api/provider-test",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({provider})});toast("PASS • "+j.latency_ms+" ms");await loadConnections()}catch(e){toast("FAIL • "+e.message)}}
 async function disconnectProvider(provider){
   if(!confirm("Disconnect "+provider+"? VMG Company Intelligence will no longer use this provider until it is connected again."))return;
   try{const j=await api("/api/provider-disconnect",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({provider})});toast("Provider disconnected.");await Promise.all([loadStatus(),loadConnections()])}catch(e){toast(e.message)}
 }
+function lockHelp(help=""){return [help,!S.admin.authorized?"🔒 Unlock Admin Settings to change this.":""].filter(Boolean).join(" ")}
 function toggleControl(label,path,value,help=""){
-  return '<div class="toggleline"><div><b>'+esc(label)+'</b>'+(help?'<small>'+esc(help)+'</small>':"")+'</div><label class="switch"><input type="checkbox" data-setting-path="'+esc(path)+'" '+(value?"checked":"")+'><span class="slider"></span></label></div>';
+  return '<div class="toggleline"><div><b>'+esc(label)+'</b><small>'+esc(lockHelp(help))+'</small></div><label class="switch"><input type="checkbox" data-setting-path="'+esc(path)+'" '+(value?"checked":"")+' '+(!S.admin.authorized?"disabled":"")+'><span class="slider"></span></label></div>';
 }
 function selectControl(label,path,value,options,help=""){
-  return '<div class="settingrow"><div><b>'+esc(label)+'</b>'+(help?'<small>'+esc(help)+'</small>':"")+'</div><select class="select" data-setting-path="'+esc(path)+'">'+options.map(x=>'<option value="'+esc(x[0])+'" '+(value===x[0]?"selected":"")+'>'+esc(x[1])+'</option>').join("")+'</select></div>';
+  return '<div class="settingrow"><div><b>'+esc(label)+'</b><small>'+esc(lockHelp(help))+'</small></div><select class="select" data-setting-path="'+esc(path)+'" '+(!S.admin.authorized?"disabled":"")+'>'+options.map(x=>'<option value="'+esc(x[0])+'" '+(value===x[0]?"selected":"")+'>'+esc(x[1])+'</option>').join("")+'</select></div>';
 }
-function numberControl(label,path,value,help=""){return '<div class="settingrow"><div><b>'+esc(label)+'</b>'+(help?'<small>'+esc(help)+'</small>':"")+'</div><input class="input" type="number" min="0" step="1" value="'+esc(value??0)+'" data-setting-path="'+esc(path)+'"></div>'}
+function numberControl(label,path,value,help="",step="1"){return '<div class="settingrow"><div><b>'+esc(label)+'</b><small>'+esc(lockHelp(help))+'</small></div><input class="input" type="number" min="0" step="'+esc(step)+'" value="'+esc(value??0)+'" data-setting-path="'+esc(path)+'" '+(!S.admin.authorized?"disabled":"")+'></div>'}
+
 function getSetting(path,fallback){const v=path.split(".").reduce((a,k)=>a?.[k],S.settings);return v===undefined?fallback:v}
 function renderSettingForms(){
   document.getElementById("aiStrategyForm").innerHTML=
@@ -479,12 +489,13 @@ function renderSettingForms(){
     selectControl("Default mode",rd+"default_mode",getSetting(rd+"default_mode","deep"),[["quick","Quick Check"],["standard","Standard Research"],["deep","Deep Research"]])+
     selectControl("Default template",rd+"default_template",getSetting(rd+"default_template","vmg_full_due_diligence"),templateArray().map(x=>[x[0],x[1]]))+
     numberControl("Minimum preferred credible sources",rd+"minimum_preferred_sources",getSetting(rd+"minimum_preferred_sources",5))+
-    [["Research negative signals","negative_signals"],["Search directors/promoters","directors_promoters"],["Search credit ratings","credit_ratings"],["Search debt/charges","debt_charges"],["Search litigation / insolvency","litigation_insolvency"],["Search imports/exports","imports_exports"],["Search buyers/suppliers","buyers_suppliers"],["Search competitors","competitors"],["Search procurement","procurement"],["Follow related entities when relevant","follow_related_entities"],["Use Tavily when evidence is weak","tavily_when_weak"],["Automatically use paid provider","automatically_use_paid_provider"]].map(x=>toggleControl(x[0],rd+x[1],getSetting(rd+x[1],x[1]!=="automatically_use_paid_provider"))).join("");
+    [["Research negative signals","negative_signals"],["Search directors/promoters","directors_promoters"],["Search credit ratings","credit_ratings"],["Search debt/charges","debt_charges"],["Search litigation / insolvency","litigation_insolvency"],["Search imports/exports","imports_exports"],["Search buyers/suppliers","buyers_suppliers"],["Search competitors","competitors"],["Search procurement","procurement"],["Follow related entities when relevant","follow_related_entities"],["Use Tavily when evidence is weak","tavily_when_weak"],["Automatically use paid provider","automatically_use_paid_provider"]].map(x=>toggleControl(x[0],rd+x[1],getSetting(rd+x[1],x[1]!=="automatically_use_paid_provider"),x[1]==="automatically_use_paid_provider"?"Used only with a strategy that permits an automatic paid-provider choice.":"")).join("");
   const cp="cost_protection.";
   document.getElementById("costProtectionForm").innerHTML=
     toggleControl("Free-only mode",cp+"free_only_mode",getSetting(cp+"free_only_mode",true),"Stops rather than silently creating paid API usage.")+
     toggleControl("Allow paid API usage",cp+"allow_paid_api_usage",getSetting(cp+"allow_paid_api_usage",false))+
-    toggleControl("Auto-switch to paid provider",cp+"auto_switch_paid_provider",getSetting(cp+"auto_switch_paid_provider",false))+
+    toggleControl("Auto-switch to paid provider",cp+"auto_switch_paid_provider",getSetting(cp+"auto_switch_paid_provider",false),"No paid provider is selected automatically unless this and the research paid-provider setting permit it.")+
+    numberControl("USD/INR cost reference",cp+"usd_inr_reference",getSetting(cp+"usd_inr_reference",0),"Stored conversion reference used only for budget enforcement and estimates.","0.01")+
     numberControl("Maximum cost / report (₹)",cp+"max_cost_per_report_inr",getSetting(cp+"max_cost_per_report_inr",0))+
     numberControl("Daily API budget (₹)",cp+"daily_budget_inr",getSetting(cp+"daily_budget_inr",0))+
     numberControl("Weekly API budget (₹)",cp+"weekly_budget_inr",getSetting(cp+"weekly_budget_inr",0))+
@@ -492,23 +503,30 @@ function renderSettingForms(){
   const al="alerts.";
   document.getElementById("alertsForm").innerHTML=[["Warn at 70% usage","warn_70",false],["Warn at 80% usage","warn_80",true],["Warn at 90% usage","warn_90",true],["Free quota nearly exhausted","quota_low",true],["Free quota exhausted","quota_exhausted",true],["Provider disconnected","provider_disconnected",true],["Provider authentication error","auth_error",true],["Research completed","research_completed",true],["Research failed","research_failed",true],["Partial evidence","partial_evidence",true],["Paid spend reaches budget","budget_threshold",true]].map(x=>toggleControl(x[0],al+x[1],getSetting(al+x[1],x[2]))).join("");
   const pr="privacy.";
-  document.getElementById("privacyForm").innerHTML=[["Store source snapshots","store_source_snapshots",true],["Store research history","store_research_history",true],["Preserve report versions","preserve_report_versions",true],["Allow AI to process PUBLIC research documents","public_document_ai",true],["Send PRIVATE uploaded files to external AI","private_document_ai",false]].map(x=>toggleControl(x[0],pr+x[1],getSetting(pr+x[1],x[2]),x[1]==="private_document_ai"?"Default OFF. Enabling this sends private documents to configured external AI providers.":"")).join("");
+  document.getElementById("privacyForm").innerHTML=
+    toggleControl("Store source snapshots",pr+"store_source_snapshots",getSetting(pr+"store_source_snapshots",true))+
+    toggleControl("Store research history",pr+"store_research_history",getSetting(pr+"store_research_history",true))+
+    toggleControl("Preserve report versions",pr+"preserve_report_versions",getSetting(pr+"preserve_report_versions",true))+
+    toggleControl("Allow AI to process PUBLIC research documents",pr+"public_document_ai",false,"AI document analysis is not enabled in V1; uploads are stored only.")+
+    toggleControl("Send PRIVATE uploaded files to external AI",pr+"private_document_ai",false,"AI document analysis is not enabled yet. Private uploads remain external-AI OFF.");
   const rp="report_defaults.";
   document.getElementById("reportDefaultsForm").innerHTML=
     selectControl("Default template",rp+"template",getSetting(rp+"template","vmg_full_due_diligence"),templateArray().map(x=>[x[0],x[1]]))+
     [["Executive Summary","executive_summary"],["Five-Year Financials","five_year_financials"],["Graphs","graphs"],["Evidence Labels","evidence_labels"],["Sources","sources"],["Information Gaps","information_gaps"],["Credit Safety","credit_safety"],["Procurement Opportunity","procurement_opportunity"],["Competitor Analysis","competitor_analysis"],["Management Takeaways","management_takeaways"],["Generate PDF","pdf"],["Generate DOCX","docx"],["Generate XLSX","xlsx"]].map(x=>toggleControl(x[0],rp+x[1],getSetting(rp+x[1],true))).join("");
-  document.querySelectorAll("[data-setting-path]").forEach(el=>el.onchange=()=>{setPath(S.settings,el.dataset.settingPath,el.type==="checkbox"?el.checked:el.type==="number"?Number(el.value):el.value);saveSettingsDebounced()});
+  document.querySelectorAll("[data-setting-path]:not([disabled])").forEach(el=>el.onchange=()=>{setPath(S.settings,el.dataset.settingPath,el.type==="checkbox"?el.checked:el.type==="number"?Number(el.value):el.value);saveSettingsDebounced()});
 }
 function setPath(obj,path,val){const ks=path.split(".");let o=obj;for(let i=0;i<ks.length-1;i++)o=o[ks[i]]||(o[ks[i]]={});o[ks.at(-1)]=val}
 let saveTimer;function saveSettingsDebounced(){clearTimeout(saveTimer);saveTimer=setTimeout(saveSettings,450)}
 async function saveSettings(){if(!S.admin.authorized)return;try{await api("/api/settings",{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({settings:S.settings})});toast("Settings saved.")}catch(e){toast(e.message)}}
 function renderSystemConnections(){
-  const p=S.providers||{};document.getElementById("systemConnections").innerHTML=[
-    ["Database — Supabase",p.supabase?.connected?"CONNECTED":"NOT CONNECTED"],
-    ["Storage — Supabase Storage",p.supabase?.connected?"CONFIGURED WITH DATABASE":"NOT CONNECTED"],
-    ["Server — Netlify Functions","OPERATIONAL"],
-    ["Environment",p.app_env||"preview"]
-  ].map(x=>'<div class="statusline"><span>'+esc(x[0])+'</span><b>'+tag(x[1],statusKind(x[1]))+'</b></div>').join("");
+  const h=S.systemHealth||{},p=S.providers||{},checked=h.checked_at||p.checked_at||new Date().toISOString();
+  document.getElementById("systemConnections").innerHTML=[
+    ["Database — Supabase",h.database?.status||(p.supabase?.connected?"CONNECTED":"NOT_CONFIGURED")],
+    ["Storage — Supabase Storage",h.storage?.status||"NOT_CONFIGURED"],
+    ["Server — Netlify Functions",h.functions?.status||"UNKNOWN"],
+    ["Environment",h.environment||p.app_env||"preview"],
+    ["Last checked",fmtDate(checked)]
+  ].map(x=>'<div class="statusline"><span>'+esc(x[0])+'</span><b>'+tag(String(x[1]).replaceAll("_"," "),statusKind(x[1]))+'</b></div>').join("");
 }
 document.querySelectorAll("[data-setting]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-setting]").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".settings-pane").forEach(x=>x.classList.toggle("active",x.id==="setting-"+b.dataset.setting))});
 document.getElementById("adminUnlockBtn").onclick=async()=>{try{await api("/api/settings-auth",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({secret:document.getElementById("adminSecret").value})});document.getElementById("adminSecret").value="";document.getElementById("adminModal").classList.remove("open");await loadAdminState();toast("Admin settings unlocked.")}catch(e){toast(e.message)}};
@@ -524,5 +542,8 @@ document.getElementById("addCompareBtn").onclick=()=>{const id=document.getEleme
 document.getElementById("compareBtn").onclick=runCompare;
 document.getElementById("refreshBtn").onclick=init;
 
-async function init(){await loadStatus();await Promise.allSettled([loadTemplates(),loadCompanies(),loadReports(),loadUsage()])}
+async function init(){await loadStatus();await Promise.allSettled([loadTemplates(),loadSettings(),loadConnections(),loadCompanies()]);renderProviderSettings();renderSettingForms();await Promise.allSettled([loadReports(),loadUsage()])}
 init();
+
+
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){document.querySelectorAll(".modalwrap.open").forEach(x=>x.classList.remove("open"));document.getElementById("drawer").classList.remove("open")}});
