@@ -24,6 +24,7 @@ function show(view){
 }
 async function api(path,opt={}){
   const r=await fetch(path,{credentials:"same-origin",...opt});let j={};try{j=await r.json()}catch{}
+  if(r.status===401&&path!=="/api/auth"){location.replace("/login.html?next="+encodeURIComponent(location.pathname+location.search));throw Object.assign(new Error("Authentication required."),{status:401,data:j})}
   if(!r.ok)throw Object.assign(new Error(j.error||("Request failed: "+r.status)),{status:r.status,data:j});return j;
 }
 function statusKind(value){const v=String(value||"").toUpperCase();if(["CONNECTED","AVAILABLE","PASS","OPERATIONAL","COMPLETE"].includes(v))return"ok";if(["PARTIAL","QUOTA LOW","DEGRADED"].includes(v))return"warn";if(["FAILED","AUTH ERROR","QUOTA EXHAUSTED","ERROR"].includes(v))return"bad";if(["RUNNING"].includes(v))return"info";return"neutral"}
@@ -33,6 +34,7 @@ function openDialog(id,focusId){lastFocus=document.activeElement;const el=docume
 function closeDialog(id){document.getElementById(id)?.classList.remove("open");if(lastFocus&&typeof lastFocus.focus==="function")lastFocus.focus();lastFocus=null}
 document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>show(b.dataset.view));
 document.querySelectorAll("[data-jump]").forEach(b=>b.onclick=()=>show(b.dataset.jump));
+document.getElementById("logoutBtn").onclick=async()=>{try{await api("/api/auth",{method:"DELETE"})}finally{location.replace("/login.html")}};
 document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>closeDialog(b.dataset.close));
 document.getElementById("closeDrawer").onclick=()=>document.getElementById("drawer").classList.remove("open");
 
@@ -40,12 +42,12 @@ async function loadStatus(){
   try{
     const [p,h]=await Promise.all([api("/api/provider-status"),api("/api/system-health").catch(()=>null)]);
     S.providers=p;S.providerMeta=p.metadata||{};S.systemHealth=h;renderProviders();renderSystemConnections();
-    const infraReady=p?.supabase?.connected&&h?.migrations?.status==="CONNECTED"&&h?.storage?.status==="CONNECTED";
-    const ready=infraReady&&(p?.gemini?.connected||p?.openai?.connected);
+    const infraReady=p?.supabase?.connected&&h?.migrations?.status==="CONNECTED"&&h?.vault?.status==="CONNECTED"&&h?.storage?.status==="CONNECTED";
+    const ready=infraReady&&p?.gemini?.connected&&p?.google_search_grounding?.available===true;
     document.getElementById("startBtn").disabled=!ready;document.getElementById("resolveBtn").disabled=!ready;
     const n=document.getElementById("configNotice");n.className="notice";
     if(!infraReady){
-      n.hidden=false;n.innerHTML='<b>SYSTEM SETUP REQUIRED</b><br>1. Connect database<br>2. Apply Company Intelligence migrations<br>3. Verify private company-documents storage<br>4. Configure Admin Settings Lock<br>5. Then connect Gemini / Tavily / OpenAI from Settings<br><br><button class="btn" id="setupInstructionsBtn">View Setup Instructions</button>';
+      n.hidden=false;n.innerHTML='<b>SYSTEM SETUP REQUIRED</b><br>1. Connect database<br>2. Apply Company Intelligence migrations + Data API grants<br>3. Verify Supabase Vault<br>4. Verify private company-documents storage<br>5. Configure Admin Settings Lock<br>6. Verify Gemini + Google Search Grounding<br><br><button class="btn" id="setupInstructionsBtn">View Setup Instructions</button>';
       document.getElementById("setupInstructionsBtn").onclick=openSetupInstructions;
     }else if(!ready){
       n.hidden=false;n.innerHTML='<b>AI RESEARCH PROVIDER REQUIRED</b><br>The database is connected. Open Settings and connect/test Gemini for the free-first workflow, or an explicitly allowed alternative.';
@@ -458,7 +460,7 @@ function openConnect(provider){
   let modelSelect="";
   if(provider==="openai")modelSelect='<div class="field"><label for="connectModel">Model</label><select id="connectModel" class="select">'+(m.models||[]).map(x=>'<option value="'+x.id+'">'+esc(x.name+" — "+x.note)+'</option>').join("")+'</select></div>';
   document.getElementById("connectTitle").textContent="Connect "+(m.provider||provider);
-  document.getElementById("connectBody").innerHTML='<div class="modalsteps"><div class="step"><b>Step 1 — Open provider dashboard</b><p>Sign in on the official provider website and create or select an API credential.</p><a class="btn" href="'+dash+'" target="_blank" rel="noopener">Open Provider Dashboard</a></div><div class="step"><b>Step 2 — Paste the credential once</b><p>It is validated server-side. After validation, VMG stores it in encrypted server-side secret storage and never returns it to browser code.</p><div class="field"><label for="connectSecret">API credential</label><input id="connectSecret" class="input" type="password" autocomplete="off" placeholder="••••••••••••••••"></div>'+modelSelect+'<div class="field" style="margin-top:8px"><label for="connectBilling">Provider account mode</label><select id="connectBilling" class="select"><option value="free">Free / free allowance</option><option value="paid">Paid account</option><option value="unknown">Not sure</option></select></div></div><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" data-close-connect>Cancel</button><button class="btn primary" id="verifyConnect">Verify & Connect</button></div></div>';
+  document.getElementById("connectBody").innerHTML='<div class="modalsteps"><div class="step"><b>Step 1 — Open provider dashboard</b><p>Sign in on the official provider website and create or select an API credential.</p><a class="btn" href="'+dash+'" target="_blank" rel="noopener">Open Provider Dashboard</a></div><div class="step"><b>Step 2 — Paste the credential once</b><p>'+(provider==="gemini"?"Use a current Google AI Studio authorization (auth) key. Standard keys are no longer accepted by Gemini as of September 2026. ":"")+'It is validated server-side. After validation, VMG stores it in encrypted server-side secret storage and never returns it to browser code.</p><div class="field"><label for="connectSecret">API credential</label><input id="connectSecret" class="input" type="password" autocomplete="off" placeholder="••••••••••••••••"></div>'+modelSelect+'<div class="field" style="margin-top:8px"><label for="connectBilling">Provider account mode</label><select id="connectBilling" class="select"><option value="free">Free / free allowance</option><option value="paid">Paid account</option><option value="unknown">Not sure</option></select></div></div><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" data-close-connect>Cancel</button><button class="btn primary" id="verifyConnect">Verify & Connect</button></div></div>';
   document.querySelector("[data-close-connect]").onclick=()=>closeDialog("connectModal");
   document.getElementById("verifyConnect").onclick=()=>connectProvider(provider);
   openDialog("connectModal","connectSecret");
