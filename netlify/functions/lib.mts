@@ -131,6 +131,27 @@ export async function researchStrategy(){
 }
 export async function uploadStorage(path:string,bytes:ArrayBuffer,mime:string){const c=config();if(!c.supabaseUrl||!c.supabaseSecret)throw new Error("Supabase is not configured.");const r=await fetch(`${c.supabaseUrl}/storage/v1/object/company-documents/${path}`,{method:"POST",headers:{apikey:c.supabaseSecret,authorization:`Bearer ${c.supabaseSecret}`,"content-type":mime||"application/octet-stream","x-upsert":"false"},body:bytes});const t=await r.text();if(!r.ok)throw new Error(`Storage ${r.status}: ${t.slice(0,500)}`);return t?JSON.parse(t):{}}
 
+function storagePath(path:string){return String(path||"").split("/").filter(Boolean).map(encodeURIComponent).join("/")}
+function storageHeaders(){const c=config();if(!c.supabaseUrl||!c.supabaseSecret)throw new Error("Supabase is not configured.");return {apikey:c.supabaseSecret,authorization:`Bearer ${c.supabaseSecret}`}}
+export async function createSignedStorageUpload(path:string){
+  const c=config(),p=storagePath(path);
+  const r=await fetch(`${c.supabaseUrl}/storage/v1/object/upload/sign/company-documents/${p}`,{method:"POST",headers:{...storageHeaders(),"content-type":"application/json"},body:"{}"});
+  const t=await r.text();if(!r.ok)throw new Error(`Storage signed upload ${r.status}: ${t.slice(0,500)}`);
+  const data=t?JSON.parse(t):{},signedUrl=new URL(String(data.url||""),c.supabaseUrl+"/storage/v1/").toString(),token=new URL(signedUrl).searchParams.get("token")||"";
+  if(!token)throw new Error("Storage did not return a signed upload token.");
+  const projectRef=new URL(c.supabaseUrl).hostname.split(".")[0];
+  return {signed_url:signedUrl,token,path,tus_endpoint:`https://${projectRef}.storage.supabase.co/storage/v1/upload/resumable`,expires_in_seconds:7200};
+}
+export async function storageInfo(path:string){
+  const c=config(),p=storagePath(path),r=await fetch(`${c.supabaseUrl}/storage/v1/object/info/company-documents/${p}`,{headers:storageHeaders()});
+  const t=await r.text();if(!r.ok)throw new Error(`Storage info ${r.status}: ${t.slice(0,500)}`);return t?JSON.parse(t):{};
+}
+export async function downloadStorage(path:string){
+  const c=config(),p=storagePath(path),r=await fetch(`${c.supabaseUrl}/storage/v1/object/company-documents/${p}`,{headers:storageHeaders()});
+  if(!r.ok){const t=await r.text();throw new Error(`Storage download ${r.status}: ${t.slice(0,500)}`)}
+  return await r.arrayBuffer();
+}
+
 export async function recordUsage(provider:string,operation:string,success:boolean,meta:any={}){
   try{const ws=await workspace();await insert("provider_usage",{
     workspace_id:ws.id,research_job_id:meta.research_job_id||null,usage_day:dayKey(),provider,model:meta.model||null,operation,
