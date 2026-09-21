@@ -1,4 +1,4 @@
-import { env, rest, select, workspace, recordUsage, safeError } from "./lib.mts";
+import { env, rest, select, workspace, recordUsage, safeError, fetchWithTimeout } from "./lib.mts";
 
 export async function rpc(name:string,body:any){return await rest(`rpc/${name}`,{method:"POST",body:JSON.stringify(body)})}
 export function envProviderKey(provider:string){
@@ -15,13 +15,13 @@ export async function connectionRows(){
 export async function testProvider(provider:string,key:string,model?:string){
   const started=Date.now();let r:Response;let groundingVerified=false;let body:any={};
   if(provider==="gemini"){
-    r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},body:JSON.stringify({contents:[{role:"user",parts:[{text:"Use Google Search grounding to identify the official Google AI for Developers website. Reply in one short sentence."}]}],tools:[{google_search:{}}],generationConfig:{temperature:0,maxOutputTokens:40}})});
+    r=await fetchWithTimeout("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},body:JSON.stringify({contents:[{role:"user",parts:[{text:"Use Google Search grounding to identify the official Google AI for Developers website. Reply in one short sentence."}]}],tools:[{google_search:{}}],generationConfig:{temperature:0,maxOutputTokens:40}})});
     try{body=await r.json()}catch{}
     groundingVerified=Boolean(body?.candidates?.[0]?.groundingMetadata?.groundingChunks?.length);
   } else if(provider==="openai"){
-    r=await fetch("https://api.openai.com/v1/models",{headers:{authorization:`Bearer ${key}`}});try{body=await r.json()}catch{}
+    r=await fetchWithTimeout("https://api.openai.com/v1/models",{headers:{authorization:`Bearer ${key}`}});try{body=await r.json()}catch{}
   } else if(provider==="tavily"){
-    r=await fetch("https://api.tavily.com/search",{method:"POST",headers:{"content-type":"application/json",authorization:`Bearer ${key}`},body:JSON.stringify({query:"VMG provider connection test",search_depth:"basic",max_results:1,include_answer:false})});try{body=await r.json()}catch{}
+    r=await fetchWithTimeout("https://api.tavily.com/search",{method:"POST",headers:{"content-type":"application/json",authorization:`Bearer ${key}`},body:JSON.stringify({query:"VMG provider connection test",search_depth:"basic",max_results:1,include_answer:false})});try{body=await r.json()}catch{}
   } else throw new Error("Unsupported provider.");
   const latency_ms=Date.now()-started,ok=r.ok;
   await recordUsage(provider,"connection_test",ok,{metadata:{latency_ms,status:r.status,grounding_verified:groundingVerified}});
