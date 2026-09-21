@@ -57,7 +57,7 @@ export default async (req:Request,_ctx:Context)=>{
     }
     await ensureIdentifiers(ws.id,company.id,entity);
     const template=body.template_key||settings.research_defaults?.default_template||"vmg_full_due_diligence";
-    const rows=await insert("research_jobs",{workspace_id:ws.id,company_id:company.id,template_key:template,custom_prompt:body.custom_prompt||null,input_seed:{seed:body.seed||"",confirmed_entity:entity},provider:route.provider+":"+route.model,usage_day:day,is_full_research:template!=="quick_company_check",status:hasAttachments?"PREPARING":"QUEUED"});
+    const rows=await insert("research_jobs",{workspace_id:ws.id,company_id:company.id,template_key:template,custom_prompt:body.custom_prompt||null,input_seed:{seed:body.seed||"",confirmed_entity:entity,attachments_expected:attachmentCount},provider:route.provider+":"+route.model,usage_day:day,is_full_research:template!=="quick_company_check",status:hasAttachments?"PREPARING":"QUEUED"});
     const job=rows?.[0];if(!job)throw new Error("Failed to create research job.");
     await insert("research_job_stages",STAGES.map((name,i)=>({workspace_id:ws.id,research_job_id:job.id,stage_no:i+1,stage_key:slugKey(name),stage_name:name,status:"QUEUED"})),false);
     await insert("activity_logs",{workspace_id:ws.id,action:"research_created",company_id:company.id,research_job_id:job.id,metadata:{template_key:template,provider:route.provider,model:route.model}},false);
