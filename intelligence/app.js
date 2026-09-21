@@ -162,11 +162,18 @@ function renderAlerts(u){
   const box=document.getElementById("alertsBanner"),badge=document.getElementById("alertBadge");box.hidden=!msgs.length;badge.hidden=!msgs.length;if(msgs.length)box.innerHTML='<b>Attention</b><br>'+msgs.map(esc).join("<br>");
 }
 function renderFiles(){
-  document.getElementById("fileList").innerHTML=S.files.map((x,i)=>'<div class="filerow"><div><b>'+esc(x.file.name)+'</b><small>'+esc((x.file.size/1024/1024).toFixed(2))+' MB • '+esc(x.file.type||"unknown")+(x.status?" • "+esc(x.status):"")+'</small></div><select class="select" data-file-class="'+i+'"><option value="private" '+(x.classification==="private"?"selected":"")+'>Private</option><option value="public" '+(x.classification==="public"?"selected":"")+'>Public</option></select><div><span class="tag neutral">AI analysis off</span><small style="display:block;margin-top:4px">Stored only; AI document analysis is not enabled yet.</small></div><button class="btn" data-file-remove="'+i+'">Remove</button></div>').join("");
+  document.getElementById("fileList").innerHTML=S.files.map((x,i)=>'<div class="filerow"><div><b>'+esc(x.file.name)+'</b><small>'+esc((x.file.size/1024/1024).toFixed(2))+' MB • '+esc(x.file.type||"unknown")+(x.status?" • "+esc(x.status):"")+(x.progress!=null?" • "+esc(x.progress)+"%":"")+'</small></div><select class="select" data-file-class="'+i+'" '+(x.status!=="queued"?"disabled":"")+'><option value="private" '+(x.classification==="private"?"selected":"")+'>Private</option><option value="public" '+(x.classification==="public"?"selected":"")+'>Public</option></select><label style="font-size:11px;line-height:1.35"><input type="checkbox" data-file-ai="'+i+'" '+(x.externalAI?"checked":"")+' '+(x.status!=="queued"?"disabled":"")+'> Allow this file\'s extracted text to be sent to the external research AI, subject to workspace privacy policy.</label><div><span class="tag '+(["READY","PARTIAL"].includes(x.parseStatus)?"ok":x.parseStatus==="FAILED"?"bad":"neutral")+'">'+esc(x.parseStatus||"LOCAL PARSING")+'</span><small style="display:block;margin-top:4px">'+(String(x.file.type||"").startsWith("image/")?"Stored only; image text extraction is not enabled in V1.":"PDF/DOCX/XLSX/CSV text is parsed server-side before research starts.")+'</small></div><button class="btn" data-file-remove="'+i+'" '+(x.status!=="queued"?"disabled":"")+'>Remove</button></div>').join("");
   document.querySelectorAll("[data-file-class]").forEach(el=>el.onchange=()=>{S.files[+el.dataset.fileClass].classification=el.value;renderFiles()});
+  document.querySelectorAll("[data-file-ai]").forEach(el=>el.onchange=()=>{S.files[+el.dataset.fileAi].externalAI=el.checked;renderFiles()});
   document.querySelectorAll("[data-file-remove]").forEach(el=>el.onclick=()=>{S.files.splice(+el.dataset.fileRemove,1);renderFiles()});
 }
-document.getElementById("fileInput").onchange=e=>{for(const file of [...e.target.files])S.files.push({file,classification:"private",externalAI:false,status:"queued"});e.target.value="";renderFiles()};
+document.getElementById("fileInput").onchange=e=>{
+  for(const file of [...e.target.files]){
+    if(file.size>20*1024*1024){toast(file.name+" exceeds the 20 MB limit.");continue}
+    S.files.push({file,classification:"private",externalAI:false,status:"queued",parseStatus:String(file.type||"").startsWith("image/")?"NOT_ALLOWED":"QUEUED"});
+  }
+  e.target.value="";renderFiles()
+};
 
 async function resolveEntity(autoStart=false){
   const seed=document.getElementById("seed").value.trim();if(!seed)return toast("Enter a company identifier.");
@@ -178,22 +185,72 @@ async function resolveEntity(autoStart=false){
     openDialog("entityModal","entityChoices");
   }catch(e){toast(e.message)}
 }
+function base64Meta(value){
+  const bytes=new TextEncoder().encode(String(value)),step=0x8000;let binary="";
+  for(let i=0;i<bytes.length;i+=step)binary+=String.fromCharCode(...bytes.subarray(i,i+step));
+  return btoa(binary);
+}
+async function uploadSignedStandard(item,auth){
+  const fd=new FormData();fd.append("cacheControl","3600");fd.append("",item.file);
+  const r=await fetch(auth.signed_url,{method:"PUT",headers:{"x-upsert":"false"},body:fd});
+  if(!r.ok)throw new Error("Storage upload failed ("+r.status+").");
+  item.progress=100;
+}
+async function uploadSignedTus(item,auth){
+  const metadata=[
+    ["bucketName","company-documents"],["objectName",auth.storage_path],["contentType",item.file.type||"application/octet-stream"],["cacheControl","3600"]
+  ].map(([k,v])=>k+" "+base64Meta(v)).join(",");
+  const create=await fetch(auth.tus_endpoint,{method:"POST",headers:{"Tus-Resumable":"1.0.0","Upload-Length":String(item.file.size),"Upload-Metadata":metadata,"x-signature":auth.token}});
+  if(!create.ok)throw new Error("Resumable upload could not start ("+create.status+").");
+  const loc=create.headers.get("Location");if(!loc)throw new Error("Resumable upload location was not returned.");
+  const uploadUrl=new URL(loc,auth.tus_endpoint).toString(),chunkSize=6*1024*1024;let offset=0;
+  while(offset<item.file.size){
+    const end=Math.min(item.file.size,offset+chunkSize),chunk=item.file.slice(offset,end);
+    const r=await fetch(uploadUrl,{method:"PATCH",headers:{"Tus-Resumable":"1.0.0","Upload-Offset":String(offset),"Content-Type":"application/offset+octet-stream","x-signature":auth.token},body:chunk});
+    if(!r.ok)throw new Error("Resumable upload failed ("+r.status+").");
+    offset=Number(r.headers.get("Upload-Offset")||end);item.progress=Math.min(100,Math.round(offset/item.file.size*100));renderFiles();
+  }
+}
+async function waitForDocuments(companyId,jobId){
+  const deadline=Date.now()+180000;
+  while(Date.now()<deadline){
+    const j=await api("/api/documents?company_id="+encodeURIComponent(companyId)),rows=(j.documents||[]).filter(x=>x.research_job_id===jobId),by=new Map(rows.map(x=>[x.id,x]));
+    let waiting=false;
+    for(const item of S.files){
+      const d=by.get(item.attachmentId);if(!d){waiting=true;continue}
+      item.parseStatus=d.parse_status;item.status=d.parse_status==="READY"||d.parse_status==="PARTIAL"||d.parse_status==="NOT_ALLOWED"?"ready":d.parse_status==="FAILED"?"failed":"parsing";
+      if(d.parse_status==="FAILED")throw new Error("Document parsing failed for "+d.filename+": "+(d.parse_error||"unknown parser error"));
+      if(!["READY","PARTIAL","NOT_ALLOWED"].includes(d.parse_status))waiting=true;
+    }
+    renderFiles();if(!waiting)return rows;await new Promise(r=>setTimeout(r,1500));
+  }
+  throw new Error("Document parsing did not finish in time.");
+}
 async function uploadQueued(companyId,jobId){
   for(const item of S.files){
-    try{
-      item.status="uploading";renderFiles();
-      const fd=new FormData();fd.append("file",item.file);fd.append("company_id",companyId);fd.append("research_job_id",jobId||"");fd.append("classification",item.classification);fd.append("external_ai_allowed",String(item.externalAI));
-      await api("/api/upload-document",{method:"POST",body:fd});item.status="uploaded";
-    }catch(e){item.status="failed";item.error=e.message}
-    renderFiles();
+    item.status="authorizing";item.progress=0;renderFiles();
+    const auth=await api("/api/document-upload-authorize",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({company_id:companyId,research_job_id:jobId,filename:item.file.name,mime_type:item.file.type,size_bytes:item.file.size,classification:item.classification,external_ai_allowed:item.externalAI})});
+    item.attachmentId=auth.attachment_id;item.status="uploading";renderFiles();
+    if(item.file.size>6*1024*1024)await uploadSignedTus(item,auth);else await uploadSignedStandard(item,auth);
+    item.status="finalizing";renderFiles();
+    const fin=await api("/api/document-upload-finalize",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({attachment_id:item.attachmentId})});
+    item.parseStatus=fin.parse_status;item.status=fin.parse_status==="NOT_ALLOWED"?"ready":"parsing";renderFiles();
   }
+  await waitForDocuments(companyId,jobId);
 }
 async function createResearch(){
   try{
     const seed=document.getElementById("seed").value.trim();if(!S.entity)return resolveEntity(true);
-    const j=await api("/api/research-create",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({seed,confirmed_entity:S.entity,template_key:S.selectedTemplate,custom_prompt:document.getElementById("customPrompt").value})});
-    S.currentJob=j.job_id;S.currentCompany=j.company_id;uploadQueued(j.company_id,j.job_id);
-    show("progress");document.getElementById("progressTitle").textContent=S.entity.legal_name;document.getElementById("jobMeta").textContent="Live research job";startPolling();
+    const hasFiles=S.files.length>0;
+    const j=await api("/api/research-create",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({seed,confirmed_entity:S.entity,template_key:S.selectedTemplate,custom_prompt:document.getElementById("customPrompt").value,has_attachments:hasFiles,attachment_count:S.files.length})});
+    S.currentJob=j.job_id;S.currentCompany=j.company_id;
+    show("progress");document.getElementById("progressTitle").textContent=S.entity.legal_name;document.getElementById("jobMeta").textContent=hasFiles?"Preparing documents before research":"Live research job";
+    if(hasFiles){
+      await uploadQueued(j.company_id,j.job_id);
+      await api("/api/research-start",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({job_id:j.job_id})});
+      document.getElementById("jobMeta").textContent="Live research job";
+    }
+    startPolling();
   }catch(e){toast(e.message)}
 }
 function stageClass(status){if(status==="COMPLETE")return"complete";if(status==="PARTIAL")return"partial";if(status==="NO RELIABLE DATA"||status==="SKIPPED")return"none";if(status==="FAILED")return"failed";if(status==="RUNNING")return"running";return""}
