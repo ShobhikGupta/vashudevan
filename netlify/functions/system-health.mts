@@ -17,12 +17,14 @@ export default async (_req:Request,_ctx:Context)=>{
   const tables=[
     "workspace_settings","provider_connections","companies","company_identifiers","attachments","activity_logs",
     "provider_usage","research_jobs","research_reports","report_versions","research_job_stages","evidence_items",
-    "sources","source_snapshots","financial_periods","financial_metrics"
+    "sources","source_snapshots","financial_periods","financial_metrics","attachment_extractions"
   ];
   let migrationOk=true;
   for(const table of tables){
     try{await select(table,"select=id&limit=1");out.migrations.checks[table]="OK"}catch{migrationOk=false;out.migrations.checks[table]="MISSING"}
   }
+  try{await select("attachments","select=id,upload_status,parse_status,extraction_metadata&limit=1");out.migrations.checks.attachment_v1_columns="OK"}catch{migrationOk=false;out.migrations.checks.attachment_v1_columns="MISSING"}
+  try{await select("research_jobs","select=id,preparation_completed_at&limit=1");out.migrations.checks.research_preparation_column="OK"}catch{migrationOk=false;out.migrations.checks.research_preparation_column="MISSING"}
   out.migrations.status=migrationOk?"CONNECTED":"INCOMPLETE";
   try{
     const probe=await rpc("vmg_get_provider_secret",{p_workspace_id:ws.id,p_provider:"__healthcheck__"});
