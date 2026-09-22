@@ -581,8 +581,8 @@ function renderSettingForms(){
     toggleControl("Store source snapshots",pr+"store_source_snapshots",getSetting(pr+"store_source_snapshots",true))+
     toggleControl("Store research history",pr+"store_research_history",getSetting(pr+"store_research_history",true))+
     toggleControl("Preserve report versions",pr+"preserve_report_versions",getSetting(pr+"preserve_report_versions",true))+
-    '<div class="toggleline"><div><b>Allow AI to process PUBLIC research documents</b><small>AI document analysis is not enabled in V1. Uploaded files are stored and attached only.</small></div><label class="switch"><input type="checkbox" disabled><span class="slider"></span></label></div>'+
-    '<div class="toggleline"><div><b>Send PRIVATE uploaded files to external AI</b><small>AI document analysis is not enabled yet. Private uploads remain external-AI OFF.</small></div><label class="switch"><input type="checkbox" disabled><span class="slider"></span></label></div>';
+    toggleControl("Allow PUBLIC document text in external AI research",pr+"public_document_ai",getSetting(pr+"public_document_ai",true),"Each file must also be explicitly allowed during upload.")+
+    toggleControl("Allow PRIVATE document text in external AI research",pr+"private_document_ai",getSetting(pr+"private_document_ai",false),"OFF by default. A private file is sent only when this policy and that file's explicit permission are both enabled.");
   const rp="report_defaults.";
   document.getElementById("reportDefaultsForm").innerHTML=
     selectControl("Default template",rp+"template",getSetting(rp+"template","vmg_full_due_diligence"),templateArray().map(x=>[x[0],x[1]]))+
@@ -597,6 +597,7 @@ function renderSystemConnections(){
   document.getElementById("systemConnections").innerHTML=[
     ["Database — Supabase",h.database?.status||(p.supabase?.connected?"CONNECTED":"NOT_CONFIGURED")],
     ["Migrations",h.migrations?.status||"NOT_CONFIGURED"],
+    ["Data API grants & RLS",h.security?.status||"NOT_CONFIGURED"],
     ["Secrets — Supabase Vault",h.vault?.status||"NOT_CONFIGURED"],
     ["Storage — Supabase Storage",h.storage?.status||"NOT_CONFIGURED"],
     ["Server — Netlify Functions",h.functions?.status||"UNKNOWN"],

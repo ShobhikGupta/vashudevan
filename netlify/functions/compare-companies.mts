@@ -27,13 +27,14 @@ function compact(r:any){
 }
 export default async (req:Request,_ctx:Context)=>{
   try{
-    const ws=await workspace(),ids=(new URL(req.url).searchParams.get("ids")||"").split(",").filter(Boolean).slice(0,5);if(ids.length<2)return json({error:"Select 2 to 5 companies."},400);
+    const ws=await workspace(),ids=[...new Set((new URL(req.url).searchParams.get("ids")||"").split(",").filter(Boolean))];if(ids.length<2||ids.length>5)return json({error:"Select 2 to 5 companies."},400);
     const out=[];
     for(const id of ids){
       const cs=await select("companies",`workspace_id=eq.${ws.id}&id=eq.${encodeURIComponent(id)}&select=*&limit=1`);if(!cs?.length)continue;
       const rs=await select("research_reports",`company_id=eq.${encodeURIComponent(id)}&select=*&order=version_no.desc&limit=1`);
       out.push({company:cs[0],report:rs?.[0]?{id:rs[0].id,version_no:rs[0].version_no,created_at:rs[0].created_at,evidence_coverage:rs[0].evidence_coverage}:null,comparison:compact(rs?.[0]?.report_json||{})});
     }
+    if(out.length!==ids.length)return json({error:"One or more selected companies were not found in this workspace.",code:"COMPANY_SCOPE_MISMATCH"},404);
     return json({companies:out,note:"Every financial value includes its stored period. Different periods are intentionally shown rather than silently treated as equivalent."});
   }catch(e){return json({error:safeError(e)},500)}
 };

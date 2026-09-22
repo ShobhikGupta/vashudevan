@@ -1,6 +1,6 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { Document, Packer, Paragraph, HeadingLevel } from "docx";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 
 export const STAGES = [
 "Entity Resolution","Official Identity / Registry","Directors / Promoters","Ownership","Business Model","Products","Plants / Offices","Capacity / Operations","Five-Year Financials","Debt / Borrowings","Charges / Lenders","Credit Ratings","Legal / Litigation","Insolvency / Defaults","Import / Export Activity","Customers / Buyers","Suppliers","Competitors","Procurement Requirements","Commercial Opportunity","Negative News","Source Validation","Evidence Classification","Final Report Generation"
@@ -155,8 +155,6 @@ export async function researchStrategy(){
   if(!gemini)throw new Error("Gemini is not connected. Free First requires Gemini.");
   return ensureGemini();
 }
-export async function uploadStorage(path:string,bytes:ArrayBuffer,mime:string){const c=config();if(!c.supabaseUrl||!c.supabaseSecret)throw new Error("Supabase is not configured.");const r=await fetch(`${c.supabaseUrl}/storage/v1/object/company-documents/${path}`,{method:"POST",headers:{apikey:c.supabaseSecret,authorization:`Bearer ${c.supabaseSecret}`,"content-type":mime||"application/octet-stream","x-upsert":"false"},body:bytes});const t=await r.text();if(!r.ok)throw new Error(`Storage ${r.status}: ${t.slice(0,500)}`);return t?JSON.parse(t):{}}
-
 function storagePath(path:string){return String(path||"").split("/").filter(Boolean).map(encodeURIComponent).join("/")}
 function storageHeaders(){const c=config();if(!c.supabaseUrl||!c.supabaseSecret)throw new Error("Supabase is not configured.");return {apikey:c.supabaseSecret,authorization:`Bearer ${c.supabaseSecret}`}}
 export async function createSignedStorageUpload(path:string){
@@ -298,7 +296,7 @@ export async function runResearchJob(jobId:string){
   const documentContext=await externalDocumentContext(job,settings);
   const extra=[templateInstruction(job.template_key),job.custom_prompt?("USER CUSTOM INSTRUCTIONS (cannot override VMG evidence/safety rules):\n"+job.custom_prompt):"",documentContext.text?("PERMITTED UPLOADED DOCUMENT EXCERPTS:\n"+documentContext.text):""].filter(Boolean).join("\n\n");
   const isPaid=route.provider==="openai"||(await providerConnection(route.provider))?.billing_mode==="paid";
-  const budget=async()=>isPaid?await paidBudgetStatus(job.id,settings):({allowed:true});
+  const budget=async():Promise<any>=>isPaid?await paidBudgetStatus(job.id,settings):({allowed:true});
   const mainResearch=async(prompt:string)=>{
     const b=await budget();if(!b.allowed)throw Object.assign(new Error(b.reason),{code:"COST_PROTECTION"});
     return route.provider==="openai"?await openAIGrounded(prompt,route.model,job.id):await geminiGrounded(prompt,job.id)
@@ -360,17 +358,18 @@ export async function runResearchJob(jobId:string){
     if(e?.code==="COST_PROTECTION"||String(e?.message||"").includes("COST PROTECTION")){await stageMany(job.id,[23],"PARTIAL",{error:safeError(e)});await stageMany(job.id,[24],"SKIPPED",{reason:"Research stopped before final report generation."});await update("research_jobs",`id=eq.${job.id}`,{status:"PARTIAL",error_message:safeError(e),completed_at:new Date().toISOString(),source_count:uniq.length},false);return}
     await stageMany(job.id,[23,24],"FAILED",{error:safeError(e)});await update("research_jobs",`id=eq.${job.id}`,{status:"FAILED",error_message:safeError(e),completed_at:new Date().toISOString()},false);throw e
   }
-  const sts=await select("research_job_stages",`research_job_id=eq.${job.id}&select=*&order=stage_no.asc`);const cov=coverage(sts||[]);
-  report.research_metadata={...(report.research_metadata||{}),job_id:job.id,company_id:job.company_id,template_key:job.template_key,researched_at:new Date().toISOString(),provider:route.provider,model:route.model,evidence_coverage:cov};
+  report.research_metadata={...(report.research_metadata||{}),job_id:job.id,company_id:job.company_id,template_key:job.template_key,researched_at:new Date().toISOString(),provider:route.provider,model:route.model};
   const prev=await select("research_reports",`company_id=eq.${job.company_id}&select=version_no&order=version_no.desc&limit=1`);const version=(prev?.[0]?.version_no||0)+1;
-  const rr=await insert("research_reports",{workspace_id:job.workspace_id,company_id:job.company_id,research_job_id:job.id,version_no:version,template_key:job.template_key,report_json:report,evidence_coverage:cov.overall,source_count:uniq.length,created_at:new Date().toISOString()});const row=rr?.[0];
-  if(row){
-    await insert("report_versions",{workspace_id:job.workspace_id,company_id:job.company_id,report_id:row.id,version_no:version},false);
-    await update("companies",`id=eq.${job.company_id}`,{current_report_id:row.id,updated_at:new Date().toISOString()},false);
-    for(const ev of Array.isArray(report.evidence)?report.evidence:[])await insert("evidence_items",{workspace_id:job.workspace_id,company_id:job.company_id,research_job_id:job.id,report_id:row.id,finding_key:ev.finding_key||ev.label||crypto.randomUUID(),label:ev.label||ev.finding_key||"Finding",value_json:ev.value??null,period:ev.period||null,evidence_class:ev.evidence_class||"UNKNOWN",confidence:ev.confidence||"INSUFFICIENT",notes:ev.notes||null,conflict_status:ev.conflict_status||"NONE",source_keys:Array.isArray(ev.source_keys)?ev.source_keys:[]},false);
-    await persistFinancials(job,row,report);
-  }
+  const rr=await insert("research_reports",{workspace_id:job.workspace_id,company_id:job.company_id,research_job_id:job.id,version_no:version,template_key:job.template_key,report_json:report,evidence_coverage:null,source_count:uniq.length,created_at:new Date().toISOString()});const row=rr?.[0];
+  if(!row)throw new Error("Final report persistence failed.");
+  await insert("report_versions",{workspace_id:job.workspace_id,company_id:job.company_id,report_id:row.id,version_no:version},false);
+  await update("companies",`id=eq.${job.company_id}`,{current_report_id:row.id,updated_at:new Date().toISOString()},false);
+  for(const ev of Array.isArray(report.evidence)?report.evidence:[])await insert("evidence_items",{workspace_id:job.workspace_id,company_id:job.company_id,research_job_id:job.id,report_id:row.id,finding_key:ev.finding_key||ev.label||crypto.randomUUID(),label:ev.label||ev.finding_key||"Finding",value_json:ev.value??null,period:ev.period||null,evidence_class:ev.evidence_class||"UNKNOWN",confidence:ev.confidence||"INSUFFICIENT",notes:ev.notes||null,conflict_status:ev.conflict_status||"NONE",source_keys:Array.isArray(ev.source_keys)?ev.source_keys:[]},false);
+  await persistFinancials(job,row,report);
   await stageMany(job.id,[24],"COMPLETE",{report_id:row?.id,version_no:version});
+  const sts=await select("research_job_stages",`research_job_id=eq.${job.id}&select=*&order=stage_no.asc`),cov=coverage(sts||[]);
+  report.research_metadata={...(report.research_metadata||{}),evidence_coverage:cov};
+  await update("research_reports",`id=eq.${row.id}`,{report_json:report,evidence_coverage:cov.overall},false);
   const finalStatus=(sts||[]).some((s:any)=>s.status==="FAILED")?"PARTIAL":"COMPLETE";
   await update("research_jobs",`id=eq.${job.id}`,{status:finalStatus,completed_at:new Date().toISOString(),source_count:uniq.length,evidence_coverage:cov.overall,report_id:row?.id||null},false);
   try{await insert("activity_logs",{workspace_id:job.workspace_id,action:finalStatus==="COMPLETE"?"research_completed":"research_partial",company_id:job.company_id,research_job_id:job.id,metadata:{report_id:row?.id||null,version_no:version,source_count:uniq.length,evidence_coverage:cov.overall,provider:route.provider,model:route.model,status:finalStatus}},false)}catch{}
@@ -437,12 +436,18 @@ export async function exportReport(report:any,type:string){
   }
 
   if(type==="xlsx"){
-    const wb=XLSX.utils.book_new();
-    const add=(name:string,rows:any[])=>XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows.length?rows:[{Status:"No verified data"}]),name.slice(0,31));
+    const wb=new ExcelJS.Workbook();wb.creator="VMG Company Intelligence";wb.created=new Date();
+    const scalar=(v:any)=>v==null?"":v instanceof Date?v:typeof v==="object"?JSON.stringify(v):v;
+    const add=(name:string,rows:any[])=>{
+      const data=rows.length?rows:[{Status:"No verified data"}],keys=[...new Set(data.flatMap((row:any)=>Object.keys(row||{})))];
+      const ws=wb.addWorksheet(name.slice(0,31));ws.columns=keys.map(key=>({header:key,key,width:Math.min(60,Math.max(12,key.length+2))}));
+      for(const row of data)ws.addRow(Object.fromEntries(keys.map(key=>[key,scalar(row?.[key])])));
+      ws.getRow(1).font={bold:true};ws.views=[{state:"frozen",ySplit:1}];ws.autoFilter={from:{row:1,column:1},to:{row:1,column:Math.max(1,keys.length)}};
+    };
     const arr=(v:any)=>Array.isArray(v)?v:(v==null?[]:[v]);const objRows=(v:any)=>arr(v).map((x:any)=>typeof x==="object"?x:{value:x});
     if(defs.executive_summary!==false)add("Executive Summary",[{Company:company,ResearchDate:report.created_at,EvidenceCoverage:report.evidence_coverage,SourceCount:report.source_count,CreditSafety:val(credit),MainConcern:val(mainConcern),MainOpportunity:val(opportunity)}]);
     add("Identity",objRows(r.identity));add("Directors",objRows(r.directors));add("Ownership",objRows(r.ownership));if(defs.five_year_financials!==false){add("Financials",objRows(periods));add("Ratios",objRows(r.financials?.ratios))}if(defs.credit_safety!==false){add("Debt & Charges",[...objRows(r.debt?.borrowings),...objRows(r.charges)]);add("Credit Ratings",objRows(r.credit_ratings))}add("Legal",[...objRows(r.legal),...objRows(r.insolvency)]);add("Trade",[...objRows(r.trade?.imports),...objRows(r.trade?.exports)]);add("Buyers",objRows(r.buyers));add("Suppliers",objRows(r.suppliers));if(defs.competitor_analysis!==false)add("Competitors",objRows(r.competitors));if(defs.procurement_opportunity!==false)add("Procurement",objRows(r.procurement));if(defs.evidence_labels!==false)add("Evidence",objRows(evidence));if(defs.sources!==false)add("Sources",objRows(sources));
-    return{bytes:XLSX.write(wb,{type:"buffer",bookType:"xlsx"}),mime:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",ext:"xlsx"};
+    return{bytes:Buffer.from(await wb.xlsx.writeBuffer()),mime:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",ext:"xlsx"};
   }
   throw new Error("type must be pdf, docx or xlsx");
 }

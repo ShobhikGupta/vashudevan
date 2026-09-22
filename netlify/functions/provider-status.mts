@@ -10,7 +10,7 @@ function state(hasSecret:boolean,row:any){
 }
 export default async (_req:Request,_ctx:Context)=>{
   const base=providerStatus(),rows=await providerConnections(),by=Object.fromEntries(rows.map((x:any)=>[x.provider,x]));
-  let supabase={...base.supabase,connected:false,last_checked:new Date().toISOString()};
+  let supabase:any={...base.supabase,connected:false,last_checked:new Date().toISOString()};
   if(base.supabase.configured){try{await workspace();supabase={...base.supabase,connected:true,last_checked:new Date().toISOString()}}catch(e){supabase={...base.supabase,connected:false,error:safeError(e),last_checked:new Date().toISOString()}}}
   const gs=state(Boolean(await providerSecret("gemini")),by.gemini),ts=state(Boolean(await providerSecret("tavily")),by.tavily),os=state(Boolean(await providerSecret("openai")),by.openai);
   return json({

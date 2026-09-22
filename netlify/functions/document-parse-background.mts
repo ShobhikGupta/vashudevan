@@ -3,7 +3,7 @@ import { Buffer } from "node:buffer";
 import mammoth from "mammoth";
 import { CanvasFactory } from "pdf-parse/worker";
 import { PDFParse } from "pdf-parse";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import { downloadStorage, insert, safeError, select, update } from "./lib.mts";
 
 function textChunks(text:string,max=7000){
@@ -15,6 +15,22 @@ function textChunks(text:string,max=7000){
     out.push(clean.slice(pos,end).trim());pos=end;
   }
   return out.filter(Boolean);
+}
+function csvRows(text:string){
+  const rows:string[][]=[],row:string[]=[];let cell="",quoted=false;
+  const pushCell=()=>{row.push(cell);cell=""},pushRow=()=>{pushCell();rows.push(row.splice(0))};
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(ch==='"'){if(quoted&&text[i+1]==='"'){cell+='"';i++}else quoted=!quoted}
+    else if(ch===","&&!quoted)pushCell();
+    else if((ch==="\n"||ch==="\r")&&!quoted){if(ch==="\r"&&text[i+1]==="\n")i++;pushRow()}
+    else cell+=ch;
+  }
+  if(cell||row.length)pushRow();return rows;
+}
+function cellText(value:any){
+  if(value==null)return"";if(value instanceof Date)return value.toISOString();
+  if(typeof value==="object")return String(value.text??value.result??value.hyperlink??JSON.stringify(value));return String(value);
 }
 async function parseAttachment(a:any,bytes:ArrayBuffer){
   const mime=String(a.mime_type||""),rows:any[]=[];
@@ -32,15 +48,17 @@ async function parseAttachment(a:any,bytes:ArrayBuffer){
     return {rows,metadata:{warnings:(result.messages||[]).map((x:any)=>String(x.message||x)).slice(0,20)}};
   }
   if(mime==="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"||mime==="text/csv"){
-    const wb=XLSX.read(Buffer.from(bytes),{type:"buffer",cellDates:true});
-    for(const sheetName of wb.SheetNames){
-      const aoa:any[][]=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{header:1,raw:false,defval:""}) as any[][];
-      for(let i=0;i<aoa.length;i+=100){
-        const part=aoa.slice(i,i+100),csv=XLSX.utils.sheet_to_csv(XLSX.utils.aoa_to_sheet(part)).trim();
-        if(csv)rows.push({sheet_name:sheetName,row_start:i+1,row_end:i+part.length,extracted_text:csv.slice(0,20000),extraction_method:mime==="text/csv"?"xlsx:csv":"xlsx:sheet"});
-      }
+    const sheets:{name:string;rows:string[][]}[]=[];
+    if(mime==="text/csv")sheets.push({name:"CSV",rows:csvRows(new TextDecoder("utf-8").decode(bytes))});
+    else{
+      const wb=new ExcelJS.Workbook();await wb.xlsx.load(Buffer.from(bytes) as any);
+      wb.eachSheet(ws=>{const data:string[][]=[];ws.eachRow({includeEmpty:false},row=>data.push((row.values as any[]).slice(1).map(cellText)));sheets.push({name:ws.name,rows:data})});
     }
-    return {rows,metadata:{sheets:wb.SheetNames}};
+    for(const sheet of sheets)for(let i=0;i<sheet.rows.length;i+=100){
+      const part=sheet.rows.slice(i,i+100),text=part.map(row=>row.map(v=>JSON.stringify(v)).join(",")).join("\n").trim();
+      if(text)rows.push({sheet_name:sheet.name,row_start:i+1,row_end:i+part.length,extracted_text:text.slice(0,20000),extraction_method:mime==="text/csv"?"csv:local":"exceljs:sheet"});
+    }
+    return {rows,metadata:{sheets:sheets.map(x=>x.name)}};
   }
   return {rows:[],metadata:{stored_only:true}};
 }

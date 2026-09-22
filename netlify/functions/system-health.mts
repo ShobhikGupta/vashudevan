@@ -8,6 +8,7 @@ export default async (_req:Request,_ctx:Context)=>{
     functions:{status:"OPERATIONAL",checked_at},
     database:{status:"NOT_CONFIGURED",checked_at},
     migrations:{status:"NOT_CONFIGURED",checked_at,checks:{}},
+    security:{status:"NOT_CONFIGURED",checked_at},
     vault:{status:"NOT_CONFIGURED",checked_at},
     storage:{status:"NOT_CONFIGURED",checked_at}
   };
@@ -25,7 +26,13 @@ export default async (_req:Request,_ctx:Context)=>{
   }
   try{await select("attachments","select=id,upload_status,parse_status,extraction_metadata&limit=1");out.migrations.checks.attachment_v1_columns="OK"}catch{migrationOk=false;out.migrations.checks.attachment_v1_columns="MISSING"}
   try{await select("research_jobs","select=id,preparation_completed_at&limit=1");out.migrations.checks.research_preparation_column="OK"}catch{migrationOk=false;out.migrations.checks.research_preparation_column="MISSING"}
-  out.migrations.status=migrationOk?"CONNECTED":"INCOMPLETE";
+  let securityOk=false;
+  try{
+    const security=await rpc("vmg_system_security_health",{}),s=Array.isArray(security)?security[0]:security;
+    securityOk=Boolean(s?.rls_enabled&&s?.browser_roles_denied&&s?.vault_rpcs_service_role_only&&s?.private_bucket);
+    out.security={status:securityOk?"CONNECTED":"ERROR",checked_at,...s};
+  }catch(e){out.security={status:"ERROR",checked_at,error:safeError(e)}}
+  out.migrations.status=migrationOk&&securityOk?"CONNECTED":migrationOk?"SECURITY_CHECK_FAILED":"INCOMPLETE";
   try{
     const probe=await rpc("vmg_get_provider_secret",{p_workspace_id:ws.id,p_provider:"__healthcheck__"});
     out.vault={status:probe===null||probe===""?"CONNECTED":"CONNECTED",rpc:"SERVICE_ROLE_OK",checked_at};

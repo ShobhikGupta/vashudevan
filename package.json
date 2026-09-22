@@ -4,17 +4,26 @@
   "version": "0.1.0",
   "type": "module",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.13.0"
   },
   "scripts": {
-    "build": "node -e \"console.log('VMG Company Intelligence build')\""
+    "build": "node -e \"console.log('VMG Company Intelligence build')\"",
+    "check": "tsc --noEmit && node --check intelligence/app.js && node --check intelligence/login.js"
   },
   "dependencies": {
-    "@netlify/functions": "^3.1.10",
+    "@netlify/functions": "^6.0.0",
     "docx": "^9.5.1",
+    "exceljs": "^4.4.0",
     "pdf-lib": "^1.17.1",
-    "xlsx": "^0.18.5",
     "mammoth": "1.12.3",
     "pdf-parse": "2.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "esbuild": "^0.25.10",
+    "typescript": "^5.9.2"
+  },
+  "overrides": {
+    "uuid": "^11.1.1"
   }
 }

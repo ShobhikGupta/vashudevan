@@ -1,11 +1,11 @@
 import type { Context, Config } from "@netlify/functions";
-import { json, readJson, safeError, select, update } from "./lib.mts";
+import { json, readJson, safeError, select, update, workspace } from "./lib.mts";
 
 export default async (req:Request,_ctx:Context)=>{
   if(req.method!=="POST")return json({error:"Method not allowed"},405);
   try{
     const b=await readJson(req),jobId=String(b.job_id||"");if(!jobId)return json({error:"job_id required"},400);
-    const rows=await select("research_jobs",`id=eq.${encodeURIComponent(jobId)}&select=*&limit=1`),job=rows?.[0];if(!job)return json({error:"Research job not found."},404);
+    const ws=await workspace(),rows=await select("research_jobs",`workspace_id=eq.${ws.id}&id=eq.${encodeURIComponent(jobId)}&select=*&limit=1`),job=rows?.[0];if(!job)return json({error:"Research job not found."},404);
     if(job.status!=="PREPARING")return json({error:"Research job is not PREPARING.",status:job.status},409);
     const attachments=await select("attachments",`research_job_id=eq.${encodeURIComponent(jobId)}&select=id,upload_status,parse_status,filename`)||[];
     const expected=Math.max(0,Number(job.input_seed?.attachments_expected||0));

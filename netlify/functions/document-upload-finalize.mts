@@ -1,11 +1,11 @@
 import type { Context, Config } from "@netlify/functions";
-import { json, readJson, safeError, select, storageInfo, update } from "./lib.mts";
+import { json, readJson, safeError, select, storageInfo, update, workspace } from "./lib.mts";
 
 export default async (req:Request,_ctx:Context)=>{
   if(req.method!=="POST")return json({error:"Method not allowed"},405);
   try{
     const b=await readJson(req),attachmentId=String(b.attachment_id||"");if(!attachmentId)return json({error:"attachment_id required"},400);
-    const rows=await select("attachments",`id=eq.${encodeURIComponent(attachmentId)}&select=*&limit=1`),a=rows?.[0];if(!a)return json({error:"Attachment not found."},404);
+    const ws=await workspace(),rows=await select("attachments",`workspace_id=eq.${ws.id}&id=eq.${encodeURIComponent(attachmentId)}&select=*&limit=1`),a=rows?.[0];if(!a)return json({error:"Attachment not found."},404);
     if(a.upload_status==="UPLOADED")return json({attachment:a,already_finalized:true});
     if(a.upload_status!=="AUTHORIZED")return json({error:"Attachment is not awaiting upload finalization."},409);
     const jobs=await select("research_jobs",`id=eq.${encodeURIComponent(a.research_job_id)}&select=status&limit=1`);if(jobs?.[0]?.status!=="PREPARING")return json({error:"Research job is not PREPARING."},409);
