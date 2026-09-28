@@ -19,3 +19,11 @@ REPRODUCE → COLLECT EVIDENCE → IDENTIFY LAYER → ROOT CAUSE → SMALLEST DU
 Use `files/root-cause-template.md` and `../../templates/incident-note.md`.
 
 For wrong research output, also load the company-research proof checks.
+
+### Debt/charge semantic regression
+If an output treats a registered charge, sanctioned facility, or security filing as current outstanding debt:
+1. classify the incident primarily as **PROCESS / TOOLBOX / PROOF** unless code evidence shows a storage/parser bug,
+2. inspect the source wording, extracted evidence, synthesis prompt/rules, and persisted finding independently,
+3. correct the smallest layer that allowed the semantic jump,
+4. add/strengthen a proof check that can fail on charge-only evidence,
+5. re-run the original company/output and verify it now distinguishes charge/security evidence from supported current debt.
