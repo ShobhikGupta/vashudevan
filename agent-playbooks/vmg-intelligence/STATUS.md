@@ -4,7 +4,7 @@
 
 **Last verified:** 2026-09-28 (current agent session)  
 **Working branch:** `company-intelligence-preview`  
-**Last verified HEAD:** `9bc0739957285e8a0c4390f6589a992190df0e6b`  
+**Last verified HEAD:** `2d75bb77ba05ca261681e223c61a0b5d34ad857b`  
 **PR #13:** OPEN, UNMERGED, mergeable  
 **main:** `f580f702e8a116c82d2cf62d9e56c5ee5203d767`; unchanged during verification  
 **PR #12:** open draft; not touched
@@ -48,6 +48,10 @@ Tavily/OpenAI: optional and not required for V1.
 ## Current working milestone
 
 Connect/verify Gemini authorization credential → verify Google Search grounding → run real Koppal entity resolution/research → verify persistence/exports → isolation/V2/UNKNOWN/security/browser/mobile QA.
+
+## Playbook state
+
+Canonical delegation system added at `agent-playbooks/vmg-intelligence/` with root `AGENTS.md` and thin `.codex/skills/` adapters. Initial dry runs passed routing/safety/blocker detection; debt/charge regression proof was strengthened after the second dry run.
 
 ## Current blocker
 
