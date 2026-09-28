@@ -2,10 +2,10 @@
 
 > Volatile. Verify real state before acting.
 
-**Last verified:** 2026-09-28 16:42+05:30 continuation check
+**Last verified:** 2026-09-28 17:30+05:30 Gemini 3.8 / free-search deployment check
 **Working branch:** `company-intelligence-preview`  
-**Last verified implementation HEAD (before this STATUS-only write):** `168ef9fafb93cbe003f67e818a6bc791507be1ea`
-**PR #13:** OPEN, UNMERGED, mergeable  
+**Last verified implementation HEAD (before this STATUS-only write):** `11e61b934c764f51fd03587973c2abf11495c290`
+**PR #13:**** OPEN, UNMERGED, mergeable  
 **main:** `f580f702e8a116c82d2cf62d9e56c5ee5203d767`; unchanged during verification  
 **PR #12:** open draft; not touched
 
@@ -13,12 +13,12 @@
 
 Netlify project: `vashudevan-intelligence-preview`  
 Site ID: `1e4f8e5b-a82d-4c71-8016-2d99a284704f`  
-Current deploy ID: `6ab3c144ff3aa751cab18a62`  
+Current deploy ID: `6aba5663e4368c82cd1d0615`  
 State: READY  
 Deployment source: uploaded/API deploy; `commit_ref=null`  
-Observed package: 29 functions + 1 edge function; secret scan reported zero matches.
+Observed package: 29 functions + 1 edge function; Netlify secret scan reported zero matches.
 
-**Important drift:** the live deploy contains a `provider-admin-security` function that is not present in current GitHub HEAD. Git history search found no committed source for it, and the authorized machine does not currently have Netlify CLI/source-download tooling available. Do not replace the private deploy until the actual helper is recovered/reconciled or explicitly proven obsolete.
+**Deployment provenance:** upload/API deploy has `commit_ref=null`, but this deploy was built from a clean clone of verified branch HEAD `11e61b934c764f51fd03587973c2abf11495c290`; the previously undeclared `provider-admin-security` behavior is now canonical in GitHub and deployed.
 
 ## Supabase
 
@@ -40,14 +40,15 @@ Migrations through provider-secret rotation hardening are applied. Migration his
 
 ## Providers
 
-Latest verified `provider_connections`: empty.  
-Gemini: NOT CONNECTED.  
-Google Search grounding: NOT VERIFIED.  
-Tavily/OpenAI: optional and not required for V1.
+Latest verified `provider_connections`: empty before user retry.  
+Gemini: NOT CONNECTED yet; app now uses `gemini-3.8-flash` and validates the model independently from Search grounding.  
+Google Search grounding: optional when the connected Gemini API tier supports it; standard free Gemini 3.x may not provide it.  
+Tavily: preferred zero-billing live-search fallback; Researcher free tier can be connected if Google grounding is unavailable.  
+OpenAI: optional paid provider; paid usage remains OFF by default.
 
 ## Current working milestone
 
-Connect/verify Gemini authorization credential → verify Google Search grounding → run real Koppal entity resolution/research → verify persistence/exports → isolation/V2/UNKNOWN/security/browser/mobile QA.
+Connect/verify Gemini 3.8 Flash → verify live search (Google grounding if available, otherwise Tavily free) → run real Koppal entity resolution/research → verify persistence/exports → isolation/V2/UNKNOWN/security/browser/mobile QA.
 
 ## Playbook state
 
@@ -55,7 +56,7 @@ Canonical delegation system added at `agent-playbooks/vmg-intelligence/` with ro
 
 ## Current blocker
 
-A Gemini authorization/auth credential must be entered by the user through the app’s secure provider-connect flow. Do not ask the user to paste it into chat or commit it.
+User must retry the existing Gemini credential through the secure provider-connect flow after the Gemini 3.8 deployment. If Gemini connects but Google Search grounding shows unavailable, the next user-only action is connecting a Tavily Researcher free credential. Never request provider credentials in chat.
 
 ## Newly verified in this continuation
 
@@ -72,8 +73,8 @@ A Gemini authorization/auth credential must be entered by the user through the a
 - Admin Settings Lock needs current browser re-test.
 - Direct document upload/ingestion/privacy leak test needs live end-to-end exercise.
 - Live entity resolution/research, persistence, exports, V2, isolation, browser/mobile QA are not complete until Gemini is connected.
-- Private Netlify deploy must be reconciled to a known Git commit before the next deploy claim is marked PASS.
+- Deployment uses Netlify upload/API and therefore reports `commit_ref=null`; source provenance is recorded manually from the clean-clone QA HEAD.
 
 ## Next recommended action
 
-User connects Gemini in the private app. Then resume with `skills/continue-development/SKILL.md`; do not redo Supabase/RLS/Vault work unless verification fails.
+User refreshes the private app and retries Gemini Connect using the same credential with “Free / free allowance”. If successful but Search grounding is unavailable, connect Tavily free next. Then resume real Koppal research; do not redo Supabase/RLS/Vault work unless verification fails.
