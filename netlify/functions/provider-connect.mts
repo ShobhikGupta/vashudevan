@@ -1,6 +1,7 @@
 import type { Context, Config } from "@netlify/functions";
 import { json, readJson, safeError, config as appConfig } from "./lib.mts";
 import { requireAdmin } from "./admin-auth.mts";
+import { requireProviderAdminRateLimit } from "./provider-admin-security.mts";
 import { testProvider, saveProvider } from "./provider-connections-lib.mts";
 import { PROVIDER_METADATA } from "./provider-metadata.mts";
 
@@ -12,6 +13,7 @@ export default async (req:Request,_ctx:Context)=>{
     const cfg=appConfig();if(!cfg.supabaseUrl||!cfg.supabaseSecret)return json({error:"Supabase must be connected before provider credentials can be stored securely.",code:"SUPABASE_REQUIRED"},503);
     const b=await readJson(req),provider=String(b.provider||"").toLowerCase(),secret=String(b.secret||"").trim(),model=String(b.selected_model||defaultModel(provider)),billingMode=String(b.billing_mode||"unknown");
     if(!["gemini","tavily","openai"].includes(provider))return json({error:"Unsupported provider."},400);
+    const rateLimited=await requireProviderAdminRateLimit(provider,"connect");if(rateLimited)return rateLimited;
     if(secret.length<8)return json({error:"Credential format is not valid."},400);
     const test=await testProvider(provider,secret,model,billingMode);
     await saveProvider(provider,secret,model,billingMode,{connected_via:"settings",pricing_checked:(PROVIDER_METADATA as any)[provider]?.last_verified_date||null,grounding_verified:test.grounding_verified===true,grounding_tested:test.grounding_verified!==null});
