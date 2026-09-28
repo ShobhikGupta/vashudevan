@@ -185,6 +185,10 @@ export async function recordUsage(provider:string,operation:string,success:boole
   },false)}catch{}
 }
 function geminiText(p:any){return (p?.candidates?.[0]?.content?.parts||[]).map((x:any)=>x.text||"").join("\n").trim()}
+export function geminiInteractionText(p:any){
+  if(typeof p?.output_text==="string")return p.output_text.trim();
+  return (p?.steps||[]).flatMap((s:any)=>s?.content||[]).map((x:any)=>x?.text||"").join("\n").trim();
+}
 function geminiSources(p:any){const out:any[]=[],seen=new Set<string>();for(const ch of p?.candidates?.[0]?.groundingMetadata?.groundingChunks||[]){const w=ch?.web;if(w?.uri&&!seen.has(w.uri)){seen.add(w.uri);out.push({title:w.title||w.uri,url:w.uri,publisher:w.title||""})}}return out}
 export async function geminiGrounded(prompt:string,researchJobId:string|null=null){
   const key=await providerSecret("gemini");if(!key)throw new Error("Research provider is not configured. Connect Gemini in Settings.");
@@ -194,8 +198,15 @@ export async function geminiGrounded(prompt:string,researchJobId:string|null=nul
 }
 export async function geminiJson(prompt:string,researchJobId:string|null=null){
   const key=await providerSecret("gemini");if(!key)throw new Error("Research provider is not configured. Connect Gemini in Settings.");
-  const gc=await providerConnection("gemini"),model=gc?.selected_model||"gemini-3.8-flash";
-  const r=await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},body:JSON.stringify({contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{temperature:.05,responseMimeType:"application/json"}})});const p=await r.json();if(!r.ok){await recordUsage("gemini","structured_synthesis",false,{research_job_id:researchJobId,model,metadata:{status:r.status}});const e:any=new Error(`Gemini ${r.status}: ${safeError(p?.error?.message||"request failed")}`);if(r.status===429)e.code="PROVIDER_CAPACITY";else if(r.status===401||r.status===403)e.code="PROVIDER_AUTH";throw e}const u=p?.usageMetadata||{};const geminiCost=gc?.billing_mode==="paid"?(Number(u.promptTokenCount||0)/1e6*.75+Number(u.candidatesTokenCount||0)/1e6*3.75):0;await recordUsage("gemini","structured_synthesis",true,{research_job_id:researchJobId,model,prompt_tokens:u.promptTokenCount,output_tokens:u.candidatesTokenCount,estimated_cost_usd:geminiCost});const t=geminiText(p);try{return JSON.parse(t)}catch{const m=t.match(/\{[\s\S]*\}/);if(!m)throw new Error("Gemini returned invalid JSON.");return JSON.parse(m[0])}}
+  const gc=await providerConnection("gemini"),model=gc?.selected_model||"gemini-3.8-flash",started=Date.now();
+  const r=await fetchWithTimeout("https://generativelanguage.googleapis.com/v1beta/interactions",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key,"x-goog-api-client":"vmg-company-intelligence/0.1.0"},body:JSON.stringify({model,input:prompt,store:false,generation_config:{temperature:.05},response_format:{type:"text",mime_type:"application/json",schema:{type:"object"}}})});
+  const p=await r.json();
+  if(!r.ok){await recordUsage("gemini","structured_synthesis",false,{research_job_id:researchJobId,model,duration_ms:Date.now()-started,metadata:{status:r.status,api:"interactions"}});const e:any=new Error(`Gemini ${r.status}: ${safeError(p?.error?.message||p?.message||"request failed")}`);if(r.status===429)e.code="PROVIDER_CAPACITY";else if(r.status===401||r.status===403)e.code="PROVIDER_AUTH";throw e}
+  const u=p?.usage||{},inputTokens=Number(u.total_input_tokens||u.input_tokens||0),outputTokens=Number(u.total_output_tokens||u.output_tokens||0);
+  const geminiCost=gc?.billing_mode==="paid"?(inputTokens/1e6*.75+outputTokens/1e6*3.75):0;
+  await recordUsage("gemini","structured_synthesis",true,{research_job_id:researchJobId,model,prompt_tokens:inputTokens||null,output_tokens:outputTokens||null,duration_ms:Date.now()-started,estimated_cost_usd:geminiCost,metadata:{api:"interactions"}});
+  const t=geminiInteractionText(p);try{return JSON.parse(t)}catch{const m=t.match(/\{[\s\S]*\}/);if(!m)throw new Error("Gemini returned invalid JSON.");return JSON.parse(m[0])}
+}
 export async function tavily(query:string,researchJobId:string|null=null){const key=await providerSecret("tavily");if(!key)return{text:"",sources:[]};const r=await fetchWithTimeout("https://api.tavily.com/search",{method:"POST",headers:{"content-type":"application/json",authorization:`Bearer ${key}`},body:JSON.stringify({query,search_depth:"advanced",max_results:8,include_answer:true})});const p=await r.json();if(!r.ok){await recordUsage("tavily","search",false,{research_job_id:researchJobId,model:"advanced-search",search_calls:1,tavily_credits:2,metadata:{status:r.status}});throw new Error(`Tavily ${r.status}`)}const tc=await providerConnection("tavily");await recordUsage("tavily","search",true,{research_job_id:researchJobId,model:"advanced-search",search_calls:1,tavily_credits:2,estimated_cost_usd:tc?.billing_mode==="paid"?.016:0});const sources=(p.results||[]).map((x:any)=>({title:x.title||x.url,url:x.url,publisher:(()=>{try{return new URL(x.url).hostname}catch{return""}})(),snippet:String(x.content||"").slice(0,500)}));return{text:[p.answer||"",...sources.map((s:any)=>`${s.title}: ${s.snippet}`)].join("\n"),sources}}
 
 export async function publicWebResearch(prompt:string,researchJobId:string|null=null){
