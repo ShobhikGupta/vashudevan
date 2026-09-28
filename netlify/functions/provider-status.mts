@@ -15,8 +15,8 @@ export default async (_req:Request,_ctx:Context)=>{
   const gs=state(Boolean(await providerSecret("gemini")),by.gemini),ts=state(Boolean(await providerSecret("tavily")),by.tavily),os=state(Boolean(await providerSecret("openai")),by.openai);
   return json({
     app_env:base.app_env,research_daily_company_limit:base.research_daily_company_limit,
-    gemini:{...gs,role:"PRIMARY",selected_model:by.gemini?.selected_model||"gemini-2.5-flash",last_verified_at:by.gemini?.last_verified_at||null,last_latency_ms:by.gemini?.last_latency_ms||null},
-    google_search_grounding:{configured:gs.configured,available:gs.connected&&by.gemini?.provider_metadata?.grounding_verified===true,status:gs.connected?"AVAILABLE":gs.configured?"CONFIGURED":"NOT_CONFIGURED",role:"PRIMARY SEARCH",last_verified_at:by.gemini?.last_verified_at||null},
+    gemini:{...gs,role:"PRIMARY",selected_model:by.gemini?.selected_model||"gemini-3.8-flash",last_verified_at:by.gemini?.last_verified_at||null,last_latency_ms:by.gemini?.last_latency_ms||null},
+    google_search_grounding:{configured:gs.configured,available:gs.connected&&by.gemini?.provider_metadata?.grounding_verified===true,status:gs.connected?(by.gemini?.provider_metadata?.grounding_verified===true?"AVAILABLE":"NOT_AVAILABLE_ON_CURRENT_TIER"):gs.configured?"CONFIGURED":"NOT_CONFIGURED",role:"PRIMARY SEARCH WHEN AVAILABLE",last_verified_at:by.gemini?.last_verified_at||null},
     tavily:{...ts,role:"FALLBACK",last_verified_at:by.tavily?.last_verified_at||null,last_latency_ms:by.tavily?.last_latency_ms||null},
     openai:{...os,role:"OPTIONAL",selected_model:by.openai?.selected_model||"gpt-5.6-luna",last_verified_at:by.openai?.last_verified_at||null,last_latency_ms:by.openai?.last_latency_ms||null},
     supabase,metadata:publicProviderMetadata(),checked_at:new Date().toISOString()
