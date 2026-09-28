@@ -16,7 +16,7 @@ export default async (req:Request,_ctx:Context)=>{
     const rateLimited=await requireProviderAdminRateLimit(provider,"connect");if(rateLimited)return rateLimited;
     if(secret.length<8)return json({error:"Credential format is not valid."},400);
     const test=await testProvider(provider,secret,model,billingMode);
-    await saveProvider(provider,secret,model,billingMode,{connected_via:"settings",pricing_checked:(PROVIDER_METADATA as any)[provider]?.last_verified_date||null,grounding_verified:test.grounding_verified===true,grounding_tested:test.grounding_verified!==null});
+    await saveProvider(provider,secret,model,billingMode,{connected_via:"settings",pricing_checked:(PROVIDER_METADATA as any)[provider]?.last_verified_date||null,grounding_verified:test.grounding_verified===true,grounding_tested:test.grounding_verified!==null,structured_synthesis_verified:test.structured_synthesis_verified===true});
     return json({connected:true,provider,selected_model:model,masked_suffix:secret.slice(-4),connected_at:new Date().toISOString(),latency_ms:test.latency_ms,grounding_verified:test.grounding_verified===true});
   }catch(e){return json({error:safeError(e)},400)}
 };
