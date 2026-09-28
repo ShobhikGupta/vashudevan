@@ -2,9 +2,9 @@
 
 > Volatile. Verify real state before acting.
 
-**Last verified:** 2026-09-28 (current agent session)  
+**Last verified:** 2026-09-28 16:42+05:30 continuation check
 **Working branch:** `company-intelligence-preview`  
-**Last verified HEAD:** `2d75bb77ba05ca261681e223c61a0b5d34ad857b`  
+**Last verified implementation HEAD (before this STATUS-only write):** `168ef9fafb93cbe003f67e818a6bc791507be1ea`
 **PR #13:** OPEN, UNMERGED, mergeable  
 **main:** `f580f702e8a116c82d2cf62d9e56c5ee5203d767`; unchanged during verification  
 **PR #12:** open draft; not touched
@@ -18,7 +18,7 @@ State: READY
 Deployment source: uploaded/API deploy; `commit_ref=null`  
 Observed package: 29 functions + 1 edge function; secret scan reported zero matches.
 
-**Important drift:** the live deploy contains a `provider-admin-security` function that is not present in current GitHub HEAD. Do not replace the private deploy until this is reconciled or proven obsolete.
+**Important drift:** the live deploy contains a `provider-admin-security` function that is not present in current GitHub HEAD. Git history search found no committed source for it, and the authorized machine does not currently have Netlify CLI/source-download tooling available. Do not replace the private deploy until the actual helper is recovered/reconciled or explicitly proven obsolete.
 
 ## Supabase
 
@@ -57,9 +57,18 @@ Canonical delegation system added at `agent-playbooks/vmg-intelligence/` with ro
 
 A Gemini authorization/auth credential must be entered by the user through the app’s secure provider-connect flow. Do not ask the user to paste it into chat or commit it.
 
+## Newly verified in this continuation
+
+- Unauthenticated root request redirects to `/login.html?next=%2F`.
+- Unauthenticated `/api/companies` returns 401 `APP_AUTH_REQUIRED`.
+- Unauthenticated `/api/system-health` returns 401 `APP_AUTH_REQUIRED`.
+- Wrong app access secret returns 401 and does not set a cookie.
+- Live responses include `X-Robots-Tag: noindex, nofollow, noarchive`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, and `Cache-Control: no-store`.
+- Supabase security health remains healthy and provider_connections remains empty.
+
 ## Known proof gaps
 
-- Whole-app login/logout/session behavior has code/deploy evidence but still needs current browser re-test before PASS.
+- Successful login, logout, authenticated session persistence/expiry still need an authenticated browser/session test before full APP AUTH PASS.
 - Admin Settings Lock needs current browser re-test.
 - Direct document upload/ingestion/privacy leak test needs live end-to-end exercise.
 - Live entity resolution/research, persistence, exports, V2, isolation, browser/mobile QA are not complete until Gemini is connected.
