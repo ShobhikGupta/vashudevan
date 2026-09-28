@@ -1,14 +1,14 @@
 export const PROVIDER_METADATA={
   gemini:{
-    provider:"Google Gemini",model:"gemini-2.5-flash",display_model:"Gemini 2.5 Flash",role:"Primary AI / Research Engine",
-    badge:"FREE FIRST",free_tier:true,
-    description:"Gemini is the main AI brain for the free-first setup. It searches live web sources through Google Search grounding, analyses evidence and creates the structured company report.",
-    pricing:{currency:"USD",input_per_million:0.30,output_per_million:2.50,free_input:true,free_output:true,grounding_free_rpd:500,paid_grounding_included_rpd:1500,grounding_overage_per_1000:35},
-    reset_rule:"Gemini requests-per-day quotas reset at midnight Pacific time.",
-    allowance:"Free-tier Google Search grounding: up to 500 grounded requests/day, shared with Gemini 2.5 Flash-Lite. Paid tier: 1,500 grounded requests/day included before overage pricing.",
+    provider:"Google Gemini",model:"gemini-3.8-flash",display_model:"Gemini 3.8 Flash",role:"Primary AI / Synthesis Engine",
+    badge:"BEST FREE MODEL",free_tier:true,
+    description:"Gemini 3.8 Flash is VMG's primary free-first reasoning and synthesis model. Google's standard Gemini 3.x API free tier does not include Google Search grounding, so zero-billing live web research uses Tavily's free tier unless Google grounding is separately available on the connected project.",
+    pricing:{currency:"USD",input_per_million:0.75,output_per_million:3.75,free_input:true,free_output:true,grounding_free_tier:false,paid_grounding_included_monthly:5000,grounding_overage_per_1000:14},
+    reset_rule:"Gemini free-tier model quotas follow the limits shown for the connected AI Studio project.",
+    allowance:"Gemini 3.8 Flash input/output is available on the API free tier. Standard free-tier Google Search grounding is not available for Gemini 3.x; paid-tier projects include 5,000 Search requests/month shared across Gemini 3.x before overage pricing.",
     privacy:{free:"Google states free-tier content may be used to improve its products.",paid:"Google states paid-tier content is not used for that purpose."},
-    official_reference:["https://ai.google.dev/gemini-api/docs/pricing","https://ai.google.dev/gemini-api/docs/rate-limits","https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash"],
-    last_verified_date:"2026-09-19"
+    official_reference:["https://ai.google.dev/gemini-api/docs/pricing","https://ai.google.dev/gemini-api/docs/google-search","https://ai.google.dev/gemini-api/docs/latest-model"],
+    last_verified_date:"2026-09-28"
   },
   tavily:{
     provider:"Tavily",model:"Search + Extract",display_model:"Tavily Search + Extract",role:"Fallback / Independent Web Research",
@@ -18,7 +18,7 @@ export const PROVIDER_METADATA={
     reset_rule:"Monthly API credits reset on the first day of each month.",
     allowance:"Researcher plan includes 1,000 API credits/month with no card required. Request credit cost depends on endpoint and search depth.",
     official_reference:["https://www.tavily.com/pricing"],
-    last_verified_date:"2026-09-19"
+    last_verified_date:"2026-09-28"
   },
   openai:{
     provider:"OpenAI",model:"gpt-5.6-luna",display_model:"GPT-5.6 Luna",role:"Optional premium AI / second research engine",
