@@ -485,9 +485,9 @@ async function loadSettings(){if(!S.providers?.supabase?.connected){S.settings={
 function con(provider){return S.connections.find(x=>x.provider===provider)||null}
 function providerCard(provider){
   const m=S.providerMeta?.[provider]||{},c=con(provider),ps=S.providers?.[provider]||{},status=ps.status||c?.status||(ps.configured?"CONFIGURED":"NOT_CONFIGURED"),connected=status==="CONNECTED",configured=ps.configured===true||Boolean(c),model=c?.selected_model||ps.selected_model||m.model||m.display_model||"—",locked=!S.admin.authorized,lastFailure=ps.last_failure||c?.provider_metadata?.last_failure||null;
-  const expiresAt=Date.parse(c?.provider_metadata?.verification_sequence_expires_at||0),serverSequenceActive=provider==="gemini"&&String(status).toUpperCase()==="VERIFYING"&&Number.isFinite(expiresAt)&&expiresAt>Date.now(),verificationBusy=provider==="gemini"&&(S.geminiVerificationActive||serverSequenceActive),mutationsDisabled=locked||verificationBusy;
-  const pricing=provider==="gemini"?"Gemini 3.8 Flash input/output is available on the API free tier. VMG requires three consecutive stored-key structured-synthesis probes before research is enabled.":provider==="tavily"?"Researcher: 1,000 free API credits/month, no card required. Paid usage remains disabled unless explicitly enabled.":provider==="openai"?"Paid API. Current model pricing is shown in the info drawer.":"";
-  const lockNote=locked?'<small style="display:block;margin-top:8px">🔒 Unlock Admin Settings to change this.</small>':verificationBusy?'<small style="display:block;margin-top:8px">Verification sequence active. Provider controls stay locked until it finishes or expires.</small>':"";
+  const expiresAt=Date.parse(c?.provider_metadata?.verification_sequence_expires_at||0),cooldownAt=Date.parse(c?.provider_metadata?.verification_cooldown_until||0),serverSequenceActive=provider==="gemini"&&String(status).toUpperCase()==="VERIFYING"&&Number.isFinite(expiresAt)&&expiresAt>Date.now(),serverCooldown=provider==="gemini"&&Number.isFinite(cooldownAt)&&cooldownAt>Date.now(),verificationBusy=provider==="gemini"&&(S.geminiVerificationActive||serverSequenceActive),providerLocked=verificationBusy||serverCooldown,mutationsDisabled=locked||providerLocked;
+  const pricing=provider==="gemini"?"Gemini 3.8 Flash input/output is available on the API free tier. VMG requires three consecutive Vault-stored structured-synthesis probes, paced 20 seconds apart, before research is enabled.":provider==="tavily"?"Researcher: 1,000 free API credits/month, no card required. Paid usage remains disabled unless explicitly enabled.":provider==="openai"?"Paid API. Current model pricing is shown in the info drawer.":"";
+  const lockNote=locked?'<small style="display:block;margin-top:8px">🔒 Unlock Admin Settings to change this.</small>':verificationBusy?'<small style="display:block;margin-top:8px">Verification sequence active. Provider controls stay locked until it finishes or expires.</small>':serverCooldown?'<small style="display:block;margin-top:8px">Provider cooldown active after a transient/rate-limit response. Test controls unlock automatically after '+esc(Math.max(1,Math.ceil((cooldownAt-Date.now())/1000)))+'s.</small>':"";
   const actions=configured
     ?'<button class="btn" data-provider-test="'+provider+'" '+(mutationsDisabled?"disabled":"")+'>'+(verificationBusy?"Verifying…":"Test Stored Connection")+'</button><button class="btn" data-provider-connect="'+provider+'" '+(mutationsDisabled?"disabled":"")+'>Reconnect</button><button class="btn danger" data-provider-disconnect="'+provider+'" '+(mutationsDisabled?"disabled":"")+'>Disconnect</button>'
     :'<button class="btn primary" data-provider-connect="'+provider+'" '+(locked?"disabled":"")+'>Connect</button>';
@@ -557,7 +557,7 @@ async function testProvider(provider){
       await Promise.allSettled([loadStatus(),loadConnections()]);renderProviderSettings();
       if(j.pass!==true)throw new Error(j.error||"Gemini verification failed.");
       if(attempt<3){
-        const wait=Math.max(15,Number(j.retry_after_seconds||0));
+        const wait=Math.max(20,Number(j.retry_after_seconds||0));
         toast("PASS "+attempt+"/3 • waiting "+wait+"s before next probe");
         await new Promise(r=>setTimeout(r,wait*1000));
       }
