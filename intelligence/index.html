@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>VMG Company Intelligence</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230b1320'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-family='Arial' font-size='22' font-weight='700' fill='white'%3EVI%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="mark">VI</div><div><b>VMG Company Intelligence</b><span>Counterparty Intelligence System</span></div></div>
+    <nav class="nav" aria-label="Primary navigation">
+      <button class="active" data-view="dashboard" aria-label="Dashboard"><svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v10h-6zM4 14h6v6H4zM14 18h6v2h-6z"/></svg><span>Dashboard</span></button>
+      <button data-view="new" aria-label="New Research"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4M11 8v6M8 11h6"/></svg><span>New Research</span></button>
+      <button data-view="companies" aria-label="Companies"><svg viewBox="0 0 24 24"><path d="M4 20V8l8-4 8 4v12M8 20v-4h8v4M8 10h2M14 10h2"/></svg><span>Companies</span></button>
+      <button data-view="reports" aria-label="Reports"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6zM9 11h6M9 15h6"/></svg><span>Reports</span></button>
+      <button data-view="templates" aria-label="Templates"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM8 9h8M8 13h5"/></svg><span>Templates</span></button>
+      <button data-view="compare" aria-label="Compare"><svg viewBox="0 0 24 24"><path d="M8 4v16M16 4v16M4 8h8M12 16h8"/></svg><span>Compare</span></button>
+      <button data-view="usage" aria-label="Usage"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg><span>Usage</span><span id="alertBadge" class="tag bad" hidden>!</span></button>
+      <button data-view="settings" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.4 1a7 7 0 0 0-1.8-1L14.4 3h-4.8L9.3 6a7 7 0 0 0-1.8 1l-2.4-1-2 3.5L5.1 11a7 7 0 0 0 0 2l-2 1.5 2 3.5 2.4-1a7 7 0 0 0 1.8 1l.3 3h4.8l.3-3a7 7 0 0 0 1.8-1l2.4 1 2-3.5-2-1.5a7 7 0 0 0 .1-1z"/></svg><span>Settings</span></button>
+    </nav>
+    <div class="sidefoot">Evidence first. Unknown stays unknown. Commercial opportunity and credit safety are evaluated separately.</div>
+  </aside>
+
+  <main class="main">
+    <header class="top">
+      <div><div class="eyebrow">VMG internal intelligence</div><h1 id="pageTitle">Dashboard</h1></div>
+      <div class="topactions"><button class="btn hide-mobile" id="refreshBtn">Refresh</button><button class="btn hide-mobile" id="logoutBtn">Logout</button><button class="btn primary" data-jump="new">New Research</button></div>
+    </header>
+
+    <section id="dashboard" class="view active">
+      <div class="head"><div><div class="eyebrow">Management overview</div><h2>Company intelligence workspace</h2></div><p>Live provider health, saved counterparties, research usage and evidence coverage.</p></div>
+      <div id="configNotice" class="notice" hidden></div><div id="alertsBanner" class="notice warn" hidden style="margin-top:8px"></div>
+      <div class="kpis">
+        <div class="panel kpi"><span>Companies</span><b id="kCompanies">—</b><small>Persistent profiles</small></div>
+        <div class="panel kpi"><span>Reports</span><b id="kReports">—</b><small>Versioned outputs</small></div>
+        <div class="panel kpi"><span>Jobs today</span><b id="kJobs">—</b><small>Full research runs</small></div>
+        <div class="panel kpi"><span>Grounded calls</span><b id="kCalls">—</b><small>Application recorded</small></div>
+        <div class="panel kpi"><span>Available today</span><b id="kAvailable">—</b><small>Safety estimate</small></div>
+      </div>
+      <div class="grid2">
+        <div class="stack">
+          <div class="panel card"><h3>Quick research</h3><div class="search"><label class="sr-only" for="quickSeed">Company identifier</label><input class="input" id="quickSeed" placeholder="Website, company name, GSTIN or CIN"><button class="btn primary" id="quickBtn">Research</button></div></div>
+          <div class="panel card"><h3>Recent companies</h3><div class="tablewrap"><table><thead><tr><th>Company</th><th>Country</th><th>Last updated</th><th></th></tr></thead><tbody id="recentCompanies"><tr><td colspan="4">No data loaded.</td></tr></tbody></table></div></div>
+        </div>
+        <div class="panel card"><h3>Provider status</h3><div class="status" id="providerMini"><div class="statusline"><span>Checking…</span><b>—</b></div></div></div>
+      </div>
+    </section>
+
+    <section id="new" class="view">
+      <div class="head"><div><div class="eyebrow">New research job</div><h2>Research a company</h2></div><p>Resolve the exact legal entity before any deep research begins.</p></div>
+      <div class="formgrid">
+        <div class="panel">
+          <div class="formsec"><label class="label" for="seed">1. Company seed</label><input id="seed" class="input" placeholder="Website, company name, GSTIN, CIN, director or address"></div>
+          <div class="formsec"><div class="label">2. Research template</div><div id="templateGrid" class="templates"></div></div>
+          <div class="formsec"><label class="label" for="customPrompt">3. Custom instructions — optional</label><textarea id="customPrompt" class="textarea" placeholder="Extra research requirements. VMG evidence and safety rules always remain active."></textarea></div>
+          <div class="formsec">
+            <div class="label">4. Supporting documents — optional</div>
+            <div class="uploadbox"><input id="fileInput" type="file" multiple accept=".pdf,.docx,.xlsx,.csv,.jpg,.jpeg,.png,.webp"><div class="filelist" id="fileList"></div></div>
+          </div>
+          <div class="formsec" style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap"><button class="btn" id="resolveBtn">Resolve Entity</button><button class="btn copper" id="startBtn" disabled>Start Deep Research</button></div>
+        </div>
+        <aside class="panel card"><h3>Research readiness</h3><div class="status" id="readiness"></div><div class="notice" style="margin-top:12px">Private documents default to <b>no external AI processing</b>. Live research will not simulate success when a required provider is missing.</div></aside>
+      </div>
+    </section>
+
+    <section id="progress" class="view" aria-live="polite">
+      <div class="head"><div><div class="eyebrow">Research job</div><h2 id="progressTitle">Researching company</h2></div><p id="jobMeta"></p></div>
+      <div class="progresslayout">
+        <div class="panel stages" id="stageList"></div>
+        <div class="panel monitor">
+          <div class="eyebrow">Live backend status</div><h3 id="jobState" style="font-size:22px;margin:6px 0">Queued</h3><div class="bar"><i id="progressBar"></i></div><div class="statusline"><span>Finished stages</span><b id="progressCount">0 / 24</b></div><div id="jobError" class="notice error" hidden></div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn primary" id="openProfileBtn" disabled>Open Company Profile</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="companies" class="view">
+      <div class="head"><div><div class="eyebrow">Persistent profiles</div><h2>Companies</h2></div><p>Each company preserves reports, evidence, sources, documents and research history.</p></div>
+      <div class="panel card"><div class="search" style="margin-bottom:10px"><label class="sr-only" for="companySearch">Filter companies</label><input id="companySearch" class="input" placeholder="Filter companies"><button class="btn" id="companySearchBtn">Filter</button></div><div class="tablewrap"><table><thead><tr><th>Legal name</th><th>Brand</th><th>Country</th><th>Website</th><th>Updated</th><th></th></tr></thead><tbody id="companyRows"></tbody></table></div></div>
+    </section>
+
+    <section id="reports" class="view">
+      <div class="head"><div><div class="eyebrow">Versioned reports</div><h2>Reports</h2></div><p>Every re-run creates a new report version. Older versions remain available.</p></div>
+      <div class="panel card"><div class="tablewrap"><table><thead><tr><th>Company</th><th>Version</th><th>Template</th><th>Coverage</th><th>Sources</th><th>Created</th><th>Actions</th></tr></thead><tbody id="reportRows"></tbody></table></div></div>
+    </section>
+
+    <section id="templates" class="view"><div class="head"><div><div class="eyebrow">Reusable methodology</div><h2>Research templates</h2></div><p>Custom prompts layer on top of permanent VMG evidence and safety rules.</p></div><div class="panel card"><div class="templates" id="templateCards"></div></div></section>
+
+    <section id="compare" class="view">
+      <div class="head"><div><div class="eyebrow">Comparable intelligence</div><h2>Compare companies</h2></div><p>Choose 2–5 researched companies. Periods remain visible to avoid false comparisons.</p></div>
+      <div class="panel card">
+        <div class="compare-picker"><div><label class="sr-only" for="compareCompanySelect">Choose company</label><select id="compareCompanySelect" class="select"><option value="">Choose a company…</option></select></div><button class="btn" id="addCompareBtn">Add Company</button></div>
+        <div class="chips" id="compareChips"></div><button class="btn primary" id="compareBtn" disabled>Compare</button><div id="compareOut" style="margin-top:14px"></div>
+      </div>
+    </section>
+
+    <section id="usage" class="view">
+      <div class="head"><div><div class="eyebrow">Cost control</div><h2>Usage & limits</h2></div><p>Backend-recorded activity only. Provider quota remainder is labelled as an estimate unless authoritative data is available.</p></div>
+      <div class="kpis">
+        <div class="panel kpi"><span>Full jobs today</span><b id="uJobs">—</b><small id="uJobsSub"></small></div>
+        <div class="panel kpi"><span>Gemini grounded</span><b id="uGemini">—</b><small>Recorded calls</small></div>
+        <div class="panel kpi"><span>Tavily</span><b id="uTavily">—</b><small>Recorded calls</small></div>
+        <div class="panel kpi"><span>Failed calls</span><b id="uFailed">—</b><small>Provider activity</small></div>
+        <div class="panel kpi"><span>Estimated API cost</span><b id="uCost">—</b><small>Today</small></div>
+      </div>
+      <div class="grid2"><div class="panel card"><h3>Capacity estimate</h3><div class="status" id="usageCapacity"></div></div><div class="panel card"><h3>Reset & notes</h3><div class="status" id="usageReset"></div></div></div><div class="grid2" style="margin-top:10px"><div class="panel card"><h3>Week & month</h3><div class="status" id="usagePeriods"></div></div><div class="panel card"><h3>Average cost / full report</h3><div class="status" id="usageAverageCost"></div></div></div>
+      <div class="panel card" style="margin-top:10px"><h3>Provider breakdown — this month</h3><div class="tablewrap"><table><thead><tr><th>Provider</th><th>Recorded calls</th><th>Estimated cost</th></tr></thead><tbody id="usageProviderBreakdown"><tr><td colspan="3">No usage loaded.</td></tr></tbody></table></div></div>
+    </section>
+
+    <section id="settings" class="view">
+      <div class="head"><div><div class="eyebrow">Control center</div><h2>Settings</h2></div><p>Provider credentials are handled server-side and are never returned to browser code.</p></div>
+      <div id="settingsLockBanner" class="notice info" style="margin-bottom:12px"></div>
+      <div class="settings-shell">
+        <nav class="panel settings-nav" aria-label="Settings sections">
+          <button class="active" data-setting="researchProviders">Research Providers</button><button data-setting="searchProviders">Search Providers</button><button data-setting="apiConnections">API Connections</button><button data-setting="aiStrategy">AI Strategy</button><button data-setting="researchDefaults">Research Defaults</button><button data-setting="usageLimits">Usage & Limits</button><button data-setting="costProtection">Cost Protection</button><button data-setting="alerts">Alerts</button><button data-setting="privacy">Privacy</button><button data-setting="reportDefaults">Report Defaults</button><button data-setting="systemConnections">System Connections</button>
+        </nav>
+        <div class="stack">
+          <section id="setting-researchProviders" class="settings-pane active"><div class="provider-grid" id="researchProviderCards"></div></section>
+          <section id="setting-searchProviders" class="settings-pane"><div class="provider-grid" id="searchProviderCards"></div></section>
+          <section id="setting-apiConnections" class="settings-pane"><div class="panel card"><h3>API connections</h3><div id="apiConnectionRows" class="status"></div></div></section>
+          <section id="setting-aiStrategy" class="settings-pane"><div class="panel card"><h3>AI strategy</h3><div id="aiStrategyForm" class="settings-form"></div></div></section>
+          <section id="setting-researchDefaults" class="settings-pane"><div class="panel card"><h3>Research defaults</h3><div id="researchDefaultsForm" class="settings-form"></div></div></section>
+          <section id="setting-usageLimits" class="settings-pane"><div class="panel card"><h3>Usage & limits</h3><div id="settingsUsage"></div></div></section>
+          <section id="setting-costProtection" class="settings-pane"><div class="panel card"><h3>Cost protection</h3><div id="costProtectionForm" class="settings-form"></div></div></section>
+          <section id="setting-alerts" class="settings-pane"><div class="panel card"><h3>Alerts</h3><div id="alertsForm" class="settings-form"></div></div></section>
+          <section id="setting-privacy" class="settings-pane"><div class="panel card"><h3>Privacy</h3><div id="privacyForm" class="settings-form"></div></div></section>
+          <section id="setting-reportDefaults" class="settings-pane"><div class="panel card"><h3>Report defaults</h3><div id="reportDefaultsForm" class="settings-form"></div></div></section>
+          <section id="setting-systemConnections" class="settings-pane"><div class="panel card"><h3>System connections</h3><div id="systemConnections" class="status"></div></div></section>
+        </div>
+      </div>
+    </section>
+
+    <section id="profile" class="view">
+      <div class="panel profilehead"><div class="eyebrow">Company profile</div><h2 id="profileName">Company</h2><div id="profileMeta" class="profilemeta"></div>
+        <div class="tabs" role="tablist">
+          <button class="tab active" data-tab="overview">Overview</button><button class="tab" data-tab="financials">Financials</button><button class="tab" data-tab="directors">Directors & Ownership</button><button class="tab" data-tab="operations">Operations</button><button class="tab" data-tab="credit">Debt & Credit</button><button class="tab" data-tab="ratings">Credit Ratings</button><button class="tab" data-tab="trade">Trade</button><button class="tab" data-tab="legal">Legal</button><button class="tab" data-tab="competitors">Competitors</button><button class="tab" data-tab="procurement">Procurement</button><button class="tab" data-tab="sources">Sources</button><button class="tab" data-tab="documents">Documents</button><button class="tab" data-tab="history">History</button>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <div id="tab-overview" class="tabpanel active"><div class="executive" id="overviewGrid"></div><div id="infoGaps" style="margin-top:10px"></div></div>
+        <div id="tab-financials" class="tabpanel"><div id="financialContent"></div></div>
+        <div id="tab-directors" class="tabpanel"><div id="directorsContent"></div></div>
+        <div id="tab-operations" class="tabpanel"><div id="operationsContent"></div></div>
+        <div id="tab-credit" class="tabpanel"><div id="creditContent"></div></div>
+        <div id="tab-ratings" class="tabpanel"><div id="ratingsContent"></div></div>
+        <div id="tab-trade" class="tabpanel"><div id="tradeContent"></div></div>
+        <div id="tab-legal" class="tabpanel"><div id="legalContent"></div></div>
+        <div id="tab-competitors" class="tabpanel"><div id="competitorsContent"></div></div>
+        <div id="tab-procurement" class="tabpanel"><div id="procurementContent"></div></div>
+        <div id="tab-sources" class="tabpanel"><div id="sourceContent"></div></div>
+        <div id="tab-documents" class="tabpanel"><div id="documentsContent"></div></div>
+        <div id="tab-history" class="tabpanel"><div id="historyContent"></div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modalwrap" id="entityModal" role="dialog" aria-modal="true" aria-labelledby="entityTitle"><div class="modal"><h3 id="entityTitle">Confirm legal entity</h3><p style="font-size:11px;color:var(--muted)">Only candidates supported by live research appear here.</p><div id="entityChoices"></div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn" data-close="entityModal">Cancel</button></div></div></div>
+
+<div class="modalwrap" id="adminModal" role="dialog" aria-modal="true" aria-labelledby="adminTitle"><div class="modal" style="max-width:520px"><h3 id="adminTitle">Unlock admin settings</h3><p style="font-size:11px;color:var(--muted)">Provider credentials, budgets and paid-usage policy are protected by a server-side admin lock.</p><div class="field"><label for="adminSecret">Admin settings secret</label><input id="adminSecret" type="password" class="input" autocomplete="current-password"></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px"><button class="btn" data-close="adminModal">Cancel</button><button class="btn primary" id="adminUnlockBtn">Unlock</button></div></div></div>
+
+<div class="modalwrap" id="connectModal" role="dialog" aria-modal="true" aria-labelledby="connectTitle"><div class="modal"><h3 id="connectTitle">Connect provider</h3><div id="connectBody"></div></div></div>
+
+<div class="drawer" id="drawer" role="dialog" aria-modal="false" aria-labelledby="drawerTitle"><div class="drawerhead"><div><div class="eyebrow">Evidence & information</div><h3 id="drawerTitle" style="margin:4px 0 0">Finding</h3></div><button class="btn" id="closeDrawer">Close</button></div><div class="drawerbody" id="drawerBody"></div></div>
+<div class="toast" id="toast" aria-live="polite"></div>
+<script src="./app.js" defer></script>
+</body>
+</html>
