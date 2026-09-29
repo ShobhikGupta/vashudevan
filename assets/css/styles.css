@@ -1501,7 +1501,7 @@ img, button, input, textarea, select {
 .market-dashboard-strip {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 14px 16px;
   background: #fbfcfe;
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
@@ -1513,7 +1513,7 @@ img, button, input, textarea, select {
   color: var(--muted);
   font-size: 0.82rem;
   line-height: 1.45;
-  text-align: center;
+  text-align: left;
   background: #fbfcfe;
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
 }
@@ -1593,7 +1593,7 @@ img, button, input, textarea, select {
 
 .market-chart-selector {
   width: min(560px, 100%);
-  margin: 0 auto 14px;
+  margin: 0 0 14px;
   padding: 10px 12px;
 }
 
@@ -1608,17 +1608,18 @@ img, button, input, textarea, select {
 .market-chart-control-field {
   display: grid;
   gap: 6px;
-  justify-self: center;
-  justify-items: center;
+  justify-self: stretch;
+  justify-items: start;
 }
 
 .market-control-label {
+  width: 100%;
   color: var(--ink);
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.02em;
   line-height: 1.2;
-  text-align: center;
+  text-align: left;
   text-transform: uppercase;
 }
 
@@ -1627,12 +1628,12 @@ img, button, input, textarea, select {
   width: 280px;
   max-width: 100%;
   gap: 6px;
-  justify-self: center;
+  justify-self: stretch;
   color: var(--ink);
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.02em;
-  text-align: center;
+  text-align: left;
   text-transform: uppercase;
 }
 
@@ -1646,7 +1647,7 @@ img, button, input, textarea, select {
   min-height: 38px;
   position: relative;
   display: grid;
-  place-items: center;
+  place-items: center start;
   border: 1px solid rgba(15, 23, 42, 0.16);
   border-radius: 8px;
   background: #ffffff;
