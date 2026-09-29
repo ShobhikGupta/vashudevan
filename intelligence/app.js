@@ -2,7 +2,7 @@ const S={
   providers:null,providerMeta:{},templates:[],companies:[],reports:[],entity:null,
   selectedTemplate:"vmg_full_due_diligence",currentJob:null,currentCompany:null,currentReport:null,
   poll:null,files:[],compareIds:[],admin:{configured:false,authorized:false},connections:[],settings:{},
-  currentReportData:null,currentEvidence:[],currentSources:[],systemHealth:null,alertKeys:new Set()
+  currentReportData:null,currentEvidence:[],currentSources:[],systemHealth:null,alertKeys:new Set(),geminiVerificationActive:false
 };
 
 const titles={dashboard:"Dashboard",new:"New Research",progress:"Research Progress",companies:"Companies",reports:"Reports",templates:"Research Templates",compare:"Compare Companies",usage:"Usage & Limits",settings:"Settings",profile:"Company Profile"};
@@ -485,10 +485,11 @@ async function loadSettings(){if(!S.providers?.supabase?.connected){S.settings={
 function con(provider){return S.connections.find(x=>x.provider===provider)||null}
 function providerCard(provider){
   const m=S.providerMeta?.[provider]||{},c=con(provider),ps=S.providers?.[provider]||{},status=ps.status||c?.status||(ps.configured?"CONFIGURED":"NOT_CONFIGURED"),connected=status==="CONNECTED",configured=ps.configured===true||Boolean(c),model=c?.selected_model||ps.selected_model||m.model||m.display_model||"—",locked=!S.admin.authorized,lastFailure=ps.last_failure||c?.provider_metadata?.last_failure||null;
+  const expiresAt=Date.parse(c?.provider_metadata?.verification_sequence_expires_at||0),serverSequenceActive=provider==="gemini"&&String(status).toUpperCase()==="VERIFYING"&&Number.isFinite(expiresAt)&&expiresAt>Date.now(),verificationBusy=provider==="gemini"&&(S.geminiVerificationActive||serverSequenceActive),mutationsDisabled=locked||verificationBusy;
   const pricing=provider==="gemini"?"Gemini 3.8 Flash input/output is available on the API free tier. VMG requires three consecutive stored-key structured-synthesis probes before research is enabled.":provider==="tavily"?"Researcher: 1,000 free API credits/month, no card required. Paid usage remains disabled unless explicitly enabled.":provider==="openai"?"Paid API. Current model pricing is shown in the info drawer.":"";
-  const lockNote=locked?'<small style="display:block;margin-top:8px">🔒 Unlock Admin Settings to change this.</small>':"";
+  const lockNote=locked?'<small style="display:block;margin-top:8px">🔒 Unlock Admin Settings to change this.</small>':verificationBusy?'<small style="display:block;margin-top:8px">Verification sequence active. Provider controls stay locked until it finishes or expires.</small>':"";
   const actions=configured
-    ?'<button class="btn" data-provider-test="'+provider+'" '+(locked?"disabled":"")+'>Test Stored Connection</button><button class="btn" data-provider-connect="'+provider+'" '+(locked?"disabled":"")+'>Reconnect</button><button class="btn danger" data-provider-disconnect="'+provider+'" '+(locked?"disabled":"")+'>Disconnect</button>'
+    ?'<button class="btn" data-provider-test="'+provider+'" '+(mutationsDisabled?"disabled":"")+'>'+(verificationBusy?"Verifying…":"Test Stored Connection")+'</button><button class="btn" data-provider-connect="'+provider+'" '+(mutationsDisabled?"disabled":"")+'>Reconnect</button><button class="btn danger" data-provider-disconnect="'+provider+'" '+(mutationsDisabled?"disabled":"")+'>Disconnect</button>'
     :'<button class="btn primary" data-provider-connect="'+provider+'" '+(locked?"disabled":"")+'>Connect</button>';
   const failure=lastFailure?'<div class="notice error" style="margin-top:10px"><b>'+esc(lastFailure.classification||"Provider error")+'</b><br>'+esc(lastFailure.message_safe||"Provider test failed.")+(lastFailure.provider_code?'<br><small>Provider code: '+esc(lastFailure.provider_code)+'</small>':"")+'</div>':"";
   return '<div class="panel provider"><div class="providerhead"><div><div class="eyebrow">'+esc(m.badge||"PROVIDER")+'</div><h3>'+esc(m.provider||provider)+'</h3><div style="font-size:11px;font-weight:800">'+esc(model)+'</div></div><button class="btn infoBtn" data-provider-info="'+provider+'" aria-label="Provider information">ⓘ</button></div><p>'+esc(m.description||"")+'</p><div class="status"><div class="statusline"><span>Status</span><b>'+tag(String(status).replaceAll("_"," "),statusKind(status))+'</b></div><div class="statusline"><span>Role</span><b>'+esc(m.role||"—")+'</b></div><div class="statusline"><span>Last tested</span><b>'+esc(fmtDate(c?.last_verified_at||ps.last_verified_at))+'</b></div><div class="statusline"><span>Latency</span><b>'+esc(c?.last_latency_ms?c.last_latency_ms+" ms":"Not tested")+'</b></div><div class="statusline"><span>Stored verification</span><b>'+esc(ps.stored_verification_passed?"PASS × "+(ps.stored_verification_attempts||0):provider==="gemini"?"NOT STABLE":"—")+'</b></div><div class="statusline"><span>Pricing checked</span><b>'+esc(m.last_verified_date||"—")+'</b></div><div class="statusline"><span>Usage / reset</span><b>'+esc(m.reset_rule||"—")+'</b></div></div>'+failure+'<p>'+esc(pricing)+'</p><div class="provideractions">'+actions+'</div>'+lockNote+'</div>';
@@ -546,6 +547,8 @@ async function testProvider(provider){
   if(provider!=="gemini"){
     try{toast("Testing "+provider+"…");const j=await api("/api/provider-test",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({provider})});toast("PASS • "+j.latency_ms+" ms");await Promise.all([loadStatus(),loadConnections()]);renderProviderSettings()}catch(e){toast("FAIL • "+e.message);await Promise.allSettled([loadStatus(),loadConnections()]);renderProviderSettings()}return;
   }
+  if(S.geminiVerificationActive)return toast("Gemini verification is already running.");
+  S.geminiVerificationActive=true;renderProviderSettings();
   const sequenceId=crypto.randomUUID();
   try{
     for(let attempt=1;attempt<=3;attempt++){
@@ -553,11 +556,21 @@ async function testProvider(provider){
       const j=await api("/api/provider-test",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({provider:"gemini",verification_sequence_id:sequenceId,attempt})});
       await Promise.allSettled([loadStatus(),loadConnections()]);renderProviderSettings();
       if(j.pass!==true)throw new Error(j.error||"Gemini verification failed.");
+      if(attempt<3){
+        const wait=Math.max(15,Number(j.retry_after_seconds||0));
+        toast("PASS "+attempt+"/3 • waiting "+wait+"s before next probe");
+        await new Promise(r=>setTimeout(r,wait*1000));
+      }
     }
     toast("PASS • Gemini stored key verified 3/3");
   }catch(e){
-    toast("FAIL • "+e.message);
+    const wait=Math.max(0,Number(e?.data?.retry_after_seconds||0));
+    toast("FAIL • "+e.message+(wait?" • cooldown "+wait+"s":""));
     await Promise.allSettled([loadStatus(),loadConnections()]);renderProviderSettings();
+  }finally{
+    S.geminiVerificationActive=false;
+    await Promise.allSettled([loadStatus(),loadConnections()]);
+    renderProviderSettings();
   }
 }
 async function disconnectProvider(provider){
