@@ -2,7 +2,7 @@ import type { Context, Config } from "@netlify/functions";
 import { json, readJson, safeError, config as appConfig, update, workspace } from "./lib.mts";
 import { requireAdmin } from "./admin-auth.mts";
 import { requireProviderAdminRateLimit } from "./provider-admin-security.mts";
-import { testProvider, saveProvider, verifyStoredProvider } from "./provider-connections-lib.mts";
+import { testProvider, saveProvider, verifyStoredCredentialEquivalence } from "./provider-connections-lib.mts";
 import { credentialDiagnostics, errorHttpStatus } from "./provider-diagnostics.mts";
 import { PROVIDER_METADATA } from "./provider-metadata.mts";
 
@@ -12,7 +12,7 @@ function failureDetails(e:any,provider:string,model:string){
 }
 async function persistFailure(provider:string,model:string,currentMeta:any,e:any){
   const d=failureDetails(e,provider,model),ws=await workspace();
-  const metadata={...(currentMeta||{}),last_failure:{http_status:d.http_status||null,provider_code:d.provider_code||null,provider_reason:d.provider_reason||null,message_safe:d.message_safe,classification:d.classification,endpoint:d.endpoint||null,request_shape:d.request_shape||null,failed_at:new Date().toISOString()},stored_verification_passed:false};
+  const metadata={...(currentMeta||{}),last_failure:{http_status:d.http_status||null,provider_code:d.provider_code||null,provider_reason:d.provider_reason||null,message_safe:d.message_safe,classification:d.classification,endpoint:d.endpoint||null,request_shape:d.request_shape||null,failed_at:new Date().toISOString()},stored_verification_passed:false,stored_verification_attempts:0,verification_sequence_passed:0};
   await update("provider_connections",`workspace_id=eq.${ws.id}&provider=eq.${provider}`,{health:d.classification,status:d.classification,last_verified_at:new Date().toISOString(),last_latency_ms:null,last_error_safe:JSON.stringify(metadata.last_failure),provider_metadata:metadata,updated_at:new Date().toISOString()},false);
   return d;
 }
@@ -32,12 +32,21 @@ export default async (req:Request,_ctx:Context)=>{
     baseMeta={connected_via:"settings",pricing_checked:(PROVIDER_METADATA as any)[provider]?.last_verified_date||null,grounding_verified:freshTest.grounding_verified===true,grounding_tested:freshTest.grounding_verified!==null,structured_synthesis_verified:freshTest.structured_synthesis_verified===true,fresh_credential_diagnostics:freshDiagnostics,request_contract:freshTest.request_contract};
     await saveProvider(provider,secret,model,billingMode,baseMeta);saved=true;
 
-    const stored=await verifyStoredProvider(provider,freshDiagnostics,model,billingMode,3);
-    const last=stored.results.at(-1),latencies=stored.results.map((x:any)=>Number(x.latency_ms||0)).filter((x:number)=>x>0);
-    const metadata={...baseMeta,grounding_verified:last?.grounding_verified===true,grounding_tested:last?.grounding_verified!==null,structured_synthesis_verified:last?.structured_synthesis_verified===true,stored_credential_diagnostics:stored.storedDiagnostics,credential_roundtrip:stored.equivalence,stored_verification_passed:true,stored_verification_attempts:stored.attempts_passed,last_failure:null};
+    const stored=await verifyStoredCredentialEquivalence(provider,freshDiagnostics,model);
     const ws=await workspace();
-    await update("provider_connections",`workspace_id=eq.${ws.id}&provider=eq.${provider}`,{status:"CONNECTED",health:"CONNECTED",last_verified_at:new Date().toISOString(),last_latency_ms:latencies.length?latencies.at(-1):null,last_error_safe:null,provider_metadata:metadata,updated_at:new Date().toISOString()},false);
-    return json({connected:true,provider,selected_model:model,connected_at:new Date().toISOString(),latency_ms:latencies.length?latencies.at(-1):freshTest.latency_ms,grounding_verified:last?.grounding_verified===true,structured_synthesis_verified:last?.structured_synthesis_verified===true,stored_verification_attempts:stored.attempts_passed,credential_roundtrip:stored.equivalence});
+    const metadata={...baseMeta,stored_credential_diagnostics:stored.storedDiagnostics,credential_roundtrip:stored.equivalence,stored_verification_passed:false,stored_verification_attempts:0,verification_sequence_passed:0,last_failure:null};
+
+    if(provider==="gemini"){
+      await update("provider_connections",`workspace_id=eq.${ws.id}&provider=eq.gemini`,{status:"CONFIGURED",health:"CONFIGURED",last_verified_at:null,last_latency_ms:null,last_error_safe:null,provider_metadata:metadata,updated_at:new Date().toISOString()},false);
+      return json({connected:false,verification_required:true,provider,selected_model:model,configured_at:new Date().toISOString(),credential_roundtrip:stored.equivalence});
+    }
+
+    const storedKey=(await import("./provider-connections-lib.mts")).storedProviderKey;
+    const key=await storedKey(provider);
+    const storedTest=await testProvider(provider,key,model,billingMode,{credential_source:"vault",attempt:1});
+    const finalMeta={...metadata,stored_verification_passed:true,stored_verification_attempts:1,grounding_verified:storedTest.grounding_verified===true,grounding_tested:storedTest.grounding_verified!==null,structured_synthesis_verified:storedTest.structured_synthesis_verified===true};
+    await update("provider_connections",`workspace_id=eq.${ws.id}&provider=eq.${provider}`,{status:"CONNECTED",health:"CONNECTED",last_verified_at:new Date().toISOString(),last_latency_ms:storedTest.latency_ms,last_error_safe:null,provider_metadata:finalMeta,updated_at:new Date().toISOString()},false);
+    return json({connected:true,provider,selected_model:model,connected_at:new Date().toISOString(),latency_ms:storedTest.latency_ms});
   }catch(e:any){
     const d=saved?await persistFailure(provider,model,baseMeta,e):failureDetails(e,provider,model);
     return json({error:d.message_safe||safeError(e),code:d.classification,provider_code:d.provider_code||null,provider_reason:d.provider_reason||null,http_status:d.http_status||null},errorHttpStatus(d.classification));
