@@ -22,7 +22,7 @@ export async function testProvider(provider:string,key:string,model?:string,bill
   try{
     if(provider==="gemini"){
       const selected=model||"gemini-3.8-flash";
-      const result=await geminiStructuredRequest(key,selected,GEMINI_PROBE_INPUT,GEMINI_PROBE_SCHEMA,0);
+      const result=await geminiStructuredRequest(key,selected,GEMINI_PROBE_INPUT,GEMINI_PROBE_SCHEMA,0,15000);
       r=result.response;body=result.body;
       const text=geminiInteractionText(body);let parsed:any=null;try{parsed=JSON.parse(text)}catch{}
       if(parsed?.ok!==true)throw new ProviderCallError({provider:"gemini",http_status:502,provider_code:"STRUCTURED_PROBE_INVALID",provider_reason:null,message_safe:"Gemini structured synthesis probe did not return the required JSON.",classification:"PROVIDER_ERROR",endpoint:result.endpoint,model:selected,request_shape:result.request_shape});

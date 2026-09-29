@@ -191,11 +191,19 @@ export function geminiInteractionText(p:any){
   if(typeof p?.output_text==="string")return p.output_text.trim();
   return (p?.steps||[]).flatMap((s:any)=>s?.content||[]).map((x:any)=>x?.text||"").join("\n").trim();
 }
-export async function geminiStructuredRequest(key:string,model:string,input:string,schema:any={type:"object"},temperature=.05){
+export async function geminiStructuredRequest(key:string,model:string,input:string,schema:any={type:"object"},temperature=.05,timeoutMs=60000){
   const endpoint="https://generativelanguage.googleapis.com/v1beta/interactions";
   const requestBody={model,input,store:false,generation_config:{temperature},response_format:{type:"text",mime_type:"application/json",schema}};
-  const r=await fetchWithTimeout(endpoint,{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key,"x-goog-api-client":"vmg-company-intelligence/0.1.0"},body:JSON.stringify(requestBody)});
-  const raw=await r.text();let body:any={};try{body=raw?JSON.parse(raw):{}}catch{body={raw_text:raw}}
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
+  let r:Response,raw:string;
+  try{
+    r=await fetch(endpoint,{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key,"x-goog-api-client":"vmg-company-intelligence/0.1.0"},body:JSON.stringify(requestBody),signal:controller.signal});
+    raw=await r.text();
+  }catch(e:any){
+    if(e?.name==="AbortError")throw new ProviderCallError({provider:"gemini",http_status:504,provider_code:"REQUEST_TIMEOUT",provider_reason:null,message_safe:`Gemini structured synthesis request timed out after ${Math.round(timeoutMs/1000)} seconds.`,classification:"TRANSIENT_ERROR",endpoint:"/v1beta/interactions",model,request_shape:"structured_json"});
+    throw e;
+  }finally{clearTimeout(timer)}
+  let body:any={};try{body=raw?JSON.parse(raw):{}}catch{body={raw_text:raw}}
   if(!r.ok)throw new ProviderCallError({...providerErrorDetails("gemini",r.status,body),endpoint:"/v1beta/interactions",model,request_shape:"structured_json"});
   return {response:r,body,endpoint:"/v1beta/interactions",model,request_shape:"structured_json"};
 }
