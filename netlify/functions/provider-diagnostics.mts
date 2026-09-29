@@ -32,17 +32,18 @@ export function redactProviderText(value:any){
   return s.slice(0,700);
 }
 function providerReason(body:any){
-  const details=Array.isArray(body?.error?.details)?body.error.details:[];
+  const details=Array.isArray(body?.error?.details)?body.error.details:Array.isArray(body?.details)?body.details:[];
   for(const d of details){
-    const reason=d?.reason||d?.metadata?.reason||d?.errorInfo?.reason;
+    const reason=d?.reason||d?.metadata?.reason||d?.errorInfo?.reason||d?.error_info?.reason;
     if(reason)return redactProviderText(reason);
   }
-  return "";
+  return redactProviderText(body?.reason||body?.error_reason||"");
 }
 export function providerErrorDetails(provider:string,httpStatus:number,body:any){
-  const providerCode=redactProviderText(body?.error?.status||body?.error?.code||body?.code||"");
+  const firstError=Array.isArray(body?.errors)?body.errors[0]:null;
+  const providerCode=redactProviderText(body?.error?.status||body?.error?.code||firstError?.status||firstError?.code||body?.status||body?.code||"");
   const reason=providerReason(body);
-  const message=redactProviderText(body?.error?.message||body?.detail||body?.message||"Provider request failed.");
+  const message=redactProviderText(body?.error?.message||firstError?.message||body?.detail||body?.message||body?.raw_text||"Provider request failed.");
   const hay=(providerCode+" "+reason+" "+message).toUpperCase();
   let classification:ProviderFailureClass;
   if(httpStatus===429||hay.includes("RESOURCE_EXHAUSTED")||hay.includes("RATE_LIMIT"))classification="RATE_LIMIT";
