@@ -205,11 +205,14 @@ export async function geminiStructuredRequest(key:string,model:string,input:stri
   }finally{clearTimeout(timer)}
   let body:any={};try{body=raw?JSON.parse(raw):{}}catch{body={raw_text:raw}}
   if(!r.ok){
-    const headerRetry=Number(r.headers.get("retry-after")||0);
+    const retryHeader=String(r.headers.get("retry-after")||"").trim();
+    const retryNumeric=Number(retryHeader);
+    const retryDate=retryHeader&&!Number.isFinite(retryNumeric)?Date.parse(retryHeader):NaN;
+    const headerRetry=Number.isFinite(retryNumeric)?Math.ceil(retryNumeric):Number.isFinite(retryDate)?Math.max(0,Math.ceil((retryDate-Date.now())/1000)):0;
     const message=String(body?.error?.message||body?.message||"");
     const msgMatch=message.match(/retry(?:\s+in|\s+after)?\s+(\d+(?:\.\d+)?)s/i);
     const messageRetry=msgMatch?Math.ceil(Number(msgMatch[1])):0;
-    throw new ProviderCallError({...providerErrorDetails("gemini",r.status,body),endpoint:"/v1beta/interactions",model,request_shape:"structured_json",retry_after_seconds:Math.max(0,headerRetry||0,messageRetry||0)});
+    throw new ProviderCallError({...providerErrorDetails("gemini",r.status,body),endpoint:"/v1beta/interactions",model,request_shape:"structured_json",retry_after_seconds:Math.max(0,headerRetry,messageRetry)});
   }
   return {response:r,body,endpoint:"/v1beta/interactions",model,request_shape:"structured_json"};
 }
