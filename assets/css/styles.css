@@ -1363,7 +1363,7 @@ img, button, input, textarea, select {
 .market-notice {
   display: grid;
   grid-template-columns: 1fr;
-  justify-items: center;
+  justify-items: start;
   gap: 10px;
   margin-top: 16px;
   padding: 14px 16px;
@@ -1388,26 +1388,26 @@ img, button, input, textarea, select {
 }
 
 .market-notice h2 {
-  margin: 0 auto 4px;
+  margin: 0 0 4px;
   color: var(--ink);
   font-size: 0.95rem;
   line-height: 1.2;
-  text-align: center;
+  text-align: left;
 }
 
 .market-notice p {
   max-width: 1000px;
-  margin: 0 auto;
+  margin: 0;
   color: var(--ink-soft);
   font-size: 0.88rem;
   line-height: 1.5;
-  text-align: center;
+  text-align: left;
 }
 
 .market-notice-badges {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
   margin-top: 10px;
 }
@@ -1462,24 +1462,24 @@ img, button, input, textarea, select {
 
 .market-section-heading {
   margin-bottom: 18px;
-  text-align: center;
+  text-align: left;
 }
 
 .market-section-heading h2 {
-  margin: 0 auto 6px;
+  margin: 0 0 6px;
   color: var(--ink);
   font-size: clamp(1.5rem, 2.4vw, 2.15rem);
   line-height: 1.12;
   letter-spacing: 0;
-  text-align: center;
+  text-align: left;
 }
 
 .market-section-heading p {
   max-width: 760px;
-  margin: 0 auto;
+  margin: 0;
   color: var(--muted);
   line-height: 1.55;
-  text-align: center;
+  text-align: left;
 }
 
 .market-overview-shell,
@@ -1658,7 +1658,7 @@ img, button, input, textarea, select {
   letter-spacing: 0;
   line-height: 1.2;
   padding: 7px 40px;
-  text-align: center;
+  text-align: left;
   text-transform: none;
   transition: color 180ms var(--ease-press),
     border-color 180ms var(--ease-press),
@@ -1724,7 +1724,7 @@ img, button, input, textarea, select {
   font-weight: 700;
   line-height: 1.2;
   padding: 9px 10px;
-  text-align: center;
+  text-align: left;
   outline: none;
 }
 
@@ -2098,7 +2098,9 @@ img, button, input, textarea, select {
 .who-hero { background: #ffffff; border-bottom: 0; padding: 40px 0 10px; }
 .who-hero h1 { text-align: center; font-size: clamp(28px, 4.2vw, 48px); font-weight: 900; color: var(--text); margin: 0; }
 /* Center all section headers on the Who We Are page */
-.who-page h2 { text-align: center; font-weight: 800; font-size: clamp(24px, 3.2vw, 34px); margin: 26px 0 14px; }
+.who-page h2 { text-align: left; font-weight: 800; font-size: clamp(24px, 3.2vw, 34px); margin: 26px 0 14px; }
+.who-page .core-values-section h2,
+.who-page .brochure-download h2 { text-align: center; }
 
 /* Make specific headers uppercase on Who We Are page */
 #history-block h2,
@@ -2167,8 +2169,31 @@ img, button, input, textarea, select {
   max-width: 900px;
   margin: 0 auto;
 }
-/* Make About Us sections slimmer */
+/* Who We Are editorial alignment */
 #history-block, #mission-block { padding: 40px 0; }
+#history-block h2, #mission-block h2, #mission-block h4 { text-align: left; }
+.core-values-section { text-align: left; }
+.core-values-section h2 { text-align: center; }
+.core-values-section .core-values-statement,
+.core-values-section .core-values-intro {
+  max-width: 72ch;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  font-weight: 700;
+}
+.core-values-section .values-list {
+  padding-left: 20px;
+  list-style: disc;
+  text-align: left;
+}
+.core-values-section .values-list li { text-align: left; }
+.brochure-download {
+  padding: 60px 0;
+  background-color: #f9f9f9;
+  text-align: center;
+}
+.brochure-actions { margin-top: 30px; }
 
 /* Home page About Us section styling */
 .section[aria-label="About Us"] { padding: 40px 0; }
@@ -2179,7 +2204,7 @@ img, button, input, textarea, select {
   max-width: 1000px;
   margin: 0 auto;
 }
-.section[aria-label="About Us"] p { text-align: justify; line-height: 1.6; margin-bottom: 12px; }
+.section[aria-label="About Us"] p { text-align: left; line-height: 1.6; margin-bottom: 12px; }
 .section[aria-label="About Us"] h2 {
   text-align: center;
   margin: 0 0 16px;
@@ -2478,7 +2503,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   max-width: 1000px;
   margin: 0 auto;
 }
-#history-block p { text-align: justify; }
+#history-block p { text-align: left; }
 #history-block .media-photo img {
   width: 100%;
   height: auto;
@@ -2505,7 +2530,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   max-width: 1000px;
   margin: 0 auto;
 }
-#mission-block p { text-align: justify; }
+#mission-block p { text-align: left; }
 #mission-block .media-photo img {
   width: 100%;
   height: auto;
@@ -2576,24 +2601,24 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 }
 /* Center and enlarge Why Recycling Metals Matters */
 #our-impact h3 {
-  text-align: center;
+  text-align: left;
   font-size: clamp(20px, 3vw, 26px);
   margin: 18px 0 12px;
 }
 
-/* Center all content on Our Impact page */
+/* Our Impact reading copy: centered column, left-aligned text. */
 #our-impact {
-  text-align: justify;
+  text-align: left;
 }
 
 #our-impact .section-inner {
   max-width: 1000px;
   margin: 0 auto;
-  text-align: justify;
+  text-align: left;
 }
 
 #our-impact .lead {
-  text-align: justify !important;
+  text-align: left !important;
   max-width: 950px !important;
   margin: 0 auto 20px !important;
   width: 100%;
@@ -2601,7 +2626,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 }
 
 #our-impact p {
-  text-align: justify !important;
+  text-align: left !important;
   max-width: 950px !important;
   margin: 0 auto 16px !important;
   width: 100%;
@@ -2612,11 +2637,11 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   max-width: 950px;
   margin: 0 auto;
   justify-items: center;
-  text-align: justify;
+  text-align: left;
 }
 
 #our-impact .two-col > div {
-  text-align: justify;
+  text-align: left;
 }
 
 #our-impact .two-col h4 {
@@ -2624,7 +2649,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 }
 
 #our-impact .two-col p {
-  text-align: justify;
+  text-align: left;
   margin: 8px auto 16px;
 }
 
@@ -3918,13 +3943,14 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   }
 
   .who-page .core-values-section p {
-    text-align: center !important;
+    text-align: left !important;
     font-size: 15px;
     line-height: 1.6;
     margin: 12px 0;
   }
 
-  .who-page .core-values-section p[style*="font-weight: bold"] {
+  .who-page .core-values-section .core-values-statement,
+  .who-page .core-values-section .core-values-intro {
     font-weight: 700 !important;
     font-size: 16px !important;
     margin: 16px 0 !important;
@@ -3985,7 +4011,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 
   .section[aria-label="About Us"] .two-col > div:not(.media-photo) {
     order: 3;
-    text-align: justify;
+    text-align: left;
     width: 100%;
     max-width: 90%;
     margin: 0 auto;
@@ -4000,7 +4026,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   }
 
   .section[aria-label="About Us"] p {
-    text-align: justify;
+    text-align: left;
     font-size: 15px;
     line-height: 1.6;
     margin: 8px 0;
@@ -4347,7 +4373,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   }
 
   .section[aria-label="About Us"] p {
-    text-align: justify;
+    text-align: left;
     font-size: 14px;
     line-height: 1.5;
     margin: 6px 0;
