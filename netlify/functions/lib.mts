@@ -195,7 +195,7 @@ export async function geminiStructuredRequest(key:string,model:string,input:stri
   const endpoint="https://generativelanguage.googleapis.com/v1beta/interactions";
   const requestBody={model,input,store:false,generation_config:{temperature},response_format:{type:"text",mime_type:"application/json",schema}};
   const r=await fetchWithTimeout(endpoint,{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key,"x-goog-api-client":"vmg-company-intelligence/0.1.0"},body:JSON.stringify(requestBody)});
-  let body:any={};try{body=await r.json()}catch{}
+  const raw=await r.text();let body:any={};try{body=raw?JSON.parse(raw):{}}catch{body={raw_text:raw}}
   if(!r.ok)throw new ProviderCallError({...providerErrorDetails("gemini",r.status,body),endpoint:"/v1beta/interactions",model,request_shape:"structured_json"});
   return {response:r,body,endpoint:"/v1beta/interactions",model,request_shape:"structured_json"};
 }
