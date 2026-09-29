@@ -52,11 +52,11 @@ export function providerErrorDetails(provider:string,httpStatus:number,body:any)
   else classification="PROVIDER_ERROR";
   return {provider,http_status:httpStatus,provider_code:providerCode||null,provider_reason:reason||null,message_safe:message,classification};
 }
-export class ProviderTestError extends Error{
+export class ProviderCallError extends Error{
   details:any;
   constructor(details:any){
-    super(`${details.provider} connection test failed (${details.http_status}): ${details.message_safe}`);
-    this.name="ProviderTestError";
+    super(`${details.provider} request failed (${details.http_status}): ${details.message_safe}`);
+    this.name="ProviderCallError";
     this.details=details;
   }
 }
