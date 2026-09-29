@@ -1,5 +1,14 @@
 # Durable Lessons — newest first
 
+## 2026-09-29 — Gemini verification attempts need independent synchronous windows
+
+**TASK:** make 3/3 stored-key Gemini verification reliable without weakening the proof rule.  
+**WHAT FAILED:** three provider probes were executed serially inside one synchronous `/api/provider-test` request. A slow first Gemini Interactions response consumed the probe timeout and prevented later attempts from running; increasing all three inside one request would remain fragile against Netlify's synchronous execution ceiling.  
+**LAYER:** ARCHITECTURE / RELIABILITY / PROOF  
+**ROOT CAUSE:** the logical 3-attempt verification sequence and the HTTP request lifetime were coupled.  
+**DURABLE CHANGE:** Gemini verification is now one structured probe per authenticated HTTP request, coordinated by the UI with a persisted sequence id and strict attempt ordering. Each attempt independently retrieves the Vault credential, gets its own provider timeout, writes its own provider_usage record, and advances persisted verification state only on success. Any failure resets the consecutive proof and keeps research blocked.  
+**PROOF:** branch CI and local build passed; private deploy `6abba2f09d22487705241c29` is READY with zero secret-scan matches. Live 3/3 provider proof still requires one authenticated UI action.
+
 ## 2026-09-29 — Provider CONNECTED must be proven after Vault round-trip
 
 **TASK:** diagnose intermittent Gemini 3.8 structured-synthesis failures after an apparently successful connection.  
