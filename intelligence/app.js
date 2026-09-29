@@ -531,13 +531,35 @@ async function connectProvider(provider){
     const btn=document.getElementById("verifyConnect");btn.disabled=true;btn.textContent="Verifying…";
     const j=await api("/api/provider-connect",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({provider,secret,selected_model:model,billing_mode:document.getElementById("connectBilling").value})});
     input.value="";
-    const m=S.providerMeta?.[provider]||{},ground=provider==="gemini"?"<div class='statusline'><span>Google Search Grounding</span><b>"+tag(j.grounding_verified===true?"Available":"Not on current tier",j.grounding_verified===true?"ok":"neutral")+"</b></div>":"";
-    document.getElementById("connectBody").innerHTML='<div class="notice success"><b>✓ CONNECTION SUCCESSFUL</b><br>'+esc(m.provider||provider)+' is now connected to VMG Company Intelligence.</div><div class="status" style="margin-top:12px"><div class="statusline"><span>Model</span><b>'+esc(j.selected_model||m.display_model||"—")+'</b></div>'+ground+'<div class="statusline"><span>Last tested</span><b>'+esc(fmtDate(j.connected_at))+'</b></div><div class="statusline"><span>Latency</span><b>'+esc(j.latency_ms)+" ms</b></div><div class='statusline'><span>Key</span><b>••••"+esc(j.masked_suffix||"")+"</b></div></div><div style='display:flex;justify-content:flex-end;margin-top:12px'><button class='btn primary' id='connectDone'>Done</button></div>";
-    document.getElementById("connectDone").onclick=()=>closeDialog("connectModal");
-    await Promise.all([loadStatus(),loadConnections()]);renderProviderSettings();
+    const m=S.providerMeta?.[provider]||{};
+    if(provider==="gemini"&&j.verification_required===true){
+      document.getElementById("connectBody").innerHTML='<div class="notice info"><b>Credential stored securely.</b><br>VMG will now verify the Vault-stored credential in three independent structured-synthesis requests. Gemini remains CONFIGURED until all 3 pass.</div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn primary" id="verifyStoredGemini">Verify Stored Credential</button></div>';
+      document.getElementById("verifyStoredGemini").onclick=async()=>{closeDialog("connectModal");await Promise.all([loadStatus(),loadConnections()]);renderProviderSettings();await testProvider("gemini")};
+    }else{
+      document.getElementById("connectBody").innerHTML='<div class="notice success"><b>✓ CONNECTION SUCCESSFUL</b><br>'+esc(m.provider||provider)+' is now connected to VMG Company Intelligence.</div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn primary" id="connectDone">Done</button></div>';
+      document.getElementById("connectDone").onclick=()=>closeDialog("connectModal");
+      await Promise.all([loadStatus(),loadConnections()]);renderProviderSettings();
+    }
   }catch(e){if(input)input.value="";toast(e.message)}finally{const b=document.getElementById("verifyConnect");if(b){b.disabled=false;b.textContent="Verify & Connect"}}
 }
-async function testProvider(provider){try{toast("Testing "+provider+"…");const j=await api("/api/provider-test",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({provider})});toast("PASS • "+j.latency_ms+" ms");await Promise.all([loadStatus(),loadConnections()]);renderProviderSettings()}catch(e){toast("FAIL • "+e.message);await Promise.allSettled([loadStatus(),loadConnections()]);renderProviderSettings()}}
+async function testProvider(provider){
+  if(provider!=="gemini"){
+    try{toast("Testing "+provider+"…");const j=await api("/api/provider-test",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({provider})});toast("PASS • "+j.latency_ms+" ms");await Promise.all([loadStatus(),loadConnections()]);renderProviderSettings()}catch(e){toast("FAIL • "+e.message);await Promise.allSettled([loadStatus(),loadConnections()]);renderProviderSettings()}return;
+  }
+  const sequenceId=crypto.randomUUID();
+  try{
+    for(let attempt=1;attempt<=3;attempt++){
+      toast("Gemini stored-key verification "+attempt+"/3…");
+      const j=await api("/api/provider-test",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({provider:"gemini",verification_sequence_id:sequenceId,attempt})});
+      await Promise.allSettled([loadStatus(),loadConnections()]);renderProviderSettings();
+      if(j.pass!==true)throw new Error(j.error||"Gemini verification failed.");
+    }
+    toast("PASS • Gemini stored key verified 3/3");
+  }catch(e){
+    toast("FAIL • "+e.message);
+    await Promise.allSettled([loadStatus(),loadConnections()]);renderProviderSettings();
+  }
+}
 async function disconnectProvider(provider){
   if(!confirm("Disconnect "+provider+"? VMG Company Intelligence will no longer use this provider until it is connected again."))return;
   try{const j=await api("/api/provider-disconnect",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({provider})});toast("Provider disconnected.");await Promise.all([loadStatus(),loadConnections()])}catch(e){toast(e.message)}
