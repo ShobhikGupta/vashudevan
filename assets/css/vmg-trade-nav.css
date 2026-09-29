@@ -24,13 +24,13 @@
 
 /* White utility/brand row */
 .vmg-nav-brand-row {
-  width: min(1200px,94%);
-  min-height: 82px;
+  width: min(1180px,calc(100% - 64px));
+  min-height: 80px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(320px,1fr) auto minmax(320px,1fr);
+  grid-template-columns: minmax(300px,1fr) auto minmax(300px,1fr);
   align-items: center;
-  gap: 28px;
+  gap: 24px;
   position: relative;
 }
 
@@ -164,7 +164,7 @@
 }
 
 .vmg-econship-header .site-nav > ul {
-  width:min(1200px,94%);
+  width:min(1180px,calc(100% - 64px));
   min-height:54px;
   margin:0 auto;
   padding:0;
@@ -228,8 +228,8 @@
   background:#fff;
   border:1px solid #dce3eb;
   border-top:2px solid #b87943;
-  border-radius:0 0 12px 12px;
-  box-shadow:0 20px 42px rgba(10,23,40,.15);
+  border-radius:0 0 10px 10px;
+  box-shadow:0 8px 22px rgba(10,23,40,.11);
   transition:opacity 180ms ease,transform 220ms cubic-bezier(.22,1,.36,1),visibility 180ms ease;
 }
 
@@ -256,7 +256,7 @@
 .vmg-econship-header .site-nav .submenu a {
   position:relative;
   padding:11px 13px 11px 16px;
-  border-radius:8px;
+  border-radius:6px;
   color:#334155;
   font-size:.9rem;
   font-weight:650;
@@ -309,7 +309,7 @@
   .vmg-econship-header .header-inner {min-height:64px}
 
   .vmg-nav-brand-row {
-    width:calc(100% - 28px);
+    width:calc(100% - 40px);
     min-height:64px;
     display:flex;
     align-items:center;
