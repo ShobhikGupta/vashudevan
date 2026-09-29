@@ -2,7 +2,7 @@ import type { Context, Config } from "@netlify/functions";
 import { json, readJson, safeError, config as appConfig, update, workspace } from "./lib.mts";
 import { requireAdmin } from "./admin-auth.mts";
 import { requireProviderAdminRateLimit } from "./provider-admin-security.mts";
-import { testProvider, saveProvider, verifyStoredCredentialEquivalence } from "./provider-connections-lib.mts";
+import { testProvider, saveProvider, verifyStoredCredentialEquivalence, storedProviderKey } from "./provider-connections-lib.mts";
 import { credentialDiagnostics, errorHttpStatus } from "./provider-diagnostics.mts";
 import { PROVIDER_METADATA } from "./provider-metadata.mts";
 
@@ -41,8 +41,7 @@ export default async (req:Request,_ctx:Context)=>{
       return json({connected:false,verification_required:true,provider,selected_model:model,configured_at:new Date().toISOString(),credential_roundtrip:stored.equivalence});
     }
 
-    const storedKey=(await import("./provider-connections-lib.mts")).storedProviderKey;
-    const key=await storedKey(provider);
+    const key=await storedProviderKey(provider);
     const storedTest=await testProvider(provider,key,model,billingMode,{credential_source:"vault",attempt:1});
     const finalMeta={...metadata,stored_verification_passed:true,stored_verification_attempts:1,grounding_verified:storedTest.grounding_verified===true,grounding_tested:storedTest.grounding_verified!==null,structured_synthesis_verified:storedTest.structured_synthesis_verified===true};
     await update("provider_connections",`workspace_id=eq.${ws.id}&provider=eq.${provider}`,{status:"CONNECTED",health:"CONNECTED",last_verified_at:new Date().toISOString(),last_latency_ms:storedTest.latency_ms,last_error_safe:null,provider_metadata:finalMeta,updated_at:new Date().toISOString()},false);
