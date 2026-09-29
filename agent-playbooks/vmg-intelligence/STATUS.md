@@ -2,7 +2,7 @@
 
 > Volatile. Verify real state before acting.
 
-**Last verified:** 2026-09-29 15:14+05:30 live stored-key diagnostic
+**Last verified:** 2026-09-29 16:55+05:30 Gemini independent-probe deployment
 **Working branch:** `company-intelligence-preview`  
 **Last verified code/CI HEAD before this status update:** `ee6475aa0865a3c44ee56f35cfa374129a735b14`
 **PR #13:** OPEN, UNMERGED, mergeable  
@@ -13,8 +13,8 @@
 
 Netlify project: `vashudevan-intelligence-preview`  
 Site ID: `1e4f8e5b-a82d-4c71-8016-2d99a284704f`  
-Current live deploy ID: `6abb84cc444fbd2cfe06574d`
-State: READY; published 2026-09-29 09:33:34 UTC
+Current live deploy ID: `6abba2f09d22487705241c29`
+State: READY; final timing-fix deployment published privately
 Deployment source: Netlify CLI upload from checked-out code commit `ee6475a`; `commit_ref=null` for the manual upload. Deploy title includes the code SHA.
 
 The private site has the incident diagnostics and bounded Gemini probe. Its app gate redirects unauthenticated page requests to login and returns 401 for protected APIs. The public Netlify production project was not deployed by this operation.
@@ -74,13 +74,10 @@ The same code passed local check/build, and a synthetic abort test confirmed `TR
 
 ## Current blocker
 
-The stored Vault credential is present, but Gemini did not return a structured response within the 15-second probe window. The app recorded this as TRANSIENT_ERROR, not AUTH_ERROR. The three-success proof is incomplete and server-side research remains blocked. This timeout alone cannot distinguish provider latency from a network stall; it does not justify replacing the key.
+The timing architecture is fixed and deployed. Gemini remains non-connected until the required 3/3 stored-key sequence is actually executed. The protected provider endpoint requires the user's existing VMG app + Admin Settings sessions. Safe automation routes were not used because they would weaken authentication or expose a session/secret.
 
-Do **not** ask the user for another Gemini credential. Do **not** start Koppal research or repeatedly retry the same Test button without a new diagnostic reason.
+Do **not** ask for another Gemini credential. Do **not** use Reconnect. Do **not** start Koppal yet.
 
 ## Next recommended action
 
-1. Recheck PR #13 HEAD, private deploy and current provider state. Keep `main`, PR #12 and public production isolated.
-2. Investigate why the Interactions structured request from Netlify took longer than 15 seconds. The current single HTTP request contains three serial probes; Netlify's 60-second synchronous window limits how long each can wait. Consider separate authenticated probes or an asynchronous verification job while preserving the three-consecutive-stored-key rule and recorded failure classes.
-3. Once the timing path is fixed or provider responsiveness returns, run one controlled stored-key verification. Inspect all three `provider_usage` attempts and `provider_connections` state. Proceed to Koppal only if all three pass and Gemini becomes CONNECTED.
-4. If Google returns an actual HTTP error, use its sanitized status/code/reason/message to diagnose that specific failure. Do not infer invalid credentials from a timeout.
+User performs one controlled action in the private app: refresh, unlock Admin Settings if needed, and click **Gemini → Test Stored Connection** exactly once. The UI then sends attempts 1, 2 and 3 as separate authenticated requests with one Vault retrieval and one provider_usage row per request. After that, inspect all three rows and provider_connections. Proceed to Koppal only if all 3 pass and Gemini is CONNECTED.
