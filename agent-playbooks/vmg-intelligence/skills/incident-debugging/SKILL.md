@@ -20,6 +20,17 @@ Use `files/root-cause-template.md` and `../../templates/incident-note.md`.
 
 For wrong research output, also load the company-research proof checks.
 
+### Provider credential incident
+When a provider connects once but later fails:
+1. do not ask for a new credential until VMG-side storage/reuse is disproven,
+2. compare fresh-input and Vault-retrieved credentials using only safe diagnostics (length, byte length, cryptographic fingerprint, trimming/control-whitespace flags),
+3. make fresh and stored tests use the exact same endpoint, headers, model, request body/schema and billing mode,
+4. persist the provider's sanitized HTTP status/code/reason/message,
+5. classify failures semantically (AUTH_ERROR / INVALID_REQUEST / RATE_LIMIT / TRANSIENT_ERROR / PROVIDER_ERROR),
+6. never let storing a secret itself set CONNECTED,
+7. require repeated stored-key tests before CONNECTED,
+8. make server-side research readiness enforce the same proof; do not rely only on UI badges.
+
 ### Debt/charge semantic regression
 If an output treats a registered charge, sanctioned facility, or security filing as current outstanding debt:
 1. classify the incident primarily as **PROCESS / TOOLBOX / PROOF** unless code evidence shows a storage/parser bug,
