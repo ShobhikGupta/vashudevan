@@ -514,23 +514,185 @@ body.vmg-help-open .vmg-floating-actions > .whatsapp-float { opacity:0!important
 .contact-form-new .vmg-attachment-picker:hover,.contact-form-new .vmg-attachment-picker:focus-visible { border-color:var(--vmg-copper-500)!important; background:#fff!important; }
 .contact-form-new input[type='checkbox'] { accent-color:var(--vmg-copper-500); }
 
-/* Homepage rhythm: preserve structure, normalize type and control language. */
+/* Homepage typography and alignment: industrial editorial hierarchy. */
 .home-view .home-main,.home-view .site-header,.home-view .site-footer { font-family:'Manrope',system-ui,sans-serif!important; }
-.home-main .home-hero-container { text-align:center!important; }
-.home-main .home-hero-container > * { margin-left:auto!important; margin-right:auto!important; }
-.home-main .home-hero .hero-eyebrow,
-.home-main .home-hero .hero-title,
-.home-main .home-hero .subline { text-align:center!important; margin-left:auto!important; margin-right:auto!important; }
-.home-main .home-hero .overlay-ctas { justify-content:center!important; margin-left:auto!important; margin-right:auto!important; }
-.home-main .hero-title { font-weight:800!important; letter-spacing:-.04em!important; }
-.home-main .home-section-heading h2,.home-main .home-about h2,.home-main .home-profile h2,.home-main .home-final-copy h2 { font-weight:750!important; letter-spacing:-.03em!important; }
-.home-main .home-section-heading p,.home-main .home-about p,.home-main .home-profile p { line-height:1.65!important; }
-.home-main .home-capability h3 { font-weight:700!important; letter-spacing:-.01em!important; }
-.home-main .home-button { border-radius:var(--vmg-radius-md)!important; min-height:46px!important; }
-.home-main .home-card,.home-main .home-desk-card,.home-main .home-utility-card { border-radius:var(--vmg-radius-lg)!important; box-shadow:none!important; }
-.home-main .home-section { padding-top:72px!important; padding-bottom:72px!important; }
-.home-main .home-final-cta { padding-block:56px!important; }
-.home-main .locations h2 { font-weight:750!important; letter-spacing:-.025em!important; }
+
+/* Hero: one left alignment spine across all three slides. */
+.home-view .home-main .home-hero .home-hero-container {
+  width:min(calc(100% - 80px),1180px)!important;
+  max-width:1180px!important;
+  margin-inline:auto!important;
+  text-align:left!important;
+}
+.home-view .home-main .home-hero .hero-eyebrow,
+.home-view .home-main .home-hero .hero-title,
+.home-view .home-main .home-hero .subline {
+  margin-left:0!important;
+  margin-right:0!important;
+  text-align:left!important;
+}
+.home-view .home-main .home-hero .hero-title {
+  max-width:820px!important;
+  font-weight:800!important;
+  line-height:1.04!important;
+  letter-spacing:-.04em!important;
+}
+.home-view .home-main .home-hero .subline {
+  max-width:700px!important;
+  line-height:1.6!important;
+}
+.home-view .home-main .home-hero .overlay-ctas {
+  justify-content:flex-start!important;
+  margin-left:0!important;
+  margin-right:0!important;
+}
+.home-view .home-main .home-hero .carousel-slide[data-slide="1"] .hero-overlay {
+  background:linear-gradient(90deg,rgba(5,15,27,.80) 0%,rgba(5,15,27,.58) 36%,rgba(5,15,27,.20) 69%,rgba(5,15,27,.05) 100%)!important;
+}
+.home-view .home-main .home-hero .carousel-slide[data-slide="2"] .hero-overlay {
+  background:linear-gradient(90deg,rgba(5,15,27,.78) 0%,rgba(5,15,27,.56) 36%,rgba(5,15,27,.19) 69%,rgba(5,15,27,.05) 100%)!important;
+}
+.home-view .home-main .home-hero .carousel-slide[data-slide="3"] .hero-overlay {
+  background:linear-gradient(90deg,rgba(5,15,27,.82) 0%,rgba(5,15,27,.60) 36%,rgba(5,15,27,.21) 69%,rgba(5,15,27,.05) 100%)!important;
+}
+
+/* Shared homepage type rhythm. */
+.home-view .home-main .section-eyebrow {
+  letter-spacing:.12em!important;
+}
+.home-view .home-main .home-section-heading h2,
+.home-view .home-main .home-about h2,
+.home-view .home-main .home-profile h2,
+.home-view .home-main .home-final-copy h2 {
+  font-weight:750!important;
+  line-height:1.12!important;
+  letter-spacing:-.03em!important;
+}
+.home-view .home-main .home-section-heading p,
+.home-view .home-main .home-about p,
+.home-view .home-main .home-profile p,
+.home-view .home-main .home-impact-copy p,
+.home-view .home-main .home-utility p {
+  line-height:1.68!important;
+}
+
+/* Reading sections stay left aligned and share a clear spine. */
+.home-view .home-main .home-about-intro,
+.home-view .home-main .home-about-intro > *,
+.home-view .home-main .home-capability,
+.home-view .home-main .home-capability h3,
+.home-view .home-main .home-capability p,
+.home-view .home-main .home-profile-copy,
+.home-view .home-main .home-profile-copy > *,
+.home-view .home-main .home-impact-statement,
+.home-view .home-main .home-impact-copy,
+.home-view .home-main .home-impact-copy > *,
+.home-view .home-main .home-utility,
+.home-view .home-main .home-utility > *,
+.home-view .home-main .home-final-copy,
+.home-view .home-main .home-final-copy > * {
+  text-align:left!important;
+}
+.home-view .home-main .home-about-lead { max-width:65ch!important; }
+.home-view .home-main .home-profile-copy > p:not(.section-eyebrow) { max-width:65ch!important; }
+.home-view .home-main .home-impact-copy > p { max-width:65ch!important; }
+.home-view .home-main .home-capability h3 { font-weight:700!important; letter-spacing:-.01em!important; }
+
+/* Center only presentation introductions. */
+.home-view .home-main .home-trade-desk .home-section-heading,
+.home-view .home-main .home-process .home-section-heading,
+.home-view .home-main .home-products .home-section-heading,
+.home-view .home-main .home-utilities .home-section-heading {
+  max-width:760px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  text-align:center!important;
+}
+.home-view .home-main .home-trade-desk .home-section-heading > *,
+.home-view .home-main .home-process .home-section-heading > *,
+.home-view .home-main .home-products .home-section-heading > *,
+.home-view .home-main .home-utilities .home-section-heading > * {
+  margin-left:auto!important;
+  margin-right:auto!important;
+  text-align:center!important;
+}
+.home-view .home-main .home-section-heading > p:not(.section-eyebrow) {
+  max-width:720px!important;
+}
+.home-view .home-main .home-trade-item,
+.home-view .home-main .home-trade-item > *,
+.home-view .home-main .home-process-step,
+.home-view .home-main .home-process-step p,
+.home-view .home-main .home-product-tile,
+.home-view .home-main .home-utility,
+.home-view .home-main .home-utility h3,
+.home-view .home-main .home-utility p,
+.home-view .home-main .home-utility li,
+.home-view .home-main .home-utility small {
+  text-align:left!important;
+}
+
+/* Locations use the map's natural center axis. */
+.home-view .home-main .locations h2 {
+  font-weight:750!important;
+  letter-spacing:-.025em!important;
+  text-align:center!important;
+}
+.home-view .home-main .locations > .container > p {
+  max-width:700px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  line-height:1.68!important;
+  text-align:center!important;
+}
+
+/* Final CTA remains asymmetric on desktop. */
+.home-view .home-main .home-final-cta-inner { align-items:center!important; }
+.home-view .home-main .home-final-copy { max-width:700px!important; }
+.home-view .home-main .home-final-actions { justify-content:flex-end!important; text-align:right!important; }
+
+/* Existing geometry, refined rather than redesigned. */
+.home-view .home-main .home-button { border-radius:var(--vmg-radius-md)!important; min-height:46px!important; }
+.home-view .home-main .home-card,
+.home-view .home-main .home-desk-card,
+.home-view .home-main .home-utility-card { border-radius:var(--vmg-radius-lg)!important; box-shadow:none!important; }
+.home-view .home-main .home-section { padding-top:72px!important; padding-bottom:72px!important; }
+.home-view .home-main .home-final-cta { padding-block:56px!important; }
+
+@media (max-width:991px) {
+  .home-view .home-main .home-hero .home-hero-container {
+    width:calc(100% - 48px)!important;
+    max-width:760px!important;
+  }
+  .home-view .home-main .home-hero .hero-title { max-width:14ch!important; }
+  .home-view .home-main .home-hero .subline { max-width:620px!important; }
+  .home-view .home-main .home-final-actions { justify-content:flex-start!important; text-align:left!important; }
+}
+
+@media (max-width:560px) {
+  .home-view .home-main .home-hero .home-hero-container {
+    width:calc(100% - 40px)!important;
+    max-width:none!important;
+  }
+  .home-view .home-main .home-hero .hero-title {
+    max-width:13ch!important;
+    font-size:clamp(2.25rem,10vw,2.625rem)!important;
+    line-height:1.05!important;
+  }
+  .home-view .home-main .home-hero .subline {
+    max-width:100%!important;
+    font-size:.96rem!important;
+    line-height:1.58!important;
+  }
+  .home-view .home-main .home-hero .overlay-ctas { align-items:flex-start!important; }
+  .home-view .home-main .home-section { padding-top:46px!important; padding-bottom:46px!important; }
+  .home-view .home-main .home-final-cta { padding-block:44px!important; }
+  .home-view .home-main .home-section-heading h2,
+  .home-view .home-main .home-about h2,
+  .home-view .home-main .home-profile h2,
+  .home-view .home-main .home-final-copy h2 { font-size:clamp(1.75rem,8vw,2rem)!important; }
+}
+
 
 /* Feedback utility follows shared control geometry without changing drawer behavior. */
 .vmg-feedback-trigger { border-radius:var(--vmg-radius-md)!important; font-weight:700!important; box-shadow:none!important; }
@@ -542,10 +704,6 @@ body.vmg-help-open .vmg-floating-actions > .whatsapp-float { opacity:0!important
 .vmg-footer-mini-links a { font-weight:550!important; }
 
 @media (max-width:560px) {
-  .home-main .home-section { padding-top:46px!important; padding-bottom:46px!important; }
-  .home-main .home-final-cta { padding-block:44px!important; }
-  .home-main .hero-title { font-size:clamp(2.25rem,10vw,2.625rem)!important; line-height:1.05!important; }
-  .home-main .home-section-heading h2,.home-main .home-about h2,.home-main .home-profile h2,.home-main .home-final-copy h2 { font-size:clamp(1.75rem,8vw,2rem)!important; }
   .vmg-custom-select-button { min-height:46px!important; }
 }
 
