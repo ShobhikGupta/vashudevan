@@ -204,7 +204,13 @@ export async function geminiStructuredRequest(key:string,model:string,input:stri
     throw e;
   }finally{clearTimeout(timer)}
   let body:any={};try{body=raw?JSON.parse(raw):{}}catch{body={raw_text:raw}}
-  if(!r.ok)throw new ProviderCallError({...providerErrorDetails("gemini",r.status,body),endpoint:"/v1beta/interactions",model,request_shape:"structured_json"});
+  if(!r.ok){
+    const headerRetry=Number(r.headers.get("retry-after")||0);
+    const message=String(body?.error?.message||body?.message||"");
+    const msgMatch=message.match(/retry(?:\s+in|\s+after)?\s+(\d+(?:\.\d+)?)s/i);
+    const messageRetry=msgMatch?Math.ceil(Number(msgMatch[1])):0;
+    throw new ProviderCallError({...providerErrorDetails("gemini",r.status,body),endpoint:"/v1beta/interactions",model,request_shape:"structured_json",retry_after_seconds:Math.max(0,headerRetry||0,messageRetry||0)});
+  }
   return {response:r,body,endpoint:"/v1beta/interactions",model,request_shape:"structured_json"};
 }
 function geminiSources(p:any){const out:any[]=[],seen=new Set<string>();for(const ch of p?.candidates?.[0]?.groundingMetadata?.groundingChunks||[]){const w=ch?.web;if(w?.uri&&!seen.has(w.uri)){seen.add(w.uri);out.push({title:w.title||w.uri,url:w.uri,publisher:w.title||""})}}return out}
