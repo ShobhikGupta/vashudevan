@@ -1959,15 +1959,15 @@ img, button, input, textarea, select {
 
   .market-cta-card {
     grid-template-columns: 1fr;
-    justify-items: center;
+    justify-items: start;
     gap: 12px;
     padding: 18px;
-    text-align: center;
+    text-align: left;
   }
 
   .market-cta-copy h2,
   .market-cta-copy p {
-    text-align: center;
+    text-align: left;
   }
 
 }
@@ -2083,7 +2083,7 @@ img, button, input, textarea, select {
   background: #f8fafc;
   position: relative;
 }
-.page-hero p {
+.page-hero > .container > p {
   text-align: center;
 }
 .page { padding-bottom: 40px; }
@@ -2385,7 +2385,7 @@ img, button, input, textarea, select {
 .who-we-are .values-list li::marker { color: var(--brand); }
 
 /* Home page headers styling */
-h1, h2, h3 { text-align: center; font-weight: 900; }
+h1, h2, h3 { font-weight: 900; }
 h1 { font-size: clamp(36px, 6vw, 56px); margin: 0 0 8px; }
 h2 { font-size: clamp(28px, 4.5vw, 42px); margin: 0 0 8px; }
 h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
@@ -3891,7 +3891,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   }
 
   .who-page #history-block h2 {
-    text-align: center !important;
+    text-align: left !important;
     margin-bottom: 20px;
   }
 
@@ -3907,13 +3907,13 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   .who-page h2 {
     font-size: clamp(24px, 4vw, 32px);
     margin: 20px 0 16px;
-    text-align: center;
+    text-align: left;
   }
 
   .who-page h4 {
     font-size: clamp(18px, 3vw, 22px);
     margin: 16px 0 12px;
-    text-align: center;
+    text-align: left;
   }
 
   .who-page p {
@@ -4063,7 +4063,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   }
 
   .page #our-impact h3 {
-    text-align: center;
+    text-align: left;
     margin: 0 0 16px 0;
     font-size: clamp(20px, 4vw, 24px);
   }
