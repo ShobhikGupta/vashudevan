@@ -2149,7 +2149,7 @@ img, button, input, textarea, select {
 .who-we-are p { color: #1f2937; line-height: 1.6; text-align: left; }
 .who-we-are h2 {
   font-weight: 800;
-  text-align: center;
+  text-align: left;
   color: var(--text);
   margin: 20px 0 12px;
   font-size: clamp(24px, 3.2vw, 34px);
@@ -2420,6 +2420,9 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 #our-impact h2, #leadership-team h2 {
   text-transform: uppercase;
   letter-spacing: 0.06em;
+}
+#our-impact > .section-inner > h2 {
+  text-align: center;
 }
 
 .location-tags { list-style: none; padding: 0; margin: 12px 0 18px; display: flex; flex-wrap: wrap; gap: 10px; }
@@ -3951,6 +3954,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 
   .who-page .core-values-section .core-values-statement,
   .who-page .core-values-section .core-values-intro {
+    text-align: center !important;
     font-weight: 700 !important;
     font-size: 16px !important;
     margin: 16px 0 !important;
