@@ -2,23 +2,22 @@
 
 > Volatile. Verify real state before acting.
 
-**Last verified:** 2026-09-28 17:30+05:30 Gemini 3.8 / free-search deployment check
+**Last verified:** 2026-09-29 13:35+05:30 Gemini stored-key incident hardening  
 **Working branch:** `company-intelligence-preview`  
-**Last verified implementation HEAD (before this STATUS-only write):** `11e61b934c764f51fd03587973c2abf11495c290`
-**PR #13:**** OPEN, UNMERGED, mergeable  
-**main:** `f580f702e8a116c82d2cf62d9e56c5ee5203d767`; unchanged during verification  
-**PR #12:** open draft; not touched
+**Last verified code/CI HEAD before these playbook-only commits:** `67b69b5a1583bb22f05c67745d9109a19a04d941`  
+**PR #13:** OPEN, UNMERGED, mergeable  
+**main:** `f580f702e8a116c82d2cf62d9e56c5ee5203d767`; unchanged  
+**PR #12:** not touched
 
 ## Private deployment
 
 Netlify project: `vashudevan-intelligence-preview`  
 Site ID: `1e4f8e5b-a82d-4c71-8016-2d99a284704f`  
-Current deploy ID: `6aba5663e4368c82cd1d0615`  
+Current live deploy ID: `6aba62570e042219fdff676f`  
 State: READY  
-Deployment source: uploaded/API deploy; `commit_ref=null`  
-Observed package: 29 functions + 1 edge function; Netlify secret scan reported zero matches.
+Deployment source: uploaded/API deploy; `commit_ref=null`
 
-**Deployment provenance:** upload/API deploy has `commit_ref=null`, but this deploy was built from a clean clone of verified branch HEAD `11e61b934c764f51fd03587973c2abf11495c290`; the previously undeclared `provider-admin-security` behavior is now canonical in GitHub and deployed.
+The live private deploy is still the pre-incident-diagnostics version. The fixed branch has **not** yet been uploaded because the authorized Remote Desktop deployment bridge is currently offline.
 
 ## Supabase
 
@@ -27,7 +26,7 @@ Project ref: `xocwnbbltltmbxzdvdfy`
 Region: `ap-south-1`  
 State: ACTIVE_HEALTHY
 
-Latest verified security-health result:
+Latest verified security state:
 - expected/present VMG tables: 34/34
 - RLS enabled: true
 - browser table grants: 0
@@ -35,46 +34,55 @@ Latest verified security-health result:
 - provider Vault RPCs service-role-only: true
 - private `company-documents` bucket: true
 - Supabase security advisor findings: none
+- migration `008_provider_verification_state.sql`: APPLIED
 
-Migrations through provider-secret rotation hardening are applied. Migration history includes reconciliation runs; inspect before adding new migrations.
+Migration 008 changes provider credential storage semantics: storing a credential leaves the provider CONFIGURED. Only successful application-level stored-key verification may set CONNECTED.
 
 ## Providers
 
-Latest verified `provider_connections`: empty before user retry.  
-Gemini: NOT CONNECTED yet; app now uses `gemini-3.8-flash` and validates the model independently from Search grounding.  
-Google Search grounding: optional when the connected Gemini API tier supports it; standard free Gemini 3.x may not provide it.  
-Tavily: preferred zero-billing live-search fallback; Researcher free tier can be connected if Google grounding is unavailable.  
-OpenAI: optional paid provider; paid usage remains OFF by default.
+Latest live state:
+- Gemini: `AUTH_ERROR`; model `gemini-3.8-flash`; free mode; credential remains stored in Vault.
+- Gemini usage trail: one Interactions structured test returned 200, followed by 400/503/400 failures.
+- Tavily: CONNECTED and working on free tier.
+- No `GEMINI_API_KEY` Netlify environment override exists.
+- Google Search grounding is optional; Tavily is the zero-billing live-search fallback.
 
-## Current working milestone
+Verified diagnostic facts:
+- synthetic `vmg_store_provider_secret` → `vmg_get_provider_secret` round-trip preserved exact text and exact byte length,
+- auth-key transport remains `x-goog-api-key`,
+- old provider-test error handling incorrectly collapsed failures into AUTH_ERROR.
 
-Connect/verify Gemini 3.8 Flash → verify live search (Google grounding if available, otherwise Tavily free) → run real Koppal entity resolution/research → verify persistence/exports → isolation/V2/UNKNOWN/security/browser/mobile QA.
+Fixed branch behavior:
+- safe credential diagnostics: character length, byte length, SHA-256 fingerprint prefix, trim/control-whitespace flags,
+- fresh-vs-Vault equivalence check,
+- exact sanitized provider HTTP status/code/reason/message persistence,
+- failure classes: AUTH_ERROR / INVALID_REQUEST / RATE_LIMIT / TRANSIENT_ERROR / PROVIDER_ERROR,
+- Gemini Connect stores as CONFIGURED, reads the secret back from Vault, verifies equivalence, then requires three consecutive stored-key structured-synthesis probes,
+- Gemini Test Stored Connection also requires three stored-key probes,
+- server-side research strategy refuses Gemini unless the same stable proof exists,
+- UI does not show CONNECTED unless that proof exists.
 
-## Playbook state
+## Build proof
 
-Canonical delegation system added at `agent-playbooks/vmg-intelligence/` with root `AGENTS.md` and thin `.codex/skills/` adapters. Initial dry runs passed routing/safety/blocker detection; debt/charge regression proof was strengthened after the second dry run.
+GitHub Actions workflow `VMG Intelligence CI` completed successfully for code HEAD `67b69b5a1583bb22f05c67745d9109a19a04d941`:
+- `npm ci --ignore-scripts`
+- `npm run check`
+- `npm run build`
+
+Later commits only update this canonical playbook/incident documentation unless a newer code commit is present when rechecked.
 
 ## Current blocker
 
-User must retry the existing Gemini credential through the secure provider-connect flow after the Gemini 3.8 deployment. If Gemini connects but Google Search grounding shows unavailable, the next user-only action is connecting a Tavily Researcher free credential. Never request provider credentials in chat.
+The incident fix is not yet deployed to the private Netlify site because the authorized deployment Mac/Remote Desktop bridge is offline.
 
-## Newly verified in this continuation
-
-- Unauthenticated root request redirects to `/login.html?next=%2F`.
-- Unauthenticated `/api/companies` returns 401 `APP_AUTH_REQUIRED`.
-- Unauthenticated `/api/system-health` returns 401 `APP_AUTH_REQUIRED`.
-- Wrong app access secret returns 401 and does not set a cookie.
-- Live responses include `X-Robots-Tag: noindex, nofollow, noarchive`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, and `Cache-Control: no-store`.
-- Supabase security health remains healthy and provider_connections remains empty.
-
-## Known proof gaps
-
-- Successful login, logout, authenticated session persistence/expiry still need an authenticated browser/session test before full APP AUTH PASS.
-- Admin Settings Lock needs current browser re-test.
-- Direct document upload/ingestion/privacy leak test needs live end-to-end exercise.
-- Live entity resolution/research, persistence, exports, V2, isolation, browser/mobile QA are not complete until Gemini is connected.
-- Deployment uses Netlify upload/API and therefore reports `commit_ref=null`; source provenance is recorded manually from the clean-clone QA HEAD.
+Do **not** ask the user for another Gemini credential. Do **not** start Koppal research.
 
 ## Next recommended action
 
-User refreshes the private app and retries Gemini Connect using the same credential with “Free / free allowance”. If successful but Search grounding is unavailable, connect Tavily free next. Then resume real Koppal research; do not redo Supabase/RLS/Vault work unless verification fails.
+1. Recheck current PR #13 HEAD.
+2. When authorized deployment access is available, deploy the current branch to **private** `vashudevan-intelligence-preview` only.
+3. Verify deploy READY, function inventory, secret scan, and public VMG isolation.
+4. In the authenticated app run **Gemini → Test Stored Connection** once. That single action internally performs three identical stored-key structured-synthesis probes.
+5. Inspect provider_usage/provider_connections:
+   - if all three pass: mark Gemini stable CONNECTED and proceed to Koppal,
+   - if any fails: use the newly persisted sanitized provider status/code/reason/message to diagnose the actual provider-side cause.
