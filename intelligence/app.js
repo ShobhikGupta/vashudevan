@@ -27,7 +27,7 @@ async function api(path,opt={}){
   if(r.status===401&&path!=="/api/auth"){location.replace("/login.html?next="+encodeURIComponent(location.pathname+location.search));throw Object.assign(new Error("Authentication required."),{status:401,data:j})}
   if(!r.ok)throw Object.assign(new Error(j.error||("Request failed: "+r.status)),{status:r.status,data:j});return j;
 }
-function statusKind(value){const v=String(value||"").toUpperCase().replaceAll(" ","_");if(["CONNECTED","AVAILABLE","PASS","OPERATIONAL","COMPLETE"].includes(v))return"ok";if(["PARTIAL","QUOTA_LOW","DEGRADED","RATE_LIMIT","TRANSIENT_ERROR"].includes(v))return"warn";if(["FAILED","AUTH_ERROR","INVALID_REQUEST","PROVIDER_ERROR","QUOTA_EXHAUSTED","ERROR"].includes(v))return"bad";if(["RUNNING","CONFIGURED"].includes(v))return"info";return"neutral"}
+function statusKind(value){const v=String(value||"").toUpperCase().replaceAll(" ","_");if(["CONNECTED","AVAILABLE","PASS","OPERATIONAL","COMPLETE"].includes(v))return"ok";if(["PARTIAL","QUOTA_LOW","DEGRADED","RATE_LIMIT","TRANSIENT_ERROR"].includes(v))return"warn";if(["FAILED","AUTH_ERROR","INVALID_REQUEST","PROVIDER_ERROR","QUOTA_EXHAUSTED","ERROR"].includes(v))return"bad";if(["RUNNING","CONFIGURED","VERIFYING"].includes(v))return"info";return"neutral"}
 
 let lastFocus=null;
 function openDialog(id,focusId){lastFocus=document.activeElement;const el=document.getElementById(id);el?.classList.add("open");setTimeout(()=>document.getElementById(focusId)?.focus()||el?.querySelector("button,input,select,textarea,a")?.focus(),0)}
