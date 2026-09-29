@@ -2083,7 +2083,7 @@ img, button, input, textarea, select {
   background: #f8fafc;
   position: relative;
 }
-.page-hero > .container > p {
+.page > .page-hero:not(.seo-hero) > .container > p {
   text-align: center;
 }
 .page { padding-bottom: 40px; }
@@ -4548,7 +4548,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 
 .form-header {
   margin-bottom: 2px;
-  text-align: center;
+  text-align: left;
   padding-top: 10px; /* Further reduced padding for more compact box */
   padding-bottom: 0;
 }
