@@ -1,6 +1,7 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { Document, Packer, Paragraph, HeadingLevel } from "docx";
 import ExcelJS from "exceljs";
+import { ProviderCallError, providerErrorDetails } from "./provider-diagnostics.mts";
 
 export const STAGES = [
 "Entity Resolution","Official Identity / Registry","Directors / Promoters","Ownership","Business Model","Products","Plants / Offices","Capacity / Operations","Five-Year Financials","Debt / Borrowings","Charges / Lenders","Credit Ratings","Legal / Litigation","Insolvency / Defaults","Import / Export Activity","Customers / Buyers","Suppliers","Competitors","Procurement Requirements","Commercial Opportunity","Negative News","Source Validation","Evidence Classification","Final Report Generation"
@@ -189,6 +190,14 @@ export function geminiInteractionText(p:any){
   if(typeof p?.output_text==="string")return p.output_text.trim();
   return (p?.steps||[]).flatMap((s:any)=>s?.content||[]).map((x:any)=>x?.text||"").join("\n").trim();
 }
+export async function geminiStructuredRequest(key:string,model:string,input:string,schema:any={type:"object"},temperature=.05){
+  const endpoint="https://generativelanguage.googleapis.com/v1beta/interactions";
+  const requestBody={model,input,store:false,generation_config:{temperature},response_format:{type:"text",mime_type:"application/json",schema}};
+  const r=await fetchWithTimeout(endpoint,{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key,"x-goog-api-client":"vmg-company-intelligence/0.1.0"},body:JSON.stringify(requestBody)});
+  let body:any={};try{body=await r.json()}catch{}
+  if(!r.ok)throw new ProviderCallError({...providerErrorDetails("gemini",r.status,body),endpoint:"/v1beta/interactions",model,request_shape:"structured_json"});
+  return {response:r,body,endpoint:"/v1beta/interactions",model,request_shape:"structured_json"};
+}
 function geminiSources(p:any){const out:any[]=[],seen=new Set<string>();for(const ch of p?.candidates?.[0]?.groundingMetadata?.groundingChunks||[]){const w=ch?.web;if(w?.uri&&!seen.has(w.uri)){seen.add(w.uri);out.push({title:w.title||w.uri,url:w.uri,publisher:w.title||""})}}return out}
 export async function geminiGrounded(prompt:string,researchJobId:string|null=null){
   const key=await providerSecret("gemini");if(!key)throw new Error("Research provider is not configured. Connect Gemini in Settings.");
@@ -199,12 +208,20 @@ export async function geminiGrounded(prompt:string,researchJobId:string|null=nul
 export async function geminiJson(prompt:string,researchJobId:string|null=null){
   const key=await providerSecret("gemini");if(!key)throw new Error("Research provider is not configured. Connect Gemini in Settings.");
   const gc=await providerConnection("gemini"),model=gc?.selected_model||"gemini-3.8-flash",started=Date.now();
-  const r=await fetchWithTimeout("https://generativelanguage.googleapis.com/v1beta/interactions",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key,"x-goog-api-client":"vmg-company-intelligence/0.1.0"},body:JSON.stringify({model,input:prompt,store:false,generation_config:{temperature:.05},response_format:{type:"text",mime_type:"application/json",schema:{type:"object"}}})});
-  const p=await r.json();
-  if(!r.ok){await recordUsage("gemini","structured_synthesis",false,{research_job_id:researchJobId,model,duration_ms:Date.now()-started,metadata:{status:r.status,api:"interactions"}});const e:any=new Error(`Gemini ${r.status}: ${safeError(p?.error?.message||p?.message||"request failed")}`);if(r.status===429)e.code="PROVIDER_CAPACITY";else if(r.status===401||r.status===403)e.code="PROVIDER_AUTH";throw e}
-  const u=p?.usage||{},inputTokens=Number(u.total_input_tokens||u.input_tokens||0),outputTokens=Number(u.total_output_tokens||u.output_tokens||0);
+  let result:any;
+  try{result=await geminiStructuredRequest(key,model,prompt,{type:"object"},.05)}
+  catch(e:any){
+    const d=e?.details||{classification:"PROVIDER_ERROR",http_status:502,provider_code:null,provider_reason:null,message_safe:safeError(e),endpoint:"/v1beta/interactions",model};
+    await recordUsage("gemini","structured_synthesis",false,{research_job_id:researchJobId,model,duration_ms:Date.now()-started,metadata:{status:d.http_status,classification:d.classification,provider_code:d.provider_code,provider_reason:d.provider_reason,message_safe:d.message_safe,endpoint:d.endpoint,api:"interactions"}});
+    if(d.classification==="RATE_LIMIT")e.code="PROVIDER_CAPACITY";
+    else if(d.classification==="AUTH_ERROR")e.code="PROVIDER_AUTH";
+    else if(d.classification==="TRANSIENT_ERROR")e.code="PROVIDER_TRANSIENT";
+    else if(d.classification==="INVALID_REQUEST")e.code="PROVIDER_INVALID_REQUEST";
+    throw e;
+  }
+  const p=result.body,u=p?.usage||{},inputTokens=Number(u.total_input_tokens||u.input_tokens||0),outputTokens=Number(u.total_output_tokens||u.output_tokens||0);
   const geminiCost=gc?.billing_mode==="paid"?(inputTokens/1e6*.75+outputTokens/1e6*3.75):0;
-  await recordUsage("gemini","structured_synthesis",true,{research_job_id:researchJobId,model,prompt_tokens:inputTokens||null,output_tokens:outputTokens||null,duration_ms:Date.now()-started,estimated_cost_usd:geminiCost,metadata:{api:"interactions"}});
+  await recordUsage("gemini","structured_synthesis",true,{research_job_id:researchJobId,model,prompt_tokens:inputTokens||null,output_tokens:outputTokens||null,duration_ms:Date.now()-started,estimated_cost_usd:geminiCost,metadata:{api:"interactions",endpoint:result.endpoint}});
   const t=geminiInteractionText(p);try{return JSON.parse(t)}catch{const m=t.match(/\{[\s\S]*\}/);if(!m)throw new Error("Gemini returned invalid JSON.");return JSON.parse(m[0])}
 }
 export async function tavily(query:string,researchJobId:string|null=null){const key=await providerSecret("tavily");if(!key)return{text:"",sources:[]};const r=await fetchWithTimeout("https://api.tavily.com/search",{method:"POST",headers:{"content-type":"application/json",authorization:`Bearer ${key}`},body:JSON.stringify({query,search_depth:"advanced",max_results:8,include_answer:true})});const p=await r.json();if(!r.ok){await recordUsage("tavily","search",false,{research_job_id:researchJobId,model:"advanced-search",search_calls:1,tavily_credits:2,metadata:{status:r.status}});throw new Error(`Tavily ${r.status}`)}const tc=await providerConnection("tavily");await recordUsage("tavily","search",true,{research_job_id:researchJobId,model:"advanced-search",search_calls:1,tavily_credits:2,estimated_cost_usd:tc?.billing_mode==="paid"?.016:0});const sources=(p.results||[]).map((x:any)=>({title:x.title||x.url,url:x.url,publisher:(()=>{try{return new URL(x.url).hostname}catch{return""}})(),snippet:String(x.content||"").slice(0,500)}));return{text:[p.answer||"",...sources.map((s:any)=>`${s.title}: ${s.snippet}`)].join("\n"),sources}}
