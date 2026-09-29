@@ -8,10 +8,11 @@ import { credentialDiagnostics, errorHttpStatus } from "./provider-diagnostics.m
 function failureDetails(e:any,provider:string,model:string){
   return e?.details||{provider,http_status:502,provider_code:"PROVIDER_TEST_FAILED",provider_reason:null,message_safe:safeError(e),classification:"PROVIDER_ERROR",endpoint:null,model,request_shape:null,retry_after_seconds:0};
 }
+const GEMINI_SUCCESS_DELAY_SECONDS=20;
 function cooldownSeconds(d:any){
   const retry=Math.max(0,Number(d?.retry_after_seconds||0));
-  if(d?.classification==="RATE_LIMIT")return Math.max(20,retry);
-  if(d?.classification==="TRANSIENT_ERROR")return Math.max(30,retry);
+  if(d?.classification==="RATE_LIMIT")return Math.max(60,retry);
+  if(d?.classification==="TRANSIENT_ERROR")return Math.max(45,retry);
   return 0;
 }
 function sequenceReject(gate:any){
@@ -40,7 +41,7 @@ export default async (req:Request,_ctx:Context)=>{
       const ws=await workspace();
       const gate=await rpc("vmg_provider_verification_transition",{
         p_workspace_id:ws.id,p_provider:"gemini",p_sequence_id:sequenceId,p_action:"begin",
-        p_attempt:attempt,p_delay_seconds:15,p_cooldown_seconds:0,p_failure:null,p_latency_ms:null
+        p_attempt:attempt,p_delay_seconds:GEMINI_SUCCESS_DELAY_SECONDS,p_cooldown_seconds:0,p_failure:null,p_latency_ms:null
       });
       if(gate?.accepted!==true)return sequenceReject(gate);
       sequenceAccepted=true;
@@ -59,7 +60,7 @@ export default async (req:Request,_ctx:Context)=>{
 
     const transitioned=await rpc("vmg_provider_verification_transition",{
       p_workspace_id:ws.id,p_provider:"gemini",p_sequence_id:sequenceId,p_action:"success",
-      p_attempt:attempt,p_delay_seconds:15,p_cooldown_seconds:0,p_failure:null,p_latency_ms:result.latency_ms
+      p_attempt:attempt,p_delay_seconds:GEMINI_SUCCESS_DELAY_SECONDS,p_cooldown_seconds:0,p_failure:null,p_latency_ms:result.latency_ms
     });
     if(transitioned?.accepted!==true)return sequenceReject(transitioned);
     return json({
@@ -77,7 +78,7 @@ export default async (req:Request,_ctx:Context)=>{
         const failure={http_status:d.http_status||null,provider_code:d.provider_code||null,provider_reason:d.provider_reason||null,message_safe:d.message_safe,classification:d.classification,endpoint:d.endpoint||null,request_shape:d.request_shape||null,retry_after_seconds:d.retry_after_seconds||0,failed_at:new Date().toISOString(),verification_attempt:attempt,verification_sequence_id:sequenceId};
         await rpc("vmg_provider_verification_transition",{
           p_workspace_id:ws.id,p_provider:"gemini",p_sequence_id:sequenceId,p_action:"failure",
-          p_attempt:attempt,p_delay_seconds:15,p_cooldown_seconds:cooldown,p_failure:failure,p_latency_ms:null
+          p_attempt:attempt,p_delay_seconds:GEMINI_SUCCESS_DELAY_SECONDS,p_cooldown_seconds:cooldown,p_failure:failure,p_latency_ms:null
         });
       }catch{}
     }
