@@ -108,14 +108,14 @@ export async function providerSecret(provider:"gemini"|"tavily"|"openai"){
   try{const ws=await workspace();const v=await rpc("vmg_get_provider_secret",{p_workspace_id:ws.id,p_provider:provider});return typeof v==="string"?v:""}catch{return""}
 }
 export async function providerConnections(){
-  try{const ws=await workspace();return await select("provider_connections",`workspace_id=eq.${ws.id}&select=provider,masked_suffix,status,selected_model,billing_mode,connected_at,last_verified_at,last_latency_ms,health,provider_metadata,updated_at`)||[]}catch{return[]}
+  try{const ws=await workspace();return await select("provider_connections",`workspace_id=eq.${ws.id}&select=provider,masked_suffix,status,selected_model,billing_mode,connected_at,last_verified_at,last_latency_ms,health,last_error_safe,provider_metadata,updated_at`)||[]}catch{return[]}
 }
 export async function select(table:string,q=""){return await rest(`${table}?${q}`,{method:"GET"})}
 export async function insert(table:string,rows:any,returnRows=true){return await rest(table,{method:"POST",headers:{Prefer:returnRows?"return=representation":"return=minimal"},body:JSON.stringify(rows)})}
 export async function update(table:string,q:string,patch:any,returnRows=true){const clean=Object.fromEntries(Object.entries(patch).filter(([,v])=>v!==undefined));return await rest(`${table}?${q}`,{method:"PATCH",headers:{Prefer:returnRows?"return=representation":"return=minimal"},body:JSON.stringify(clean)})}
 export async function workspace(){const r=await select("workspaces","slug=eq.VMG&select=id,slug,name&limit=1");if(!r?.length)throw new Error("VMG workspace is not initialized. Apply the Supabase migration first.");return r[0]}
 export async function workspaceSettings(){try{const ws=await workspace();const r=await select("workspace_settings",`workspace_id=eq.${ws.id}&select=settings_json&limit=1`);return r?.[0]?.settings_json||{}}catch{return{}}}
-export async function providerConnection(provider:string){try{const ws=await workspace();const r=await select("provider_connections",`workspace_id=eq.${ws.id}&provider=eq.${provider}&select=provider,status,selected_model,billing_mode,health,provider_metadata&limit=1`);return r?.[0]||null}catch{return null}}
+export async function providerConnection(provider:string){try{const ws=await workspace();const r=await select("provider_connections",`workspace_id=eq.${ws.id}&provider=eq.${provider}&select=provider,status,selected_model,billing_mode,health,last_verified_at,last_latency_ms,last_error_safe,provider_metadata&limit=1`);return r?.[0]||null}catch{return null}}
 
 export function canSendAttachmentExternally(a:any,settings:any){
   const privacy=settings?.privacy||{},classification=String(a?.public_private||"private").toLowerCase();
@@ -143,7 +143,8 @@ export async function externalDocumentContext(job:any,settings:any){
 export async function researchStrategy(){
   const settings=await workspaceSettings(),strategy=settings.ai_strategy||"free_first",cost=settings.cost_protection||{},paid=cost.allow_paid_api_usage===true,freeOnly=cost.free_only_mode!==false;
   const gemini=Boolean(await providerSecret("gemini")),openai=Boolean(await providerSecret("openai")),geminiConn=await providerConnection("gemini");
-  const ensureGemini=()=>{if(!gemini)throw new Error("Gemini is not connected.");if(freeOnly&&geminiConn?.billing_mode==="paid")throw new Error("Gemini is connected as a paid provider, but Free-only mode is enabled.");return{provider:"gemini",model:geminiConn?.selected_model||"gemini-3.8-flash",settings}};
+  const geminiStable=gemini&&geminiConn?.status==="CONNECTED"&&geminiConn?.health==="CONNECTED"&&geminiConn?.provider_metadata?.structured_synthesis_verified===true&&geminiConn?.provider_metadata?.stored_verification_passed===true&&Number(geminiConn?.provider_metadata?.stored_verification_attempts||0)>=3;
+  const ensureGemini=()=>{if(!geminiStable)throw new Error("Gemini structured synthesis is not stably verified. Run a successful stored-key provider test before research.");if(freeOnly&&geminiConn?.billing_mode==="paid")throw new Error("Gemini is connected as a paid provider, but Free-only mode is enabled.");return{provider:"gemini",model:geminiConn?.selected_model||"gemini-3.8-flash",settings}};
   const ensureOpenAI=(model:string)=>{if(!paid)throw new Error("OpenAI is a paid API provider. Paid API usage is currently disabled.");if(!openai)throw new Error("OpenAI is not connected.");return{provider:"openai",model,settings}};
   if(strategy==="openai_only")return ensureOpenAI(settings.openai_model||"gpt-5.6-luna");
   if(strategy==="gemini_only")return ensureGemini();
@@ -153,7 +154,7 @@ export async function researchStrategy(){
     if(primary==="openai")return ensureOpenAI(settings.openai_model||"gpt-5.6-luna");
     return ensureGemini();
   }
-  if(!gemini)throw new Error("Gemini is not connected. Free First requires Gemini.");
+  if(!geminiStable)throw new Error("Gemini is not stably verified. Free First requires three successful stored-key structured-synthesis probes.");
   return ensureGemini();
 }
 function storagePath(path:string){return String(path||"").split("/").filter(Boolean).map(encodeURIComponent).join("/")}
