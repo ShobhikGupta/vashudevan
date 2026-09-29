@@ -63,8 +63,11 @@ begin
         wait_seconds:=greatest(1,ceil(extract(epoch from (expires_at-now())))::integer);
         return jsonb_build_object('accepted',false,'reason','SEQUENCE_ACTIVE','retry_after_seconds',wait_seconds);
       end if;
-      if active_id=p_sequence_id and in_flight and active_attempt=1 and expires_at is not null and expires_at>now() then
-        return jsonb_build_object('accepted',false,'reason','ATTEMPT_IN_FLIGHT','retry_after_seconds',5);
+      if active_id=p_sequence_id and expires_at is not null and expires_at>now() then
+        if in_flight and active_attempt=1 then
+          return jsonb_build_object('accepted',false,'reason','ATTEMPT_IN_FLIGHT','retry_after_seconds',5);
+        end if;
+        return jsonb_build_object('accepted',false,'reason','SEQUENCE_ACTIVE','expected_attempt',passed+1,'retry_after_seconds',greatest(1,ceil(extract(epoch from (expires_at-now())))::integer));
       end if;
       passed:=0;
       meta:=meta||jsonb_build_object(
