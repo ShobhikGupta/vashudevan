@@ -2,7 +2,7 @@
 
 > Volatile. Verify real state before acting.
 
-**Last verified:** 2026-09-29 18:05+05:30 Gemini sequence hardening complete; Netlify credit blocker
+**Last verified:** 2026-09-29 18:42+05:30 Netlify credits still not active on team
 **Working branch:** `company-intelligence-preview`  
 **Last verified code/CI HEAD before this status update:** `ee6475aa0865a3c44ee56f35cfa374129a735b14`
 **PR #13:** OPEN, UNMERGED, mergeable  
@@ -72,24 +72,20 @@ GitHub Actions workflow `VMG Intelligence CI` completed successfully for code HE
 
 The same code passed local check/build, and a synthetic abort test confirmed `TRANSIENT_ERROR / REQUEST_TIMEOUT`. The diagnostic request timeout now covers both response headers and body, bounded at 15 seconds for connection probes. Later commits only update this status documentation unless a newer code commit is present when rechecked.
 
+## Latest blocked deploy attempt
+
+Attempted hardened private deploy: `6abbb8fe617bef6367a995bd`  
+Netlify result: `error / skipped`  
+Platform message: `Skipped due to account credit usage exceeded`  
+Team: `shobhikg10’s team`  
+Team plan reported by Netlify API: `Free`
+
 ## Current blocker
 
-Gemini verification hardening is implemented and build-validated on the branch, and migration `009_provider_verification_sequence_lock.sql` is live in Supabase. The attempted private Netlify deployment of the hardened branch was rejected with:
+Netlify still reports the team as Free and still rejects new private deployments with `Skipped due to account credit usage exceeded`. The hardened Gemini verification code is build-validated on PR #13 but is not live yet.
 
-`Skipped due to account credit usage exceeded`
-
-Netlify team `shobhikg10’s team` is currently on the Free plan. The hardened code is **not** live yet; the private site remains on deploy `6abba2f09d22487705241c29`.
-
-Do **not** ask for another Gemini credential. Do **not** use Reconnect. Do **not** run another stored-key sequence until the hardened deploy is published.
+Do **not** run another Gemini verification sequence on the current live private deploy. Do **not** ask for another Gemini credential. Do **not** start Koppal yet.
 
 ## Next recommended action
 
-User-only action: restore Netlify deployment capacity for the `shobhikg10` team by waiting for the monthly credit reset or explicitly upgrading the Netlify plan. After credits are available, deploy the current `company-intelligence-preview` HEAD to the **private** `vashudevan-intelligence-preview` project only, then run exactly one controlled Gemini stored-key verification sequence.
-
-Expected hardened sequence:
-- one active sequence ID at a time,
-- server-side atomic lock,
-- attempt 1 → wait 20s → attempt 2 → wait 20s → attempt 3,
-- 429 => minimum 60s cooldown, honoring longer Retry-After,
-- 503/transient => minimum 45s cooldown,
-- research blocked until persisted 3/3 PASS.
+User-only action: confirm that deployment credits are active on Netlify team `shobhikg10’s team` (the team that owns both VMG projects). Once Netlify itself shows available credits or an active paid plan for that exact team, redeploy current PR #13 HEAD to the private `vashudevan-intelligence-preview` project only.
