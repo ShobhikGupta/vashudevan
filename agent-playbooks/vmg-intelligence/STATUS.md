@@ -2,7 +2,7 @@
 
 > Volatile. Verify real state before acting.
 
-**Last verified:** 2026-09-29 16:55+05:30 Gemini independent-probe deployment
+**Last verified:** 2026-09-29 18:05+05:30 Gemini sequence hardening complete; Netlify credit blocker
 **Working branch:** `company-intelligence-preview`  
 **Last verified code/CI HEAD before this status update:** `ee6475aa0865a3c44ee56f35cfa374129a735b14`
 **PR #13:** OPEN, UNMERGED, mergeable  
@@ -74,10 +74,22 @@ The same code passed local check/build, and a synthetic abort test confirmed `TR
 
 ## Current blocker
 
-The timing architecture is fixed and deployed. Gemini remains non-connected until the required 3/3 stored-key sequence is actually executed. The protected provider endpoint requires the user's existing VMG app + Admin Settings sessions. Safe automation routes were not used because they would weaken authentication or expose a session/secret.
+Gemini verification hardening is implemented and build-validated on the branch, and migration `009_provider_verification_sequence_lock.sql` is live in Supabase. The attempted private Netlify deployment of the hardened branch was rejected with:
 
-Do **not** ask for another Gemini credential. Do **not** use Reconnect. Do **not** start Koppal yet.
+`Skipped due to account credit usage exceeded`
+
+Netlify team `shobhikg10’s team` is currently on the Free plan. The hardened code is **not** live yet; the private site remains on deploy `6abba2f09d22487705241c29`.
+
+Do **not** ask for another Gemini credential. Do **not** use Reconnect. Do **not** run another stored-key sequence until the hardened deploy is published.
 
 ## Next recommended action
 
-User performs one controlled action in the private app: refresh, unlock Admin Settings if needed, and click **Gemini → Test Stored Connection** exactly once. The UI then sends attempts 1, 2 and 3 as separate authenticated requests with one Vault retrieval and one provider_usage row per request. After that, inspect all three rows and provider_connections. Proceed to Koppal only if all 3 pass and Gemini is CONNECTED.
+User-only action: restore Netlify deployment capacity for the `shobhikg10` team by waiting for the monthly credit reset or explicitly upgrading the Netlify plan. After credits are available, deploy the current `company-intelligence-preview` HEAD to the **private** `vashudevan-intelligence-preview` project only, then run exactly one controlled Gemini stored-key verification sequence.
+
+Expected hardened sequence:
+- one active sequence ID at a time,
+- server-side atomic lock,
+- attempt 1 → wait 20s → attempt 2 → wait 20s → attempt 3,
+- 429 => minimum 60s cooldown, honoring longer Retry-After,
+- 503/transient => minimum 45s cooldown,
+- research blocked until persisted 3/3 PASS.
