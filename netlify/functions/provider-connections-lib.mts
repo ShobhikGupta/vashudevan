@@ -22,7 +22,7 @@ export async function testProvider(provider:string,key:string,model?:string,bill
   try{
     if(provider==="gemini"){
       const selected=model||"gemini-3.8-flash";
-      const result=await geminiStructuredRequest(key,selected,GEMINI_PROBE_INPUT,GEMINI_PROBE_SCHEMA,0,15000);
+      const result=await geminiStructuredRequest(key,selected,GEMINI_PROBE_INPUT,GEMINI_PROBE_SCHEMA,0,45000);
       r=result.response;body=result.body;
       const text=geminiInteractionText(body);let parsed:any=null;try{parsed=JSON.parse(text)}catch{}
       if(parsed?.ok!==true)throw new ProviderCallError({provider:"gemini",http_status:502,provider_code:"STRUCTURED_PROBE_INVALID",provider_reason:null,message_safe:"Gemini structured synthesis probe did not return the required JSON.",classification:"PROVIDER_ERROR",endpoint:result.endpoint,model:selected,request_shape:result.request_shape});
@@ -57,19 +57,14 @@ export async function saveProvider(provider:string,key:string,model:string,billi
   return await rpc("vmg_store_provider_secret",{p_workspace_id:ws.id,p_provider:provider,p_secret:key,p_masked_suffix:suffix,p_selected_model:model,p_billing_mode:billingMode,p_metadata:metadata});
 }
 
-export async function verifyStoredProvider(provider:string,expectedDiagnostics:any,model:string,billingMode:string,attempts=3){
+export async function verifyStoredCredentialEquivalence(provider:string,expectedDiagnostics:any,model:string){
   const stored=await storedProviderKey(provider);
   if(!stored)throw new ProviderCallError({provider,http_status:500,provider_code:"VAULT_READ_EMPTY",provider_reason:null,message_safe:"Stored provider credential could not be read back from Vault.",classification:"PROVIDER_ERROR",endpoint:null,model,request_shape:null});
   const storedDiagnostics=await credentialDiagnostics(stored),equivalence=compareCredentialDiagnostics(expectedDiagnostics,storedDiagnostics);
   if(!(equivalence.exact_length_match&&equivalence.exact_byte_length_match&&equivalence.fingerprint_match&&equivalence.both_trimmed_equivalent&&equivalence.no_control_whitespace)){
     throw new ProviderCallError({provider,http_status:500,provider_code:"VAULT_ROUNDTRIP_MISMATCH",provider_reason:null,message_safe:"Credential read back from Vault did not match the freshly validated credential.",classification:"PROVIDER_ERROR",endpoint:null,model,request_shape:null,equivalence});
   }
-  const results:any[]=[];
-  for(let i=1;i<=attempts;i++){
-    results.push(await testProvider(provider,stored,model,billingMode,{credential_source:"vault",attempt:i}));
-    if(i<attempts)await new Promise(r=>setTimeout(r,350));
-  }
-  return {storedDiagnostics,equivalence,results,attempts_passed:results.length};
+  return {storedDiagnostics,equivalence};
 }
 
 export async function disconnectProvider(provider:string){const ws=await workspace();return await rpc("vmg_disconnect_provider",{p_workspace_id:ws.id,p_provider:provider})}
