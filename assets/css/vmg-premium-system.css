@@ -21,6 +21,9 @@
   --vmg-error:#b42318;
   --vmg-warning:#c78640;
   --vmg-container-max:1180px;
+  --vmg-wide-max:1420px;
+  --vmg-reading-max:72ch;
+  --vmg-intro-max:760px;
   --vmg-gutter-desktop:32px;
   --vmg-gutter-tablet:24px;
   --vmg-gutter-mobile:20px;
@@ -241,12 +244,17 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 
 /* Product and guide pages: template alignment is owned by vmg-seo-content.css. */
 .seo-page .container { max-width:var(--vmg-container-max)!important; }
-.material-page .seo-hero .container { max-width:940px!important; }
+.material-page .seo-hero .container { max-width:1020px!important; }
+.material-page .seo-section:has(.seo-catalogue-grid) .container {
+  width:min(100% - 80px,var(--vmg-wide-max))!important;
+  max-width:var(--vmg-wide-max)!important;
+}
 .seo-related a { border-radius:999px!important; box-shadow:none!important; }
 
 /* Products index */
+#main-products-grid { grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr)); gap:18px; }
 .products-grid .product.card { border:1px solid var(--vmg-border)!important; overflow:hidden; background:#fff!important; }
-.products-grid .product.card:hover { transform:translateY(-2px)!important; }
+.products-grid .product.card:hover { transform:translateY(-1px)!important; }
 .product-search .search-container { border-radius:var(--vmg-radius-md)!important; }
 
 /* Resources: vmg-resources.css owns typography/alignment; premium layer keeps shell geometry and docket polish. */
@@ -363,6 +371,7 @@ body.vmg-help-open .vmg-floating-actions > .whatsapp-float { opacity:0!important
   .guide-page .seo-section { padding:38px 0!important; }
   .legal-card { padding:32px!important; }
   .resources-view .res-wrap,.resources-view .res-container,.resources-view .container { width:min(100% - 48px,var(--vmg-container-max))!important; }
+  .material-page .seo-section:has(.seo-catalogue-grid) .container { width:min(100% - 48px,var(--vmg-wide-max))!important; }
   .contact-layout { gap:32px!important; }
   .vmg-mobile-tracker-item .vmg-track-form {
     width:100%!important;
@@ -384,6 +393,7 @@ body.vmg-help-open .vmg-floating-actions > .whatsapp-float { opacity:0!important
 @media (max-width:560px) {
   .container,.seo-page .container,.legal-wrap,.resources-view .container,.faq-view .container { width:calc(100% - 40px)!important; }
   .resources-view .res-wrap,.resources-view .res-container,.resources-view .container { width:calc(100% - 40px)!important; }
+  .material-page .seo-section:has(.seo-catalogue-grid) .container { width:calc(100% - 40px)!important; }
   .seo-hero { padding:58px 0 52px!important; }
   .material-page .seo-hero { padding:42px 0 40px!important; }
   .seo-hero h1,.resources-view .res-hero h1 { font-size:clamp(2.25rem,10vw,2.625rem)!important; line-height:1.06!important; }

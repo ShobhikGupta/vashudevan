@@ -26,8 +26,8 @@
 
 /* Market page alignment */
 .market-page .market-dashboard {
-  width: min(1200px, 94%) !important;
-  max-width: 1200px !important;
+  width: min(1360px, calc(100% - 64px)) !important;
+  max-width: 1360px !important;
   margin-left: auto !important;
   margin-right: auto !important;
 }
@@ -232,7 +232,7 @@
 }
 
 @media (max-width: 640px) {
-  .market-page .market-dashboard { width: calc(100% - 28px) !important; }
+  .market-page .market-dashboard { width: calc(100% - 32px) !important; }
   .market-page .market-chart-selector { padding: 12px !important; }
   .market-page .market-chart-control-row {
     grid-template-columns: 1fr !important;
