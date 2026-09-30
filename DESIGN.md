@@ -160,60 +160,330 @@ Rules:
 - Current product audit: Related Guidance sections are often compact-content sections using standard padding; these should move to Compact density.
 ## 7. Alignment Rules
 
-**Centred for presentation. Left-aligned for reading.**
+Alignment is a structural system, not a blanket `text-align` choice. VMG pages must first establish an invisible grid, then align related elements to shared edges, centres, baselines, and gutters.
 
-VMG should retain a premium, centred/symmetrical presentation without centring dense information that people need to scan or read.
+The governing principle is:
 
-### Centred presentation mode
+> **Define the grid first. Define the visual group second. Choose text alignment third.**
 
-Keep these visually centred where appropriate:
+Do not decide alignment element-by-element without reference to the section grid.
 
-- Hero eyebrow, H1, subtitle, and the primary hero CTA group.
-- Major section-introduction headings.
-- Category and catalogue section headings.
-- Related Guidance headings.
-- Major final CTA headings.
-- Locations title/presentation.
+### 7.1 Core alignment doctrine
+
+1. **Every section needs a dominant alignment logic.**
+   - Related elements should share a visible or implied axis.
+   - A group may be centred or edge-aligned, but its members should not drift independently.
+   - Avoid arbitrary mixtures such as a centred eyebrow, left-offset heading, differently indented paragraph, and detached CTA.
+
+2. **Use one primary alignment per visual group, not necessarily one alignment for the whole section.**
+   - A centred section introduction may sit above a left-aligned card grid.
+   - A centred page title may lead into a left-aligned reading column.
+   - A two-column section may contain two separate left-aligned groups while the overall composition remains balanced.
+
+3. **Shared edges create structure.**
+   - Eyebrow, heading, paragraph, CTA, card title, and supporting text should share intentional left/right edges where they belong to the same group.
+   - Repeated cards should share card widths, image tops, caption regions, and consistent gutters.
+   - Forms, lists, tables, controls, and data interfaces should favour predictable starting edges.
+
+4. **Optical alignment matters as much as mathematical alignment.**
+   - Logos, icons, text baselines, and asymmetric shapes may require small visual corrections.
+   - A mathematically centred logo can still look off-centre if its artwork has uneven visual weight.
+   - QA must judge rendered balance, not only CSS coordinates.
+
+### 7.2 Centred presentation mode
+
+Centred alignment is appropriate for short, high-emphasis presentation groups such as:
+
+- Hero eyebrow + H1 + short supporting copy + CTA group.
+- Simple page-title heroes.
+- Short section introductions above a grid or catalogue.
+- Related Guidance / Learn More introductions.
+- Locations/map introductions.
 - Trust/member/verification presentation.
+- Isolated promotional blocks or compact final messages where symmetry supports the composition.
 
-### Left-aligned reading mode
+Rules:
 
-Within content areas, keep actual reading content left aligned:
-
-- Paragraphs and bullet lists.
-- Card body text.
-- Product captions.
-- Enquiry instructions.
-- Legal and policy copy.
-- FAQ questions/answers.
-- Documentation and detailed Resources copy.
-
-Never centre long paragraphs or dense informational text.
-
-### Premium two-column / four-quadrant rule
-
-For sections that visually resemble four imaginary quadrants, do not try to fill every quadrant. Use controlled asymmetry.
+- The whole presentation group must share one centre axis.
+- Centred supporting copy should stay short and use a controlled maximum width.
+- Do not centre long reading paragraphs merely for symmetry.
+- If centred copy grows beyond roughly 2–3 desktop lines, reconsider whether it has become reading content.
+- Centre the group, not random individual lines.
 
 Preferred pattern:
 
-- **Left side:** eyebrow, section heading, body copy, and an optional important note/callout.
-- **Right side:** supporting card, checklist, enquiry requirements, or supporting visual/information.
+```text
+                  EYEBROW
+             Major Section Heading
+          Short supporting explanation
+             [CTA]      [CTA]
+```
 
-The unused lower-right area may remain empty. Empty space is intentional; do not insert filler merely to create symmetry.
+Avoid:
 
-For product Material Overview sections, preserve the balanced two-column split: left-side explanatory content and callout, right-side supporting enquiry/checklist card. The section can feel visually balanced while the reading content itself remains left aligned.
+```text
+                  EYEBROW
+Heading starts here
+          supporting copy starts elsewhere
+                     [CTA]
+```
 
-### Product-page hierarchy
+### 7.3 Left-aligned reading mode
 
-- Hero: centred.
-- Material Overview: balanced two-column split; reading content left aligned.
-- Grades & Search Terms: section introduction centred; individual cards left aligned internally.
-- Current Catalogue: section introduction centred; grid aligned to the container; captions left aligned.
-- Related Guidance: centred.
-- Final CTA: centred or balanced within the existing layout.
-- Trust: centred.
+Left alignment is the default for information people must read, scan, compare, or act on:
 
-Guides and Resources retain their premium hierarchy, but article/operational copy remains left aligned. Privacy, Disclaimer, FAQ, and other long-form content remain left aligned for reading.
+- Paragraphs and long-form copy.
+- Technical/product descriptions.
+- Bullet/check lists.
+- Enquiry requirements.
+- Grade/search-term card content.
+- Catalogue captions.
+- FAQ questions and answers.
+- Legal/policy copy.
+- Documentation instructions.
+- Forms and field labels.
+- Tables, dashboard labels, controls, and market/data interfaces.
+
+Rules:
+
+- Maintain a predictable left starting edge.
+- Keep body measure roughly 65–72 characters per line unless the component requires a narrower measure.
+- Do not centre dense informational copy.
+- Do not right-align primary reading copy in left-to-right layouts.
+
+### 7.4 Justified text: optional and tightly constrained
+
+Justification is **not** the default premium treatment.
+
+It may be tested only for descriptive prose when all of the following are true:
+
+- The text column is sufficiently wide.
+- The paragraph is long enough to benefit from a clean right edge.
+- Word spacing remains visually natural.
+- Automatic hyphenation is available and acceptable.
+- Browser QA shows no distracting rivers or stretched gaps.
+
+When used:
+
+```css
+text-align: justify;
+text-align-last: start;
+-webkit-hyphens: auto;
+hyphens: auto;
+```
+
+Do **not** justify:
+
+- headings;
+- card titles;
+- narrow card descriptions;
+- lists/checklists;
+- labels;
+- form fields;
+- buttons;
+- navigation;
+- catalogue captions;
+- short UI copy;
+- small mobile text columns.
+
+At narrow tablet/mobile widths, prefer left alignment. If justification produces visible word-spacing problems at any breakpoint, revert that component to left alignment.
+
+### 7.5 Grid-first page alignment
+
+Every page should use a predictable responsive grid.
+
+Conceptually:
+
+```text
+| page gutter |           CONTENT GRID            | page gutter |
+              ↑                                   ↑
+              shared left edge          shared right edge
+```
+
+Rules:
+
+- Full-bleed backgrounds may span the viewport.
+- The content inside full-bleed sections still aligns to an intentional container/grid.
+- Do not let each section invent unrelated left/right boundaries.
+- Header, navigation, page content, catalogue grids, and footer should appear to belong to the same overall alignment system even when their internal widths differ.
+- A section may use a narrower reading measure or a wider visual/data grid, but those widths should relate to the shared page grid.
+
+### 7.6 Compound container hierarchy
+
+Use different width roles for different content types rather than forcing one width onto everything.
+
+Preferred hierarchy:
+
+1. **Full-bleed surface:** background colour/image may span 100vw.
+2. **Wide visual/grid container:** catalogues, product imagery, data-heavy layouts, or large card grids may use more horizontal space when explicitly approved.
+3. **Standard structural container:** normal page sections, navigation content, primary two-column layouts.
+4. **Reading measure:** paragraphs and long-form editorial copy remain narrow enough to read comfortably.
+5. **Short intro measure:** centred subtitles/intros stay narrower than the structural container.
+
+A wide catalogue does not justify making its prose equally wide.
+
+### 7.7 Horizontal alignment
+
+Horizontal alignment should create clear shared rows and baselines.
+
+Use it especially for:
+
+- Header utilities.
+- Primary navigation.
+- Card rows.
+- CTA rows.
+- Footer utilities.
+- Form rows.
+- Market/data controls.
+
+Rules:
+
+- Related items in one row should appear to sit on a common visual baseline.
+- Buttons in the same action group should share height and vertical alignment.
+- Cards in the same row should share top edges and consistent gutters.
+- Avoid isolated controls floating at arbitrary horizontal positions inside very wide containers.
+
+### 7.8 Vertical alignment
+
+Vertical alignment is useful when two adjacent elements have comparable visual weight.
+
+Appropriate examples:
+
+- Two-column text + supporting card.
+- Image + text composition.
+- Two short content blocks.
+- Header utility groups.
+- Compact CTA copy + action button.
+
+Rules:
+
+- Use `align-items:center` only when it improves visual balance.
+- Long text blocks should usually top-align rather than float in the middle of an artificially tall container.
+- Do not add empty height merely to claim vertical centring.
+- Equal-height cards are useful within a row when they do not create large blank areas.
+
+### 7.9 Two-column / four-quadrant compositions
+
+For sections that visually resemble four imaginary quadrants, build a balanced two-column system rather than forcing literal four-box symmetry.
+
+Preferred pattern:
+
+- Left column: eyebrow, heading, reading copy, optional note/callout.
+- Right column: supporting card, checklist, visual, specifications, or secondary information.
+- Use balanced column widths and a consistent gutter.
+- Align the columns vertically when their content lengths make that visually useful.
+- Preserve natural content height; do not fill empty quadrants with filler.
+
+For product Material Overview sections:
+
+- Keep the two-column explanatory + enquiry/checklist relationship.
+- The section-level heading treatment may be centred when used as a short presentation introduction.
+- Reading copy inside the columns remains left aligned by default.
+- Checklist/card content remains left aligned.
+
+### 7.10 Cards and catalogue grids
+
+Card alignment is primarily a grid/baseline problem.
+
+Within a card grid:
+
+- Maintain consistent card widths within the same row.
+- Align image tops and image aspect ratios.
+- Keep predictable caption/title zones.
+- Keep internal card text left aligned unless the card is explicitly a centred presentation component.
+- Use consistent column/row gaps.
+- Avoid orphan layouts such as 3 + 1 when the viewport can comfortably support 4 across.
+- Prefer responsive `auto-fit` / `minmax()` or well-chosen breakpoints over rigid desktop column counts.
+- Do not allow the final row to stretch a small number of cards to awkward widths.
+
+### 7.11 Header and navigation alignment
+
+Treat the header as a precision-alignment system.
+
+- Top utility content should align on a shared row/baseline.
+- The VMG logo should be optically centred within its intended area.
+- Track Shipment, Give Feedback, and social controls should not overpower the brand.
+- The primary navigation background may be full-bleed while the navigation links remain inside a controlled centred content grid.
+- The active indicator should align precisely with the active item.
+- Do not create a contained navy bar that visually appears detached from a full-width hero below when the intended design is a full-width navigation band.
+- Mobile navigation should reflow independently rather than mechanically shrinking the desktop header.
+
+### 7.12 Responsive alignment
+
+Alignment must be re-evaluated at each breakpoint; desktop alignment is not automatically preserved on mobile.
+
+#### Large desktop
+
+- Use horizontal space to improve grids, image/catalogue density, and two-column relationships.
+- Keep prose constrained to readable measures.
+- Avoid large unused margins caused by one unnecessarily narrow universal container.
+
+#### Laptop
+
+- Preserve the same grid logic with reduced gutters.
+- Reduce wrapping before reducing type size.
+
+#### Tablet
+
+- Keep two columns only while both remain readable.
+- Stack when column compression harms hierarchy or touch targets.
+- Maintain clear shared edges after stacking.
+
+#### Mobile
+
+- Prefer simple one-column flow for reading content.
+- Centre short presentation heroes/intros only when the centred group remains compact.
+- Left-align body copy, lists, forms, cards, captions, and technical information.
+- Stack or wrap CTA groups cleanly.
+- Avoid justified text when narrow width creates uneven spacing.
+- Never introduce horizontal scrolling.
+
+### 7.13 Spacing reinforces alignment
+
+Alignment and spacing must work together.
+
+Use the site spacing scale consistently so aligned elements also feel related.
+
+Typical relationships:
+
+- Eyebrow → heading: 8–12px.
+- Heading → short intro: 12–16px.
+- Intro → grid/content: 24–32px.
+- Card title → body: 8–12px.
+- Related controls in one group: consistent 8–16px gaps.
+- Major section separation: chosen from the approved Compact/Standard/Hero density system.
+
+Do not use arbitrary one-off spacing values unless required by optical correction.
+
+### 7.14 Alignment QA checklist
+
+Before approving a page, verify:
+
+1. What is the page grid?
+2. What is the primary axis of each visual group?
+3. Do related elements share the same edge or centre?
+4. Are card/image rows aligned to common tops/baselines?
+5. Are two-column gutters consistent?
+6. Is reading copy left aligned and within a readable measure?
+7. Is centred copy short enough to remain easy to scan?
+8. If justification is used, are word gaps/rivers acceptable?
+9. Are vertical centring choices visually useful rather than mechanical?
+10. Are full-bleed backgrounds separated from contained content correctly?
+11. Does the alignment still work at mobile/tablet breakpoints?
+12. Is the rendered result optically balanced, not just mathematically aligned?
+
+### 7.15 Source-informed alignment principles
+
+These VMG rules are informed by the following design references and should be interpreted as a consolidated VMG system rather than copied page layouts:
+
+- Ramotion — Alignment in Web Design: https://www.ramotion.com/blog/alignment-in-web-design/
+- HappyAddons — Principles of Alignment in Web Design: https://happyaddons.com/alignment-in-web-design/
+- Medium / Design Bootcamp — Mastering Web Design Alignment Techniques: https://medium.com/design-bootcamp/mastering-web-design-alignment-techniques-955dc5cd9256
+- GeeksforGeeks — Importance of Alignment in UI Design: https://www.geeksforgeeks.org/websites-apps/importance-of-alignment-in-ui-design/
+- UXPin — Alignment in Design: https://www.uxpin.com/studio/blog/alignment-in-design-making-text-and-visuals-more-appealing/
+
+Where references differ, VMG prioritises readability, consistent shared edges, responsive grids, optical balance, and restrained B2B presentation.
+
 ## 8. Button System
 
 All buttons belong to one visual family, but different button roles must remain distinct.
