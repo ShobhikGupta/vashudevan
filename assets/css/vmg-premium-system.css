@@ -235,9 +235,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   line-height:1.68;
   text-align:center;
 }
+.page > .page-hero:has(.product-search) > .container > p {
+  max-width:900px;
+}
 
 /* Product and guide pages: template alignment is owned by vmg-seo-content.css. */
 .seo-page .container { max-width:var(--vmg-container-max)!important; }
+.material-page .seo-hero .container { max-width:940px!important; }
 .seo-related a { border-radius:999px!important; box-shadow:none!important; }
 
 /* Products index */
@@ -349,8 +353,13 @@ body.vmg-help-open .vmg-floating-actions > .whatsapp-float { opacity:0!important
 @media (max-width:991px) {
   .container,.seo-page .container,.legal-wrap,.resources-view .container,.faq-view .container { width:min(100% - 48px,var(--vmg-container-max)); }
   .seo-hero { padding:72px 0 64px!important; }
+  .material-page .seo-hero { padding:50px 0!important; }
   .seo-hero h1,.resources-view .res-hero h1 { font-size:clamp(2.55rem,6vw,3.25rem)!important; }
   .seo-section { padding:56px 0!important; }
+  .material-page .seo-hero + .seo-section { padding:50px 0!important; }
+  .material-page .seo-section:has(.seo-grade-grid) { padding:46px 0!important; }
+  .material-page .seo-section:has(.seo-catalogue-grid) { padding:48px 0!important; }
+  .material-page .seo-section:has(.seo-related) { padding:38px 0!important; }
   .guide-page .seo-section { padding:38px 0!important; }
   .legal-card { padding:32px!important; }
   .resources-view .res-wrap,.resources-view .res-container,.resources-view .container { width:min(100% - 48px,var(--vmg-container-max))!important; }
@@ -376,11 +385,15 @@ body.vmg-help-open .vmg-floating-actions > .whatsapp-float { opacity:0!important
   .container,.seo-page .container,.legal-wrap,.resources-view .container,.faq-view .container { width:calc(100% - 40px)!important; }
   .resources-view .res-wrap,.resources-view .res-container,.resources-view .container { width:calc(100% - 40px)!important; }
   .seo-hero { padding:58px 0 52px!important; }
+  .material-page .seo-hero { padding:42px 0 40px!important; }
   .seo-hero h1,.resources-view .res-hero h1 { font-size:clamp(2.25rem,10vw,2.625rem)!important; line-height:1.06!important; }
   .seo-hero .seo-lead { font-size:.98rem!important; line-height:1.6!important; }
   .seo-section { padding:46px 0!important; }
   .guide-page .seo-section { padding:32px 0!important; }
-  .material-page .seo-section:has(.seo-related) { padding:32px 0!important; }
+  .material-page .seo-hero + .seo-section { padding:44px 0!important; }
+  .material-page .seo-section:has(.seo-grade-grid) { padding:40px 0!important; }
+  .material-page .seo-section:has(.seo-catalogue-grid) { padding:42px 0!important; }
+  .material-page .seo-section:has(.seo-related) { padding:34px 0!important; }
   .seo-section h2,.resources-view .res-heading { font-size:clamp(1.75rem,8vw,2rem)!important; }
   .seo-grade-grid,.seo-catalogue-grid { gap:14px!important; }
   .seo-actions { gap:10px!important; }

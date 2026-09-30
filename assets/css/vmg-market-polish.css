@@ -32,6 +32,12 @@
   margin-right: auto !important;
 }
 
+.market-page .market-notice {
+  width: min(1020px, 100%) !important;
+  max-width: 1020px !important;
+  margin: 16px auto 0 !important;
+}
+
 .market-page .market-overview-shell,
 .market-page .market-chart-selector,
 .market-page .market-chart-panel,
@@ -50,9 +56,18 @@
 }
 
 .market-page .market-chart-control-row {
-  width: min(640px, 100%) !important;
-  margin: 0 !important;
-  gap: 14px !important;
+  grid-template-columns: max-content minmax(220px, 320px) !important;
+  justify-content: center !important;
+  align-items: end !important;
+  width: 100% !important;
+  max-width: 620px !important;
+  margin: 0 auto !important;
+  gap: 32px !important;
+}
+
+.market-page .market-select-field {
+  width: 320px !important;
+  max-width: 100% !important;
 }
 
 /* Benchmark dropdown */
@@ -219,7 +234,20 @@
 @media (max-width: 640px) {
   .market-page .market-dashboard { width: calc(100% - 28px) !important; }
   .market-page .market-chart-selector { padding: 12px !important; }
-  .market-page .market-chart-control-row { gap: 10px !important; }
+  .market-page .market-chart-control-row {
+    grid-template-columns: 1fr !important;
+    justify-content: stretch !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    gap: 12px !important;
+  }
+  .market-page .market-chart-control-field,
+  .market-page .market-select-field {
+    width: 100% !important;
+    max-width: none !important;
+    justify-self: stretch !important;
+  }
   .market-page .market-cta-card {
     grid-template-columns: 1fr !important;
     justify-items: start !important;
