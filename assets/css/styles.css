@@ -2602,9 +2602,9 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; font-weight: 700; lin
 .impact-row:nth-child(4) .media-photo img {
   animation-delay: 0.4s;
 }
-/* Center and enlarge Why Recycling Metals Matters */
-#our-impact h3 {
-  text-align: center;
+/* Individual impact rows share one left reading spine. */
+#our-impact .impact-row h3 {
+  text-align: left;
   font-size: clamp(20px, 3vw, 26px);
   margin: 18px 0 12px;
 }
@@ -2647,7 +2647,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; font-weight: 700; lin
 }
 
 #our-impact .two-col h4 {
-  text-align: center;
+  text-align: left;
 }
 
 #our-impact .two-col p {
@@ -4061,14 +4061,14 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; font-weight: 700; lin
     width: 100%;
   }
 
-  .page #our-impact h3 {
-    text-align: center;
+  .page #our-impact .impact-row h3 {
+    text-align: left;
     margin: 0 0 16px 0;
     font-size: clamp(20px, 4vw, 24px);
   }
 
-  .page #our-impact h4 {
-    text-align: center;
+  .page #our-impact .impact-row h4 {
+    text-align: left;
     margin: 12px 0 8px 0;
     font-size: clamp(18px, 3vw, 20px);
   }
@@ -4387,12 +4387,12 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; font-weight: 700; lin
     padding: 0 12px;
   }
 
-  .page #our-impact h3 {
+  .page #our-impact .impact-row h3 {
     font-size: clamp(18px, 5vw, 22px);
     margin: 0 0 12px 0;
   }
 
-  .page #our-impact h4 {
+  .page #our-impact .impact-row h4 {
     font-size: clamp(16px, 4vw, 18px);
     margin: 10px 0 6px 0;
   }
@@ -4482,24 +4482,24 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; font-weight: 700; lin
     margin: 20px 0 12px;
     font-size: 1.4rem;
     font-weight: 800;
-    text-align: center !important;
+    text-align: left !important;
   }
 
   .contact-info-left p {
     font-size: 15px;
     line-height: 1.6;
-    text-align: center !important;
+    text-align: left !important;
     margin: 8px 0 12px;
   }
 
   .contact-info-left a {
     font-size: 15px;
-    padding: 4px 8px;
+    padding: 4px 0;
     border-radius: 4px;
-    background: #f8fafc;
+    background: transparent;
     display: inline-block;
     margin: 2px 0;
-    text-align: center !important;
+    text-align: left !important;
   }
 }
 

@@ -17,7 +17,7 @@
 .seo-side-card h2,.seo-side-card h3{font-size:1.35rem;margin-top:0;text-align:left}.seo-checklist{margin:0;padding-left:20px}.seo-checklist li+li{margin-top:8px}
 .seo-grade-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(228px,100%),1fr));gap:14px}.seo-grade-card{border:1px solid var(--seo-line);border-radius:9px;padding:18px;background:#fff;text-align:left}.seo-grade-card h3{margin:0 0 6px;font-size:1.08rem;text-align:left}.seo-grade-card p{margin:0;color:var(--seo-muted);font-size:.94rem;text-align:left}
 .seo-catalogue-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
-.material-page .seo-catalogue-grid{grid-template-columns:repeat(auto-fit,minmax(min(210px,100%),1fr))}.seo-catalogue-card{margin:0;border:1px solid var(--seo-line);border-radius:9px;overflow:hidden;background:#fff}.seo-catalogue-card img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#eef1f4}.seo-catalogue-card figcaption{padding:12px 14px;color:var(--seo-navy);font-size:.86rem;font-weight:700;line-height:1.35;text-align:left}
+.material-page .seo-catalogue-grid{grid-template-columns:repeat(auto-fill,minmax(200px,220px));justify-content:center}.seo-catalogue-card{margin:0;border:1px solid var(--seo-line);border-radius:9px;overflow:hidden;background:#fff}.seo-catalogue-card img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#eef1f4}.seo-catalogue-card figcaption{padding:12px 14px;color:var(--seo-navy);font-size:.86rem;font-weight:700;line-height:1.35;text-align:left}
 .seo-callout{border-left:4px solid var(--seo-copper);background:#f8f4ef;padding:18px 20px;border-radius:0 8px 8px 0}.seo-callout p{margin:0;text-align:left}
 .seo-related{display:flex;flex-wrap:wrap;gap:10px}.seo-related a{display:inline-flex;padding:10px 13px;border:1px solid var(--seo-line);border-radius:999px;background:#fff;text-decoration:none;font-size:.92rem;font-weight:700}
 .seo-source-list{margin:16px 0 0;padding-left:20px;color:var(--seo-muted);max-width:72ch}
@@ -35,16 +35,17 @@
 .material-page .seo-hero .seo-lead{max-width:800px;margin:18px auto 0;text-align:center}
 .material-page .seo-hero .seo-actions{margin-top:24px;justify-content:center}
 .material-page .seo-hero + .seo-section{padding:54px 0}
-.material-page .seo-two-col{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;align-items:stretch}
+.material-page .seo-two-col{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;align-items:start}
 .material-page .seo-two-col>div:first-child{min-width:0}
-.material-page .seo-side-card{display:flex;height:100%;flex-direction:column;justify-content:center}
+.material-page .seo-side-card{height:auto;align-self:start}
 .material-page .seo-section:has(.seo-grade-grid){padding:48px 0}
 .material-page .seo-section:has(.seo-grade-grid) .seo-section-head{margin-bottom:22px}
 .material-page .seo-section:has(.seo-catalogue-grid){padding:52px 0}
 .material-page .seo-section:has(.seo-catalogue-grid) .seo-section-head{margin-bottom:24px}
 .material-page .seo-section:has(.seo-related){padding:40px 0}
-.guide-page .seo-hero h1{max-width:760px}.guide-page .seo-hero .seo-lead{max-width:72ch}
-.guide-page .seo-section{padding:42px 0}.guide-page .seo-section-head{max-width:72ch;margin:0 0 18px;text-align:left}
+.guide-page .seo-hero .container{max-width:860px;margin-inline:auto;text-align:left}
+.guide-page .seo-hero h1{max-width:860px}.guide-page .seo-hero .seo-lead{max-width:72ch}
+.guide-page .seo-section{padding:42px 0}.guide-page .seo-section-head{max-width:72ch;margin:0 auto 18px;text-align:left}
 .guide-page .seo-section-head h2,.guide-page .seo-section-head p,.guide-page .seo-section-head .seo-kicker,.guide-page .seo-section li{text-align:left}
 .guide-page .seo-section:has(.seo-related) .seo-section-head{margin-left:auto;margin-right:auto;text-align:center}
 .guide-page .seo-section:has(.seo-related) .seo-section-head h2,.guide-page .seo-section:has(.seo-related) .seo-section-head .seo-kicker{text-align:center}
