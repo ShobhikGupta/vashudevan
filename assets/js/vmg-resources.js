@@ -57,13 +57,6 @@
     reveals.forEach(function (element) { observer.observe(element); });
   }
 
-  function initTradeDocket() {
-    var docket = document.querySelector('[data-trade-docket]');
-    if (!docket) return;
-    var status = docket.querySelector('[data-docket-status]');
-    docket.setAttribute('data-stage', 'complete');
-    if (status) status.textContent = 'Trade Docket Ready';
-  }
 
   function initFaq() {
     var triggers = Array.prototype.slice.call(document.querySelectorAll('.faq-trigger'));
@@ -95,7 +88,6 @@
     var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     initTabs();
     initReveals(reducedMotion);
-    initTradeDocket();
     initFaq();
   }
 

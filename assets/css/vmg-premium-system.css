@@ -72,7 +72,7 @@ p,li { color:inherit; }
 /* Shared interactive geometry */
 .seo-btn,.res-btn,.hero-btn,.btn-animated,.home-button,.market-cta-button,
 .vmg-track-button,.vmg-footer-subscribe-button,.opening-popup-submit,
-.vmg-feedback-trigger,.docket-print,.card-link {
+.vmg-feedback-trigger,.card-link {
   font-family:'Manrope',system-ui,sans-serif!important;
   font-weight:700!important;
   border-radius:var(--vmg-radius-md)!important;
@@ -257,22 +257,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .products-grid .product.card:hover { transform:translateY(-1px)!important; }
 .product-search .search-container { border-radius:var(--vmg-radius-md)!important; }
 
-/* Resources: vmg-resources.css owns typography/alignment; premium layer keeps shell geometry and docket polish. */
+/* Resources: vmg-resources.css owns typography/alignment; premium layer keeps shared shell geometry. */
 .resources-view .res-wrap,.resources-view .res-container,.resources-view main .container { width:min(100% - 64px,var(--vmg-container-max))!important; max-width:var(--vmg-container-max)!important; margin-inline:auto!important; }
 .resources-view .hub-card { text-align:left!important; border-radius:var(--vmg-radius-lg)!important; }
 .resources-view .doc-card { text-align:left!important; border-radius:0!important; }
 .resources-view .faq-teaser,.resources-view .final-cta { padding-block:44px!important; }
 .resources-view .process-section { padding:64px 0!important; }
-.resources-view .docket-print { display:none!important; }
-.resources-view .docket-status { margin-top:.7rem!important; }
-.resources-view .docket-status-indicator { display:none!important; }
-.resources-view .docket-output { height:auto!important; min-height:0!important; margin-top:-8px!important; overflow:visible!important; }
-.resources-view .docket-paper-shell { opacity:1!important; transform:translateY(0)!important; animation:none!important; will-change:auto!important; transition:opacity var(--vmg-motion-reveal) ease,transform var(--vmg-motion-reveal) var(--vmg-motion-ease)!important; }
-.resources-view .docket-paper { min-height:0!important; border-radius:10px!important; clip-path:none!important; border:1px solid rgba(10,23,40,.12)!important; box-shadow:0 5px 14px rgba(0,0,0,.10)!important; }
-.resources-view .docket-replay { display:none!important; }
-.resources-view .trade-docket[data-stage='processing'] .docket-paper-shell,
-.resources-view .trade-docket[data-stage='printing'] .docket-paper-shell,
-.resources-view .trade-docket[data-stage='complete'] .docket-paper-shell { opacity:1!important; transform:none!important; animation:none!important; }
 
 /* FAQ */
 .faq-page .faq-hero { padding-top:72px!important; padding-bottom:56px!important; text-align:center!important; }
@@ -306,17 +296,36 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .brochure-download { padding-block:48px!important; }
 
 /* Contact */
-.contact-layout { gap:48px!important; align-items:start!important; }
-.contact-info-left { text-align:left!important; }
-.contact-info-left h2,.contact-info-left h3 { text-align:left!important; }
+.contact-info-section { padding:46px 0!important; }
+.contact-section-title { margin:0 0 28px!important; text-align:center!important; }
+.contact-info-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0; }
+.contact-info-column { min-width:0; padding:0 28px; text-align:left; }
+.contact-info-column + .contact-info-column { border-left:1px solid var(--vmg-border); }
+.contact-info-column:first-child { padding-left:0; }
+.contact-info-column:last-child { padding-right:0; }
+.contact-info-column h3 { margin:0 0 10px; text-align:left!important; }
+.contact-info-column h3:not(:first-child) { margin-top:22px; }
+.contact-info-column p,.contact-info-column a { text-align:left!important; }
+.contact-form-section { padding:44px 0!important; background:var(--vmg-warm-50); }
+.contact-form-section .contact-form-container { width:100%; max-width:1180px; margin-inline:auto; padding:28px!important; text-align:left!important; }
+.contact-form-section .contact-form-new { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px 18px; text-align:left!important; }
+.contact-form-section .form-header { grid-column:1 / -1; text-align:center!important; }
+.contact-form-section .form-header h2 { margin:0 0 8px!important; text-align:center!important; }
+.contact-form-section .contact-form-new > .form-row { display:contents; }
+.contact-form-section .contact-form-new > .form-field.full-width,
+.contact-form-section .contact-form-new > .form-checkbox,
+.contact-form-section .contact-form-new > .vmg-honeypot-field,
+.contact-form-section .contact-form-new > .vmg-turnstile-field,
+.contact-form-section .contact-form-new > .submit-btn,
+.contact-form-section .contact-form-new > .form-result { grid-column:1 / -1; }
+.contact-form-section .contact-form-new > .submit-btn { justify-self:start; }
 .contact-form-container,.contact-form-new,.contact-form-new label,.contact-form-new .form-field { text-align:left!important; }
 .find-us > .container > h2,.find-us > .container > p { max-width:680px; margin-left:auto; margin-right:auto; text-align:center!important; }
-.cta-join { text-align:center!important; }
-.contact-form-container { padding:28px!important; }
-.contact-form-new .form-row { gap:16px!important; }
+.find-us .overlay-ctas { justify-content:center!important; }
+.cta-join { padding-block:36px!important; text-align:center!important; }
+.cta-join .lead { max-width:760px!important; margin-left:auto!important; margin-right:auto!important; }
 .map-wrap { border:1px solid var(--vmg-border)!important; border-radius:12px!important; overflow:hidden!important; box-shadow:none!important; }
 .overlay-ctas .btn-animated.secondary { min-height:46px!important; min-width:170px!important; border-radius:var(--vmg-radius-md)!important; background:#fff!important; color:var(--vmg-navy-900)!important; border:1px solid var(--vmg-border-strong)!important; }
-.cta-join { padding-block:56px!important; }
 
 /* Popup */
 html body .opening-popup-card.vmg-premium-card { border-radius:var(--vmg-radius-lg)!important; border:1px solid var(--vmg-border)!important; box-shadow:0 10px 28px rgba(10,23,40,.14)!important; font-family:'Manrope',system-ui,sans-serif!important; }
@@ -372,7 +381,9 @@ body.vmg-help-open .vmg-floating-actions > .whatsapp-float { opacity:0!important
   .legal-card { padding:32px!important; }
   .resources-view .res-wrap,.resources-view .res-container,.resources-view main .container { width:min(100% - 48px,var(--vmg-container-max))!important; }
   .material-page .seo-section:has(.seo-catalogue-grid) .container { width:min(100% - 48px,var(--vmg-wide-max))!important; }
-  .contact-layout { gap:32px!important; }
+  .contact-info-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px 0; }
+  .contact-info-column:nth-child(3) { grid-column:1 / -1; border-left:0; border-top:1px solid var(--vmg-border); padding:20px 0 0; }
+  .contact-form-section .contact-form-new { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .vmg-mobile-tracker-item .vmg-track-form {
     width:100%!important;
     min-width:0!important;
@@ -415,10 +426,15 @@ body.vmg-help-open .vmg-floating-actions > .whatsapp-float { opacity:0!important
   .legal-section h2 { font-size:1.35rem!important; }
   .resources-view .res-hero { padding-top:56px!important; padding-bottom:48px!important; }
   .resources-view .process-section { padding:48px 0!important; }
-  .resources-view .trade-docket { width:min(100%,340px)!important; }
-  .contact-form-container { padding:20px!important; }
-  .contact-layout { gap:28px!important; }
-  .cta-join { padding-block:44px!important; }
+  .contact-info-section { padding:36px 0!important; }
+  .contact-info-grid { grid-template-columns:1fr; gap:0; }
+  .contact-info-column,.contact-info-column:first-child,.contact-info-column:last-child { grid-column:auto; padding:18px 0; border-left:0; border-top:1px solid var(--vmg-border); }
+  .contact-info-column:first-child { padding-top:0; border-top:0; }
+  .contact-info-column:nth-child(3) { padding-top:18px; }
+  .contact-form-section { padding:34px 0!important; }
+  .contact-form-section .contact-form-container { padding:20px!important; }
+  .contact-form-section .contact-form-new { grid-template-columns:1fr; }
+  .cta-join { padding-block:30px!important; }
   .vmg-track-status-rail {
     left:20px!important;
     width:calc(100% - 40px)!important;

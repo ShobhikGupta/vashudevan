@@ -33,7 +33,6 @@ body { overflow-x: visible; }
 .res-btn.secondary:hover { border-color: #95a2b1; }
 .res-btn:focus-visible,
 .hub-tab:focus-visible,
-.docket-replay:focus-visible,
 .faq-trigger:focus-visible,
 .faq-category-nav a:focus-visible { outline: 3px solid rgba(184, 121, 67, .32); outline-offset: 3px; }
 
@@ -76,7 +75,11 @@ body { overflow-x: visible; }
 .hub-panel.active { display: block; }
 .hub-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; align-items: stretch; }
 .hub-grid.partner-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.hub-card { display: flex; flex-direction: column; min-width: 0; height: 100%; min-height: 212px; padding: 1.3rem; border: 1px solid var(--vmg-line); border-radius: 7px; background: #fff; box-shadow: none; transition: border-color .18s ease, background-color .18s ease; }
+.hub-card { display: flex; position: relative; flex-direction: column; min-width: 0; height: 100%; min-height: 212px; padding: 1.3rem; border: 1px solid var(--vmg-line); border-radius: 7px; background: #fff; box-shadow: none; transition: border-color .18s ease, background-color .18s ease; }
+.hub-card:has(> .card-link) { cursor: pointer; }
+.hub-card > .card-link { position: static; }
+.hub-card > .card-link::before { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+.hub-card:has(> .card-link):focus-within { outline: 3px solid rgba(184, 121, 67, .32); outline-offset: 3px; }
 .hub-card:hover { border-color: rgba(184, 121, 67, .58); background: #fffdfa; transform: none; box-shadow: none; }
 .hub-card-kicker { margin-bottom: .65rem; color: var(--vmg-copper-dark); font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
 .hub-card h3 { margin: 0; color: var(--vmg-navy); font-size: 1.13rem; line-height: 1.3; letter-spacing: -.02em; }
@@ -101,64 +104,6 @@ body { overflow-x: visible; }
 .doc-card p { margin: .65rem 0 0; color: var(--vmg-muted); font-size: .92rem; line-height: 1.6; }
 .docs-note { max-width: 780px; margin: 1rem auto 0; color: #667386; font-size: .82rem; line-height: 1.55; text-align: center; }
 .docs-action { display: flex; justify-content: center; margin-top: 1.2rem; }
-
-/* VMG Trade Docket */
-.process-section { padding: clamp(3.7rem, 5.2vw, 4.4rem) 0 clamp(3.8rem, 6vw, 5rem); background: var(--vmg-navy); color: #fff; }
-.process-section .section-head { margin-bottom: 2.15rem; }
-.process-section .res-eyebrow { color: #d3a378; }
-.process-section .res-heading { color: #fff; }
-.process-section .res-copy { color: rgba(255, 255, 255, .72); }
-.trade-docket { position: relative; display: flex; flex-direction: column; align-items: center; width: min(100%, 390px); margin-inline: auto; }
-.docket-machine { position: relative; z-index: 4; width: min(100%, 370px); padding: 1rem 1rem 1.45rem; border: 1px solid #26384e; border-radius: 15px; background: linear-gradient(145deg, #14263b 0%, #091728 62%, #071321 100%); box-shadow: 0 18px 34px rgba(0, 0, 0, .25), inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 -1px 0 rgba(0, 0, 0, .55); }
-.docket-machine::before { content: ""; position: absolute; inset: 5px; pointer-events: none; border: 1px solid rgba(255, 255, 255, .035); border-radius: 11px; }
-.docket-machine-label { display: flex; justify-content: space-between; gap: 1rem; margin: 0 .15rem .72rem; color: rgba(255, 255, 255, .48); font-size: .61rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
-.docket-machine-label strong { color: #d7a77e; font-weight: 800; }
-.docket-screen { position: relative; z-index: 2; min-height: 126px; padding: 1.05rem 1.1rem; border: 1px solid rgba(207, 220, 232, .15); border-radius: 8px; background: #06111d; box-shadow: inset 0 0 18px rgba(0, 0, 0, .56), 0 1px 0 rgba(255, 255, 255, .05); }
-.docket-screen-eyebrow { margin: 0 0 .35rem; color: #c99366; font-size: .62rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
-.docket-screen h3 { margin: 0; color: #f5f7fa; font-size: 1.05rem; line-height: 1.28; letter-spacing: -.012em; }
-.docket-status { display: flex; align-items: center; gap: .65rem; margin-top: 1.15rem; min-width: 0; color: #b8c3cf; font-size: .77rem; font-weight: 680; }
-.docket-status-indicator { position: relative; display: grid; flex: 0 0 17px; width: 17px; height: 17px; place-items: center; }
-.docket-status-indicator::before,
-.docket-status-indicator::after { content: ""; position: absolute; inset: 1px; border-radius: 50%; }
-.trade-docket[data-stage="processing"] .docket-status-indicator::before { border: 2px solid rgba(255, 255, 255, .18); border-top-color: #d3a378; animation: docket-spin .78s linear infinite; }
-.trade-docket[data-stage="printing"] .docket-status-indicator::before { inset: 4px; background: #d3a378; box-shadow: 0 0 0 0 rgba(211, 163, 120, .35); animation: docket-pulse .78s ease-out infinite; }
-.trade-docket[data-stage="complete"] .docket-status-indicator::before { border: 1px solid #87bea0; }
-.trade-docket[data-stage="complete"] .docket-status-indicator::after { inset: 4px 3px 5px 4px; border-right: 2px solid #9ed1b4; border-bottom: 2px solid #9ed1b4; border-radius: 0; transform: rotate(42deg); }
-.docket-slot { position: absolute; right: 1.45rem; bottom: .7rem; left: 1.45rem; z-index: 6; height: 9px; border: 1px solid #020812; border-radius: 3px; background: #020812; box-shadow: inset 0 2px 4px rgba(0, 0, 0, .9), 0 1px 0 rgba(255, 255, 255, .08), 0 5px 9px rgba(0, 0, 0, .42); }
-.docket-output { position: relative; z-index: 2; width: min(84%, 310px); height: 492px; margin-top: -13px; overflow: hidden; }
-.docket-output::before { content: ""; position: absolute; top: 1px; right: 5px; left: 5px; z-index: 5; height: 11px; pointer-events: none; background: linear-gradient(to bottom, rgba(0, 0, 0, .38), transparent); filter: blur(2px); }
-.docket-paper-shell { position: relative; width: 100%; padding: 0 5px 15px; opacity: 0; transform: translateY(calc(-100% + 2px)); will-change: auto; }
-.docket-paper-shell::after { content: ""; position: absolute; right: 9%; bottom: 7px; left: 9%; z-index: -1; height: 12px; border-radius: 50%; background: rgba(0, 0, 0, .18); filter: blur(9px); }
-.trade-docket[data-stage="printing"] .docket-paper-shell { opacity: 1; animation: vmg-docket-feed 2.15s linear both; will-change: transform; }
-.trade-docket[data-stage="complete"] .docket-paper-shell { opacity: 1; transform: translateY(0); }
-.docket-paper { position: relative; min-height: 458px; padding: 1.45rem 1.3rem 1.75rem; color: #101d2d; background-color: var(--vmg-paper); background-image: linear-gradient(rgba(8, 26, 45, .018) 1px, transparent 1px); background-size: 100% 5px; box-shadow: 0 8px 18px rgba(0, 0, 0, .16); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 4px), 97.5% 100%, 95% calc(100% - 4px), 92.5% 100%, 90% calc(100% - 4px), 87.5% 100%, 85% calc(100% - 4px), 82.5% 100%, 80% calc(100% - 4px), 77.5% 100%, 75% calc(100% - 4px), 72.5% 100%, 70% calc(100% - 4px), 67.5% 100%, 65% calc(100% - 4px), 62.5% 100%, 60% calc(100% - 4px), 57.5% 100%, 55% calc(100% - 4px), 52.5% 100%, 50% calc(100% - 4px), 47.5% 100%, 45% calc(100% - 4px), 42.5% 100%, 40% calc(100% - 4px), 37.5% 100%, 35% calc(100% - 4px), 32.5% 100%, 30% calc(100% - 4px), 27.5% 100%, 25% calc(100% - 4px), 22.5% 100%, 20% calc(100% - 4px), 17.5% 100%, 15% calc(100% - 4px), 12.5% 100%, 10% calc(100% - 4px), 7.5% 100%, 5% calc(100% - 4px), 2.5% 100%, 0 calc(100% - 4px)); font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
-.docket-paper-brand { margin: 0; font-size: .65rem; font-weight: 800; letter-spacing: .055em; text-align: center; }
-.docket-paper h3 { margin: .35rem 0 .25rem; color: var(--vmg-navy); font-family: inherit; font-size: 1.07rem; letter-spacing: .05em; text-align: center; }
-.docket-paper-subtitle { margin: 0; color: #4f5c6b; font-size: .59rem; font-weight: 700; letter-spacing: .055em; line-height: 1.45; text-align: center; }
-.docket-rule { height: 1px; margin: .9rem 0 .75rem; background: repeating-linear-gradient(to right, var(--vmg-copper), var(--vmg-copper) 8px, transparent 8px, transparent 12px); opacity: .75; }
-.docket-steps { display: grid; gap: .48rem; margin: 0; padding: 0; list-style: none; }
-.docket-steps li { display: grid; grid-template-columns: 1.7rem minmax(0, 1fr); gap: .5rem; align-items: start; color: #101d2d; font-size: .65rem; font-weight: 760; line-height: 1.28; letter-spacing: .025em; }
-.docket-steps .docket-step-number { color: var(--vmg-copper-dark); font-weight: 900; }
-.docket-paper-footer { margin: 0; font-size: .62rem; font-weight: 900; letter-spacing: .075em; text-align: center; }
-.docket-caption { max-width: 360px; margin: -.2rem auto 0; color: rgba(255, 255, 255, .49); font-size: .72rem; line-height: 1.5; text-align: center; }
-.docket-replay { appearance: none; display: inline-flex; align-items: center; min-height: 40px; margin-top: .65rem; padding: .35rem .25rem; border: 0; border-bottom: 1px solid rgba(211, 163, 120, .5); background: transparent; color: #d7a77e; font: inherit; font-size: .76rem; font-weight: 760; letter-spacing: .035em; cursor: pointer; opacity: 0; visibility: hidden; transition: color .18s ease, border-color .18s ease, opacity .18s ease; }
-.trade-docket[data-stage="complete"] .docket-replay { opacity: 1; visibility: visible; }
-.docket-replay:hover { border-color: #efd0b4; color: #efd0b4; }
-@keyframes docket-spin { to { transform: rotate(360deg); } }
-@keyframes docket-pulse { 70% { box-shadow: 0 0 0 6px rgba(211, 163, 120, 0); } }
-@keyframes vmg-docket-feed {
-  0% { transform: translateY(calc(-100% + 2px)); }
-  7.5%, 10.5% { transform: translateY(-91%); }
-  18%, 21% { transform: translateY(-81%); }
-  28.5%, 31.5% { transform: translateY(-70%); }
-  39%, 42% { transform: translateY(-58%); }
-  49.5%, 52.5% { transform: translateY(-45%); }
-  60%, 63% { transform: translateY(-32%); }
-  70.5%, 73.5% { transform: translateY(-20%); }
-  81%, 84% { transform: translateY(-10%); }
-  91.5%, 94.5% { transform: translateY(-3%); }
-  100% { transform: translateY(0); }
-}
 
 /* Compact utility bands */
 .market-strip { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1.75rem; padding: 1.55rem 1.8rem; border-radius: 7px; background: var(--vmg-navy); color: #fff; }
@@ -274,7 +219,6 @@ body { overflow-x: visible; }
   .doc-card:nth-child(3) { border-left: 0; border-top: 1px solid var(--vmg-line); }
   .doc-card:first-child { border-top: 0; }
   .doc-number { margin-bottom: .85rem; }
-  .docket-output { height: 492px; }
   .faq-category-nav { justify-content: flex-start; }
   .faq-bottom-cta { align-items: stretch; }
   .faq-bottom-cta .res-btn { width: 100%; }
@@ -285,15 +229,6 @@ body { overflow-x: visible; }
 
 @media (max-width: 430px) {
   .hub-tab { padding-inline: .45rem; font-size: .72rem; letter-spacing: .055em; }
-  .trade-docket { width: min(88vw, 340px); }
-  .docket-machine { padding: .85rem .85rem 1.3rem; }
-  .docket-slot { right: 1.2rem; left: 1.2rem; }
-  .docket-output { width: 85%; height: 478px; }
-  .docket-paper { min-height: 446px; padding: 1.25rem 1rem 1.55rem; }
-  .docket-steps { gap: .44rem; }
-  .docket-steps li { font-size: .61rem; }
-  .docket-paper-brand { font-size: .59rem; }
-  .docket-paper h3 { font-size: .96rem; }
   .faq-hero { padding: 3.2rem 0; }
   .faq-trigger { padding-block: 1rem; font-size: .96rem; }
   .faq-answer { padding-right: .2rem; }
@@ -304,8 +239,6 @@ body { overflow-x: visible; }
   .resources-footer .footer-resource-wrap,
   .faq-content { width: calc(100% - 22px); }
   .hub-panel { padding: .75rem; }
-  .docket-paper { padding-inline: .82rem; }
-  .docket-steps li { grid-template-columns: 1.45rem minmax(0, 1fr); gap: .35rem; font-size: .58rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -316,11 +249,8 @@ body { overflow-x: visible; }
   .res-btn,
   .hub-tab,
   .hub-tab::after,
-  .docket-replay,
   .faq-answer-panel,
   .faq-trigger-icon::after { transition: none; }
-  .trade-docket .docket-status-indicator::before { animation: none !important; }
-  .trade-docket .docket-paper-shell { opacity: 1 !important; transform: none !important; animation: none !important; will-change: auto; }
 }
 
 /* Resources-only refinement pass */
@@ -345,52 +275,15 @@ body { overflow-x: visible; }
 .resources-view .final-cta { padding: 1.4rem 1.55rem; }
 
 .resources-view .process-section { padding: clamp(3rem, 4vw, 3.5rem) 0; }
-.process-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(300px, .75fr); gap: clamp(2.35rem, 5vw, 4.25rem); align-items: center; }
-.process-overview { min-width: 0; }
-.process-overview .res-heading { max-width: 610px; margin-left: 0; font-size: clamp(2rem, 3vw, 2.75rem); text-align: left; }
-.process-overview .res-copy { max-width: 610px; margin-left: 0; text-align: left; }
-.process-list { display: grid; margin: 1.4rem 0 0; padding: 0; border-top: 1px solid rgba(255, 255, 255, .15); list-style: none; }
+.process-layout { display: block; }
+.process-overview { width: min(100%, 960px); margin-inline: auto; min-width: 0; }
+.process-overview .res-eyebrow { display: flex; justify-content: center; width: max-content; margin-inline: auto; }
+.process-overview .res-heading { max-width: 760px; margin-inline: auto; font-size: clamp(2rem, 3vw, 2.75rem); text-align: center; }
+.process-overview .res-copy { max-width: 720px; margin-inline: auto; text-align: center; }
+.process-list { display: grid; width: min(100%, 940px); margin: 1.55rem auto 0; padding: 0; border-top: 1px solid rgba(255, 255, 255, .15); list-style: none; }
 .process-list li { display: grid; grid-template-columns: 2.15rem minmax(0, 1fr); gap: .75rem; align-items: center; min-height: 49px; padding: .5rem .15rem; border-bottom: 1px solid rgba(255, 255, 255, .12); }
 .process-list li span { color: #d3a378; font-size: .7rem; font-weight: 850; letter-spacing: .1em; }
 .process-list li strong { color: #f4f7fa; font-size: .94rem; font-weight: 690; line-height: 1.38; }
-.process-printer { min-width: 0; }
-.resources-view .trade-docket { --docket-slot-bottom: .68rem; --docket-slot-height: 8px; isolation: isolate; width: min(100%, 328px); margin-inline: auto; }
-.resources-view .docket-machine { z-index: auto; width: min(100%, 328px); padding: .72rem .78rem 1.35rem; border-radius: 20px; box-shadow: 0 15px 28px rgba(0, 0, 0, .27), inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 -1px 0 rgba(0, 0, 0, .62); }
-.resources-view .docket-machine::before { border-radius: 15px; }
-.resources-view .docket-machine-header { position: relative; z-index: 32; display: flex; align-items: center; justify-content: space-between; gap: .55rem; min-width: 0; margin: 0 .05rem .62rem; }
-.resources-view .docket-machine-header > strong { min-width: 0; color: #d7a77e; font-size: .57rem; font-weight: 850; letter-spacing: .105em; line-height: 1.25; text-transform: uppercase; }
-.resources-view .docket-screen { z-index: 31; min-height: 94px; padding: .72rem .82rem; }
-.resources-view .docket-screen h3 { font-size: .98rem; }
-.resources-view .docket-status { margin-top: .62rem; }
-.resources-view .trade-docket[data-stage="idle"] .docket-status-indicator::before { inset: 5px; background: #d3a378; }
-.resources-view .docket-print { appearance: none; position: relative; display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: .32rem; width: auto; min-height: 34px; margin: 0; padding: .38rem .58rem; border: 1px solid rgba(211, 163, 120, .42); border-radius: 7px; background: rgba(255, 255, 255, .075); color: #f6e5d5; font: inherit; font-size: .64rem; font-weight: 800; line-height: 1; letter-spacing: .02em; white-space: nowrap; cursor: pointer; transition: background-color .16s ease, border-color .16s ease, transform .1s ease; }
-.resources-view .docket-print svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.65; stroke-linecap: round; stroke-linejoin: round; }
-.resources-view .docket-replay-icon { display: none; }
-.resources-view .trade-docket[data-stage="complete"] .docket-print-icon { display: none; }
-.resources-view .trade-docket[data-stage="complete"] .docket-replay-icon { display: block; }
-.resources-view .docket-print:hover { border-color: rgba(239, 208, 180, .7); background: rgba(255, 255, 255, .12); }
-.resources-view .docket-print:active { transform: scale(.975); }
-.resources-view .docket-print:focus-visible { outline: 3px solid rgba(211, 163, 120, .35); outline-offset: 3px; }
-.resources-view .docket-slot { right: 1.4rem; bottom: var(--docket-slot-bottom); left: 1.4rem; z-index: 50; height: var(--docket-slot-height); box-shadow: inset 0 1px 2px rgba(0, 0, 0, .9), 0 3px 5px rgba(0, 0, 0, .35), 0 1px 0 rgba(255, 255, 255, .08); }
-.resources-view .docket-slot::after { content: ""; position: absolute; top: 100%; right: 4px; left: 4px; height: 5px; pointer-events: none; background: linear-gradient(to bottom, rgba(0, 0, 0, .34), transparent); }
-.resources-view .docket-output { z-index: 35; width: min(80%, 260px); height: 310px; margin-top: calc(0px - var(--docket-slot-bottom) - var(--docket-slot-height)); }
-.resources-view .docket-output::before { z-index: 25; }
-.resources-view .trade-docket[data-stage="idle"] .docket-output,
-.resources-view .trade-docket[data-stage="processing"] .docket-output { height: 0; }
-.resources-view .docket-paper-shell { z-index: 20; }
-.resources-view .trade-docket[data-stage="printing"] .docket-paper-shell { animation-duration: 2s; }
-.resources-view .docket-paper { min-height: 294px; padding: .92rem .9rem 1.05rem; }
-.resources-view .docket-paper-brand { font-size: .59rem; }
-.resources-view .docket-paper h3 { font-size: .96rem; }
-.resources-view .docket-paper-subtitle { font-size: .54rem; }
-.resources-view .docket-rule { margin: .55rem 0 .5rem; }
-.resources-view .docket-steps { gap: .3rem; }
-.resources-view .docket-steps li { grid-template-columns: 1.45rem minmax(0, 1fr); gap: .34rem; font-size: .56rem; line-height: 1.25; }
-.resources-view .docket-paper-footer { font-size: .56rem; }
-.resources-view .docket-caption { margin-top: .35rem; white-space: nowrap; }
-.resources-view .trade-docket[data-stage="idle"] .docket-caption,
-.resources-view .trade-docket[data-stage="processing"] .docket-caption { margin-top: .7rem; }
-
 .resources-view .resources-footer .footer-trust { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 1rem; padding: 1rem; border: 1px solid #dbe1e7; background: #f5f7f8; }
 .resources-view .resources-footer .footer-trust-block { min-width: 0; }
 .resources-view .resources-footer .footer-trust-block > strong { margin-bottom: .55rem; color: var(--vmg-navy); text-align: center; }
@@ -416,17 +309,11 @@ body { overflow-x: visible; }
 }
 
 @media (max-width: 1024px) {
-  .process-layout { grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr); gap: 2.15rem; }
   .resources-view .resources-footer .footer-trust { grid-template-columns: 1fr; }
   .resources-view .resources-footer .footer-trust-block:first-child .footer-trust-list { max-width: 620px; margin-inline: auto; }
 }
 
-@media (max-width: 850px) {
-  .process-layout { grid-template-columns: 1fr; gap: 2rem; }
-  .process-overview .res-heading,
-  .process-overview .res-copy { max-width: 680px; }
-  .process-printer { width: 100%; }
-}
+
 
 @media (max-width: 700px) {
   .resources-view .res-hero { padding: 48px 0 44px; }
@@ -443,19 +330,6 @@ body { overflow-x: visible; }
   .resources-view .resources-footer .footer-trust-block:last-child .footer-trust-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-@media (max-width: 430px) {
-  .resources-view .trade-docket { width: min(90vw, 320px); }
-  .resources-view .docket-machine { padding: .7rem .7rem 1.3rem; }
-  .resources-view .docket-machine-header > strong { max-width: 78px; font-size: .53rem; }
-  .resources-view .docket-print { min-height: 34px; padding-inline: .5rem; font-size: .61rem; }
-  .resources-view .docket-output { width: 80%; height: 304px; }
-  .resources-view .docket-paper { min-height: 288px; padding: .88rem .78rem 1rem; }
-  .resources-view .docket-steps li { grid-template-columns: 1.4rem minmax(0, 1fr); gap: .3rem; font-size: .54rem; }
-  .resources-view .docket-caption { white-space: normal; }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .resources-view .docket-print { transition: none; }
-  .resources-view .docket-print:active { transform: none; }
-  .resources-view .trade-docket[data-stage="idle"] .docket-paper-shell { opacity: 0 !important; transform: translateY(calc(-100% + 2px)) !important; }
-}
+
+
