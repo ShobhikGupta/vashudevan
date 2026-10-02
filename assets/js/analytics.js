@@ -4,22 +4,20 @@
   var PUBLIC_PATHS = [
     '/',
     '/index.html',
-    '/who-we-are.html',
-    '/our-impact.html',
-    '/products.html',
+    '/about/who-we-are/',
+    '/about/our-impact/',
+    '/products/',
     '/product.html',
-    '/resources.html',
-    '/faq.html',
-    '/contact.html',
-    '/privacy-policy.html',
-    '/disclaimer.html',
-    '/market-prices',
-    '/market-prices/',
-    '/market-prices/index.html'
+    '/resources/',
+    '/faq/',
+    '/contact-us/',
+    '/privacy-policy/',
+    '/disclaimer/',
+    '/market/'
   ];
 
   var PAGE_PATH = window.location.pathname || '/';
-  if (PUBLIC_PATHS.indexOf(PAGE_PATH) === -1) return;
+  if (PUBLIC_PATHS.indexOf(PAGE_PATH) === -1 && PAGE_PATH.indexOf('/products/') !== 0 && PAGE_PATH.indexOf('/resources/guides/') !== 0) return;
 
   var PAGE_TITLE = document.title || '';
   var debugEnabled =
@@ -221,7 +219,7 @@
     if (form.matches('[data-vmg-track-form]')) return 'track_shipment';
     if (form.closest('#vmg-feedback-drawer, .vmg-feedback-drawer') || /feedback/i.test((form.id || '') + ' ' + (form.className || ''))) return 'feedback';
     if (/newsletter|subscribe|trade-update/i.test((form.id || '') + ' ' + (form.className || '') + ' ' + (form.getAttribute('name') || ''))) return 'newsletter';
-    if (form.id === 'contact-form' || PAGE_PATH === '/contact.html') return 'contact';
+    if (form.id === 'contact-form' || PAGE_PATH === '/contact-us/') return 'contact';
     return 'general';
   }
 
@@ -343,7 +341,7 @@
       });
     });
 
-    scope.querySelectorAll('.home-product-tile a, .products-grid a, .card.product a, .product-card a, a[href*="product.html?slug="]').forEach(function (link) {
+    scope.querySelectorAll('.home-product-tile a, .products-grid a, .card.product a, .product-card a').forEach(function (link) {
       var category = productCategoryFrom(link);
       if (!category) return;
       markEvent(link, 'product_category_click', {
@@ -357,15 +355,15 @@
       markEvent(link, 'view_more_products_click', { section: 'Products Preview' });
     });
 
-    scope.querySelectorAll('.market-ticker-link, a[href="/market-prices"], a[href="/market-prices/"]').forEach(function (link) {
+    scope.querySelectorAll('.market-ticker-link, a[href="/market/"], a[href="/market/"]').forEach(function (link) {
       if (link.closest('.site-nav')) return;
       markEvent(link, link.closest('.market-ticker-strip') ? 'market_reference_click' : 'market_reference_click', {
         section: nearestSectionName(link) || 'Market Teaser'
       });
     });
 
-    scope.querySelectorAll('a[href="/resources.html"], a[href="resources.html"], a[href^="/resources.html#"], a[href^="resources.html#"]').forEach(function (link) {
-      if (link.closest('.site-nav') || PAGE_PATH === '/resources.html') return;
+    scope.querySelectorAll('a[href="/resources/"], a[href="/resources/"], a[href^="/resources/#"], a[href^="/resources/#"]').forEach(function (link) {
+      if (link.closest('.site-nav') || PAGE_PATH === '/resources/') return;
       markEvent(link, 'resources_cta_click', { section: nearestSectionName(link) || 'Resources Teaser' });
     });
 
@@ -418,7 +416,7 @@
       markEvent(link, 'footer_link_click', { section: 'Footer' });
     });
 
-    scope.querySelectorAll('a[href*="contact.html"], a[href="/contact.html"]').forEach(function (link) {
+    scope.querySelectorAll('a[href*="/contact-us/"], a[href="/contact-us/"]').forEach(function (link) {
       if (link.closest('.site-nav, footer.site-footer, footer.vmg-global-footer')) return;
       if (!link.hasAttribute('data-ga-event')) {
         markEvent(link, 'contact_cta_click', { section: nearestSectionName(link) || 'Contact' });
@@ -442,7 +440,7 @@
       setAttr(form, 'data-ga-form-type', 'newsletter');
     });
 
-    if (PAGE_PATH.indexOf('/market-prices') === 0) {
+    if (PAGE_PATH.indexOf('/market/') === 0) {
       scope.querySelectorAll('[data-market-overview-group], [data-chart-group]').forEach(function (control) {
         var value = control.getAttribute('data-market-overview-group') || control.getAttribute('data-chart-group') || elementText(control);
         markEvent(control, 'market_category_toggle', {
@@ -514,7 +512,7 @@
       file_name: 'Vashudevan-MetGlobal-Company-Profile.pdf'
     });
 
-    if (PAGE_PATH.indexOf('/market-prices') === 0 && isDownload) {
+    if (PAGE_PATH.indexOf('/market/') === 0 && isDownload) {
       emitClickEvent(clickEvent, 'market_profile_download', {
         cta_location: ctaLocation(link),
         file_name: 'Vashudevan-MetGlobal-Company-Profile.pdf'
@@ -550,7 +548,7 @@
       });
     }
 
-    if ((href.indexOf('contact.html') !== -1 || href === '/contact.html') && !el.closest('.site-nav, footer.site-footer, footer.vmg-global-footer')) {
+    if ((href.indexOf('/contact-us/') !== -1 || href === '/contact-us/') && !el.closest('.site-nav, footer.site-footer, footer.vmg-global-footer')) {
       emitClickEvent(clickEvent, 'contact_cta_click', {
         link_text: elementText(el),
         link_url: safeLinkUrl(el),
@@ -558,7 +556,7 @@
       });
     }
 
-    if (PAGE_PATH.indexOf('/market-prices') === 0 && el.closest('.market-cta-button')) {
+    if (PAGE_PATH.indexOf('/market/') === 0 && el.closest('.market-cta-button')) {
       emitClickEvent(clickEvent, 'market_contact_click', {
         link_text: elementText(el),
         cta_location: 'final_cta'
@@ -751,7 +749,7 @@
   }
 
   function initMarketPageView() {
-    if (PAGE_PATH.indexOf('/market-prices') !== 0) return;
+    if (PAGE_PATH.indexOf('/market/') !== 0) return;
     window.vmgTrackEvent('market_page_view', {
       section_name: 'Market'
     });

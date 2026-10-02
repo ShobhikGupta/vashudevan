@@ -15,7 +15,7 @@
     ['WhatsApp','https://wa.me/919879208178','<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2C6.56 2 2.1 6.42 2.1 11.86c0 1.74.46 3.43 1.34 4.92L2 22l5.39-1.41a9.98 9.98 0 0 0 4.65 1.18h.01c5.48 0 9.94-4.42 9.94-9.86C22 6.42 17.53 2 12.04 2Zm0 17.98h-.01a8.18 8.18 0 0 1-4.17-1.14l-.3-.18-3.2.84.86-3.1-.2-.32a8.05 8.05 0 0 1-1.26-4.22c0-4.46 3.71-8.08 8.28-8.08 4.57 0 8.29 3.62 8.29 8.08 0 4.46-3.72 8.12-8.29 8.12Z"/></svg>'],
     ['Facebook','https://www.facebook.com/profile.php?id=61577681908111','<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.5 22v-9h3l.45-3.5H13.5V7.25c0-1.01.28-1.7 1.73-1.7H17V2.42c-.31-.04-1.37-.13-2.61-.13-2.58 0-4.35 1.58-4.35 4.48V9.5H7.12V13h2.92v9h3.46Z"/></svg>'],
     ['LinkedIn','https://www.linkedin.com/company/109161337/','<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5.4 7.9H2.2V22h3.2V7.9ZM3.8 2A1.9 1.9 0 1 0 3.8 5.8 1.9 1.9 0 0 0 3.8 2ZM22 13.9c0-4.25-2.27-6.23-5.3-6.23-2.45 0-3.54 1.34-4.15 2.28V7.9H9.36V22h3.19v-6.98c0-1.84.35-3.62 2.63-3.62 2.25 0 2.28 2.1 2.28 3.74V22H22v-8.1Z"/></svg>'],
-    ['Instagram','https://www.instagram.com/vashudevan_metglobal_llp?igsh=NWJrZjQ3MTNqdTU4&utm_source=qr','<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7.8 2h8.4A5.8 5.8 0 0 1 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8A5.8 5.8 0 0 1 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2Zm0 2A3.8 3.8 0 0 0 4 7.8v8.4A3.8 3.8 0 0 0 7.8 20h8.4a3.8 3.8 0 0 0 3.8-3.8V7.8A3.8 3.8 0 0 0 16.2 4H7.8Zm8.7 1.5a1.35 1.35 0 1 1 0 2.7 1.35 1.35 0 0 1 0-2.7ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg>']
+    ['Instagram','https://www.instagram.com/vashudevan_metglobal_llp/','<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7.8 2h8.4A5.8 5.8 0 0 1 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8A5.8 5.8 0 0 1 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2Zm0 2A3.8 3.8 0 0 0 4 7.8v8.4A3.8 3.8 0 0 0 7.8 20h8.4a3.8 3.8 0 0 0 3.8-3.8V7.8A3.8 3.8 0 0 0 16.2 4H7.8Zm8.7 1.5a1.35 1.35 0 1 1 0 2.7 1.35 1.35 0 0 1 0-2.7ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg>']
   ];
 
   function trustCard(key,title,detail,href){
@@ -48,18 +48,18 @@
       <div class="vmg-footer-main">\
         <div class="vmg-footer-wrap vmg-footer-main-inner">\
           <ul class="vmg-footer-mini-links" aria-label="Footer links">\
-            <li><a href="/resources.html#faq">FAQ</a></li>\
+            <li><a href="/resources/#faq">FAQ</a></li>\
             <li><button type="button" data-vmg-legal-pending="Privacy Policy">Privacy Policy</button></li>\
             <li><button type="button" data-vmg-legal-pending="Terms &amp; Conditions">Terms &amp; Conditions</button></li>\
             <li><a href="/Vashudevan-MetGlobal-Company-Profile.pdf" target="_blank" rel="noopener">Company Profile</a></li>\
-            <li><a href="/contact.html">Contact Us</a></li>\
+            <li><a href="/contact-us/">Contact Us</a></li>\
           </ul>\
           <div class="vmg-footer-subscribe-row">\
             <div class="vmg-footer-subscribe-copy"><strong>VMG Trade Updates</strong><span>Occasional recyclable-metal market updates.</span></div>\
             <form class="vmg-footer-subscribe-form" data-vmg-subscribe-form novalidate><div class="vmg-footer-subscribe-controls"><input class="vmg-footer-subscribe-input" type="email" name="email" autocomplete="email" placeholder="Business email address" aria-label="Business email address" aria-describedby="vmg-footer-subscribe-status" aria-invalid="false" required><button class="vmg-footer-subscribe-button" type="submit">Subscribe</button></div><p class="vmg-footer-subscribe-status" id="vmg-footer-subscribe-status" role="status" aria-live="polite"></p></form>\
           </div>\
           <div class="vmg-footer-bottom">\
-            <a class="vmg-footer-brand-lockup" href="/index.html"><strong>Vashudevan MetGlobal LLP</strong></a>\
+            <a class="vmg-footer-brand-lockup" href="/"><strong>Vashudevan MetGlobal LLP</strong></a>\
             <span class="vmg-footer-copyright">© 2026 Vashudevan MetGlobal LLP. All rights reserved.</span>\
             <div class="vmg-footer-socials">'+socialMarkup()+'</div>\
           </div>\

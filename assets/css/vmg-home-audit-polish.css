@@ -1,0 +1,50 @@
+/* Final low-risk homepage polish from the FloTO usability audit.
+   Visual-only: no functionality, routing, ticker, popup or header behavior changes. */
+
+/* Trade desk: keep the decorative copper rule attached to the CTA itself so
+   all three enquiry cards use the same axis, width, thickness and spacing. */
+.home-view .home-main .home-trade-item > a {
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.home-view .home-main .home-trade-item > a::after {
+  left: 0;
+  right: auto;
+  bottom: 0;
+  width: 38px;
+  height: 1px;
+  background: var(--home-copper);
+}
+
+/* Product catalogue: restore a little breathing room before the section-level
+   View More Products text action without changing cards or section padding. */
+.home-view .home-main .home-products-cta {
+  margin-top: 28px;
+}
+
+/* Trade Intelligence & Resources: both peer cards share one left content axis.
+   Their intentionally different backgrounds remain unchanged. */
+.home-view .home-main .home-utilities-grid .home-utility,
+.home-view .home-main .home-utilities-grid .home-utility h3,
+.home-view .home-main .home-utilities-grid .home-utility p,
+.home-view .home-main .home-utilities-grid .home-utility small,
+.home-view .home-main .home-utilities-grid .home-utility ul,
+.home-view .home-main .home-utilities-grid .home-utility li,
+.home-view .home-main .home-utilities-grid .home-utility li a {
+  text-align: left;
+}
+
+.home-view .home-main .home-utilities-grid .home-utility .home-text-link {
+  justify-content: flex-start;
+  width: fit-content;
+  margin-left: 0;
+  margin-right: auto;
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  .home-view .home-main .home-products-cta {
+    margin-top: 24px;
+  }
+}
