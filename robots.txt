@@ -1,0 +1,16 @@
+# Vashudevan MetGlobal LLP — Public site crawler policy.
+# Not a security boundary: internal apps and credentials require authentication.
+User-agent: *
+Allow: /
+Disallow: /contact-backup.html
+Disallow: /search-demo.html
+Disallow: /test-aluminum.html
+Disallow: /test-country-sync.html
+Disallow: /test-critical-fix.html
+Disallow: /test-immediate-fix.html
+Disallow: /test-phone-input.html
+Disallow: /test-popup-phone-fix.html
+Disallow: /test-search.html
+Disallow: /test-separate-dial-code.html
+
+Sitemap: https://vashudevan.com/sitemap.xml
