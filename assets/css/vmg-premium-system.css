@@ -243,7 +243,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 }
 
 /* Product and guide pages: template alignment is owned by vmg-seo-content.css. */
-.seo-page main .container { max-width:var(--vmg-container-max)!important; }
+.seo-page main .container { max-width:var(--vmg-container-max); }
 .material-page .seo-hero .container { max-width:1020px!important; }
 .material-page .seo-section:has(.seo-catalogue-grid) .container {
   width:min(100% - 80px,var(--vmg-wide-max))!important;
@@ -361,6 +361,7 @@ body.vmg-help-open .vmg-floating-actions > .whatsapp-float { opacity:0!important
 @media (max-width:991px) {
   .container,.seo-page main .container,.legal-wrap,.resources-view main .container,.faq-view main .container { width:min(100% - 48px,var(--vmg-container-max)); }
   .seo-hero { padding:72px 0 64px!important; }
+  .guide-page .seo-hero { padding:54px 0 48px!important; }
   .material-page .seo-hero { padding:50px 0!important; }
   .seo-hero h1,.resources-view .res-hero h1 { font-size:clamp(2.55rem,6vw,3.25rem)!important; }
   .seo-section { padding:56px 0!important; }
@@ -395,11 +396,12 @@ body.vmg-help-open .vmg-floating-actions > .whatsapp-float { opacity:0!important
   .resources-view .res-wrap,.resources-view .res-container,.resources-view main .container { width:calc(100% - 40px)!important; }
   .material-page .seo-section:has(.seo-catalogue-grid) .container { width:calc(100% - 40px)!important; }
   .seo-hero { padding:58px 0 52px!important; }
+  .guide-page .seo-hero { padding:46px 0 42px!important; }
   .material-page .seo-hero { padding:42px 0 40px!important; }
   .seo-hero h1,.resources-view .res-hero h1 { font-size:clamp(2.25rem,10vw,2.625rem)!important; line-height:1.06!important; }
   .seo-hero .seo-lead { font-size:.98rem!important; line-height:1.6!important; }
   .seo-section { padding:46px 0!important; }
-  .guide-page .seo-section { padding:32px 0!important; }
+  .guide-page .seo-section { padding:30px 0!important; }
   .material-page .seo-hero + .seo-section { padding:44px 0!important; }
   .material-page .seo-section:has(.seo-grade-grid) { padding:40px 0!important; }
   .material-page .seo-section:has(.seo-catalogue-grid) { padding:42px 0!important; }
