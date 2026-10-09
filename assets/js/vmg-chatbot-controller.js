@@ -35,7 +35,6 @@
     const originalMenu = menu.innerHTML;
     let avatar = null;
     let disposed = false;
-    let pausedByUser = recall('paused') === 'true';
     let pausedByVisibility = document.hidden;
     let activeAnimation = 'idle';
     let lastInteraction = performance.now();
@@ -45,7 +44,6 @@
     let gazeFrame = 0;
     let glanceTimer = 0;
     let wakeTimer = 0;
-    let inMoodMode = false;
     let modalActive = false;
     let lastOpenState = root.classList.contains('is-open');
     let actionClosing = false;
@@ -55,7 +53,7 @@
       target.addEventListener(event, fn, opts);
       cleanup.push(() => target.removeEventListener(event, fn, opts));
     };
-    const wantsMotion = () => !REDUCED.matches && !pausedByUser && !pausedByVisibility;
+    const wantsMotion = () => !REDUCED.matches && !pausedByVisibility;
     const isOpen = () => root.classList.contains('is-open');
 
     // Preserve the original Help menu links, destinations, and existing event listeners.
@@ -95,31 +93,7 @@
     });
     explore.appendChild(nav);
 
-    const moods = document.createElement('details');
-    moods.className = 'vmg-chatbot-moods';
-    const moodsSummary = document.createElement('summary');
-    moodsSummary.textContent = 'Meet Strobi · Explore Moods';
-    moods.appendChild(moodsSummary);
-    const moodList = document.createElement('div');
-    moodList.className = 'vmg-chatbot-mood-grid';
-    MOODS.forEach(name => {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.textContent = name;
-      button.dataset.vmgMood = name;
-      button.setAttribute('aria-pressed', 'false');
-      moodList.appendChild(button);
-    });
-    moods.appendChild(moodList);
-    const pauseButton = document.createElement('button');
-    pauseButton.type = 'button';
-    pauseButton.className = 'vmg-chatbot-pause';
-    const updatePauseText = () => {
-      pauseButton.textContent = pausedByUser ? 'Resume Animation' : 'Pause Animation';
-      pauseButton.setAttribute('aria-pressed', String(pausedByUser));
-    };
-    updatePauseText();
-    extra.append(explore, moods, pauseButton);
+    extra.append(explore);
     menu.appendChild(extra);
 
     const avatarHost = document.createElement('span');
@@ -189,7 +163,7 @@
         play('waking');
         clearTimeout(wakeTimer);
         wakeTimer = setTimeout(() => {
-          if (!disposed && !inMoodMode) play(isOpen() ? 'listening' : 'idle');
+          if (!disposed) play(isOpen() ? 'listening' : 'idle');
         }, 1600);
       }
     }
@@ -212,7 +186,7 @@
       if (opened) {
         actionClosing = false;
         noteInteraction();
-        if (!inMoodMode) play('listening');
+        play('listening');
         trigger.setAttribute('aria-label', 'Close VMG Chatbot help options');
       } else {
         if (!actionClosing) {
@@ -220,8 +194,6 @@
           track('vmg_chatbot_dismiss');
         }
         actionClosing = false;
-        inMoodMode = false;
-        moods.open = false;
         explore.open = false;
         noteInteraction();
         play('idle');
@@ -265,30 +237,6 @@
     else REDUCED.addListener(motionChanged);
     cleanup.push(() => REDUCED.removeEventListener ? REDUCED.removeEventListener('change', motionChanged) : REDUCED.removeListener(motionChanged));
 
-    listen(pauseButton, 'click', () => {
-      pausedByUser = !pausedByUser;
-      remember('paused', String(pausedByUser));
-      updatePauseText();
-      track('vmg_chatbot_animation_pause', {state: pausedByUser ? 'paused' : 'resumed'});
-      syncPlayback(); resetGaze();
-    });
-    listen(moods, 'toggle', () => {
-      inMoodMode = moods.open;
-      if (moods.open) {
-        noteInteraction(); track('vmg_chatbot_mood_open');
-        play('curious');
-      } else {
-        play(isOpen() ? 'listening' : 'idle');
-      }
-    });
-    listen(moodList, 'click', event => {
-      const button = event.target.closest('button[data-vmg-mood]');
-      if (!button) return;
-      const mood = button.dataset.vmgMood;
-      moodList.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
-      noteInteraction();
-      play(mood);
-    });
     listen(trigger, 'pointerenter', () => {
       if (!isOpen() && wantsMotion() && activeAnimation === 'idle') play('curious');
     });
@@ -319,7 +267,7 @@
     listen(document, 'keydown', noteInteraction);
     listen(document, 'scroll', noteInteraction, {passive:true});
     listen(menu, 'pointerdown', event => {
-      if (event.target.closest('a[href]') && !inMoodMode) play('searching');
+      if (event.target.closest('a[href]')) play('searching');
     });
     // Existing link handlers close the menu; such navigation is not a Help dismissal.
     listen(menu, 'click', event => {
@@ -332,7 +280,7 @@
       let successSeen = false;
       const resultObserver = new MutationObserver(() => {
         const success = result.classList.contains('is-success') || result.classList.contains('success');
-        if (success && !successSeen && !inMoodMode) play('celebrate');
+        if (success && !successSeen) play('celebrate');
         successSeen = success;
       });
       resultObserver.observe(result, {attributes:true,attributeFilter:['class']});
@@ -349,7 +297,7 @@
 
     // A single lightweight timer controls inactivity; optional glances use existing eye paths.
     const lifeTimer = setInterval(() => {
-      if (disposed || !wantsMotion() || inMoodMode || isOpen()) return;
+      if (disposed || !wantsMotion() || isOpen()) return;
       const inactive = performance.now() - lastInteraction;
       if (inactive >= SLEEP_AFTER_MS) { if (activeAnimation !== 'sleeping') play('sleeping'); }
       else if (inactive >= DROWSY_AFTER_MS) { if (activeAnimation !== 'drowsy') play('drowsy'); }
@@ -359,12 +307,12 @@
       }
     }, 950);
     const centerTimer = setInterval(() => {
-      if (disposed || !wantsMotion() || !DESKTOP.matches || inMoodMode || isOpen()) return;
+      if (disposed || !wantsMotion() || !DESKTOP.matches || isOpen()) return;
       if (performance.now() - lastGazeMove > GAZE_RETURN_MS) resetGaze();
     }, 180);
     function glance() {
       if (disposed) return;
-      if (wantsMotion() && DESKTOP.matches && !isOpen() && !inMoodMode && activeAnimation === 'idle' && performance.now() - lastGazeMove > 6000) {
+      if (wantsMotion() && DESKTOP.matches && !isOpen() && activeAnimation === 'idle' && performance.now() - lastGazeMove > 6000) {
         updateGaze(Math.random() > 0.5 ? 2.5 : -2.5, -0.8);
         setTimeout(() => { if (!disposed && performance.now() - lastGazeMove > 6000) resetGaze(); }, 500);
       }
