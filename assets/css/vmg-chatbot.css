@@ -30,6 +30,32 @@ body.vmg-chatbot-enabled #vmg-help .vmg-chatbot-avatar {
   pointer-events: none;
 }
 body.vmg-chatbot-enabled #vmg-help .vmg-chatbot-avatar svg { display: block; width: 100%; height: 100%; }
+/* The legacy site has .vmg-help-trigger svg { width:14px!important;
+   height:14px!important } for the old '?' icon. Strobi is a full-size SVG,
+   so specifically override that legacy rule ONLY within the avatar host. */
+body.vmg-chatbot-enabled #vmg-help .vmg-help-trigger .vmg-chatbot-avatar {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 48px !important;
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px;
+  overflow: visible;
+}
+body.vmg-chatbot-enabled #vmg-help .vmg-help-trigger .vmg-chatbot-avatar > svg {
+  display: block !important;
+  flex: none !important;
+  width: 48px !important;
+  height: 48px !important;
+  max-width: none !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+body.vmg-chatbot-enabled #vmg-help .vmg-help-trigger {
+  justify-content: center !important;
+}
+
 body.vmg-chatbot-enabled #vmg-help .vmg-help-menu {
   position: absolute;
   bottom: calc(100% + 10px);
@@ -158,6 +184,16 @@ body.vmg-chatbot-enabled.scroll-top-visible .vmg-floating-actions > #vmg-help {
     height: 50px;
     padding: 3px !important;
     border-radius: 999px;
+  }
+  body.vmg-chatbot-enabled #vmg-help .vmg-help-trigger .vmg-chatbot-avatar {
+    flex: 0 0 43px !important;
+    width: 43px !important;
+    height: 43px !important;
+    min-width: 43px !important;
+  }
+  body.vmg-chatbot-enabled #vmg-help .vmg-help-trigger .vmg-chatbot-avatar > svg {
+    width: 43px !important;
+    height: 43px !important;
   }
   body.vmg-chatbot-enabled #vmg-help .vmg-help-trigger > span:not(.vmg-chatbot-avatar) {
     position: absolute !important;
