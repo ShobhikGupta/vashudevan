@@ -14,6 +14,10 @@
   const SLEEP_AFTER_MS = 120000;
   const DROWSY_AFTER_MS = 60000;
   const GAZE_RETURN_MS = 1200;
+  // Original SVG uses a 300-unit viewBox. At a 48px launcher, 24 units
+  // produce ~3.84 visible pixels (the previous 7 units gave only 1.12px).
+  const GAZE_MAX_X = 24;
+  const GAZE_MAX_Y = 16;
   const MOODS = ['sleeping', 'waking', 'idle', 'listening', 'thinking', 'searching', 'working',
     'excited', 'bored', 'suspicious', 'angry', 'drowsy', 'happy', 'curious', 'confused',
     'surprised', 'proud', 'shy', 'sad', 'laughing', 'scared', 'playful', 'celebrate'];
@@ -253,10 +257,22 @@
       const rect = avatarHost.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-      const dx = (event.clientX - centerX) / Math.max(innerWidth / 2, 1);
-      const dy = (event.clientY - centerY) / Math.max(innerHeight / 2, 1);
+      // Strobi lives at the bottom-right corner. A symmetric half-viewport
+      // denominator made gaze movement toward the right/bottom almost zero.
+      // Scale each direction by the space available and the distance needed
+      // for visitors to perceive the eye movement at launcher size.
+      const dx = event.clientX - centerX;
+      const dy = event.clientY - centerY;
+      const horizontalReach = dx < 0
+        ? Math.max(160, centerX * 0.28)
+        : Math.max(48, window.innerWidth - centerX);
+      const verticalReach = dy < 0
+        ? Math.max(140, centerY * 0.45)
+        : Math.max(48, window.innerHeight - centerY);
+      const normalizedX = Math.max(-1, Math.min(1, dx / horizontalReach));
+      const normalizedY = Math.max(-1, Math.min(1, dy / verticalReach));
       if (!['sleeping', 'drowsy'].includes(activeAnimation)) {
-        updateGaze(Math.max(-7, Math.min(7, dx * 7)), Math.max(-5, Math.min(5, dy * 5)));
+        updateGaze(normalizedX * GAZE_MAX_X, normalizedY * GAZE_MAX_Y);
       }
     }, {passive:true});
     listen(document, 'pointerdown', event => {
@@ -313,7 +329,7 @@
     function glance() {
       if (disposed) return;
       if (wantsMotion() && DESKTOP.matches && !isOpen() && activeAnimation === 'idle' && performance.now() - lastGazeMove > 6000) {
-        updateGaze(Math.random() > 0.5 ? 2.5 : -2.5, -0.8);
+        updateGaze(Math.random() > 0.5 ? 8 : -8, -3);
         setTimeout(() => { if (!disposed && performance.now() - lastGazeMove > 6000) resetGaze(); }, 500);
       }
       glanceTimer = setTimeout(glance, 9000 + Math.random() * 7000);
