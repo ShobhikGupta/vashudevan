@@ -43,12 +43,20 @@
 .material-page .seo-section:has(.seo-catalogue-grid){padding:52px 0}
 .material-page .seo-section:has(.seo-catalogue-grid) .seo-section-head{margin-bottom:24px}
 .material-page .seo-section:has(.seo-related){padding:40px 0}
-.guide-page .seo-hero .container{max-width:860px;margin-inline:auto;text-align:left}
-.guide-page .seo-hero h1{max-width:860px}.guide-page .seo-hero .seo-lead{max-width:72ch}
-.guide-page .seo-section{padding:42px 0}.guide-page .seo-section-head{max-width:72ch;margin:0 auto 18px;text-align:left}
-.guide-page .seo-section-head h2,.guide-page .seo-section-head p,.guide-page .seo-section-head .seo-kicker,.guide-page .seo-section li{text-align:left}
-.guide-page .seo-section:has(.seo-related) .seo-section-head{margin-left:auto;margin-right:auto;text-align:center}
-.guide-page .seo-section:has(.seo-related) .seo-section-head h2,.guide-page .seo-section:has(.seo-related) .seo-section-head .seo-kicker{text-align:center}
+/* Knowledge guides: centered presentation, restrained reading width, mobile-first readability. */
+.guide-page .seo-hero{padding:60px 0 54px}
+.guide-page .seo-hero .container{max-width:860px;margin-inline:auto;text-align:center}
+.guide-page .seo-hero .seo-eyebrow{text-align:center}
+.guide-page .seo-hero h1{max-width:860px;margin-inline:auto;text-align:center}
+.guide-page .seo-hero .seo-lead{max-width:72ch;margin:18px auto 0;text-align:center}
+.guide-page .seo-section{padding:38px 0}
+.guide-page .seo-section .container{max-width:800px}
+.guide-page .seo-section-head{max-width:72ch;margin:0 auto 16px;text-align:center}
+.guide-page .seo-section-head h2,.guide-page .seo-section-head .seo-kicker{text-align:center}
+.guide-page .seo-section-head > p:not(.seo-kicker),.guide-page .seo-section li{text-align:left}
+@media(min-width:1024px){
+  .guide-page .seo-section-head > p:not(.seo-kicker){text-align:justify;text-align-last:left;hyphens:auto}
+}
 .guide-page .seo-section:has(.seo-related) .seo-related{justify-content:center}
 .seo-final-cta{background:#0a1728;color:#fff;padding:44px 0}.seo-final-cta .container{max-width:1160px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:30px}
 .seo-final-cta h2{color:#fff;margin:0 0 8px;text-align:left}.seo-final-cta p{max-width:68ch;margin:0;color:rgba(255,255,255,.76);text-align:left}.seo-final-cta .seo-actions{margin-top:0;justify-content:flex-end}
