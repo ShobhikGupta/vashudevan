@@ -61,9 +61,11 @@
     document.head.appendChild(script);
   }
   loadStylesheet('/assets/css/vmg-market-polish.css?v=20260904b', 'data-vmg-market-polish');
+  loadStylesheet('/assets/css/vmg-chatbot.css?v=20261009-preview', 'data-vmg-chatbot-styles');
   loadScript('/assets/js/skeleton-loader.js?v=20260904b', 'data-vmg-skeleton-loader-script');
   loadScript('/assets/js/vmg-feedback.js?v=20260905a', 'data-vmg-feedback-script');
   loadScript('/assets/js/vmg-help.js?v=20260904b', 'data-vmg-help-script');
+  loadScript('/assets/js/vmg-chatbot-controller.js?v=20261009-preview', 'data-vmg-chatbot-controller-script');
 })();
 
 (function () {
