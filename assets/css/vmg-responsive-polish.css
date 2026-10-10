@@ -2019,3 +2019,43 @@
     max-height: 150px;
   }
 }
+
+
+/* Final layout alignment: Contact, Products directory, Guides and Who We Are. */
+.vmg-contact-information .container,
+.vmg-contact-form-section .container { max-width: 1160px; }
+.vmg-contact-information h2,
+.vmg-contact-form-section .form-header h2 { text-align: center; }
+.vmg-contact-information h2 { margin: 0 0 30px; }
+.vmg-contact-info-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: clamp(22px,3vw,48px); align-items: start; }
+.vmg-contact-info-column { min-width: 0; }
+.vmg-contact-info-column h3 { margin: 0 0 12px; text-align: left; }
+.vmg-contact-info-column h3:not(:first-child) { margin-top: 22px; }
+.vmg-contact-info-column p { overflow-wrap: anywhere; text-align: left; }
+.vmg-contact-form-section { padding-top: clamp(40px,4vw,56px); }
+.vmg-contact-form-grid { max-width: 940px !important; margin-inline: auto; }
+.vmg-contact-form-grid .contact-form-container { width: 100%; max-width: none; }
+.vmg-contact-form-grid .contact-form-new { width: 100%; }
+.vmg-contact-form-section .form-header { text-align: center; }
+.vmg-contact-form-section .form-header h2 { margin-inline: auto; }
+.products-grid { align-items: start; }
+.product-search .search-container { margin-inline: auto; }
+body:has(.products-grid) .page-hero .container { text-align: center; }
+body:has(.products-grid) .page-hero p { max-width: 72ch; margin-inline: auto; }
+.guide-page .seo-section > .container { max-width: 860px; }
+.guide-page .seo-section:not(:has(.seo-related)) p,
+.guide-page .seo-section:not(:has(.seo-related)) li { text-align: left; }
+.who-page #history-block .lead,
+.who-page #history-block p,
+.who-page #mission-block p { text-align: left; text-align-last: auto; }
+.who-page #history-block .two-col > div:last-child,
+.who-page #mission-block .two-col > div:last-child { max-width: 72ch; }
+@media (max-width: 900px) {
+  .vmg-contact-info-grid { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+}
+@media (max-width: 640px) {
+  .vmg-contact-info-grid { grid-template-columns: minmax(0,1fr); gap: 26px; }
+  .vmg-contact-information h2 { margin-bottom: 26px; }
+  .vmg-contact-form-grid { width: min(100% - 32px, 940px); }
+  body:has(.products-grid) .page-hero .container { padding-inline: 0; }
+}

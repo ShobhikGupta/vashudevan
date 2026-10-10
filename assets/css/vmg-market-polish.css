@@ -280,3 +280,13 @@
 @media (max-width: 380px) {
   .market-page .market-chart-control-row { grid-template-columns: 1fr !important; }
 }
+
+
+/* Keep market presentation groups centred, with left-aligned data controls. */
+.market-page .market-group-tabs { justify-content: center; }
+.market-page #market-quote-basis { text-align: left; }
+.market-page .market-chart-control-field,
+.market-page .market-select-field,
+.market-page .market-control-label { text-align: left; }
+.market-page .market-chart-selector { min-width: 0; }
+.market-page .market-chart-panel { min-width: 0; }
