@@ -273,35 +273,43 @@
       } else if (!wantsMotion()) avatar.pause();
       if (name === 'sleeping' || name === 'drowsy') resetGaze();
     }
-    // One arbiter handles site-wide interactions. Low-priority clicks and hover
-    // never interrupt confirmed outcomes or continually restart animations.
+    // Only a strictly higher-priority reaction may preempt an active one.
+    // A single timer owns recovery to the stable, forward-facing Strobi pose.
+    function cancelReaction(restore = true) {
+      clearTimeout(reactionTimer);
+      reactionTimer = 0;
+      reactionUntil = 0;
+      reactionPriority = 0;
+      if (restore && !disposed && activeAnimation !== 'listening') play('listening');
+    }
     function react(mood, {priority = 1, duration = 1500, source = 'interaction'} = {}) {
       if (disposed || !wantsMotion() || !availableAnimations.includes(mood)) return false;
       const now = performance.now();
-      if (now < reactionUntil && priority < reactionPriority) return false;
+      if (now < reactionUntil && priority <= reactionPriority) return false;
       if (priority === 1) {
         const hover = source === 'help_hover' || source === 'bot_hover';
         if (hover && now - lastHoverReaction < REACTION_HOVER_COOLDOWN_MS) return false;
         if (!hover && now - lastOrdinaryReaction < REACTION_COOLDOWN_MS) return false;
-        if (hover) lastHoverReaction = now;
-        else lastOrdinaryReaction = now;
       }
       if ((activeAnimation === 'sleeping' || activeAnimation === 'drowsy') && priority <= 2) {
-        noteInteraction(); // Wake naturally before reacting to low-priority clicks.
+        noteInteraction();
         return false;
       }
+      if (priority === 1) {
+        if (source === 'help_hover' || source === 'bot_hover') lastHoverReaction = now;
+        else lastOrdinaryReaction = now;
+      }
+      clearTimeout(wakeTimer);
+      wakeTimer = 0;
       lastInteraction = now;
-      clearTimeout(reactionTimer);
+      cancelReaction(false);
       reactionUntil = now + duration;
       reactionPriority = priority;
+      clearGazeReturn();
+      resetGaze();
       play(mood);
       track('vmg_bot_reaction', {reaction: mood, interaction_type: source});
-      reactionTimer = setTimeout(() => {
-        reactionTimer = 0;
-        reactionUntil = 0;
-        reactionPriority = 0;
-        if (!disposed) play('listening');
-      }, duration);
+      reactionTimer = setTimeout(() => cancelReaction(), duration);
       return true;
     }
 
@@ -343,8 +351,12 @@
     function drawGaze() {
       gazeFrame = 0;
       if (disposed || !gazeSupported) return;
-      if (!wantsMotion() || ['sleeping', 'drowsy'].includes(activeAnimation)) {
-        targetX = 0; targetY = 0;
+      // Cursor tracking and expressive animations must never transform the
+      // same eyes simultaneously. Tracking resumes only in the stable pose.
+      if (!wantsMotion() || activeAnimation !== 'listening' || performance.now() < reactionUntil) {
+        gazeX = 0; gazeY = 0; targetX = 0; targetY = 0;
+        gazeLayer.removeAttribute('transform');
+        return;
       }
       gazeX += (targetX - gazeX) * GAZE_EASE;
       gazeY += (targetY - gazeY) * GAZE_EASE;
@@ -374,7 +386,7 @@
         play('waking');
         clearTimeout(wakeTimer);
         wakeTimer = setTimeout(() => {
-          if (!disposed) play('listening');
+          if (!disposed && performance.now() >= reactionUntil) play('listening');
         }, 1600);
       }
     }
@@ -407,6 +419,7 @@
         actionClosing = false;
         explore.open = false;
         noteInteraction();
+        cancelReaction();
         play('listening');
         trigger.setAttribute('aria-label', 'Open VMG Bot help options');
         resetGaze();
@@ -446,10 +459,7 @@
       pausedByVisibility = document.hidden;
       if (pausedByVisibility) {
         clearGazeReturn();
-        clearTimeout(reactionTimer);
-        reactionTimer = 0;
-        reactionUntil = 0;
-        reactionPriority = 0;
+        cancelReaction(false);
       } else if (activeAnimation !== 'listening') {
         play('listening');
       }
@@ -483,7 +493,7 @@
       lastGazeMove = now;
       hasPointerPosition = true;
       noteInteraction();
-      if (!isOpen() && activeAnimation === 'idle') play('listening');
+      if (performance.now() < reactionUntil || activeAnimation !== 'listening') return;
       const rect = avatarHost.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
@@ -502,7 +512,7 @@
     listen(document, 'pointerdown', event => {
       noteInteraction();
       if (DESKTOP.matches || !wantsMotion() || !root.contains(event.target)) return;
-      if (!['sleeping', 'drowsy'].includes(activeAnimation)) {
+      if (activeAnimation === 'listening' && performance.now() >= reactionUntil) {
         updateGaze(2, -1.5);
         scheduleGazeReturn();
       }
@@ -531,17 +541,26 @@
     // navigation throughout the site, including controls added later.
     // Never prevent default, change a form, or delay navigation.
     listen(document, 'click', event => {
+      if (event.isTrusted === false) return;
       const node = event.target instanceof Element ? event.target : event.target?.parentElement;
       const control = node?.closest('button, a[href], input[type="button"], input[type="submit"], [role="button"], summary');
       if (!control || !document.contains(control) || control.disabled || control.getAttribute('aria-disabled') === 'true') return;
       if (root.contains(control)) return; // Help options are handled above.
       const now = performance.now();
-      const times = (recentClicks.get(control) || []).filter(t => now - t <= SPAM_WINDOW_MS);
-      times.push(now);
-      recentClicks.set(control, times);
-      recentSiteClicks = recentSiteClicks.filter(t => now - t <= SPAM_WINDOW_MS);
-      recentSiteClicks.push(now);
-      if (times.length >= SPAM_CLICK_COUNT || recentSiteClicks.length >= 6) {
+      // Clicking multiple form fields, menu items or filter controls
+      // is normal use, not spamming. Keep spam reactions for real rapid
+      // repeated presses on business buttons.
+      const spamEligible = !control.closest('form, nav, [role="menu"], [role="listbox"]')
+        && !control.matches('[type="submit"]');
+      let times = [];
+      if (spamEligible) {
+        times = (recentClicks.get(control) || []).filter(t => now - t <= SPAM_WINDOW_MS);
+        times.push(now);
+        recentClicks.set(control, times);
+        recentSiteClicks = recentSiteClicks.filter(t => now - t <= SPAM_WINDOW_MS);
+        recentSiteClicks.push(now);
+      }
+      if (spamEligible && (times.length >= SPAM_CLICK_COUNT || recentSiteClicks.length >= 6)) {
         recentClicks.set(control, []);
         recentSiteClicks = [];
         if (now - lastSpamReaction > 5000) {
