@@ -136,13 +136,61 @@
     const eyePaths = clippedEyes ? Array.from(clippedEyes.children).filter(node => node.localName === 'path') : [];
     const gazeSupported = eyePaths.length === 2;
     let gazeLayer = null;
+    let uprightLayer = null;
+    let uprightFrame = 0;
+    let uprightObserver = null;
     if (gazeSupported) {
       gazeLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       gazeLayer.setAttribute('data-vmg-strobi-gaze', 'true');
-      eyePaths.forEach(path => gazeLayer.appendChild(path));
+      uprightLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      uprightLayer.setAttribute('data-vmg-strobi-upright', 'true');
+      eyePaths.forEach(path => uprightLayer.appendChild(path));
+      gazeLayer.appendChild(uprightLayer);
       clippedEyes.appendChild(gazeLayer);
     } else {
       console.warn('[VMG Chatbot] Original eye paths unavailable: cursor gaze disabled.');
+    }
+
+    // Strobi's exported listening/curious poses have noticeable headZ roll.
+    // Leave their original eye paths and animation geometry untouched; level
+    // the visible pair using measured SVG eye centers in the preview launcher.
+    // Run this only for the normal and hover states, not expressive reactions.
+    const updateUpright = () => {
+      uprightFrame = 0;
+      if (disposed || !uprightLayer) return;
+      if (activeAnimation !== 'listening' && activeAnimation !== 'curious') {
+        uprightLayer.removeAttribute('transform');
+        return;
+      }
+      try {
+        const left = eyePaths[0].getBBox();
+        const right = eyePaths[1].getBBox();
+        const x1 = left.x + left.width / 2, y1 = left.y + left.height / 2;
+        const x2 = right.x + right.width / 2, y2 = right.y + right.height / 2;
+        const dx = x2 - x1, dy = y2 - y1;
+        if (![dx, dy, x1, y1, x2, y2].every(Number.isFinite) || dx < 8) {
+          uprightLayer.removeAttribute('transform');
+          return;
+        }
+        const tilt = Math.max(-25, Math.min(25, Math.atan2(dy, dx) * 180 / Math.PI));
+        const pivotX = (x1 + x2) / 2, pivotY = (y1 + y2) / 2;
+        uprightLayer.setAttribute('transform',
+          `rotate(${(-tilt).toFixed(2)} ${pivotX.toFixed(2)} ${pivotY.toFixed(2)})`);
+      } catch (_) {
+        // If the SVG does not support geometry measurements, do not alter it.
+        uprightLayer.removeAttribute('transform');
+      }
+    };
+    const scheduleUpright = () => {
+      if (!uprightLayer || uprightFrame || disposed) return;
+      uprightFrame = requestAnimationFrame(updateUpright);
+    };
+    if (gazeSupported) {
+      uprightObserver = new MutationObserver(scheduleUpright);
+      eyePaths.forEach(path => uprightObserver.observe(path, {
+        attributes: true, attributeFilter: ['d']
+      }));
+      scheduleUpright();
     }
 
     function syncPlayback() {
@@ -157,6 +205,7 @@
         activeAnimation = name;
         if (wantsMotion()) avatar.play(name);
         else { avatar.play(name); avatar.pause(); }
+        scheduleUpright();
       } else if (!wantsMotion()) avatar.pause();
       if (name === 'sleeping' || name === 'drowsy') resetGaze();
     }
@@ -366,7 +415,13 @@
       glanceTimer = setTimeout(glance, 9000 + Math.random() * 7000);
     }
     glance();
-    cleanup.push(() => { clearInterval(lifeTimer); clearGazeReturn(); clearTimeout(glanceTimer); clearTimeout(wakeTimer); if (gazeFrame) cancelAnimationFrame(gazeFrame); classObserver.disconnect(); });
+    cleanup.push(() => {
+      clearInterval(lifeTimer); clearGazeReturn(); clearTimeout(glanceTimer); clearTimeout(wakeTimer);
+      if (gazeFrame) cancelAnimationFrame(gazeFrame);
+      if (uprightFrame) cancelAnimationFrame(uprightFrame);
+      if (uprightObserver) uprightObserver.disconnect();
+      classObserver.disconnect();
+    });
 
     root.dataset.vmgChatbotDismissed = String(recall('dismissed') === 'true');
     root.classList.add('vmg-chatbot-ready');
