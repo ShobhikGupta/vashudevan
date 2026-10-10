@@ -459,3 +459,59 @@ body { overflow-x: visible; }
   .resources-view .docket-print:active { transform: none; }
   .resources-view .trade-docket[data-stage="idle"] .docket-paper-shell { opacity: 0 !important; transform: translateY(calc(-100% + 2px)) !important; }
 }
+
+
+/* Resource layout standardization: preserve content, tabs and destinations. */
+.resources-view .res-hero-grid,
+.resources-view .company-profile-card { min-width: 0; }
+.resources-view .res-hero-grid > * { min-width: 0; }
+.resources-view .res-hero .profile-visual { width: 100%; box-sizing: border-box; margin-inline: auto; }
+.resources-view .hub-card { min-height: 0; height: auto; text-align: left; }
+.resources-view .hub-card h3,
+.resources-view .hub-card p { text-align: left; }
+.resources-view .hub-card--single-link { position: relative; }
+.resources-view .hub-card--single-link > .card-link::before {
+  content: ""; position: absolute; inset: 0; z-index: 1;
+}
+.resources-view .hub-card--single-link > .card-link:focus-visible {
+  outline: 3px solid var(--vmg-copper); outline-offset: 3px;
+}
+.resources-view #recyclable-metal-guides .hub-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.resources-view #resource-hub .hub-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.resources-view #our-process .process-layout { display: block; max-width: 860px; margin-inline: auto; }
+.resources-view #our-process .process-overview { text-align: center; }
+.resources-view #our-process .process-overview .res-eyebrow { justify-content: center; }
+.resources-view #our-process .process-overview .res-heading,
+.resources-view #our-process .process-overview .res-copy {
+  max-width: 720px; margin-inline: auto; text-align: center;
+}
+.resources-view #our-process .process-list { margin: 28px auto 0; max-width: 760px; text-align: left; }
+.resources-view #our-process .process-list li { grid-template-columns: 44px minmax(0,1fr); text-align: left; }
+@media (max-width: 1024px) {
+  .resources-view #resource-hub .hub-grid,
+  .resources-view #recyclable-metal-guides .hub-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 700px) {
+  .resources-view .res-hero-grid { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .resources-view .res-hero-grid > .res-reveal:first-child { width: 100%; }
+  .resources-view .res-hero .profile-visual { max-width: 400px; }
+  .resources-view .company-profile-card { grid-template-columns: minmax(0,1fr); }
+  .resources-view .company-profile-card .res-actions { display: flex; flex-wrap: wrap; width: 100%; }
+  .resources-view .company-profile-card .res-btn { flex: 1 1 170px; }
+  .resources-view #resource-hub .hub-grid,
+  .resources-view #recyclable-metal-guides .hub-grid { grid-template-columns: minmax(0,1fr); }
+  .resources-view .hub-card { padding: 15px; }
+  .resources-view .docs-grid { grid-template-columns: minmax(0,1fr); }
+  .resources-view .doc-card { text-align: left; }
+  .resources-view .doc-card h3,
+  .resources-view .doc-card p { text-align: left; }
+  .resources-view #our-process .process-list li { grid-template-columns: 34px minmax(0, 1fr); gap: 12px; }
+  .resources-view .market-strip,
+  .resources-view .final-cta { grid-template-columns: minmax(0,1fr); }
+  .resources-view .market-strip .res-actions,
+  .resources-view .final-cta .res-actions { flex-wrap: wrap; }
+}
