@@ -14,10 +14,11 @@
   const SLEEP_AFTER_MS = 120000;
   const DROWSY_AFTER_MS = 60000;
   const GAZE_RETURN_MS = 1200;
-  // Original SVG uses a 300-unit viewBox. At a 48px launcher, 24 units
-  // produce ~3.84 visible pixels (the previous 7 units gave only 1.12px).
-  const GAZE_MAX_X = 24;
-  const GAZE_MAX_Y = 16;
+  // Original Strobi SVG uses a 300-unit viewBox. The visible launcher
+  // is 48px, so 32/22 SVG units give a noticeable but contained gaze.
+  const GAZE_MAX_X = 32;
+  const GAZE_MAX_Y = 22;
+  const GAZE_NEAR_DISTANCE = 85;
   const MOODS = ['sleeping', 'waking', 'idle', 'listening', 'thinking', 'searching', 'working',
     'excited', 'bored', 'suspicious', 'angry', 'drowsy', 'happy', 'curious', 'confused',
     'surprised', 'proud', 'shy', 'sad', 'laughing', 'scared', 'playful', 'celebrate'];
@@ -124,10 +125,21 @@
       console.warn('[VMG Chatbot] Avatar mounting failed. Original Need Help retained.', err);
       return;
     }
-    // Original engine owns path geometry; external transforms only adjust the eye paths.
-    const eyePaths = avatarHost.querySelectorAll('g[clip-path] > path');
+    // Keep the original eye paths and their engine-driven d attributes intact.
+    // Wrap only the eyes, inside the original head clipping group, so Strobi's
+    // renderer and our gaze transform never write to the same attribute.
+    const clippedEyes = avatarHost.querySelector('g[clip-path]');
+    const eyePaths = clippedEyes ? Array.from(clippedEyes.children).filter(node => node.localName === 'path') : [];
     const gazeSupported = eyePaths.length === 2;
-    if (!gazeSupported) console.warn('[VMG Chatbot] Eye paths unavailable: cursor gaze disabled.');
+    let gazeLayer = null;
+    if (gazeSupported) {
+      gazeLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      gazeLayer.setAttribute('data-vmg-strobi-gaze', 'true');
+      eyePaths.forEach(path => gazeLayer.appendChild(path));
+      clippedEyes.appendChild(gazeLayer);
+    } else {
+      console.warn('[VMG Chatbot] Original eye paths unavailable: cursor gaze disabled.');
+    }
 
     function syncPlayback() {
       if (!avatar) return;
@@ -152,7 +164,7 @@
       }
       gazeX += (targetX - gazeX) * 0.16;
       gazeY += (targetY - gazeY) * 0.16;
-      eyePaths.forEach(path => path.setAttribute('transform', `translate(${gazeX.toFixed(2)} ${gazeY.toFixed(2)})`));
+      gazeLayer.setAttribute('transform', `translate(${gazeX.toFixed(2)} ${gazeY.toFixed(2)})`);
       if (Math.abs(targetX - gazeX) + Math.abs(targetY - gazeY) > 0.06) gazeFrame = requestAnimationFrame(drawGaze);
     }
     const updateGaze = (x, y) => {
@@ -257,20 +269,14 @@
       const rect = avatarHost.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-      // Strobi lives at the bottom-right corner. A symmetric half-viewport
-      // denominator made gaze movement toward the right/bottom almost zero.
-      // Scale each direction by the space available and the distance needed
-      // for visitors to perceive the eye movement at launcher size.
+      // Track the actual direction from Strobi to the pointer, not the
+      // asymmetric viewport dimensions. This works at every screen edge.
       const dx = event.clientX - centerX;
       const dy = event.clientY - centerY;
-      const horizontalReach = dx < 0
-        ? Math.max(160, centerX * 0.28)
-        : Math.max(48, window.innerWidth - centerX);
-      const verticalReach = dy < 0
-        ? Math.max(140, centerY * 0.45)
-        : Math.max(48, window.innerHeight - centerY);
-      const normalizedX = Math.max(-1, Math.min(1, dx / horizontalReach));
-      const normalizedY = Math.max(-1, Math.min(1, dy / verticalReach));
+      const distance = Math.hypot(dx, dy);
+      const strength = Math.min(1, distance / GAZE_NEAR_DISTANCE);
+      const normalizedX = distance ? (dx / distance) * strength : 0;
+      const normalizedY = distance ? (dy / distance) * strength : 0;
       if (!['sleeping', 'drowsy'].includes(activeAnimation)) {
         updateGaze(normalizedX * GAZE_MAX_X, normalizedY * GAZE_MAX_Y);
       }
@@ -329,7 +335,7 @@
     function glance() {
       if (disposed) return;
       if (wantsMotion() && DESKTOP.matches && !isOpen() && activeAnimation === 'idle' && performance.now() - lastGazeMove > 6000) {
-        updateGaze(Math.random() > 0.5 ? 8 : -8, -3);
+        updateGaze(Math.random() > 0.5 ? 10 : -10, -4);
         setTimeout(() => { if (!disposed && performance.now() - lastGazeMove > 6000) resetGaze(); }, 500);
       }
       glanceTimer = setTimeout(glance, 9000 + Math.random() * 7000);
