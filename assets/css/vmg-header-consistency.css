@@ -1,0 +1,33 @@
+/* Canonical VMG public-header visual rules. Does not alter sticky/retreat logic. */
+@media (min-width: 992px) {
+  .site-header.vmg-econship-header .vmg-nav-socials .vmg-feedback-trigger-desktop,
+  .site-header.vmg-econship-header .vmg-feedback-trigger-desktop {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-self: center !important;
+    min-height: 36px !important;
+    height: 36px !important;
+    margin: 0 !important;
+    border: 1px solid #0A1728 !important;
+    background: #0A1728 !important;
+    color: #FFFFFF !important;
+    line-height: 1 !important;
+    box-shadow: none;
+  }
+
+  .site-header.vmg-econship-header .vmg-feedback-trigger-desktop svg,
+  .site-header.vmg-econship-header .vmg-feedback-trigger-desktop span {
+    color: #FFFFFF !important;
+  }
+
+  .site-header.vmg-econship-header .vmg-nav-socials .vmg-feedback-trigger-desktop:hover,
+  .site-header.vmg-econship-header .vmg-nav-socials .vmg-feedback-trigger-desktop:focus-visible,
+  .site-header.vmg-econship-header .vmg-feedback-trigger-desktop:hover,
+  .site-header.vmg-econship-header .vmg-feedback-trigger-desktop:focus-visible {
+    border-color: #13243A !important;
+    background: #13243A !important;
+    color: #FFFFFF !important;
+    transform: none !important;
+  }
+}

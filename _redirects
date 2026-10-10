@@ -1,0 +1,57 @@
+# Canonical domain
+https://www.vashudevan.com/* https://vashudevan.com/:splat 301!
+
+# Legacy query-string product routes
+/product.html slug=aluminum /products/aluminium/ 301!
+/product.html slug=auto-scrap /products/auto-scrap/ 301!
+/product.html slug=brass /products/brass/ 301!
+/product.html slug=copper /products/copper/ 301!
+/product.html slug=copper-bearing /products/copper-bearing/ 301!
+/product.html slug=ferrous /products/ferrous/ 301!
+/product.html slug=lead /products/lead/ 301!
+/product.html slug=shredder-scrap /products/shredder-scrap/ 301!
+/product.html slug=stainless-steel /products/stainless-steel/ 301!
+/product.html slug=zinc /products/zinc/ 301!
+/product.html /products/ 301!
+
+# Core legacy routes
+/index.html / 301!
+/who-we-are /about/who-we-are/ 301!
+/who-we-are/ /about/who-we-are/ 301!
+/who-we-are.html /about/who-we-are/ 301!
+/our-impact /about/our-impact/ 301!
+/our-impact/ /about/our-impact/ 301!
+/our-impact.html /about/our-impact/ 301!
+/products.html /products/ 301!
+/market-prices/index.html /market/ 301!
+/market-prices /market/ 301!
+/market-prices/ /market/ 301!
+/resources.html /resources/ 301!
+/faq.html /faq/ 301!
+/contact.html /contact-us/ 301!
+/contact /contact-us/ 301!
+/contact/ /contact-us/ 301!
+/privacy-policy.html /privacy-policy/ 301!
+/disclaimer.html /disclaimer/ 301!
+
+# Legacy material routes
+/materials/aluminium /products/aluminium/ 301!
+/materials/aluminium/ /products/aluminium/ 301!
+/materials/auto-scrap /products/auto-scrap/ 301!
+/materials/auto-scrap/ /products/auto-scrap/ 301!
+/materials/brass /products/brass/ 301!
+/materials/brass/ /products/brass/ 301!
+/materials/copper /products/copper/ 301!
+/materials/copper/ /products/copper/ 301!
+/materials/copper-bearing /products/copper-bearing/ 301!
+/materials/copper-bearing/ /products/copper-bearing/ 301!
+/materials/ferrous /products/ferrous/ 301!
+/materials/ferrous/ /products/ferrous/ 301!
+/materials/lead /products/lead/ 301!
+/materials/lead/ /products/lead/ 301!
+/materials/shredder-scrap /products/shredder-scrap/ 301!
+/materials/shredder-scrap/ /products/shredder-scrap/ 301!
+/materials/stainless-steel /products/stainless-steel/ 301!
+/materials/stainless-steel/ /products/stainless-steel/ 301!
+/materials/zinc /products/zinc/ 301!
+/materials/zinc/ /products/zinc/ 301!

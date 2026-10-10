@@ -121,8 +121,8 @@ a, button, .btn, .btn-animated, .hero-btn, .card, .social-icon {
 
 /* Product Search Styling */
 .product-search {
-  margin: 30px auto 0;
-  max-width: 600px;
+  margin: 22px auto 0;
+  max-width: 620px;
   text-align: center;
 }
 
@@ -130,7 +130,7 @@ a, button, .btn, .btn-animated, .hero-btn, .card, .social-icon {
   position: relative;
   display: inline-block;
   width: 100%;
-  max-width: 500px;
+  max-width: 560px;
 }
 
 .search-input {
@@ -185,7 +185,7 @@ a, button, .btn, .btn-animated, .hero-btn, .card, .social-icon {
 }
 
 .search-results-info {
-  margin-top: 12px;
+  margin-top: 8px;
   color: var(--muted);
   font-size: 14px;
 }
@@ -246,8 +246,8 @@ a, button, .btn, .btn-animated, .hero-btn, .card, .social-icon {
 /* Responsive search */
 @media (max-width: 768px) {
   .product-search {
-    margin: 20px auto 0;
-    padding: 0 20px;
+    margin: 18px auto 0;
+    padding: 0;
   }
 
   .search-input {
@@ -1363,14 +1363,14 @@ img, button, input, textarea, select {
 .market-notice {
   display: grid;
   grid-template-columns: 1fr;
-  justify-items: center;
+  justify-items: start;
   gap: 10px;
   margin-top: 16px;
   padding: 14px 16px;
   background: linear-gradient(180deg, #fffaf0 0%, #ffffff 100%);
   border: 1px solid rgba(var(--brand-rgb), 0.22);
-  border-radius: 14px;
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
 .market-notice-icon {
@@ -1388,26 +1388,26 @@ img, button, input, textarea, select {
 }
 
 .market-notice h2 {
-  margin: 0 auto 4px;
+  margin: 0 0 4px;
   color: var(--ink);
   font-size: 0.95rem;
   line-height: 1.2;
-  text-align: center;
+  text-align: left;
 }
 
 .market-notice p {
   max-width: 1000px;
-  margin: 0 auto;
+  margin: 0;
   color: var(--ink-soft);
   font-size: 0.88rem;
   line-height: 1.5;
-  text-align: center;
+  text-align: left;
 }
 
 .market-notice-badges {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
   margin-top: 10px;
 }
@@ -1462,24 +1462,24 @@ img, button, input, textarea, select {
 
 .market-section-heading {
   margin-bottom: 18px;
-  text-align: center;
+  text-align: left;
 }
 
 .market-section-heading h2 {
-  margin: 0 auto 6px;
+  margin: 0 0 6px;
   color: var(--ink);
   font-size: clamp(1.5rem, 2.4vw, 2.15rem);
   line-height: 1.12;
   letter-spacing: 0;
-  text-align: center;
+  text-align: left;
 }
 
 .market-section-heading p {
   max-width: 760px;
-  margin: 0 auto;
+  margin: 0;
   color: var(--muted);
   line-height: 1.55;
-  text-align: center;
+  text-align: left;
 }
 
 .market-overview-shell,
@@ -1489,8 +1489,8 @@ img, button, input, textarea, select {
   min-width: 0;
   background: #ffffff;
   border: 1px solid rgba(15, 23, 42, 0.10);
-  border-radius: 16px;
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.045);
 }
 
 .market-overview-shell {
@@ -1501,7 +1501,7 @@ img, button, input, textarea, select {
 .market-dashboard-strip {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 14px 16px;
   background: #fbfcfe;
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
@@ -1513,7 +1513,7 @@ img, button, input, textarea, select {
   color: var(--muted);
   font-size: 0.82rem;
   line-height: 1.45;
-  text-align: center;
+  text-align: left;
   background: #fbfcfe;
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
 }
@@ -1593,7 +1593,7 @@ img, button, input, textarea, select {
 
 .market-chart-selector {
   width: min(560px, 100%);
-  margin: 0 auto 14px;
+  margin: 0 0 14px;
   padding: 10px 12px;
 }
 
@@ -1608,17 +1608,18 @@ img, button, input, textarea, select {
 .market-chart-control-field {
   display: grid;
   gap: 6px;
-  justify-self: center;
-  justify-items: center;
+  justify-self: stretch;
+  justify-items: start;
 }
 
 .market-control-label {
+  width: 100%;
   color: var(--ink);
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.02em;
   line-height: 1.2;
-  text-align: center;
+  text-align: left;
   text-transform: uppercase;
 }
 
@@ -1627,12 +1628,12 @@ img, button, input, textarea, select {
   width: 280px;
   max-width: 100%;
   gap: 6px;
-  justify-self: center;
+  justify-self: stretch;
   color: var(--ink);
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.02em;
-  text-align: center;
+  text-align: left;
   text-transform: uppercase;
 }
 
@@ -1646,9 +1647,9 @@ img, button, input, textarea, select {
   min-height: 38px;
   position: relative;
   display: grid;
-  place-items: center;
+  place-items: center start;
   border: 1px solid rgba(15, 23, 42, 0.16);
-  border-radius: 12px;
+  border-radius: 8px;
   background: #ffffff;
   color: var(--ink-soft);
   cursor: pointer;
@@ -1658,7 +1659,7 @@ img, button, input, textarea, select {
   letter-spacing: 0;
   line-height: 1.2;
   padding: 7px 40px;
-  text-align: center;
+  text-align: left;
   text-transform: none;
   transition: color 180ms var(--ease-press),
     border-color 180ms var(--ease-press),
@@ -1707,8 +1708,8 @@ img, button, input, textarea, select {
   list-style: none;
   background: #ffffff;
   border: 1px solid rgba(15, 23, 42, 0.12);
-  border-radius: 12px;
-  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.14);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.10);
 }
 
 .market-custom-select.is-open .market-custom-select-list {
@@ -1717,14 +1718,14 @@ img, button, input, textarea, select {
 }
 
 .market-custom-select-option {
-  border-radius: 9px;
+  border-radius: 6px;
   color: var(--ink-soft);
   cursor: pointer;
   font-size: 0.92rem;
   font-weight: 700;
   line-height: 1.2;
   padding: 9px 10px;
-  text-align: center;
+  text-align: left;
   outline: none;
 }
 
@@ -1745,8 +1746,8 @@ img, button, input, textarea, select {
   overflow: hidden;
   background: #ffffff;
   border: 1px solid rgba(15, 23, 42, 0.10);
-  border-radius: 16px;
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.045);
 }
 
 .market-chart-widget {
@@ -1792,8 +1793,8 @@ img, button, input, textarea, select {
     linear-gradient(135deg, rgba(255, 165, 0, 0.16), rgba(255, 165, 0, 0) 42%),
     #0f172a;
   border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 18px;
-  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.16);
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.08);
 }
 
 .market-cta-icon {
@@ -1805,7 +1806,7 @@ img, button, input, textarea, select {
   color: #ffb238;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 .market-cta-icon svg {
@@ -1959,15 +1960,15 @@ img, button, input, textarea, select {
 
   .market-cta-card {
     grid-template-columns: 1fr;
-    justify-items: center;
+    justify-items: start;
     gap: 12px;
     padding: 18px;
-    text-align: center;
+    text-align: left;
   }
 
   .market-cta-copy h2,
   .market-cta-copy p {
-    text-align: center;
+    text-align: left;
   }
 
 }
@@ -2083,7 +2084,7 @@ img, button, input, textarea, select {
   background: #f8fafc;
   position: relative;
 }
-.page-hero p {
+.page > .page-hero:not(.seo-hero) > .container > p {
   text-align: center;
 }
 .page { padding-bottom: 40px; }
@@ -2096,9 +2097,11 @@ img, button, input, textarea, select {
 .breadcrumbs a:hover { text-decoration: underline; }
 /* Who page hero */
 .who-hero { background: #ffffff; border-bottom: 0; padding: 40px 0 10px; }
-.who-hero h1 { text-align: center; font-size: clamp(28px, 4.2vw, 48px); font-weight: 900; color: var(--text); margin: 0; }
-/* Center all section headers on the Who We Are page */
-.who-page h2 { text-align: center; font-weight: 800; font-size: clamp(24px, 3.2vw, 34px); margin: 26px 0 14px; }
+.who-hero h1 { text-align: center; font-size: clamp(28px, 4.2vw, 48px); font-weight: 800; line-height: 1.08; color: var(--text); margin: 0; }
+/* Who We Are uses centered presentation headings and left-aligned reading copy. */
+.who-page h2 { text-align: left; font-weight: 750; line-height: 1.14; font-size: clamp(24px, 3.2vw, 34px); margin: 26px 0 14px; }
+.who-page .core-values-section h2,
+.who-page .brochure-download h2 { text-align: center; }
 
 /* Make specific headers uppercase on Who We Are page */
 #history-block h2,
@@ -2133,7 +2136,7 @@ img, button, input, textarea, select {
   height: 560px;
   flex: 1;
 }
-.cards .card, .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; box-shadow: var(--shadow); }
+.cards .card, .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(15, 23, 42, .05); }
 .card h3 { margin-top: 0; }
 
 .products-preview .product-tags { display: flex; flex-wrap: wrap; gap: 10px; padding: 0; margin: 10px 0 0; list-style: none; }
@@ -2147,13 +2150,13 @@ img, button, input, textarea, select {
 .who-we-are p { color: #1f2937; line-height: 1.6; text-align: left; }
 .who-we-are h2 {
   font-weight: 800;
-  text-align: center;
+  text-align: left;
   color: var(--text);
   margin: 20px 0 12px;
   font-size: clamp(24px, 3.2vw, 34px);
 }
 .who-we-are h2::after { display: none; }
-/* Core Values Section - Using inline styles for precise control */
+/* Core Values presentation hierarchy */
 .who-we-are h3 { margin: 20px 0 8px; color: var(--text); text-align: center; font-weight: 700; font-size: clamp(18px, 2.3vw, 24px); }
 .who-we-are h4 { margin-top: 8px; text-align: center; font-weight: 700; letter-spacing: normal; color: var(--text); font-size: clamp(16px, 2vw, 20px); }
 .who-we-are .lead {
@@ -2167,8 +2170,31 @@ img, button, input, textarea, select {
   max-width: 900px;
   margin: 0 auto;
 }
-/* Make About Us sections slimmer */
+/* Who We Are editorial alignment */
 #history-block, #mission-block { padding: 40px 0; }
+#history-block h2, #mission-block h2, #mission-block h4 { text-align: center; }
+.core-values-section { text-align: left; }
+.core-values-section h2 { text-align: center; }
+.core-values-section .core-values-statement,
+.core-values-section .core-values-intro {
+  max-width: 72ch;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  font-weight: 700;
+}
+.core-values-section .values-list {
+  padding-left: 20px;
+  list-style: disc;
+  text-align: left;
+}
+.core-values-section .values-list li { text-align: left; }
+.brochure-download {
+  padding: 60px 0;
+  background-color: #f9f9f9;
+  text-align: center;
+}
+.brochure-actions { margin-top: 30px; }
 
 /* Home page About Us section styling */
 .section[aria-label="About Us"] { padding: 40px 0; }
@@ -2179,7 +2205,7 @@ img, button, input, textarea, select {
   max-width: 1000px;
   margin: 0 auto;
 }
-.section[aria-label="About Us"] p { text-align: justify; line-height: 1.6; margin-bottom: 12px; }
+.section[aria-label="About Us"] p { text-align: left; line-height: 1.6; margin-bottom: 12px; }
 .section[aria-label="About Us"] h2 {
   text-align: center;
   margin: 0 0 16px;
@@ -2360,10 +2386,9 @@ img, button, input, textarea, select {
 .who-we-are .values-list li::marker { color: var(--brand); }
 
 /* Home page headers styling */
-h1, h2, h3 { text-align: center; font-weight: 900; }
-h1 { font-size: clamp(36px, 6vw, 56px); margin: 0 0 8px; }
-h2 { font-size: clamp(28px, 4.5vw, 42px); margin: 0 0 8px; }
-h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
+h1 { font-size: clamp(36px, 6vw, 56px); margin: 0 0 8px; font-weight: 800; line-height: 1.08; }
+h2 { font-size: clamp(28px, 4.5vw, 42px); margin: 0 0 8px; font-weight: 750; line-height: 1.14; }
+h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; font-weight: 700; line-height: 1.24; }
 
 /* Make specific headers uppercase on home page */
 .section[aria-label="About Us"] h2,
@@ -2395,6 +2420,9 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 #our-impact h2, #leadership-team h2 {
   text-transform: uppercase;
   letter-spacing: 0.06em;
+}
+#our-impact > .section-inner > h2 {
+  text-align: center;
 }
 
 .location-tags { list-style: none; padding: 0; margin: 12px 0 18px; display: flex; flex-wrap: wrap; gap: 10px; }
@@ -2470,7 +2498,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   border-color: var(--brand);
   transform: translateY(-1px);
 }
-/* History: 40% logo / 60% text, vertically centered, justified text */
+/* History: 40% logo / 60% text, vertically centered, left-aligned reading copy */
 #history-block .two-col {
   grid-template-columns: 0.4fr 0.6fr;
   align-items: center;
@@ -2478,7 +2506,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   max-width: 1000px;
   margin: 0 auto;
 }
-#history-block p { text-align: justify; }
+#history-block p { text-align: left; }
 #history-block .media-photo img {
   width: 100%;
   height: auto;
@@ -2505,7 +2533,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   max-width: 1000px;
   margin: 0 auto;
 }
-#mission-block p { text-align: justify; }
+#mission-block p { text-align: left; }
 #mission-block .media-photo img {
   width: 100%;
   height: auto;
@@ -2574,57 +2602,56 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 .impact-row:nth-child(4) .media-photo img {
   animation-delay: 0.4s;
 }
-/* Center and enlarge Why Recycling Metals Matters */
-#our-impact h3 {
-  text-align: center;
+/* Individual impact rows share one left reading spine. */
+#our-impact .impact-row h3 {
+  text-align: left;
   font-size: clamp(20px, 3vw, 26px);
   margin: 18px 0 12px;
 }
 
-/* Center all content on Our Impact page */
+/* Our Impact reading copy: centered column, left-aligned text. */
 #our-impact {
-  text-align: justify;
+  text-align: left;
 }
 
 #our-impact .section-inner {
   max-width: 1000px;
   margin: 0 auto;
-  text-align: justify;
+  text-align: left;
 }
 
-#our-impact .lead {
-  text-align: justify !important;
-  max-width: 950px !important;
-  margin: 0 auto 20px !important;
+#our-impact > .section-inner > .lead,
+#our-impact > .section-inner > p {
+  text-align: left !important;
+  max-width: 72ch !important;
+  margin: 0 auto 18px !important;
   width: 100%;
   box-sizing: border-box;
 }
 
-#our-impact p {
-  text-align: justify !important;
-  max-width: 950px !important;
-  margin: 0 auto 16px !important;
-  width: 100%;
-  box-sizing: border-box;
+#our-impact .impact-row p {
+  text-align: left !important;
+  max-width: none !important;
+  margin: 8px 0 16px !important;
 }
 
 #our-impact .two-col {
   max-width: 950px;
   margin: 0 auto;
   justify-items: center;
-  text-align: justify;
+  text-align: left;
 }
 
 #our-impact .two-col > div {
-  text-align: justify;
+  text-align: left;
 }
 
 #our-impact .two-col h4 {
-  text-align: center;
+  text-align: left;
 }
 
 #our-impact .two-col p {
-  text-align: justify;
+  text-align: left;
   margin: 8px auto 16px;
 }
 
@@ -3879,13 +3906,13 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   .who-page h2 {
     font-size: clamp(24px, 4vw, 32px);
     margin: 20px 0 16px;
-    text-align: center;
+    text-align: left;
   }
 
   .who-page h4 {
     font-size: clamp(18px, 3vw, 22px);
     margin: 16px 0 12px;
-    text-align: center;
+    text-align: left;
   }
 
   .who-page p {
@@ -3918,13 +3945,15 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   }
 
   .who-page .core-values-section p {
-    text-align: center !important;
+    text-align: left !important;
     font-size: 15px;
     line-height: 1.6;
     margin: 12px 0;
   }
 
-  .who-page .core-values-section p[style*="font-weight: bold"] {
+  .who-page .core-values-section .core-values-statement,
+  .who-page .core-values-section .core-values-intro {
+    text-align: center !important;
     font-weight: 700 !important;
     font-size: 16px !important;
     margin: 16px 0 !important;
@@ -3985,7 +4014,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 
   .section[aria-label="About Us"] .two-col > div:not(.media-photo) {
     order: 3;
-    text-align: justify;
+    text-align: left;
     width: 100%;
     max-width: 90%;
     margin: 0 auto;
@@ -4000,7 +4029,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   }
 
   .section[aria-label="About Us"] p {
-    text-align: justify;
+    text-align: left;
     font-size: 15px;
     line-height: 1.6;
     margin: 8px 0;
@@ -4032,14 +4061,14 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
     width: 100%;
   }
 
-  .page #our-impact h3 {
-    text-align: center;
+  .page #our-impact .impact-row h3 {
+    text-align: left;
     margin: 0 0 16px 0;
     font-size: clamp(20px, 4vw, 24px);
   }
 
-  .page #our-impact h4 {
-    text-align: center;
+  .page #our-impact .impact-row h4 {
+    text-align: left;
     margin: 12px 0 8px 0;
     font-size: clamp(18px, 3vw, 20px);
   }
@@ -4074,9 +4103,9 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 
   .contact-info-left {
     order: 1; /* Keep contact info above form on mobile */
-    text-align: center !important;
+    text-align: left !important;
     padding: 0 8px;
-    align-items: center !important;
+    align-items: flex-start !important;
   }
 
   .contact-form-container {
@@ -4347,7 +4376,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
   }
 
   .section[aria-label="About Us"] p {
-    text-align: justify;
+    text-align: left;
     font-size: 14px;
     line-height: 1.5;
     margin: 6px 0;
@@ -4358,12 +4387,12 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
     padding: 0 12px;
   }
 
-  .page #our-impact h3 {
+  .page #our-impact .impact-row h3 {
     font-size: clamp(18px, 5vw, 22px);
     margin: 0 0 12px 0;
   }
 
-  .page #our-impact h4 {
+  .page #our-impact .impact-row h4 {
     font-size: clamp(16px, 4vw, 18px);
     margin: 10px 0 6px 0;
   }
@@ -4445,7 +4474,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 /* Mobile contact info optimization */
 @media (max-width: 768px) {
   .contact-info-left h2 {
-    text-align: center !important;
+    text-align: left !important;
     margin: 0 0 24px !important;
   }
 
@@ -4453,24 +4482,24 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
     margin: 20px 0 12px;
     font-size: 1.4rem;
     font-weight: 800;
-    text-align: center !important;
+    text-align: left !important;
   }
 
   .contact-info-left p {
     font-size: 15px;
     line-height: 1.6;
-    text-align: center !important;
+    text-align: left !important;
     margin: 8px 0 12px;
   }
 
   .contact-info-left a {
     font-size: 15px;
-    padding: 4px 8px;
+    padding: 4px 0;
     border-radius: 4px;
-    background: #f8fafc;
+    background: transparent;
     display: inline-block;
     margin: 2px 0;
-    text-align: center !important;
+    text-align: left !important;
   }
 }
 
@@ -4518,7 +4547,7 @@ h3 { font-size: clamp(24px, 3.5vw, 36px); margin: 0 0 6px; }
 
 .form-header {
   margin-bottom: 2px;
-  text-align: center;
+  text-align: left;
   padding-top: 10px; /* Further reduced padding for more compact box */
   padding-bottom: 0;
 }

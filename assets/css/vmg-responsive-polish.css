@@ -11,8 +11,8 @@
 .product-card-cta,
 .products-grid .card.product .product-figure figcaption,
 .home-main .home-product-tile figcaption {
-  justify-content: center;
-  text-align: center;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 .products-grid {
@@ -29,17 +29,18 @@
 }
 
 .home-main .home-utility--resources {
-  text-align: center;
+  text-align: left;
 }
 
 .home-main .home-utility--resources .home-text-link {
-  justify-content: center;
-  margin-inline: auto;
+  justify-content: flex-start;
+  margin-left: 0;
+  margin-right: auto;
 }
 
 .home-main .home-utility--resources li,
 .home-main .home-utility--resources li a {
-  text-align: center;
+  text-align: left;
 }
 
 .home-main .home-profile-inner {
@@ -131,10 +132,10 @@
   width: min(286px, calc(100vw - 32px));
   padding: 9px;
   border: 1px solid rgba(211, 163, 120, .3);
-  border-radius: 14px;
+  border-radius: 10px;
   background: rgba(10, 23, 40, .97);
   color: #fff;
-  box-shadow: 0 24px 54px rgba(3, 12, 23, .3), inset 0 1px 0 rgba(255, 255, 255, .05);
+  box-shadow: 0 10px 28px rgba(3, 12, 23, .24), inset 0 1px 0 rgba(255, 255, 255, .05);
   opacity: 0;
   visibility: hidden;
   transform: translateY(8px) scale(.98);
@@ -279,8 +280,14 @@
   .home-main .home-hero .overlay-ctas,
   .home-main .home-profile-actions,
   .home-main .home-final-actions,
+  .res-actions {
+    justify-content: flex-start;
+    margin-right: auto;
+    margin-left: 0;
+    text-align: left;
+  }
+
   .home-main .home-products-cta,
-  .res-actions,
   .docs-action {
     justify-content: center;
     margin-right: auto;
@@ -294,9 +301,9 @@
 
   .home-main .home-trade-item > a,
   .home-main .home-utility .home-text-link {
-    justify-content: center;
+    justify-content: flex-start;
     margin-right: auto;
-    margin-left: auto;
+    margin-left: 0;
   }
 
   .home-main .home-products-cta {
@@ -311,15 +318,15 @@
   .home-main .home-profile-copy {
     max-width: none;
     padding: 34px 24px 18px;
-    text-align: center;
+    text-align: left;
   }
 
   .home-main .home-profile-copy .section-eyebrow,
   .home-main .home-profile h2,
   .home-main .home-profile-copy > p:not(.section-eyebrow) {
     margin-right: auto;
-    margin-left: auto;
-    text-align: center;
+    margin-left: 0;
+    text-align: left;
   }
 
   .home-main .home-profile-actions {
@@ -337,31 +344,31 @@
   }
 
   .home-main .home-utility {
-    text-align: center;
+    text-align: left;
   }
 
   .resources-view .res-hero-grid > .res-reveal:first-child,
   .resources-view .hub-card {
-    text-align: center;
+    text-align: left;
   }
 
   .resources-view .res-hero .res-eyebrow {
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .resources-view .res-hero-text {
     margin-right: auto;
-    margin-left: auto;
+    margin-left: 0;
   }
 
   .resources-view .hub-card .card-link {
-    align-self: center;
+    align-self: flex-start;
   }
 
   .resources-view .company-profile-card,
   .resources-view .market-strip,
   .resources-view .final-cta {
-    text-align: center;
+    text-align: left;
   }
 
   .resources-view .company-profile-card .res-actions,
@@ -369,7 +376,7 @@
   .resources-view .final-cta .res-actions {
     width: min(100%, 340px);
     margin-right: auto;
-    margin-left: auto;
+    margin-left: 0;
   }
 
   .vmg-help {
@@ -447,10 +454,17 @@
 
   .home-view .home-main .home-hero .overlay-ctas,
   .home-view .home-main .home-profile-actions,
-  .home-view .home-main .home-products-cta,
   .home-view .home-main .home-impact-copy .home-text-link,
   .home-view .home-main .home-utility .home-text-link,
-  .resources-view .resources-page .res-actions,
+  .resources-view .resources-page .res-actions {
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-left: 0;
+    margin-right: auto;
+    text-align: left;
+  }
+
+  .home-view .home-main .home-products-cta,
   .resources-view .resources-page .docs-action,
   .resources-view .resources-page .faq-teaser {
     justify-content: center;
@@ -460,8 +474,15 @@
   }
 
   .home-view .home-main .home-impact-copy .home-text-link,
-  .home-view .home-main .home-products-cta .home-text-link,
   .home-view .home-main .home-utility .home-text-link {
+    display: flex;
+    width: max-content;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  .home-view .home-main .home-products-cta .home-text-link {
     display: flex;
     width: max-content;
     max-width: 100%;
@@ -601,7 +622,7 @@
   .home-view .home-main .home-trade-item:last-child {
     min-height: 0;
     padding: 10px clamp(8px, 2.2vw, 18px);
-    text-align: center;
+    text-align: left;
   }
 
   .home-view .home-main .home-trade-item + .home-trade-item::before {
@@ -631,11 +652,11 @@
   }
 
   .home-view .home-main .home-trade-item > a {
-    justify-content: center;
-    margin: 11px auto 0;
+    justify-content: flex-start;
+    margin: 11px auto 0 0;
     padding-top: 0;
     font-size: clamp(.62rem, 1.7vw, .74rem);
-    text-align: center;
+    text-align: left;
   }
 
   .home-view .home-main .home-impact-grid {
@@ -644,7 +665,7 @@
   }
 
   .home-view .home-main .home-impact h2 {
-    font-size: clamp(1.8rem, 7.5vw, 3rem);
+    font-size: clamp(1.55rem, 6.5vw, 2.4rem);
   }
 
   .home-view .home-main .home-impact-copy {
@@ -668,7 +689,7 @@
   .home-view .home-main .home-utility {
     min-height: 0;
     padding: clamp(16px, 4vw, 26px);
-    text-align: center;
+    text-align: left;
   }
 
   .home-view .home-main .home-utility h3 {
@@ -711,8 +732,8 @@
 
   .home-view .home-main .home-final-actions {
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    align-items: flex-start;
+    justify-content: flex-start;
     width: min(150px, 34vw);
     gap: 8px;
   }
@@ -1997,4 +2018,44 @@
     width: 108px;
     max-height: 150px;
   }
+}
+
+
+/* Final layout alignment: Contact, Products directory, Guides and Who We Are. */
+.vmg-contact-information .container,
+.vmg-contact-form-section .container { max-width: 1160px; }
+.vmg-contact-information h2,
+.vmg-contact-form-section .form-header h2 { text-align: center; }
+.vmg-contact-information h2 { margin: 0 0 30px; }
+.vmg-contact-info-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: clamp(22px,3vw,48px); align-items: start; }
+.vmg-contact-info-column { min-width: 0; }
+.vmg-contact-info-column h3 { margin: 0 0 12px; text-align: left; }
+.vmg-contact-info-column h3:not(:first-child) { margin-top: 22px; }
+.vmg-contact-info-column p { overflow-wrap: anywhere; text-align: left; }
+.vmg-contact-form-section { padding-top: clamp(40px,4vw,56px); }
+.vmg-contact-form-grid { max-width: 940px !important; margin-inline: auto; }
+.vmg-contact-form-grid .contact-form-container { width: 100%; max-width: none; }
+.vmg-contact-form-grid .contact-form-new { width: 100%; }
+.vmg-contact-form-section .form-header { text-align: center; }
+.vmg-contact-form-section .form-header h2 { margin-inline: auto; }
+.products-grid { align-items: start; }
+.product-search .search-container { margin-inline: auto; }
+body:has(.products-grid) .page-hero .container { text-align: center; }
+body:has(.products-grid) .page-hero p { max-width: 72ch; margin-inline: auto; }
+.guide-page .seo-section > .container { max-width: 860px; }
+.guide-page .seo-section:not(:has(.seo-related)) p,
+.guide-page .seo-section:not(:has(.seo-related)) li { text-align: left; }
+.who-page #history-block .lead,
+.who-page #history-block p,
+.who-page #mission-block p { text-align: left; text-align-last: auto; }
+.who-page #history-block .two-col > div:last-child,
+.who-page #mission-block .two-col > div:last-child { max-width: 72ch; }
+@media (max-width: 900px) {
+  .vmg-contact-info-grid { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+}
+@media (max-width: 640px) {
+  .vmg-contact-info-grid { grid-template-columns: minmax(0,1fr); gap: 26px; }
+  .vmg-contact-information h2 { margin-bottom: 26px; }
+  .vmg-contact-form-grid { width: min(100% - 32px, 940px); }
+  body:has(.products-grid) .page-hero .container { padding-inline: 0; }
 }

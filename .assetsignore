@@ -1,0 +1,12 @@
+# Deployment metadata and development files are not website assets.
+.git/
+.github/
+.wrangler/
+node_modules/
+wrangler.jsonc
+.assetsignore
+*.md
+*.gs
+scripts/
+.DS_Store
+**/.DS_Store

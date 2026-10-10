@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/wrangler@4.147.0/config-schema.json",
+  "name": "vashudevan",
+  "compatibility_date": "2026-10-07",
+  "workers_dev": false,
+  "assets": {
+    "directory": ".",
+    "html_handling": "force-trailing-slash",
+    "not_found_handling": "none"
+  },
+  "previews": {}
+}

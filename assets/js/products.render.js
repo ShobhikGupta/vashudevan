@@ -1,4 +1,10 @@
 (function(){
+  var VMG_MATERIAL_URLS = {
+    aluminum: '/products/aluminium/', 'auto-scrap': '/products/auto-scrap/', brass: '/products/brass/', copper: '/products/copper/',
+    'copper-bearing': '/products/copper-bearing/', ferrous: '/products/ferrous/', lead: '/products/lead/',
+    'shredder-scrap': '/products/shredder-scrap/', 'stainless-steel': '/products/stainless-steel/', zinc: '/products/zinc/'
+  };
+  function vmgMaterialUrl(slug) { return VMG_MATERIAL_URLS[slug] || '/products/'; }
   function loadCatalog() {
     try {
       if (window.__CATALOG__ && Array.isArray(window.__CATALOG__.products) && window.__CATALOG__.products.length) {
@@ -6,7 +12,7 @@
       }
     } catch (_) {}
 
-    var url = 'assets/data/products.json?v=' + Date.now();
+    var url = '/assets/data/products.json?v=' + Date.now();
     return fetch(url, { cache: 'no-cache' })
       .then(function (r) { if (!r.ok) throw new Error('Failed to load catalog: ' + r.status); return r.json(); })
       .then(function (data) {
@@ -14,6 +20,24 @@
         return window.__CATALOG__;
       })
       .catch(function () { return { products: [] }; });
+  }
+
+  function createCategoryCta() {
+    var cta = document.createElement('span');
+    cta.className = 'product-card-cta';
+
+    var label = document.createElement('span');
+    label.className = 'product-card-cta-label';
+    label.textContent = 'View Category';
+
+    var arrow = document.createElement('span');
+    arrow.className = 'product-card-cta-arrow';
+    arrow.setAttribute('aria-hidden', 'true');
+    arrow.textContent = '\u2192';
+
+    cta.appendChild(label);
+    cta.appendChild(arrow);
+    return cta;
   }
 
   function renderCategoryCards(gridEl, categories) {
@@ -66,7 +90,7 @@
       article.className = 'card product';
 
       var link = document.createElement('a');
-      link.href = 'product.html?slug=' + encodeURIComponent(cat.slug);
+      link.href = vmgMaterialUrl(cat.slug);
       link.setAttribute('aria-label', 'View ' + displayName + ' category');
 
       var figure = document.createElement('figure');
@@ -79,9 +103,7 @@
       var caption = document.createElement('figcaption');
       caption.textContent = displayName;
 
-      var cta = document.createElement('span');
-      cta.className = 'product-card-cta';
-      cta.textContent = 'View Category';
+      var cta = createCategoryCta();
 
       figure.appendChild(img);
       figure.appendChild(caption);
@@ -117,7 +139,7 @@
           subproductItem.className = 'subproduct-item';
           
           var subproductLink = document.createElement('a');
-          subproductLink.href = 'product.html?slug=' + encodeURIComponent(cat.slug) + '#' + encodeURIComponent(subproduct.slug);
+          subproductLink.href = vmgMaterialUrl(cat.slug) + '#' + encodeURIComponent(subproduct.slug);
           subproductLink.textContent = subproduct.name;
           subproductLink.className = 'subproduct-link';
           
@@ -208,7 +230,7 @@
     container.innerHTML = '';
 
     var pLink = document.createElement('a');
-    pLink.href = 'product.html?slug=' + encodeURIComponent(product.slug);
+    pLink.href = vmgMaterialUrl(product.slug);
     pLink.textContent = product.name;
 
     var sep = document.createElement('span');
@@ -263,7 +285,7 @@
           article.className = 'card product';
           
           var link = document.createElement('a');
-          link.href = 'product.html?slug=' + encodeURIComponent(product.slug);
+          link.href = vmgMaterialUrl(product.slug);
           link.setAttribute('aria-label', 'View ' + displayName + ' category');
           
           var figure = document.createElement('figure');
@@ -276,9 +298,7 @@
           var caption = document.createElement('figcaption');
           caption.textContent = displayName;
 
-          var cta = document.createElement('span');
-          cta.className = 'product-card-cta';
-          cta.textContent = 'View Category';
+          var cta = createCategoryCta();
           
           figure.appendChild(img);
           figure.appendChild(caption);
@@ -339,4 +359,3 @@
     });
   });
 })();
-
