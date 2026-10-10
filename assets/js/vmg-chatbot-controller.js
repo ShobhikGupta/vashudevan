@@ -14,9 +14,8 @@
   const SLEEP_AFTER_MS = 120000;
   const DROWSY_AFTER_MS = 60000;
   const GAZE_RETURN_MS = 1200;
-  const GREETING_DELAY_MS = 3000;
-  const GREETING_VISIBLE_MS = 6000;
-  const GREETING_DISMISS_KEY = 'greeting_dismissed';
+  const GREETING_DELAY_MS = 2000;
+  const GREETING_VISIBLE_MS = 18000;
   // Gentle, proportional eye movement at a 48px launcher size.
   // The original avatar renderer continues to own every facial path.
   const GAZE_MAX_X = 28;
@@ -160,14 +159,14 @@
       return;
     }
     // The greeting enhances the original Help trigger and never creates chat.
-    // One offer per page, unless a visitor dismisses it for this entire session.
+    // One unobtrusive offer per page load, including browser refreshes.
     const greetingCopy = pathname => {
       const section = name => pathname === '/' + name || pathname.startsWith('/' + name + '/');
-      if (section('products')) return {context: 'products', text: 'Need a metal quotation?', suggest: ['Send Buying Requirement']};
-      if (section('resources')) return {context: 'resources', text: 'Have a trade-related question?', suggest: ['WhatsApp VMG']};
-      if (section('market')) return {context: 'market', text: 'Want to discuss metal prices?', suggest: ['WhatsApp VMG']};
-      if (section('contact-us') || section('contact')) return {context: 'contact', text: 'Prefer a callback?', suggest: ['Call Back Request']};
-      return {context: 'general', text: 'Buying or selling scrap?', suggest: ['Send Buying Requirement', 'Submit Material Offer']};
+      if (section('products')) return {context: 'products', text: 'Need help?', suggest: ['Send Buying Requirement']};
+      if (section('resources')) return {context: 'resources', text: 'Need help?', suggest: ['WhatsApp VMG']};
+      if (section('market')) return {context: 'market', text: 'Need help?', suggest: ['WhatsApp VMG']};
+      if (section('contact-us') || section('contact')) return {context: 'contact', text: 'Need help?', suggest: ['Call Back Request']};
+      return {context: 'general', text: 'Need help?', suggest: ['Send Buying Requirement', 'Submit Material Offer']};
     };
     const pageGreeting = greetingCopy(window.location.pathname || '/');
     // Only highlight suggestions when the visitor entered Help via the bubble.
@@ -197,7 +196,7 @@
     greetingClose.type = 'button';
     greetingClose.className = 'vmg-bot-greeting-close';
     greetingClose.textContent = '×';
-    greetingClose.setAttribute('aria-label', 'Dismiss VMG Bot greeting for this session');
+    greetingClose.setAttribute('aria-label', 'Dismiss VMG Bot greeting until the page reloads');
     greeting.append(greetingAction, greetingClose);
     root.appendChild(greeting);
 
@@ -211,7 +210,7 @@
       if (reason) track('vmg_bot_greeting_hide', {context: pageGreeting.context, reason});
     }
     function dismissGreeting() {
-      remember(GREETING_DISMISS_KEY, 'true');
+      // Close only for this page view; refreshes should show the invitation again.
       greetingShownOnPage = true;
       hideGreeting('dismissed');
     }
@@ -224,16 +223,14 @@
     }
     function showGreeting() {
       greetingDelayTimer = 0;
-      if (disposed || greetingShownOnPage || recall(GREETING_DISMISS_KEY) === 'true'
-          || isOpen() || document.hidden) return;
+      if (disposed || greetingShownOnPage || isOpen() || document.hidden) return;
       greetingShownOnPage = true;
       greeting.hidden = false;
       track('vmg_bot_greeting_view', {context: pageGreeting.context});
       greetingHideTimer = setTimeout(autoHideGreeting, GREETING_VISIBLE_MS);
     }
     function scheduleGreeting() {
-      if (disposed || greetingShownOnPage || recall(GREETING_DISMISS_KEY) === 'true'
-          || isOpen() || document.hidden || greetingDelayTimer) return;
+      if (disposed || greetingShownOnPage || isOpen() || document.hidden || greetingDelayTimer) return;
       greetingDelayTimer = setTimeout(showGreeting, GREETING_DELAY_MS);
     }
     listen(greetingAction, 'click', () => {
