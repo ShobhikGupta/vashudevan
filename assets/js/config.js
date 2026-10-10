@@ -65,7 +65,7 @@
   loadScript('/assets/js/skeleton-loader.js?v=20260904b', 'data-vmg-skeleton-loader-script');
   loadScript('/assets/js/vmg-feedback.js?v=20260905a', 'data-vmg-feedback-script');
   loadScript('/assets/js/vmg-help.js?v=20260904b', 'data-vmg-help-script');
-  loadScript('/assets/js/vmg-chatbot-controller.js?v=20261010-stable-eyes', 'data-vmg-chatbot-controller-script');
+  loadScript('/assets/js/vmg-chatbot-controller.js?v=20261010-reactions-v1', 'data-vmg-chatbot-controller-script');
 })();
 
 (function () {
@@ -100,7 +100,7 @@
     chevron.innerHTML = '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M6 8l4 4 4-4"/></svg>';
   }
 
-  var TRACK_STATUS_MESSAGE = 'Online shipment tracking is being prepared. For current BL / Container / CTO status, contact the VMG Desk.';
+  var TRACK_STATUS_MESSAGE = 'Shipment tracking portal is coming soon.';
   var TRACK_ENTRY_MS = 280;
   var TRACK_READING_MS = 3400;
   var TRACK_EXIT_MS = 240;
@@ -115,7 +115,7 @@
     status.setAttribute('role', 'status');
     status.setAttribute('aria-live', 'polite');
     status.setAttribute('aria-atomic', 'true');
-    status.textContent = TRACK_STATUS_MESSAGE;
+    status.innerHTML = '<strong>' + TRACK_STATUS_MESSAGE + '</strong>';
     status.hidden = true;
     header.appendChild(status);
     status._vmgScrollBound = true;
