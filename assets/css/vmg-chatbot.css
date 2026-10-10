@@ -276,7 +276,7 @@ body.vmg-chatbot-enabled #vmg-help .vmg-bot-greeting-close:focus-visible {
 @media (max-width: 900px) {
   body.vmg-chatbot-enabled #vmg-help > .vmg-bot-greeting {
     right: calc(100% + 8px);
-    bottom: calc(100% + 11px);
+    bottom: 7px;
     max-width: min(212px, calc(100vw - 92px));
     padding: 4px 4px 4px 9px;
   }
