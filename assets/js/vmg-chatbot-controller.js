@@ -22,8 +22,10 @@
   const GAZE_MAX_Y = 17;
   const GAZE_EASE = 0.14;
   const BLINK_DURATION_MS = 240;
-  const BLINK_MIN_INTERVAL_MS = 3200;
-  const BLINK_INTERVAL_VARIATION_MS = 2600;
+  // Gentle natural blink interval: randomized 2.8–4.6 seconds.
+  // Keep the existing 240ms blink animation and reduced-motion behavior.
+  const BLINK_MIN_INTERVAL_MS = 2800;
+  const BLINK_INTERVAL_VARIATION_MS = 1800;
   // Gentle acknowledgements have longer cooldowns to prevent repeated
   // blinking whenever the pointer crosses a button or Help option.
   const REACTION_COOLDOWN_MS = 4500;
@@ -167,6 +169,11 @@
       if (section('market')) return {context: 'market', text: 'Want to discuss metal prices?', suggest: ['WhatsApp VMG', 'Email Us']};
       if (section('contact-us') || section('contact')) return {context: 'contact', text: 'Prefer a callback?', suggest: ['Call Back Request', 'Email Us']};
       if (section('about')) return {context: 'about', text: 'Want our company brochure?', suggest: ['Download VMG Brochure']};
+      if (pathname === '/' || pathname === '/index.html') {
+        return {context: 'home', text: 'Need help?',
+          suggest: ['Send Buying Requirement', 'Submit Material Offer'],
+          secondarySuggest: ['Download VMG Brochure']};
+      }
       return {context: 'general', text: 'Need help?', suggest: ['Send Buying Requirement', 'Submit Material Offer']};
     };
     const pageGreeting = greetingCopy(window.location.pathname || '/');
@@ -174,13 +181,18 @@
     // Leave all six existing Help actions in their original order and usable.
     let highlightOnOpen = false;
     const clearSuggestedActions = () => {
-      menu.querySelectorAll('a.vmg-bot-suggested').forEach(link => link.classList.remove('vmg-bot-suggested'));
+      menu.querySelectorAll('a.vmg-bot-suggested, a.vmg-bot-secondary-suggested').forEach(link => {
+        link.classList.remove('vmg-bot-suggested', 'vmg-bot-secondary-suggested');
+      });
     };
     const applySuggestedActions = () => {
       clearSuggestedActions();
       const preferred = new Set(pageGreeting.suggest);
+      const secondary = new Set(pageGreeting.secondarySuggest || []);
       menu.querySelectorAll('a[href]').forEach(link => {
-        if (preferred.has(link.textContent.trim())) link.classList.add('vmg-bot-suggested');
+        const label = link.textContent.trim();
+        if (preferred.has(label)) link.classList.add('vmg-bot-suggested');
+        else if (secondary.has(label)) link.classList.add('vmg-bot-secondary-suggested');
       });
     };
     const greeting = document.createElement('div');
