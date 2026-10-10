@@ -19,6 +19,9 @@
   const GAZE_MAX_X = 28;
   const GAZE_MAX_Y = 17;
   const GAZE_EASE = 0.14;
+  const BLINK_DURATION_MS = 240;
+  const BLINK_MIN_INTERVAL_MS = 3200;
+  const BLINK_INTERVAL_VARIATION_MS = 2600;
   const MOODS = ['sleeping', 'waking', 'idle', 'listening', 'thinking', 'searching', 'working',
     'excited', 'bored', 'suspicious', 'angry', 'drowsy', 'happy', 'curious', 'confused',
     'surprised', 'proud', 'shy', 'sad', 'laughing', 'scared', 'playful', 'celebrate'];
@@ -53,6 +56,10 @@
     let gazeFrame = 0;
     let glanceTimer = 0;
     let wakeTimer = 0;
+    let blinkTimer = 0;
+    let blinkFrame = 0;
+    let blinkStartedAt = 0;
+    let blinkPivotY = 0;
     let modalActive = false;
     let lastOpenState = root.classList.contains('is-open');
     let actionClosing = false;
@@ -129,96 +136,127 @@
       console.warn('[VMG Chatbot] Avatar mounting failed. Original Need Help retained.', err);
       return;
     }
-    // Keep the original eye paths and their engine-driven d attributes intact.
-    // Wrap only the eyes, inside the original head clipping group, so Strobi's
-    // renderer and our gaze transform never write to the same attribute.
+    // Strobi's original listening sequence cycles among tilted expressions.
+    // Running that loop while tracking gaze caused changing eye shapes, a
+    // competing eye-leveling observer, and repeated blinks in different layers.
+    // Hold the FIRST original listening expression for normal browsing.
+    // Keep all exported animations untouched for reactions and sleep/wake.
     const clippedEyes = avatarHost.querySelector('g[clip-path]');
-    const eyePaths = clippedEyes ? Array.from(clippedEyes.children).filter(node => node.localName === 'path') : [];
+    const eyePaths = clippedEyes
+      ? Array.from(clippedEyes.children).filter(node => node.localName === 'path') : [];
     const gazeSupported = eyePaths.length === 2;
     let gazeLayer = null;
     let uprightLayer = null;
-    let uprightFrame = 0;
-    let uprightObserver = null;
-    let uprightAngle = 0;
-    let uprightReady = false;
+    let blinkLayer = null;
     if (gazeSupported) {
-      gazeLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      const svgNS = 'http://www.w3.org/2000/svg';
+      gazeLayer = document.createElementNS(svgNS, 'g');
+      uprightLayer = document.createElementNS(svgNS, 'g');
+      blinkLayer = document.createElementNS(svgNS, 'g');
       gazeLayer.setAttribute('data-vmg-strobi-gaze', 'true');
-      uprightLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       uprightLayer.setAttribute('data-vmg-strobi-upright', 'true');
-      eyePaths.forEach(path => uprightLayer.appendChild(path));
+      blinkLayer.setAttribute('data-vmg-strobi-blink', 'true');
+      eyePaths.forEach(path => blinkLayer.appendChild(path));
+      uprightLayer.appendChild(blinkLayer);
       gazeLayer.appendChild(uprightLayer);
       clippedEyes.appendChild(gazeLayer);
     } else {
       console.warn('[VMG Chatbot] Original eye paths unavailable: cursor gaze disabled.');
     }
 
-    // The preceding version immediately counter-rotated the eyes whenever the
-    // animated paths changed. Blinks and transitions made that angle jump.
-    // Filter only the correction angle, leaving Strobi's expression geometry
-    // and eye paths completely under the original engine's control.
-    const updateUpright = () => {
-      uprightFrame = 0;
-      if (disposed || !uprightLayer) return;
-      if (activeAnimation !== 'listening' && activeAnimation !== 'curious') {
-        uprightReady = false;
-        uprightAngle = 0;
+    const resetBlink = () => {
+      clearTimeout(blinkTimer);
+      blinkTimer = 0;
+      if (blinkFrame) cancelAnimationFrame(blinkFrame);
+      blinkFrame = 0;
+      if (blinkLayer) blinkLayer.removeAttribute('transform');
+    };
+    const refreshRestingFace = () => {
+      if (!gazeSupported) return;
+      uprightLayer.removeAttribute('transform');
+      if (activeAnimation !== 'listening') return;
+      try {
+        const a = eyePaths[0].getBBox(), b = eyePaths[1].getBBox();
+        if (a.width < 4 || b.width < 4 || a.height < 4 || b.height < 4) return;
+        const x1 = a.x + a.width / 2, y1 = a.y + a.height / 2;
+        const x2 = b.x + b.width / 2, y2 = b.y + b.height / 2;
+        const dx = x2 - x1, dy = y2 - y1;
+        if (dx < 12 || ![x1,y1,x2,y2].every(Number.isFinite)) return;
+        const tilt = Math.max(-17, Math.min(17, Math.atan2(dy, dx) * 180 / Math.PI));
+        const pivotX = (x1 + x2) / 2;
+        blinkPivotY = (y1 + y2) / 2;
+        // This transform is measured once from the preserved source pose.
+        // No per-frame rotation or MutationObserver is used.
+        uprightLayer.setAttribute('transform',
+          `rotate(${(-tilt).toFixed(2)} ${pivotX.toFixed(2)} ${blinkPivotY.toFixed(2)})`);
+      } catch (_) {
         uprightLayer.removeAttribute('transform');
+      }
+    };
+    const animateBlink = time => {
+      blinkFrame = 0;
+      if (disposed || activeAnimation !== 'listening' || !wantsMotion() || !blinkLayer) {
+        resetBlink();
         return;
       }
-      try {
-        const left = eyePaths[0].getBBox();
-        const right = eyePaths[1].getBBox();
-        // Blinks collapse the geometry temporarily; do not let them change
-        // the base level correction or make the eyes jump.
-        if (left.width < 5 || right.width < 5 || left.height < 5 || right.height < 5) return;
-        const x1 = left.x + left.width / 2, y1 = left.y + left.height / 2;
-        const x2 = right.x + right.width / 2, y2 = right.y + right.height / 2;
-        const dx = x2 - x1, dy = y2 - y1;
-        if (![dx, dy, x1, y1, x2, y2].every(Number.isFinite) || dx < 12) return;
-        const measured = Math.max(-16, Math.min(16, Math.atan2(dy, dx) * 180 / Math.PI));
-        if (!uprightReady) {
-          uprightAngle = measured;
-          uprightReady = true;
-        } else {
-          uprightAngle += (measured - uprightAngle) * 0.18;
-        }
-        const pivotX = (x1 + x2) / 2, pivotY = (y1 + y2) / 2;
-        uprightLayer.setAttribute('transform',
-          `rotate(${(-uprightAngle).toFixed(2)} ${pivotX.toFixed(2)} ${pivotY.toFixed(2)})`);
-        if (Math.abs(measured - uprightAngle) > 0.15) scheduleUpright();
-      } catch (_) {
-        // A malformed or unsupported SVG geometry measurement must not
-        // disable the launcher or its original Help functionality.
-        uprightReady = false;
-        uprightLayer.removeAttribute('transform');
+      const t = Math.min(1, (time - blinkStartedAt) / BLINK_DURATION_MS);
+      // Collapse and reopen ORIGINAL eye paths around their common baseline.
+      const closure = Math.sin(Math.PI * t);
+      const scale = 1 - 0.91 * Math.max(0, closure);
+      blinkLayer.setAttribute('transform',
+        `translate(0 ${blinkPivotY.toFixed(2)}) scale(1 ${scale.toFixed(3)}) translate(0 ${(-blinkPivotY).toFixed(2)})`);
+      if (t < 1) blinkFrame = requestAnimationFrame(animateBlink);
+      else {
+        blinkLayer.removeAttribute('transform');
+        scheduleBlink();
       }
     };
-    const scheduleUpright = () => {
-      if (!uprightLayer || uprightFrame || disposed) return;
-      uprightFrame = requestAnimationFrame(updateUpright);
-    };
-    if (gazeSupported) {
-      uprightObserver = new MutationObserver(scheduleUpright);
-      eyePaths.forEach(path => uprightObserver.observe(path, {
-        attributes: true, attributeFilter: ['d']
-      }));
-      scheduleUpright();
+    function scheduleBlink() {
+      if (disposed || !gazeSupported || !wantsMotion() || activeAnimation !== 'listening'
+          || blinkTimer || blinkFrame) return;
+      blinkTimer = setTimeout(() => {
+        blinkTimer = 0;
+        blinkStartedAt = performance.now();
+        blinkFrame = requestAnimationFrame(animateBlink);
+      }, BLINK_MIN_INTERVAL_MS + Math.random() * BLINK_INTERVAL_VARIATION_MS);
     }
-
+    const settleAtRest = () => {
+      if (!avatar) return;
+      resetBlink();
+      // Use the exported engine's own stop() to reset the first real
+      // listening expression. No new expression or SVG eye path is created.
+      if (avatar.animation !== 'listening') avatar.play('listening');
+      avatar.stop();
+      refreshRestingFace();
+      scheduleBlink();
+    };
     function syncPlayback() {
       if (!avatar) return;
+      if (activeAnimation === 'listening') {
+        if (!wantsMotion()) resetBlink();
+        else if (!blinkTimer && !blinkFrame) scheduleBlink();
+        return; // Fixed original pose; never restart the looping sequence.
+      }
+      resetBlink();
       if (wantsMotion()) {
         if (!avatar.playing) avatar.play(activeAnimation);
       } else if (avatar.playing) avatar.pause();
     }
     function play(name) {
       if (!avatar || !availableAnimations.includes(name)) return;
+      if (name === 'listening') {
+        const changed = activeAnimation !== name || avatar.playing;
+        activeAnimation = name;
+        if (changed) settleAtRest();
+        else if (wantsMotion()) scheduleBlink();
+        return;
+      }
+      resetBlink();
       if (activeAnimation !== name) {
         activeAnimation = name;
+        uprightLayer?.removeAttribute('transform');
         if (wantsMotion()) avatar.play(name);
         else { avatar.play(name); avatar.pause(); }
-        scheduleUpright();
       } else if (!wantsMotion()) avatar.pause();
       if (name === 'sleeping' || name === 'drowsy') resetGaze();
     }
@@ -368,7 +406,10 @@
     listen(document, 'pointerdown', event => {
       noteInteraction();
       if (DESKTOP.matches || !wantsMotion() || !root.contains(event.target)) return;
-      if (!['sleeping', 'drowsy'].includes(activeAnimation)) updateGaze(2, -1.5);
+      if (!['sleeping', 'drowsy'].includes(activeAnimation)) {
+        updateGaze(2, -1.5);
+        scheduleGazeReturn();
+      }
     }, {passive:true});
     listen(document, 'keydown', noteInteraction);
     listen(document, 'scroll', noteInteraction, {passive:true});
@@ -428,9 +469,8 @@
     glance();
     cleanup.push(() => {
       clearInterval(lifeTimer); clearGazeReturn(); clearTimeout(glanceTimer); clearTimeout(wakeTimer);
+      resetBlink();
       if (gazeFrame) cancelAnimationFrame(gazeFrame);
-      if (uprightFrame) cancelAnimationFrame(uprightFrame);
-      if (uprightObserver) uprightObserver.disconnect();
       classObserver.disconnect();
     });
 
@@ -438,6 +478,7 @@
     root.classList.add('vmg-chatbot-ready');
     document.body.classList.add('vmg-chatbot-enabled');
     syncModal();
+    settleAtRest();
     syncPlayback();
     window.__vmgChatbot = {
       destroy() {
