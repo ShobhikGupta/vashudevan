@@ -18,7 +18,9 @@
   // is 48px, so 32/22 SVG units give a noticeable but contained gaze.
   const GAZE_MAX_X = 32;
   const GAZE_MAX_Y = 22;
-  const GAZE_NEAR_DISTANCE = 85;
+  // The source idle sequence contains an intentional up-turned face.
+  // Use Strobi's original front-facing 'listening' sequence while attentive.
+  const ATTENTIVE_IDLE_MS = 12000;
   const MOODS = ['sleeping', 'waking', 'idle', 'listening', 'thinking', 'searching', 'working',
     'excited', 'bored', 'suspicious', 'angry', 'drowsy', 'happy', 'curious', 'confused',
     'surprised', 'proud', 'shy', 'sad', 'laughing', 'scared', 'playful', 'celebrate'];
@@ -45,6 +47,7 @@
     let lastInteraction = performance.now();
     let lastPointerMove = 0;
     let lastGazeMove = 0;
+    let hasPointerPosition = false;
     let gazeX = 0, gazeY = 0, targetX = 0, targetY = 0;
     let gazeFrame = 0;
     let glanceTimer = 0;
@@ -257,7 +260,9 @@
       if (!isOpen() && wantsMotion() && activeAnimation === 'idle') play('curious');
     });
     listen(trigger, 'pointerleave', () => {
-      if (!isOpen() && activeAnimation === 'curious') play('idle');
+      if (!isOpen() && activeAnimation === 'curious') {
+        play(hasPointerPosition && performance.now() - lastGazeMove < ATTENTIVE_IDLE_MS ? 'listening' : 'idle');
+      }
     });
     listen(document, 'pointermove', event => {
       if (!DESKTOP.matches || event.pointerType === 'touch' || !gazeSupported || !wantsMotion()) return;
@@ -265,18 +270,25 @@
       if (now - lastPointerMove < 32) return;
       lastPointerMove = now;
       lastGazeMove = now;
+      hasPointerPosition = true;
       noteInteraction();
+      if (!isOpen() && activeAnimation === 'idle') {
+        // No new artwork or animation: reuse the original neutral-facing state
+        // instead of tracking against idle's intentionally upward-looking eyes.
+        play('listening');
+      }
       const rect = avatarHost.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-      // Track the actual direction from Strobi to the pointer, not the
-      // asymmetric viewport dimensions. This works at every screen edge.
+      // Normalize X and Y separately using distances from Strobi to
+      // each viewport edge. Top-left now means both up AND left, rather
+      // than saturating to a mostly horizontal vector after only 85px.
       const dx = event.clientX - centerX;
       const dy = event.clientY - centerY;
-      const distance = Math.hypot(dx, dy);
-      const strength = Math.min(1, distance / GAZE_NEAR_DISTANCE);
-      const normalizedX = distance ? (dx / distance) * strength : 0;
-      const normalizedY = distance ? (dy / distance) * strength : 0;
+      const horizontalReach = dx < 0 ? Math.max(1, centerX) : Math.max(1, window.innerWidth - centerX);
+      const verticalReach = dy < 0 ? Math.max(1, centerY) : Math.max(1, window.innerHeight - centerY);
+      const normalizedX = Math.max(-1, Math.min(1, dx / horizontalReach));
+      const normalizedY = Math.max(-1, Math.min(1, dy / verticalReach));
       if (!['sleeping', 'drowsy'].includes(activeAnimation)) {
         updateGaze(normalizedX * GAZE_MAX_X, normalizedY * GAZE_MAX_Y);
       }
@@ -288,6 +300,14 @@
     }, {passive:true});
     listen(document, 'keydown', noteInteraction);
     listen(document, 'scroll', noteInteraction, {passive:true});
+    // When the pointer leaves the page, stop treating its last position as
+    // an active gaze target. The original idle animation remains available.
+    listen(document, 'mouseout', event => {
+      if (event.relatedTarget || event.toElement || !hasPointerPosition || !DESKTOP.matches) return;
+      hasPointerPosition = false;
+      resetGaze();
+      if (!isOpen() && activeAnimation === 'listening') play('idle');
+    });
     listen(menu, 'pointerdown', event => {
       if (event.target.closest('a[href]')) play('searching');
     });
@@ -323,14 +343,16 @@
       const inactive = performance.now() - lastInteraction;
       if (inactive >= SLEEP_AFTER_MS) { if (activeAnimation !== 'sleeping') play('sleeping'); }
       else if (inactive >= DROWSY_AFTER_MS) { if (activeAnimation !== 'drowsy') play('drowsy'); }
-      else if (!['idle', 'curious', 'waking'].includes(activeAnimation)) play('idle');
+      else if (activeAnimation === 'listening' && hasPointerPosition && performance.now() - lastGazeMove < ATTENTIVE_IDLE_MS) {
+        // Keep a forward-looking base pose until the visitor is inactive.
+      } else if (!['idle', 'curious', 'waking'].includes(activeAnimation)) play('idle');
       if (DESKTOP.matches && inactive < DROWSY_AFTER_MS && performance.now() - lastGazeMove > GAZE_RETURN_MS) {
         resetGaze();
       }
     }, 950);
     const centerTimer = setInterval(() => {
-      if (disposed || !wantsMotion() || !DESKTOP.matches || isOpen()) return;
-      if (performance.now() - lastGazeMove > GAZE_RETURN_MS) resetGaze();
+      if (disposed || !wantsMotion() || !DESKTOP.matches) return;
+      if (hasPointerPosition && performance.now() - lastGazeMove > GAZE_RETURN_MS) resetGaze();
     }, 180);
     function glance() {
       if (disposed) return;
