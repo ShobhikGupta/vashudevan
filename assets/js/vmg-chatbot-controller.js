@@ -74,6 +74,7 @@
     let lastHoverReaction = -Infinity;
     let lastSpamReaction = -Infinity;
     const recentClicks = new WeakMap();
+    let recentSiteClicks = [];
     const watchedStatuses = new WeakSet();
     const cleanup = [];
 
@@ -538,8 +539,11 @@
       const times = (recentClicks.get(control) || []).filter(t => now - t <= SPAM_WINDOW_MS);
       times.push(now);
       recentClicks.set(control, times);
-      if (times.length >= SPAM_CLICK_COUNT) {
+      recentSiteClicks = recentSiteClicks.filter(t => now - t <= SPAM_WINDOW_MS);
+      recentSiteClicks.push(now);
+      if (times.length >= SPAM_CLICK_COUNT || recentSiteClicks.length >= 6) {
         recentClicks.set(control, []);
+        recentSiteClicks = [];
         if (now - lastSpamReaction > 5000) {
           if (react('playful', {priority: 2, duration: 1800, source: 'repeated_clicks'})) lastSpamReaction = now;
         }
