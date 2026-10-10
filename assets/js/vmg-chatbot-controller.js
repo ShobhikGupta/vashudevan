@@ -71,7 +71,6 @@
     let blinkFrame = 0;
     let blinkStartedAt = 0;
     let blinkPivotY = 0;
-    let modalActive = false;
     let lastOpenState = root.classList.contains('is-open');
     let actionClosing = false;
     let greetingDelayTimer = 0;
@@ -530,14 +529,12 @@
       }
     }
     function syncModal() {
-      const opened = isOpen();
-      const mobile = window.matchMedia('(max-width: 900px)').matches;
-      root.classList.toggle('vmg-chatbot-sheet', mobile);
-      modalActive = opened && mobile;
-      if (modalActive) menu.setAttribute('aria-modal', 'true');
-      else menu.removeAttribute('aria-modal');
-      document.body.classList.toggle('vmg-chatbot-sheet-open', modalActive);
-      backdrop.classList.toggle('is-visible', modalActive);
+      // Compact Help popup is nonmodal on desktop and mobile. Existing Help
+      // manages the six links, outside-click closure, Escape, and focus.
+      root.classList.remove('vmg-chatbot-sheet');
+      menu.removeAttribute('aria-modal');
+      document.body.classList.remove('vmg-chatbot-sheet-open');
+      backdrop.classList.remove('is-visible');
     }
     function onMenuState() {
       if (disposed) return;
@@ -588,18 +585,6 @@
     };
     listen(closeButton, 'click', () => closeHelp(true));
     listen(backdrop, 'pointerdown', () => closeHelp(true));
-    listen(document, 'keydown', event => {
-      if (!modalActive || !isOpen() || event.key !== 'Tab') return;
-      const focusable = Array.from(menu.querySelectorAll('a[href], button:not([disabled]), summary'))
-        .filter(el => el.getClientRects().length && (el.matches('summary') || el.closest('details:not([open])') === null));
-      if (!focusable.length) { event.preventDefault(); menu.focus(); return; }
-      const first = focusable[0], last = focusable[focusable.length - 1];
-      if (event.shiftKey && (document.activeElement === first || !menu.contains(document.activeElement))) {
-        event.preventDefault(); last.focus();
-      } else if (!event.shiftKey && (document.activeElement === last || !menu.contains(document.activeElement))) {
-        event.preventDefault(); first.focus();
-      }
-    });
     listen(window, 'resize', syncModal, {passive:true});
     listen(document, 'visibilitychange', () => {
       pausedByVisibility = document.hidden;
@@ -741,14 +726,6 @@
     }, true);
     // Feedback and footer elements may be inserted after the bot initializes.
     scanStatuses();
-
-    // Gesture: swipe down on the mobile header to dismiss (not on the scrollable action list).
-    let swipeY = null;
-    listen(header, 'touchstart', event => { swipeY = event.touches.length === 1 ? event.touches[0].clientY : null; }, {passive:true});
-    listen(header, 'touchend', event => {
-      if (swipeY !== null && event.changedTouches[0].clientY - swipeY > 65 && modalActive) closeHelp(true);
-      swipeY = null;
-    }, {passive:true});
 
     // A single lightweight timer controls inactivity; optional glances use existing eye paths.
     const lifeTimer = setInterval(() => {
