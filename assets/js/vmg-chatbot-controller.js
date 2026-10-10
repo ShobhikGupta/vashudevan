@@ -14,13 +14,11 @@
   const SLEEP_AFTER_MS = 120000;
   const DROWSY_AFTER_MS = 60000;
   const GAZE_RETURN_MS = 1200;
-  // Original Strobi SVG uses a 300-unit viewBox. The visible launcher
-  // is 48px, so 32/22 SVG units give a noticeable but contained gaze.
-  const GAZE_MAX_X = 32;
-  const GAZE_MAX_Y = 22;
-  // The source idle sequence contains an intentional up-turned face.
-  // Use Strobi's original front-facing 'listening' sequence while attentive.
-  const ATTENTIVE_IDLE_MS = 12000;
+  // Match the previewed demo's eye-tracking range and easing at launcher size.
+  // All geometry still comes from the original exported Strobi engine.
+  const GAZE_MAX_X = 36;
+  const GAZE_MAX_Y = 23;
+  const GAZE_EASE = 0.12;
   const MOODS = ['sleeping', 'waking', 'idle', 'listening', 'thinking', 'searching', 'working',
     'excited', 'bored', 'suspicious', 'angry', 'drowsy', 'happy', 'curious', 'confused',
     'surprised', 'proud', 'shy', 'sad', 'laughing', 'scared', 'playful', 'celebrate'];
@@ -43,10 +41,13 @@
     let avatar = null;
     let disposed = false;
     let pausedByVisibility = document.hidden;
-    let activeAnimation = 'idle';
+    // Strobi's exported idle sequence starts with an upturned face. The
+    // original listening sequence is a more suitable front-facing rest state.
+    let activeAnimation = 'listening';
     let lastInteraction = performance.now();
     let lastPointerMove = 0;
     let lastGazeMove = 0;
+    let gazeReturnTimer = 0;
     let hasPointerPosition = false;
     let gazeX = 0, gazeY = 0, targetX = 0, targetY = 0;
     let gazeFrame = 0;
@@ -118,7 +119,7 @@
     document.body.appendChild(backdrop);
 
     try {
-      avatar = createAvatar(avatarHost, {animation: 'idle', size: '100%', autoplay: false});
+      avatar = createAvatar(avatarHost, {animation: 'listening', size: '100%', autoplay: false});
     } catch (err) {
       trigger.innerHTML = originalMarkup;
       menu.innerHTML = originalMenu;
@@ -165,8 +166,8 @@
       if (!wantsMotion() || ['sleeping', 'drowsy'].includes(activeAnimation)) {
         targetX = 0; targetY = 0;
       }
-      gazeX += (targetX - gazeX) * 0.16;
-      gazeY += (targetY - gazeY) * 0.16;
+      gazeX += (targetX - gazeX) * GAZE_EASE;
+      gazeY += (targetY - gazeY) * GAZE_EASE;
       gazeLayer.setAttribute('transform', `translate(${gazeX.toFixed(2)} ${gazeY.toFixed(2)})`);
       if (Math.abs(targetX - gazeX) + Math.abs(targetY - gazeY) > 0.06) gazeFrame = requestAnimationFrame(drawGaze);
     }
@@ -175,6 +176,17 @@
       if (!gazeFrame && gazeSupported) gazeFrame = requestAnimationFrame(drawGaze);
     };
     const resetGaze = () => updateGaze(0, 0);
+    const clearGazeReturn = () => {
+      clearTimeout(gazeReturnTimer);
+      gazeReturnTimer = 0;
+    };
+    const scheduleGazeReturn = () => {
+      clearGazeReturn();
+      gazeReturnTimer = setTimeout(() => {
+        gazeReturnTimer = 0;
+        if (!disposed) resetGaze();
+      }, GAZE_RETURN_MS);
+    };
 
     function noteInteraction() {
       lastInteraction = performance.now();
@@ -182,7 +194,7 @@
         play('waking');
         clearTimeout(wakeTimer);
         wakeTimer = setTimeout(() => {
-          if (!disposed) play(isOpen() ? 'listening' : 'idle');
+          if (!disposed) play('listening');
         }, 1600);
       }
     }
@@ -215,7 +227,7 @@
         actionClosing = false;
         explore.open = false;
         noteInteraction();
-        play('idle');
+        play('listening');
         trigger.setAttribute('aria-label', 'Open VMG Chatbot help options');
         resetGaze();
       }
@@ -250,33 +262,32 @@
       }
     });
     listen(window, 'resize', syncModal, {passive:true});
-    listen(document, 'visibilitychange', () => { pausedByVisibility = document.hidden; syncPlayback(); resetGaze(); });
+    listen(document, 'visibilitychange', () => {
+      pausedByVisibility = document.hidden;
+      if (pausedByVisibility) clearGazeReturn();
+      syncPlayback();
+      resetGaze();
+    });
     const motionChanged = () => { syncPlayback(); resetGaze(); };
     if (REDUCED.addEventListener) REDUCED.addEventListener('change', motionChanged);
     else REDUCED.addListener(motionChanged);
     cleanup.push(() => REDUCED.removeEventListener ? REDUCED.removeEventListener('change', motionChanged) : REDUCED.removeListener(motionChanged));
 
     listen(trigger, 'pointerenter', () => {
-      if (!isOpen() && wantsMotion() && activeAnimation === 'idle') play('curious');
+      if (DESKTOP.matches && !isOpen() && wantsMotion() && activeAnimation === 'listening') play('curious');
     });
     listen(trigger, 'pointerleave', () => {
-      if (!isOpen() && activeAnimation === 'curious') {
-        play(hasPointerPosition && performance.now() - lastGazeMove < ATTENTIVE_IDLE_MS ? 'listening' : 'idle');
-      }
+      if (!isOpen() && activeAnimation === 'curious') play('listening');
     });
     listen(document, 'pointermove', event => {
       if (!DESKTOP.matches || event.pointerType === 'touch' || !gazeSupported || !wantsMotion()) return;
       const now = performance.now();
-      if (now - lastPointerMove < 32) return;
+      if (now - lastPointerMove < 16) return;
       lastPointerMove = now;
       lastGazeMove = now;
       hasPointerPosition = true;
       noteInteraction();
-      if (!isOpen() && activeAnimation === 'idle') {
-        // No new artwork or animation: reuse the original neutral-facing state
-        // instead of tracking against idle's intentionally upward-looking eyes.
-        play('listening');
-      }
+      if (!isOpen() && activeAnimation === 'idle') play('listening');
       const rect = avatarHost.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
@@ -291,6 +302,7 @@
       const normalizedY = Math.max(-1, Math.min(1, dy / verticalReach));
       if (!['sleeping', 'drowsy'].includes(activeAnimation)) {
         updateGaze(normalizedX * GAZE_MAX_X, normalizedY * GAZE_MAX_Y);
+        scheduleGazeReturn();
       }
     }, {passive:true});
     listen(document, 'pointerdown', event => {
@@ -305,8 +317,8 @@
     listen(document, 'mouseout', event => {
       if (event.relatedTarget || event.toElement || !hasPointerPosition || !DESKTOP.matches) return;
       hasPointerPosition = false;
+      clearGazeReturn();
       resetGaze();
-      if (!isOpen() && activeAnimation === 'listening') play('idle');
     });
     listen(menu, 'pointerdown', event => {
       if (event.target.closest('a[href]')) play('searching');
@@ -343,27 +355,18 @@
       const inactive = performance.now() - lastInteraction;
       if (inactive >= SLEEP_AFTER_MS) { if (activeAnimation !== 'sleeping') play('sleeping'); }
       else if (inactive >= DROWSY_AFTER_MS) { if (activeAnimation !== 'drowsy') play('drowsy'); }
-      else if (activeAnimation === 'listening' && hasPointerPosition && performance.now() - lastGazeMove < ATTENTIVE_IDLE_MS) {
-        // Keep a forward-looking base pose until the visitor is inactive.
-      } else if (!['idle', 'curious', 'waking'].includes(activeAnimation)) play('idle');
-      if (DESKTOP.matches && inactive < DROWSY_AFTER_MS && performance.now() - lastGazeMove > GAZE_RETURN_MS) {
-        resetGaze();
-      }
+      else if (!['listening', 'curious', 'waking'].includes(activeAnimation)) play('listening');
     }, 950);
-    const centerTimer = setInterval(() => {
-      if (disposed || !wantsMotion() || !DESKTOP.matches) return;
-      if (hasPointerPosition && performance.now() - lastGazeMove > GAZE_RETURN_MS) resetGaze();
-    }, 180);
     function glance() {
       if (disposed) return;
-      if (wantsMotion() && DESKTOP.matches && !isOpen() && activeAnimation === 'idle' && performance.now() - lastGazeMove > 6000) {
+      if (wantsMotion() && DESKTOP.matches && !isOpen() && activeAnimation === 'listening' && performance.now() - lastGazeMove > 6000) {
         updateGaze(Math.random() > 0.5 ? 10 : -10, -4);
         setTimeout(() => { if (!disposed && performance.now() - lastGazeMove > 6000) resetGaze(); }, 500);
       }
       glanceTimer = setTimeout(glance, 9000 + Math.random() * 7000);
     }
     glance();
-    cleanup.push(() => { clearInterval(lifeTimer); clearInterval(centerTimer); clearTimeout(glanceTimer); clearTimeout(wakeTimer); if (gazeFrame) cancelAnimationFrame(gazeFrame); classObserver.disconnect(); });
+    cleanup.push(() => { clearInterval(lifeTimer); clearGazeReturn(); clearTimeout(glanceTimer); clearTimeout(wakeTimer); if (gazeFrame) cancelAnimationFrame(gazeFrame); classObserver.disconnect(); });
 
     root.dataset.vmgChatbotDismissed = String(recall('dismissed') === 'true');
     root.classList.add('vmg-chatbot-ready');
