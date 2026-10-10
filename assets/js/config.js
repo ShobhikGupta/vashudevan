@@ -158,7 +158,7 @@
 
     clearTrackStatusTimers(status);
     status.hidden = false;
-    status.textContent = TRACK_STATUS_MESSAGE;
+    status.innerHTML = '<strong>' + TRACK_STATUS_MESSAGE + '</strong>';
     status._vmgStartScrollY = window.scrollY;
     status.style.setProperty('--vmg-track-scroll-offset', '0px');
     status.classList.remove('is-exiting');
