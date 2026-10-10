@@ -163,9 +163,10 @@
     const greetingCopy = pathname => {
       const section = name => pathname === '/' + name || pathname.startsWith('/' + name + '/');
       if (section('products')) return {context: 'products', text: 'Need a metal quotation?', suggest: ['Send Buying Requirement']};
-      if (section('resources')) return {context: 'resources', text: 'Have a trade-related question?', suggest: ['WhatsApp VMG']};
-      if (section('market')) return {context: 'market', text: 'Want to discuss metal prices?', suggest: ['WhatsApp VMG']};
-      if (section('contact-us') || section('contact')) return {context: 'contact', text: 'Prefer a callback?', suggest: ['Call Back Request']};
+      if (section('resources')) return {context: 'resources', text: 'Have a trade-related question?', suggest: ['WhatsApp VMG', 'Email Us']};
+      if (section('market')) return {context: 'market', text: 'Want to discuss metal prices?', suggest: ['WhatsApp VMG', 'Email Us']};
+      if (section('contact-us') || section('contact')) return {context: 'contact', text: 'Prefer a callback?', suggest: ['Call Back Request', 'Email Us']};
+      if (section('about')) return {context: 'about', text: 'Want our company brochure?', suggest: ['Download VMG Brochure']};
       return {context: 'general', text: 'Need help?', suggest: ['Send Buying Requirement', 'Submit Material Offer']};
     };
     const pageGreeting = greetingCopy(window.location.pathname || '/');
