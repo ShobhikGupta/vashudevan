@@ -65,7 +65,7 @@
   loadScript('/assets/js/skeleton-loader.js?v=20260904b', 'data-vmg-skeleton-loader-script');
   loadScript('/assets/js/vmg-feedback.js?v=20260905a', 'data-vmg-feedback-script');
   loadScript('/assets/js/vmg-help.js?v=20260904b', 'data-vmg-help-script');
-  loadScript('/assets/js/vmg-chatbot-controller.js?v=20261010-gaze-fix2', 'data-vmg-chatbot-controller-script');
+  loadScript('/assets/js/vmg-chatbot-controller.js?v=20261010-gaze-fix3', 'data-vmg-chatbot-controller-script');
 })();
 
 (function () {
