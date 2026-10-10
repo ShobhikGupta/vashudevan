@@ -528,13 +528,46 @@
         }, 1600);
       }
     }
+    // Lock the underlying page at its exact previous scroll position while
+    // the compact mobile Help popup is open. Scroll stays within menu.
+    // Restoring styles before scrollTo prevents iOS/Chrome page jumps.
+    let lockedScroll = null;
+    let savedLockTop = '';
+    let savedLockTopPriority = '';
+    const lockPageScroll = () => {
+      if (lockedScroll) return;
+      const bodyStyle = document.body.style;
+      lockedScroll = {x: Math.max(0, window.scrollX || 0), y: Math.max(0, window.scrollY || 0)};
+      savedLockTop = bodyStyle.getPropertyValue('--vmg-bot-lock-top');
+      savedLockTopPriority = bodyStyle.getPropertyPriority('--vmg-bot-lock-top');
+      bodyStyle.setProperty('--vmg-bot-lock-top', `-${lockedScroll.y}px`);
+      document.body.classList.add('vmg-bot-scroll-lock');
+    };
+    const unlockPageScroll = () => {
+      if (!lockedScroll) return;
+      const {x, y} = lockedScroll;
+      lockedScroll = null;
+      document.body.classList.remove('vmg-bot-scroll-lock');
+      if (savedLockTop) {
+        document.body.style.setProperty('--vmg-bot-lock-top', savedLockTop, savedLockTopPriority);
+      } else document.body.style.removeProperty('--vmg-bot-lock-top');
+      // Temporarily override smooth scrolling to restore the exact position
+      // immediately when the menu closes.
+      const htmlStyle = document.documentElement.style;
+      const before = htmlStyle.scrollBehavior;
+      htmlStyle.scrollBehavior = 'auto';
+      window.scrollTo(x, y);
+      htmlStyle.scrollBehavior = before;
+    };
     function syncModal() {
-      // Compact Help popup is nonmodal on desktop and mobile. Existing Help
-      // manages the six links, outside-click closure, Escape, and focus.
+      // Compact popup: no backdrop or focus trap. Only the menu can scroll
+      // when opened at mobile/tablet widths; desktop is never locked.
       root.classList.remove('vmg-chatbot-sheet');
       menu.removeAttribute('aria-modal');
       document.body.classList.remove('vmg-chatbot-sheet-open');
       backdrop.classList.remove('is-visible');
+      if (isOpen() && window.matchMedia('(max-width: 900px)').matches) lockPageScroll();
+      else unlockPageScroll();
     }
     function onMenuState() {
       if (disposed) return;
@@ -586,6 +619,8 @@
     listen(closeButton, 'click', () => closeHelp(true));
     listen(backdrop, 'pointerdown', () => closeHelp(true));
     listen(window, 'resize', syncModal, {passive:true});
+    listen(window, 'pagehide', unlockPageScroll);
+    listen(window, 'pageshow', syncModal);
     listen(document, 'visibilitychange', () => {
       pausedByVisibility = document.hidden;
       if (pausedByVisibility) {
@@ -762,6 +797,7 @@
     window.__vmgChatbot = {
       destroy() {
         disposed = true;
+        unlockPageScroll();
         cleanup.forEach(fn => fn());
         avatar.destroy();
         backdrop.remove();

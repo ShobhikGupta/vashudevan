@@ -153,8 +153,8 @@ body.vmg-chatbot-enabled .vmg-chatbot-extras summary:focus-visible {
     clip-path: inset(50%) !important;
     white-space: nowrap !important;
   }
-  /* Restore the former compact mobile popup above the existing Strobi
-     launcher. Keep the page undimmed and scrolling as normal. */
+  /* Keep the compact floating popup and visible page (no backdrop).
+     While open, lock the page's scroll and allow only menu scrolling. */
   body.vmg-chatbot-enabled #vmg-help .vmg-help-menu {
     position: fixed !important;
     top: auto !important;
@@ -172,7 +172,10 @@ body.vmg-chatbot-enabled .vmg-chatbot-extras summary:focus-visible {
     padding: 8px 9px max(10px, env(safe-area-inset-bottom)) !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    overscroll-behavior-y: contain;
     background: #0a1728 !important;
+    box-shadow: 0 18px 36px rgba(3,12,23,.32), 0 4px 12px rgba(3,12,23,.16) !important;
     color: #fff !important;
     transform: translateY(8px) scale(.98) !important;
     transform-origin: bottom right !important;
@@ -182,9 +185,21 @@ body.vmg-chatbot-enabled .vmg-chatbot-extras summary:focus-visible {
   body.vmg-chatbot-enabled #vmg-help.is-open .vmg-help-menu {
     transform: translateY(0) scale(1) !important;
   }
-  /* The old menu is not modal: do not cover or freeze the page. */
+  /* Keep the old compact menu without a backdrop or modal focus trap. */
   body.vmg-chatbot-enabled .vmg-chatbot-backdrop,
   body.vmg-chatbot-enabled .vmg-chatbot-backdrop.is-visible { display: none !important; }
+  /* Fix body at its existing scroll offset so swiping the page cannot
+     scroll behind the Help menu, including on mobile Safari.
+     The menu remains a separate scrollable fixed panel. */
+  body.vmg-chatbot-enabled.vmg-bot-scroll-lock {
+    position: fixed !important;
+    top: var(--vmg-bot-lock-top, 0px) !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+  }
   body.vmg-chatbot-enabled #vmg-help .vmg-help-menu a { min-height: 42px; font-size: .79rem; }
   body.vmg-chatbot-enabled #vmg-help .vmg-chatbot-header { font-size: .88rem; }
   body.vmg-chatbot-enabled #vmg-help .vmg-chatbot-close {
@@ -232,7 +247,7 @@ body.vmg-chatbot-enabled #vmg-help > .vmg-bot-greeting {
   border-radius: 13px;
   background: #fff;
   color: #0a1728;
-  box-shadow: 0 8px 25px rgba(3,12,23,.21);
+  box-shadow: 0 14px 34px rgba(3,12,23,.28), 0 4px 12px rgba(3,12,23,.14);
   pointer-events: auto;
   animation: vmg-bot-greeting-in .18s ease-out both;
 }
