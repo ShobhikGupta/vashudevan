@@ -16,6 +16,7 @@
   const GAZE_RETURN_MS = 1200;
   const GREETING_DELAY_MS = 2000;
   const GREETING_VISIBLE_MS = 18000;
+  const GREETING_REPEAT_MS = 15000;
   // Gentle, proportional eye movement at a 48px launcher size.
   // The original avatar renderer continues to own every facial path.
   const GAZE_MAX_X = 28;
@@ -75,7 +76,7 @@
     let actionClosing = false;
     let greetingDelayTimer = 0;
     let greetingHideTimer = 0;
-    let greetingShownOnPage = false;
+    let greetingHasShown = false;
     let reactionTimer = 0;
     let reactionUntil = 0;
     let reactionPriority = 0;
@@ -160,7 +161,8 @@
       return;
     }
     // The greeting enhances the original Help trigger and never creates chat.
-    // One unobtrusive offer per page load, including browser refreshes.
+    // First appears after 2s. After closing/timeout it reappears after 15s,
+    // but never over the Help menu or an inactive browser tab.
     const greetingCopy = pathname => {
       const section = name => pathname === '/' + name || pathname.startsWith('/' + name + '/');
       if (section('products')) return {context: 'products', text: 'Need a metal quotation?', suggest: ['Send Buying Requirement']};
@@ -208,7 +210,7 @@
     greetingClose.type = 'button';
     greetingClose.className = 'vmg-bot-greeting-close';
     greetingClose.textContent = '×';
-    greetingClose.setAttribute('aria-label', 'Dismiss VMG Bot greeting until the page reloads');
+    greetingClose.setAttribute('aria-label', 'Close VMG Bot greeting; it will reappear in 15 seconds');
     greeting.append(greetingAction, greetingClose);
     root.appendChild(greeting);
 
@@ -220,10 +222,11 @@
       if (greeting.hidden) return;
       greeting.hidden = true;
       if (reason) track('vmg_bot_greeting_hide', {context: pageGreeting.context, reason});
+      // A user clicking X or simply waiting does not dismiss future greetings.
+      // Keep the background timer paused while Help is open or tab is hidden.
+      if (reason === 'dismissed' || reason === 'timeout') scheduleGreeting(GREETING_REPEAT_MS);
     }
     function dismissGreeting() {
-      // Close only for this page view; refreshes should show the invitation again.
-      greetingShownOnPage = true;
       hideGreeting('dismissed');
     }
     function autoHideGreeting() {
@@ -235,15 +238,15 @@
     }
     function showGreeting() {
       greetingDelayTimer = 0;
-      if (disposed || greetingShownOnPage || isOpen() || document.hidden) return;
-      greetingShownOnPage = true;
+      if (disposed || isOpen() || document.hidden || !greeting.hidden) return;
+      greetingHasShown = true;
       greeting.hidden = false;
       track('vmg_bot_greeting_view', {context: pageGreeting.context});
       greetingHideTimer = setTimeout(autoHideGreeting, GREETING_VISIBLE_MS);
     }
-    function scheduleGreeting() {
-      if (disposed || greetingShownOnPage || isOpen() || document.hidden || greetingDelayTimer) return;
-      greetingDelayTimer = setTimeout(showGreeting, GREETING_DELAY_MS);
+    function scheduleGreeting(delay = greetingHasShown ? GREETING_REPEAT_MS : GREETING_DELAY_MS) {
+      if (disposed || isOpen() || document.hidden || greetingDelayTimer || !greeting.hidden) return;
+      greetingDelayTimer = setTimeout(showGreeting, delay);
     }
     listen(greetingAction, 'click', () => {
       if (greeting.hidden) return;
@@ -576,7 +579,6 @@
       lastOpenState = opened;
       syncModal();
       if (opened) {
-        greetingShownOnPage = true;
         hideGreeting('help_open');
         if (highlightOnOpen) applySuggestedActions();
         else clearSuggestedActions();
@@ -599,6 +601,7 @@
         play('listening');
         trigger.setAttribute('aria-label', 'Open VMG Bot help options');
         resetGaze();
+        scheduleGreeting(GREETING_REPEAT_MS);
       }
     }
     const classObserver = new MutationObserver(records => {
