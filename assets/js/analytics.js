@@ -490,6 +490,9 @@
     if (!el) return;
     var eventName = el.getAttribute('data-ga-event');
 
+    // A click on an expanded Help launcher closes it; do not count that as opening.
+    if (eventName === 'need_help_open' && el.getAttribute('aria-expanded') === 'true') return;
+
     // FAQ open events fire only on the transition from closed -> open.
     if (eventName === 'faq_question_open') {
       var opening = el.matches('.faq-trigger')
