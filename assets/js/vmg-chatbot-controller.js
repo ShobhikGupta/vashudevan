@@ -163,13 +163,26 @@
     // One offer per page, unless a visitor dismisses it for this entire session.
     const greetingCopy = pathname => {
       const section = name => pathname === '/' + name || pathname.startsWith('/' + name + '/');
-      if (section('products')) return {context: 'products', text: 'Looking for a metal grade?'};
-      if (section('resources')) return {context: 'resources', text: 'Need help with our guides?'};
-      if (section('market')) return {context: 'market', text: 'Have a market enquiry?'};
-      if (section('contact-us') || section('contact')) return {context: 'contact', text: 'Need help contacting us?'};
-      return {context: 'general', text: "Need help? I'm here!"};
+      if (section('products')) return {context: 'products', text: 'Need a metal quotation?', suggest: ['Send Buying Requirement']};
+      if (section('resources')) return {context: 'resources', text: 'Have a trade-related question?', suggest: ['WhatsApp VMG']};
+      if (section('market')) return {context: 'market', text: 'Want to discuss metal prices?', suggest: ['WhatsApp VMG']};
+      if (section('contact-us') || section('contact')) return {context: 'contact', text: 'Prefer a callback?', suggest: ['Call Back Request']};
+      return {context: 'general', text: 'Buying or selling scrap?', suggest: ['Send Buying Requirement', 'Submit Material Offer']};
     };
     const pageGreeting = greetingCopy(window.location.pathname || '/');
+    // Only highlight suggestions when the visitor entered Help via the bubble.
+    // Leave all six existing Help actions in their original order and usable.
+    let highlightOnOpen = false;
+    const clearSuggestedActions = () => {
+      menu.querySelectorAll('a.vmg-bot-suggested').forEach(link => link.classList.remove('vmg-bot-suggested'));
+    };
+    const applySuggestedActions = () => {
+      clearSuggestedActions();
+      const preferred = new Set(pageGreeting.suggest);
+      menu.querySelectorAll('a[href]').forEach(link => {
+        if (preferred.has(link.textContent.trim())) link.classList.add('vmg-bot-suggested');
+      });
+    };
     const greeting = document.createElement('div');
     greeting.className = 'vmg-bot-greeting';
     greeting.hidden = true;
@@ -226,7 +239,10 @@
     listen(greetingAction, 'click', () => {
       if (greeting.hidden) return;
       hideGreeting('opened_help');
-      if (!isOpen()) trigger.click();
+      if (!isOpen()) {
+        highlightOnOpen = true;
+        trigger.click();
+      }
       track('vmg_bot_greeting_open', {context: pageGreeting.context});
     });
     listen(greetingClose, 'click', event => {
@@ -522,11 +538,16 @@
       if (opened) {
         greetingShownOnPage = true;
         hideGreeting('help_open');
+        if (highlightOnOpen) applySuggestedActions();
+        else clearSuggestedActions();
+        highlightOnOpen = false;
         actionClosing = false;
         noteInteraction();
         react('curious', {priority: 1, duration: 1150, source: 'help_open'});
         trigger.setAttribute('aria-label', 'Close VMG Bot help options');
       } else {
+        clearSuggestedActions();
+        highlightOnOpen = false;
         if (!actionClosing) {
           remember('dismissed', 'true');
           track('vmg_chatbot_dismiss');

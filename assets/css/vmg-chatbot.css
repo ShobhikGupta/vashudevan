@@ -288,3 +288,17 @@ body.vmg-chatbot-enabled #vmg-help .vmg-bot-greeting-close:focus-visible {
     transition: none !important;
   }
 }
+
+
+/* Lightweight optional guidance after clicking a page-specific speech bubble.
+   No restrictions, new buttons, or layout changes to the original Help menu. */
+body.vmg-chatbot-enabled #vmg-help .vmg-help-menu a.vmg-bot-suggested {
+  box-shadow: inset 0 0 0 1px rgba(211, 163, 120, .65);
+  background: rgba(211, 163, 120, .055);
+}
+body.vmg-chatbot-enabled #vmg-help .vmg-help-menu a.vmg-bot-suggested:hover,
+body.vmg-chatbot-enabled #vmg-help .vmg-help-menu a.vmg-bot-suggested:focus-visible {
+  background: rgba(211, 163, 120, .12);
+  outline: 2px solid #d3a378;
+  outline-offset: 1px;
+}
