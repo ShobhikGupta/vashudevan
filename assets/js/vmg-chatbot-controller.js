@@ -14,11 +14,11 @@
   const SLEEP_AFTER_MS = 120000;
   const DROWSY_AFTER_MS = 60000;
   const GAZE_RETURN_MS = 1200;
-  // Match the previewed demo's eye-tracking range and easing at launcher size.
-  // All geometry still comes from the original exported Strobi engine.
-  const GAZE_MAX_X = 36;
-  const GAZE_MAX_Y = 23;
-  const GAZE_EASE = 0.12;
+  // Gentle, proportional eye movement at a 48px launcher size.
+  // The original avatar renderer continues to own every facial path.
+  const GAZE_MAX_X = 28;
+  const GAZE_MAX_Y = 17;
+  const GAZE_EASE = 0.14;
   const MOODS = ['sleeping', 'waking', 'idle', 'listening', 'thinking', 'searching', 'working',
     'excited', 'bored', 'suspicious', 'angry', 'drowsy', 'happy', 'curious', 'confused',
     'surprised', 'proud', 'shy', 'sad', 'laughing', 'scared', 'playful', 'celebrate'];
@@ -139,6 +139,8 @@
     let uprightLayer = null;
     let uprightFrame = 0;
     let uprightObserver = null;
+    let uprightAngle = 0;
+    let uprightReady = false;
     if (gazeSupported) {
       gazeLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       gazeLayer.setAttribute('data-vmg-strobi-gaze', 'true');
@@ -151,33 +153,44 @@
       console.warn('[VMG Chatbot] Original eye paths unavailable: cursor gaze disabled.');
     }
 
-    // Strobi's exported listening/curious poses have noticeable headZ roll.
-    // Leave their original eye paths and animation geometry untouched; level
-    // the visible pair using measured SVG eye centers in the preview launcher.
-    // Run this only for the normal and hover states, not expressive reactions.
+    // The preceding version immediately counter-rotated the eyes whenever the
+    // animated paths changed. Blinks and transitions made that angle jump.
+    // Filter only the correction angle, leaving Strobi's expression geometry
+    // and eye paths completely under the original engine's control.
     const updateUpright = () => {
       uprightFrame = 0;
       if (disposed || !uprightLayer) return;
       if (activeAnimation !== 'listening' && activeAnimation !== 'curious') {
+        uprightReady = false;
+        uprightAngle = 0;
         uprightLayer.removeAttribute('transform');
         return;
       }
       try {
         const left = eyePaths[0].getBBox();
         const right = eyePaths[1].getBBox();
+        // Blinks collapse the geometry temporarily; do not let them change
+        // the base level correction or make the eyes jump.
+        if (left.width < 5 || right.width < 5 || left.height < 5 || right.height < 5) return;
         const x1 = left.x + left.width / 2, y1 = left.y + left.height / 2;
         const x2 = right.x + right.width / 2, y2 = right.y + right.height / 2;
         const dx = x2 - x1, dy = y2 - y1;
-        if (![dx, dy, x1, y1, x2, y2].every(Number.isFinite) || dx < 8) {
-          uprightLayer.removeAttribute('transform');
-          return;
+        if (![dx, dy, x1, y1, x2, y2].every(Number.isFinite) || dx < 12) return;
+        const measured = Math.max(-16, Math.min(16, Math.atan2(dy, dx) * 180 / Math.PI));
+        if (!uprightReady) {
+          uprightAngle = measured;
+          uprightReady = true;
+        } else {
+          uprightAngle += (measured - uprightAngle) * 0.18;
         }
-        const tilt = Math.max(-25, Math.min(25, Math.atan2(dy, dx) * 180 / Math.PI));
         const pivotX = (x1 + x2) / 2, pivotY = (y1 + y2) / 2;
         uprightLayer.setAttribute('transform',
-          `rotate(${(-tilt).toFixed(2)} ${pivotX.toFixed(2)} ${pivotY.toFixed(2)})`);
+          `rotate(${(-uprightAngle).toFixed(2)} ${pivotX.toFixed(2)} ${pivotY.toFixed(2)})`);
+        if (Math.abs(measured - uprightAngle) > 0.15) scheduleUpright();
       } catch (_) {
-        // If the SVG does not support geometry measurements, do not alter it.
+        // A malformed or unsupported SVG geometry measurement must not
+        // disable the launcher or its original Help functionality.
+        uprightReady = false;
         uprightLayer.removeAttribute('transform');
       }
     };
@@ -340,15 +353,13 @@
       const rect = avatarHost.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-      // Normalize X and Y separately using distances from Strobi to
-      // each viewport edge. Top-left now means both up AND left, rather
-      // than saturating to a mostly horizontal vector after only 85px.
+      // Smoothly scale in screen pixels, not by remaining viewport edges.
+      // The previous normalization could snap from neutral to full gaze
+      // within a few pixels on the right or bottom of the launcher.
       const dx = event.clientX - centerX;
       const dy = event.clientY - centerY;
-      const horizontalReach = dx < 0 ? Math.max(1, centerX) : Math.max(1, window.innerWidth - centerX);
-      const verticalReach = dy < 0 ? Math.max(1, centerY) : Math.max(1, window.innerHeight - centerY);
-      const normalizedX = Math.max(-1, Math.min(1, dx / horizontalReach));
-      const normalizedY = Math.max(-1, Math.min(1, dy / verticalReach));
+      const normalizedX = Math.tanh(dx / Math.max(220, window.innerWidth * 0.32));
+      const normalizedY = Math.tanh(dy / Math.max(180, window.innerHeight * 0.34));
       if (!['sleeping', 'drowsy'].includes(activeAnimation)) {
         updateGaze(normalizedX * GAZE_MAX_X, normalizedY * GAZE_MAX_Y);
         scheduleGazeReturn();
@@ -408,8 +419,8 @@
     }, 950);
     function glance() {
       if (disposed) return;
-      if (wantsMotion() && DESKTOP.matches && !isOpen() && activeAnimation === 'listening' && performance.now() - lastGazeMove > 6000) {
-        updateGaze(Math.random() > 0.5 ? 10 : -10, -4);
+      if (wantsMotion() && DESKTOP.matches && !hasPointerPosition && !isOpen() && activeAnimation === 'listening' && performance.now() - lastGazeMove > 12000) {
+        updateGaze(Math.random() > 0.5 ? 7 : -7, -2);
         setTimeout(() => { if (!disposed && performance.now() - lastGazeMove > 6000) resetGaze(); }, 500);
       }
       glanceTimer = setTimeout(glance, 9000 + Math.random() * 7000);
