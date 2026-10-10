@@ -14,6 +14,9 @@
   const SLEEP_AFTER_MS = 120000;
   const DROWSY_AFTER_MS = 60000;
   const GAZE_RETURN_MS = 1200;
+  const GREETING_DELAY_MS = 3000;
+  const GREETING_VISIBLE_MS = 6000;
+  const GREETING_DISMISS_KEY = 'greeting_dismissed';
   // Gentle, proportional eye movement at a 48px launcher size.
   // The original avatar renderer continues to own every facial path.
   const GAZE_MAX_X = 28;
@@ -70,6 +73,9 @@
     let modalActive = false;
     let lastOpenState = root.classList.contains('is-open');
     let actionClosing = false;
+    let greetingDelayTimer = 0;
+    let greetingHideTimer = 0;
+    let greetingShownOnPage = false;
     let reactionTimer = 0;
     let reactionUntil = 0;
     let reactionPriority = 0;
@@ -153,6 +159,88 @@
       console.warn('[VMG Bot] Avatar mounting failed. Original Need Help retained.', err);
       return;
     }
+    // The greeting enhances the original Help trigger and never creates chat.
+    // One offer per page, unless a visitor dismisses it for this entire session.
+    const greetingCopy = pathname => {
+      const section = name => pathname === '/' + name || pathname.startsWith('/' + name + '/');
+      if (section('products')) return {context: 'products', text: 'Looking for a metal grade?'};
+      if (section('resources')) return {context: 'resources', text: 'Need help with our guides?'};
+      if (section('market')) return {context: 'market', text: 'Have a market enquiry?'};
+      if (section('contact-us') || section('contact')) return {context: 'contact', text: 'Need help contacting us?'};
+      return {context: 'general', text: "Need help? I'm here!"};
+    };
+    const pageGreeting = greetingCopy(window.location.pathname || '/');
+    const greeting = document.createElement('div');
+    greeting.className = 'vmg-bot-greeting';
+    greeting.hidden = true;
+    greeting.setAttribute('role', 'group');
+    greeting.setAttribute('aria-label', 'VMG Bot greeting');
+    const greetingAction = document.createElement('button');
+    greetingAction.type = 'button';
+    greetingAction.className = 'vmg-bot-greeting-action';
+    greetingAction.textContent = pageGreeting.text;
+    greetingAction.setAttribute('aria-label', pageGreeting.text + ' Open VMG Bot help options');
+    const greetingClose = document.createElement('button');
+    greetingClose.type = 'button';
+    greetingClose.className = 'vmg-bot-greeting-close';
+    greetingClose.textContent = '×';
+    greetingClose.setAttribute('aria-label', 'Dismiss VMG Bot greeting for this session');
+    greeting.append(greetingAction, greetingClose);
+    root.appendChild(greeting);
+
+    function hideGreeting(reason) {
+      clearTimeout(greetingDelayTimer);
+      clearTimeout(greetingHideTimer);
+      greetingDelayTimer = 0;
+      greetingHideTimer = 0;
+      if (greeting.hidden) return;
+      greeting.hidden = true;
+      if (reason) track('vmg_bot_greeting_hide', {context: pageGreeting.context, reason});
+    }
+    function dismissGreeting() {
+      remember(GREETING_DISMISS_KEY, 'true');
+      greetingShownOnPage = true;
+      hideGreeting('dismissed');
+    }
+    function autoHideGreeting() {
+      greetingHideTimer = 0;
+      if (greeting.hidden || disposed) return;
+      if (greeting.matches(':hover') || greeting.contains(document.activeElement)) {
+        greetingHideTimer = setTimeout(autoHideGreeting, 1000);
+      } else hideGreeting('timeout');
+    }
+    function showGreeting() {
+      greetingDelayTimer = 0;
+      if (disposed || greetingShownOnPage || recall(GREETING_DISMISS_KEY) === 'true'
+          || isOpen() || document.hidden) return;
+      greetingShownOnPage = true;
+      greeting.hidden = false;
+      track('vmg_bot_greeting_view', {context: pageGreeting.context});
+      greetingHideTimer = setTimeout(autoHideGreeting, GREETING_VISIBLE_MS);
+    }
+    function scheduleGreeting() {
+      if (disposed || greetingShownOnPage || recall(GREETING_DISMISS_KEY) === 'true'
+          || isOpen() || document.hidden || greetingDelayTimer) return;
+      greetingDelayTimer = setTimeout(showGreeting, GREETING_DELAY_MS);
+    }
+    listen(greetingAction, 'click', () => {
+      if (greeting.hidden) return;
+      hideGreeting('opened_help');
+      if (!isOpen()) trigger.click();
+      track('vmg_bot_greeting_open', {context: pageGreeting.context});
+    });
+    listen(greetingClose, 'click', event => {
+      event.stopPropagation();
+      dismissGreeting();
+    });
+    listen(greeting, 'keydown', event => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      event.stopPropagation();
+      dismissGreeting();
+      trigger.focus();
+    });
+
     // Strobi's original listening sequence cycles among tilted expressions.
     // Running that loop while tracking gaze caused changing eye shapes, a
     // competing eye-leveling observer, and repeated blinks in different layers.
@@ -432,6 +520,8 @@
       lastOpenState = opened;
       syncModal();
       if (opened) {
+        greetingShownOnPage = true;
+        hideGreeting('help_open');
         actionClosing = false;
         noteInteraction();
         react('curious', {priority: 1, duration: 1150, source: 'help_open'});
@@ -482,6 +572,11 @@
     listen(window, 'resize', syncModal, {passive:true});
     listen(document, 'visibilitychange', () => {
       pausedByVisibility = document.hidden;
+      if (pausedByVisibility) {
+        hideGreeting('tab_hidden');
+      } else {
+        scheduleGreeting();
+      }
       if (pausedByVisibility) {
         clearGazeReturn();
         cancelReaction(false);
@@ -643,6 +738,7 @@
     glance();
     cleanup.push(() => {
       clearInterval(lifeTimer); clearGazeReturn(); clearTimeout(glanceTimer); clearTimeout(wakeTimer); clearTimeout(reactionTimer);
+      hideGreeting();
       resetBlink();
       if (gazeFrame) cancelAnimationFrame(gazeFrame);
       classObserver.disconnect();
@@ -654,12 +750,14 @@
     syncModal();
     settleAtRest();
     syncPlayback();
+    scheduleGreeting();
     window.__vmgChatbot = {
       destroy() {
         disposed = true;
         cleanup.forEach(fn => fn());
         avatar.destroy();
         backdrop.remove();
+        greeting.remove();
         trigger.innerHTML = originalMarkup;
         menu.innerHTML = originalMenu;
         root.classList.remove('vmg-chatbot-ready','vmg-chatbot-sheet');
