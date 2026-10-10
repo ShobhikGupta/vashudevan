@@ -193,6 +193,17 @@ body.vmg-chatbot-enabled .vmg-chatbot-extras summary:focus-visible {
     flex-basis: 34px;
   }
 }
+/* Phone-only: fill the available viewport width while retaining the
+   compact popup's existing intrinsic height, bottom offset and scroll cap.
+   Tablet (768px+) and desktop layouts stay unchanged. */
+@media (max-width: 767px) {
+  body.vmg-chatbot-enabled #vmg-help .vmg-help-menu {
+    left: calc(12px + env(safe-area-inset-left)) !important;
+    right: calc(12px + env(safe-area-inset-right)) !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+}
 @media (max-width: 350px) {
   body.vmg-chatbot-enabled #vmg-help .vmg-help-menu { padding-inline: 12px !important; }
 }
