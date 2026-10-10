@@ -1,4 +1,4 @@
-/* VMG Chatbot preview integration. All Strobi animation assets remain unmodified.
+/* VMG Bot preview integration. All Strobi animation assets remain unmodified.
  * Requires the existing /assets/js/vmg-help.js menu and /assets/vendor/strobi/avatar.js.
  * No conversational AI, new data service, or form interception is introduced.
  */
@@ -22,6 +22,10 @@
   const BLINK_DURATION_MS = 240;
   const BLINK_MIN_INTERVAL_MS = 3200;
   const BLINK_INTERVAL_VARIATION_MS = 2600;
+  const REACTION_COOLDOWN_MS = 3000;
+  const REACTION_HOVER_COOLDOWN_MS = 1600;
+  const SPAM_WINDOW_MS = 2000;
+  const SPAM_CLICK_COUNT = 4;
   const MOODS = ['sleeping', 'waking', 'idle', 'listening', 'thinking', 'searching', 'working',
     'excited', 'bored', 'suspicious', 'angry', 'drowsy', 'happy', 'curious', 'confused',
     'surprised', 'proud', 'shy', 'sad', 'laughing', 'scared', 'playful', 'celebrate'];
@@ -29,7 +33,7 @@
   const get = selector => document.querySelector(selector);
   const track = (event, extra = {}) => {
     if (typeof window.vmgTrackEvent === 'function') {
-      window.vmgTrackEvent(event, Object.assign({section_name: 'VMG Chatbot'}, extra));
+      window.vmgTrackEvent(event, Object.assign({section_name: 'VMG Bot'}, extra));
     }
   };
   const remember = (key, value) => { try { sessionStorage.setItem('vmg_chatbot_' + key, value); } catch (_) {} };
@@ -63,6 +67,14 @@
     let modalActive = false;
     let lastOpenState = root.classList.contains('is-open');
     let actionClosing = false;
+    let reactionTimer = 0;
+    let reactionUntil = 0;
+    let reactionPriority = 0;
+    let lastOrdinaryReaction = -Infinity;
+    let lastHoverReaction = -Infinity;
+    let lastSpamReaction = -Infinity;
+    const recentClicks = new WeakMap();
+    const watchedStatuses = new WeakSet();
     const cleanup = [];
 
     const listen = (target, event, fn, opts) => {
@@ -75,8 +87,8 @@
     // Preserve the original Help menu links, destinations, and existing event listeners.
     const header = document.createElement('div');
     header.className = 'vmg-chatbot-header';
-    header.innerHTML = '<strong id="vmg-chatbot-heading">VMG Chatbot</strong>' +
-      '<button class="vmg-chatbot-close" type="button" aria-label="Close VMG Chatbot">×</button>';
+    header.innerHTML = '<strong id="vmg-chatbot-heading">VMG Bot</strong>' +
+      '<button class="vmg-chatbot-close" type="button" aria-label="Close VMG Bot">×</button>';
     menu.insertBefore(header, menu.firstChild);
     menu.setAttribute('role', 'dialog');
     menu.setAttribute('aria-labelledby', 'vmg-chatbot-heading');
@@ -117,8 +129,8 @@
     avatarHost.setAttribute('aria-hidden', 'true');
     trigger.insertBefore(avatarHost, trigger.firstChild);
     const triggerLabel = trigger.querySelector('span:not(.vmg-chatbot-avatar)');
-    if (triggerLabel) triggerLabel.textContent = 'VMG Chatbot';
-    trigger.setAttribute('aria-label', 'Open VMG Chatbot help options');
+    if (triggerLabel) triggerLabel.textContent = 'VMG Bot';
+    trigger.setAttribute('aria-label', 'Open VMG Bot help options');
 
     const backdrop = document.createElement('div');
     backdrop.className = 'vmg-chatbot-backdrop';
@@ -133,7 +145,7 @@
       menu.setAttribute('role', 'menu');
       menu.removeAttribute('aria-labelledby');
       backdrop.remove();
-      console.warn('[VMG Chatbot] Avatar mounting failed. Original Need Help retained.', err);
+      console.warn('[VMG Bot] Avatar mounting failed. Original Need Help retained.', err);
       return;
     }
     // Strobi's original listening sequence cycles among tilted expressions.
@@ -161,7 +173,7 @@
       gazeLayer.appendChild(uprightLayer);
       clippedEyes.appendChild(gazeLayer);
     } else {
-      console.warn('[VMG Chatbot] Original eye paths unavailable: cursor gaze disabled.');
+      console.warn('[VMG Bot] Original eye paths unavailable: cursor gaze disabled.');
     }
 
     const resetBlink = () => {
@@ -260,6 +272,73 @@
       } else if (!wantsMotion()) avatar.pause();
       if (name === 'sleeping' || name === 'drowsy') resetGaze();
     }
+    // One arbiter handles site-wide interactions. Low-priority clicks and hover
+    // never interrupt confirmed outcomes or continually restart animations.
+    function react(mood, {priority = 1, duration = 1500, source = 'interaction'} = {}) {
+      if (disposed || !wantsMotion() || !availableAnimations.includes(mood)) return false;
+      const now = performance.now();
+      if (now < reactionUntil && priority < reactionPriority) return false;
+      if (priority === 1) {
+        const hover = source === 'help_hover' || source === 'bot_hover';
+        if (hover && now - lastHoverReaction < REACTION_HOVER_COOLDOWN_MS) return false;
+        if (!hover && now - lastOrdinaryReaction < REACTION_COOLDOWN_MS) return false;
+        if (hover) lastHoverReaction = now;
+        else lastOrdinaryReaction = now;
+      }
+      if ((activeAnimation === 'sleeping' || activeAnimation === 'drowsy') && priority <= 2) {
+        noteInteraction(); // Wake naturally before reacting to low-priority clicks.
+        return false;
+      }
+      lastInteraction = now;
+      clearTimeout(reactionTimer);
+      reactionUntil = now + duration;
+      reactionPriority = priority;
+      play(mood);
+      track('vmg_bot_reaction', {reaction: mood, interaction_type: source});
+      reactionTimer = setTimeout(() => {
+        reactionTimer = 0;
+        reactionUntil = 0;
+        reactionPriority = 0;
+        if (!disposed) play('listening');
+      }, duration);
+      return true;
+    }
+
+    function watchStatus(status) {
+      if (!status || watchedStatuses.has(status) || typeof MutationObserver === 'undefined') return;
+      watchedStatuses.add(status);
+      let previousState = '';
+      const unverified = Boolean(status.closest('#vmg-feedback-drawer, [data-vmg-subscribe-form]'));
+      const observer = new MutationObserver(() => {
+        const className = ' ' + (status.className || '') + ' ';
+        const state = /\\bis-success\\b|\\bsuccess\\b/.test(className) ? 'success'
+          : /\\bis-error\\b|\\berror\\b/.test(className) ? 'error' : '';
+        if (state === previousState) return;
+        previousState = state;
+        if (!state || !(status.textContent || '').trim()) return;
+        if (state === 'success') {
+          if (unverified) {
+            // no-cors submission cannot verify delivery; never celebrate it.
+            react('listening', {priority: 3, duration: 800, source: 'request_acknowledged'});
+          } else {
+            react('celebrate', {priority: 4, duration: 2300, source: 'confirmed_form_success'});
+          }
+        } else {
+          const message = (status.textContent || '').trim();
+          const validation = /^(please|select|enter|choose|check|complete|correct|accept)\\b/i.test(message);
+          react(validation ? 'confused' : 'sad', {
+            priority: 3, duration: 1800, source: validation ? 'form_validation_error' : 'form_failure'
+          });
+        }
+      });
+      observer.observe(status, {attributes: true, attributeFilter: ['class'], childList: true, characterData: true, subtree: true});
+      cleanup.push(() => observer.disconnect());
+    }
+    function scanStatuses() {
+      document.querySelectorAll('#form-result, #vmg-feedback-drawer .vmg-feedback-status, [data-vmg-subscribe-form] .vmg-footer-subscribe-status')
+        .forEach(watchStatus);
+    }
+
     function drawGaze() {
       gazeFrame = 0;
       if (disposed || !gazeSupported) return;
@@ -317,8 +396,8 @@
       if (opened) {
         actionClosing = false;
         noteInteraction();
-        play('listening');
-        trigger.setAttribute('aria-label', 'Close VMG Chatbot help options');
+        react('curious', {priority: 1, duration: 1150, source: 'help_open'});
+        trigger.setAttribute('aria-label', 'Close VMG Bot help options');
       } else {
         if (!actionClosing) {
           remember('dismissed', 'true');
@@ -328,7 +407,7 @@
         explore.open = false;
         noteInteraction();
         play('listening');
-        trigger.setAttribute('aria-label', 'Open VMG Chatbot help options');
+        trigger.setAttribute('aria-label', 'Open VMG Bot help options');
         resetGaze();
       }
     }
@@ -364,7 +443,15 @@
     listen(window, 'resize', syncModal, {passive:true});
     listen(document, 'visibilitychange', () => {
       pausedByVisibility = document.hidden;
-      if (pausedByVisibility) clearGazeReturn();
+      if (pausedByVisibility) {
+        clearGazeReturn();
+        clearTimeout(reactionTimer);
+        reactionTimer = 0;
+        reactionUntil = 0;
+        reactionPriority = 0;
+      } else if (activeAnimation !== 'listening') {
+        play('listening');
+      }
       syncPlayback();
       resetGaze();
     });
@@ -374,10 +461,18 @@
     cleanup.push(() => REDUCED.removeEventListener ? REDUCED.removeEventListener('change', motionChanged) : REDUCED.removeListener(motionChanged));
 
     listen(trigger, 'pointerenter', () => {
-      if (DESKTOP.matches && !isOpen() && wantsMotion() && activeAnimation === 'listening') play('curious');
+      if (DESKTOP.matches && !isOpen()) react('curious', {duration: 1250, source: 'bot_hover'});
     });
-    listen(trigger, 'pointerleave', () => {
-      if (!isOpen() && activeAnimation === 'curious') play('listening');
+    // Hovering or keyboard-focusing a Help option triggers Curious once,
+    // not on every mouse movement across its children.
+    listen(menu, 'pointerover', event => {
+      if (!DESKTOP.matches) return;
+      const option = event.target.closest('a[href]');
+      if (!option || !menu.contains(option) || (event.relatedTarget && option.contains(event.relatedTarget))) return;
+      react('curious', {duration: 1250, source: 'help_hover'});
+    });
+    listen(menu, 'focusin', event => {
+      if (event.target.closest('a[href]')) react('curious', {duration: 1250, source: 'help_hover'});
     });
     listen(document, 'pointermove', event => {
       if (!DESKTOP.matches || event.pointerType === 'touch' || !gazeSupported || !wantsMotion()) return;
@@ -422,25 +517,56 @@
       resetGaze();
     });
     listen(menu, 'pointerdown', event => {
-      if (event.target.closest('a[href]')) play('searching');
+      if (event.target.closest('a[href]')) {
+        react('searching', {priority: 2, duration: 1400, source: 'help_action'});
+      }
     });
     // Existing link handlers close the menu; such navigation is not a Help dismissal.
     listen(menu, 'click', event => {
       if (event.target.closest('a[href]')) actionClosing = true;
     }, true);
 
-    // Do not fire a success reaction on click/attempt; only when the contact form reports success.
-    const result = get('#form-result');
-    if (result) {
-      let successSeen = false;
-      const resultObserver = new MutationObserver(() => {
-        const success = result.classList.contains('is-success') || result.classList.contains('success');
-        if (success && !successSeen) play('celebrate');
-        successSeen = success;
-      });
-      resultObserver.observe(result, {attributes:true,attributeFilter:['class']});
-      cleanup.push(() => resultObserver.disconnect());
-    }
+    // One delegated handler covers buttons, links, forms, carousels and
+    // navigation throughout the site, including controls added later.
+    // Never prevent default, change a form, or delay navigation.
+    listen(document, 'click', event => {
+      const node = event.target instanceof Element ? event.target : event.target?.parentElement;
+      const control = node?.closest('button, a[href], input[type="button"], input[type="submit"], [role="button"], summary');
+      if (!control || !document.contains(control) || control.disabled || control.getAttribute('aria-disabled') === 'true') return;
+      if (root.contains(control)) return; // Help options are handled above.
+      const now = performance.now();
+      const times = (recentClicks.get(control) || []).filter(t => now - t <= SPAM_WINDOW_MS);
+      times.push(now);
+      recentClicks.set(control, times);
+      if (times.length >= SPAM_CLICK_COUNT) {
+        recentClicks.set(control, []);
+        if (now - lastSpamReaction > 5000) {
+          if (react('playful', {priority: 2, duration: 1800, source: 'repeated_clicks'})) lastSpamReaction = now;
+        }
+        return;
+      }
+      if (control.closest('[data-vmg-track-form]') || control.matches('.vmg-track-button')) {
+        react('thinking', {priority: 2, duration: 1400, source: 'tracking_information'});
+      } else if (control.closest('form') && (control.matches('[type="submit"]') || control.type === 'submit')) {
+        // The submit event and actual form status determine the final reaction.
+      } else if (control.closest('.vmg-feedback-trigger')) {
+        react('curious', {duration: 1400, source: 'feedback_open'});
+      } else {
+        react('curious', {duration: 1150, source: 'site_button'});
+      }
+    }, true);
+    listen(document, 'submit', event => {
+      const form = event.target;
+      if (!(form instanceof HTMLFormElement)) return;
+      scanStatuses(); // Attach before synchronous validation modifies status.
+      if (form.matches('[data-vmg-track-form]')) {
+        react('thinking', {priority: 2, duration: 1400, source: 'tracking_information'});
+      } else {
+        react('working', {priority: 2, duration: 1800, source: 'form_submit_attempt'});
+      }
+    }, true);
+    // Feedback and footer elements may be inserted after the bot initializes.
+    scanStatuses();
 
     // Gesture: swipe down on the mobile header to dismiss (not on the scrollable action list).
     let swipeY = null;
@@ -452,7 +578,7 @@
 
     // A single lightweight timer controls inactivity; optional glances use existing eye paths.
     const lifeTimer = setInterval(() => {
-      if (disposed || !wantsMotion() || isOpen()) return;
+      if (disposed || !wantsMotion() || isOpen() || performance.now() < reactionUntil) return;
       const inactive = performance.now() - lastInteraction;
       if (inactive >= SLEEP_AFTER_MS) { if (activeAnimation !== 'sleeping') play('sleeping'); }
       else if (inactive >= DROWSY_AFTER_MS) { if (activeAnimation !== 'drowsy') play('drowsy'); }
@@ -468,7 +594,7 @@
     }
     glance();
     cleanup.push(() => {
-      clearInterval(lifeTimer); clearGazeReturn(); clearTimeout(glanceTimer); clearTimeout(wakeTimer);
+      clearInterval(lifeTimer); clearGazeReturn(); clearTimeout(glanceTimer); clearTimeout(wakeTimer); clearTimeout(reactionTimer);
       resetBlink();
       if (gazeFrame) cancelAnimationFrame(gazeFrame);
       classObserver.disconnect();
@@ -501,7 +627,7 @@
     try {
       ({createAvatar, availableAnimations} = await import(AVATAR_SRC));
     } catch (err) {
-      console.warn('[VMG Chatbot] Original avatar module not available; existing Help remains active.', err);
+      console.warn('[VMG Bot] Original avatar module not available; existing Help remains active.', err);
       return;
     }
     const attempt = () => {
