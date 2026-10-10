@@ -311,8 +311,8 @@
       const unverified = Boolean(status.closest('#vmg-feedback-drawer, [data-vmg-subscribe-form]'));
       const observer = new MutationObserver(() => {
         const className = ' ' + (status.className || '') + ' ';
-        const state = /\\bis-success\\b|\\bsuccess\\b/.test(className) ? 'success'
-          : /\\bis-error\\b|\\berror\\b/.test(className) ? 'error' : '';
+        const state = /\bis-success\b|\bsuccess\b/.test(className) ? 'success'
+          : /\bis-error\b|\berror\b/.test(className) ? 'error' : '';
         if (state === previousState) return;
         previousState = state;
         if (!state || !(status.textContent || '').trim()) return;
@@ -325,7 +325,7 @@
           }
         } else {
           const message = (status.textContent || '').trim();
-          const validation = /^(please|select|enter|choose|check|complete|correct|accept)\\b/i.test(message);
+          const validation = /^(please|select|enter|choose|check|complete|correct|accept)\b/i.test(message);
           react(validation ? 'confused' : 'sad', {
             priority: 3, duration: 1800, source: validation ? 'form_validation_error' : 'form_failure'
           });
