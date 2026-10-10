@@ -22,8 +22,11 @@
   const BLINK_DURATION_MS = 240;
   const BLINK_MIN_INTERVAL_MS = 3200;
   const BLINK_INTERVAL_VARIATION_MS = 2600;
-  const REACTION_COOLDOWN_MS = 3000;
-  const REACTION_HOVER_COOLDOWN_MS = 1600;
+  // Gentle acknowledgements have longer cooldowns to prevent repeated
+  // blinking whenever the pointer crosses a button or Help option.
+  const REACTION_COOLDOWN_MS = 4500;
+  const REACTION_HOVER_COOLDOWN_MS = 7000;
+  const CURIOUS_CUE_COOLDOWN_MS = 5500;
   const SPAM_WINDOW_MS = 2000;
   const SPAM_CLICK_COUNT = 4;
   const MOODS = ['sleeping', 'waking', 'idle', 'listening', 'thinking', 'searching', 'working',
@@ -72,6 +75,7 @@
     let reactionPriority = 0;
     let lastOrdinaryReaction = -Infinity;
     let lastHoverReaction = -Infinity;
+    let lastCuriousCue = -Infinity;
     let lastSpamReaction = -Infinity;
     const recentClicks = new WeakMap();
     let recentSiteClicks = [];
@@ -294,6 +298,27 @@
       if ((activeAnimation === 'sleeping' || activeAnimation === 'drowsy') && priority <= 2) {
         noteInteraction();
         return false;
+      }
+      if (mood === 'curious' && priority === 1) {
+        // The original Curious sequence cycles through strong head rotations
+        // and asymmetrical eye shapes; replaying it for every hover/click
+        // produces the lopsided face in the preview. Preserve the original
+        // animation in avatar.js, but acknowledge routine interactions with
+        // one gentle blink of Strobi's existing stable listening expression.
+        // Do not interrupt the engine, gaze tracking, or an ongoing emotion.
+        if (activeAnimation !== 'listening' || now - lastCuriousCue < CURIOUS_CUE_COOLDOWN_MS) return false;
+        const hover = source === 'help_hover' || source === 'bot_hover';
+        if (hover) lastHoverReaction = now;
+        else lastOrdinaryReaction = now;
+        lastCuriousCue = now;
+        lastInteraction = now;
+        if (gazeSupported && !blinkFrame) {
+          resetBlink();
+          blinkStartedAt = now;
+          blinkFrame = requestAnimationFrame(animateBlink);
+        }
+        track('vmg_bot_reaction', {reaction: 'curious', presentation: 'subtle_blink', interaction_type: source});
+        return true;
       }
       if (priority === 1) {
         if (source === 'help_hover' || source === 'bot_hover') lastHoverReaction = now;
