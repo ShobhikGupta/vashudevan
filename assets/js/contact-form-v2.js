@@ -299,6 +299,124 @@
     try { if (window.turnstile && turnstileWidgetId !== null) window.turnstile.reset(turnstileWidgetId); } catch (_) {}
   }
 
+
+  // Editable suggestions depend on enquiry type. For callback, the visitor
+  // can leave Message empty; a server-compatible default is sent in payload.
+  var MESSAGE_PRESETS = {
+    buyer: ['Please share availability and pricing for our buying requirement.', 'We need a quotation for a specific scrap grade and volume.', 'Please contact us about regular sourcing requirements.'],
+    seller: ['We have recyclable material available for sale.', 'Please advise your buying requirements and acceptable grades.', 'We would like to share our material offer and specifications.'],
+    quotation: ['Please quote current price and delivery basis.', 'We need a bulk quotation for a recyclable metal grade.', 'Please advise pricing, minimum quantity and lead time.'],
+    partnership: ['We would like to explore a business partnership.', 'Please contact us regarding long-term supply cooperation.', 'We are interested in working together on international trade.'],
+    documentation: ['Please advise the documents required for our shipment.', 'We need guidance on inspection and shipment documentation.', 'Please assist with an import/export documentation enquiry.'],
+    callback: ['Please call me to discuss a buying requirement.', 'Please call me about a material offer.', 'Please call me at a convenient time.'],
+    investor: ['We would like to discuss a business investment opportunity.', 'Please contact us about a strategic funding discussion.', 'We would like to arrange an introductory conversation.'],
+    finance: ['We would like to discuss trade finance options.', 'Please contact us regarding financing terms.', 'We need information on financing documentation.'],
+    general: ['I would like to learn more about VMG.', 'Please contact me about your services.', 'I have a general enquiry about recyclable metals.']
+  };
+  var messageFieldWrapper = fields.message.closest('.form-field');
+  var messageLabel = form.querySelector('label[for="message"]');
+  // Keep the original textarea, IDs and validation. Only wrap it for
+  // a small recommendations control inside the input border.
+  var messageInputWrap = document.createElement('div');
+  messageInputWrap.className = 'vmg-message-input-wrap';
+  fields.message.parentNode.insertBefore(messageInputWrap, fields.message);
+  messageInputWrap.appendChild(fields.message);
+
+  var recommendationsToggle = document.createElement('button');
+  recommendationsToggle.type = 'button';
+  recommendationsToggle.className = 'vmg-message-recommendations-toggle';
+  recommendationsToggle.textContent = 'Recommendations';
+  recommendationsToggle.setAttribute('aria-controls', 'vmg-message-recommendations');
+  recommendationsToggle.setAttribute('aria-expanded', 'false');
+  recommendationsToggle.setAttribute('aria-haspopup', 'true');
+  recommendationsToggle.setAttribute('aria-label', 'Show recommended messages');
+  messageInputWrap.appendChild(recommendationsToggle);
+
+  var messageSuggestions = document.createElement('div');
+  messageSuggestions.className = 'vmg-message-suggestions';
+  messageSuggestions.id = 'vmg-message-recommendations';
+  messageSuggestions.setAttribute('role', 'group');
+  messageSuggestions.setAttribute('aria-label', 'Suggested messages for your enquiry');
+  messageSuggestions.hidden = true;
+  messageInputWrap.appendChild(messageSuggestions);
+
+  var messageHint = document.createElement('p');
+  messageHint.className = 'vmg-message-hint';
+  messageHint.id = 'vmg-message-hint';
+  messageHint.hidden = true;
+  if (messageFieldWrapper) messageFieldWrapper.appendChild(messageHint);
+
+  function closeRecommendations(returnFocus) {
+    messageSuggestions.hidden = true;
+    recommendationsToggle.setAttribute('aria-expanded', 'false');
+    recommendationsToggle.setAttribute('aria-label', 'Show recommended messages');
+    if (returnFocus) recommendationsToggle.focus();
+  }
+  function openRecommendations() {
+    if (recommendationsToggle.disabled) return;
+    messageSuggestions.hidden = false;
+    recommendationsToggle.setAttribute('aria-expanded', 'true');
+    recommendationsToggle.setAttribute('aria-label', 'Hide recommended messages');
+  }
+  recommendationsToggle.addEventListener('click', function () {
+    if (messageSuggestions.hidden) openRecommendations();
+    else closeRecommendations(false);
+  });
+  // Clicking or typing directly in the field returns control to the visitor.
+  fields.message.addEventListener('focus', function () { closeRecommendations(false); });
+  document.addEventListener('pointerdown', function (event) {
+    if (!messageSuggestions.hidden && !messageInputWrap.contains(event.target)) closeRecommendations(false);
+  });
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && !messageSuggestions.hidden) {
+      event.preventDefault();
+      closeRecommendations(true);
+    }
+  });
+
+  function syncMessageGuidance() {
+    var type = fields.type.value;
+    var callback = type === 'callback';
+    fields.message.required = !callback;
+    fields.message.minLength = callback ? 0 : 10;
+    if (messageLabel) messageLabel.textContent = callback ? 'Message (optional)' : 'Message *';
+    fields.message.placeholder = callback ? 'Optional: preferred callback time or topic' : 'Type your query here...';
+    messageHint.hidden = !callback;
+    messageHint.textContent = callback ? 'We can call you using the contact number above. No message is required.' : '';
+
+    closeRecommendations(false);
+    messageSuggestions.replaceChildren();
+    var presets = MESSAGE_PRESETS[type] || [];
+    recommendationsToggle.disabled = !presets.length;
+    recommendationsToggle.title = presets.length ? 'Choose a suggested message' : 'Choose an enquiry type first';
+    presets.forEach(function (copy) {
+      var option = document.createElement('button');
+      option.type = 'button';
+      option.className = 'vmg-message-preset';
+      option.textContent = copy;
+      option.addEventListener('click', function () {
+        fields.message.value = copy;
+        fields.message.dispatchEvent(new Event('input', { bubbles: true }));
+        closeRecommendations(false);
+        fields.message.focus();
+      });
+      messageSuggestions.appendChild(option);
+    });
+    if (presets.length) {
+      var custom = document.createElement('button');
+      custom.type = 'button';
+      custom.className = 'vmg-message-preset vmg-message-custom';
+      custom.textContent = 'Write my own message';
+      custom.addEventListener('click', function () {
+        // Never erase visitor-entered text. This option simply closes
+        // the menu and returns focus to the existing textarea.
+        closeRecommendations(false);
+        fields.message.focus();
+      });
+      messageSuggestions.appendChild(custom);
+    }
+  }
+
   function emailOkay(value) { return value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value); }
   function validateAll() {
     var ok = true;
@@ -312,7 +430,7 @@
     else valid(fields.phone);
     if (org.length > 120) { invalid(fields.organization, 'Organization must be 120 characters or fewer.'); ok=false; } else valid(fields.organization);
     if (TYPE_VALUES.indexOf(fields.type.value) === -1) { invalid(fields.type, 'Please select an enquiry type.'); ok=false; } else valid(fields.type);
-    if (message.length < 10 || message.length > 3000) { invalid(fields.message, 'Please enter a message between 10 and 3000 characters.'); ok=false; } else valid(fields.message);
+    if ((!message && fields.type.value !== 'callback') || (message && message.length < 10) || message.length > 3000) { invalid(fields.message, fields.type.value === 'callback' ? 'Please enter at least 10 characters if you add a message.' : 'Please enter a message between 10 and 3000 characters.'); ok=false; } else valid(fields.message);
     if (!fields.privacy.checked) { invalid(fields.privacy, 'Please accept the privacy policy to continue.'); ok=false; } else valid(fields.privacy);
     if (!turnstileToken) { turnstileErrorSet('Please complete the security verification and try again.'); ok=false; } else turnstileErrorClear();
     return ok;
@@ -333,7 +451,7 @@
         phoneDialCode:parts.dialCode, phoneNational:parts.national, phoneDisplay:parts.display, 'PHONE NUMBER':parts.display,
         email:fields.email.value.trim(), mailId:fields.email.value.trim(), country:countryName(), Country:countryName(),
         countryIso2:(selectedCountry() || {}).iso2 || '', organization:fields.organization.value.trim(),
-        type:fields.type.value, message:fields.message.value.trim(), privacy:true,
+        type:fields.type.value, message:(fields.type.value === 'callback' && !fields.message.value.trim() ? 'Callback requested. Please contact me using the phone number provided.' : fields.message.value.trim()), privacy:true,
         attachments:attachments, attachmentCount:attachments.length,
         website:fields.honeypot ? fields.honeypot.value : '', formStartedAt:Number(fields.startedAt.value || startedAt),
         submittedAt:new Date().toISOString(), page:window.location.href, 'cf-turnstile-response':turnstileToken
@@ -378,8 +496,9 @@
   fields.fullName.addEventListener('input', function(){ if (this.value.trim().length >= 2) valid(this); });
   fields.email.addEventListener('input', function(){ if (emailOkay(this.value.trim())) valid(this); });
   fields.organization.addEventListener('input', function(){ if (this.value.trim().length <= 120) valid(this); });
-  fields.message.addEventListener('input', function(){ var n=this.value.trim().length; if(n>=10&&n<=3000) valid(this); });
-  fields.type.addEventListener('change', function(){ if(TYPE_VALUES.indexOf(this.value)!==-1) valid(this); });
+  fields.message.addEventListener('input', function(){ var n=this.value.trim().length; if((n===0&&fields.type.value==='callback')||(n>=10&&n<=3000)) valid(this); });
+  fields.type.addEventListener('change', function(){ if(TYPE_VALUES.indexOf(this.value)!==-1) valid(this); syncMessageGuidance(); valid(fields.message); });
+  syncMessageGuidance();
   fields.privacy.addEventListener('change', function(){ if(this.checked) valid(this); });
   attachmentPicker.addEventListener('click', function(){ fields.attachments.click(); });
   fields.attachments.addEventListener('change', function(){ addAttachments(this.files); });

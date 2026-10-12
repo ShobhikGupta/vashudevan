@@ -95,7 +95,7 @@
 
     function loadV2() {
       if (document.querySelector('script[data-vmg-contact-v2]')) return;
-      ensureScript('/assets/js/contact-form-v2.js?v=20260905a', 'data-vmg-contact-v2');
+      ensureScript('/assets/js/contact-form-v2.js?v=20261012-recommendations-dropdown', 'data-vmg-contact-v2');
     }
 
     if (window.VMGCountryPhone) loadV2();
@@ -133,4 +133,23 @@
     link.innerHTML = '<img src="/assets/img/whatsapp-logo.png" alt="WhatsApp" decoding="async"><span class="whatsapp-tooltip">Chat with us</span>';
     document.body.appendChild(link);
   }
+
+  // One-time, in-viewport reveal of the Contact columns. Form unaffected.
+  var contactSection = document.querySelector('.vmg-contact-information');
+  if (contactSection && window.IntersectionObserver &&
+      !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+    var contactColumns = Array.prototype.slice.call(contactSection.querySelectorAll('.vmg-contact-info-column'));
+    if (contactColumns.length) {
+      var contactObserver = new IntersectionObserver(function (entries, observer) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        });
+      }, { threshold: 0.08 });
+      contactSection.classList.add('vmg-contact-animate-ready');
+      contactColumns.forEach(function (column) { contactObserver.observe(column); });
+    }
+  }
+
 })();

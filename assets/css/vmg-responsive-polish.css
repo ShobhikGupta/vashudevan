@@ -2022,22 +2022,242 @@
 
 
 /* Final layout alignment: Contact, Products directory, Guides and Who We Are. */
+.page .section.vmg-contact-information {
+  padding-block: clamp(26px, 3vw, 40px);
+  background: #fff;
+  border-bottom: 1px solid #e5e9ef;
+}
+.page .section.vmg-contact-form-section {
+  padding-block: clamp(26px, 3vw, 40px);
+  background: #f8fafc;
+}
+.vmg-contact-form-grid .contact-form-container { min-height: 0; }
+.find-us .map-embed { position: relative; }
+.find-us .vmg-map-directions-link {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #dfe5ec;
+  background: #fff;
+  color: #0a1728;
+  text-decoration: none;
+  font-size: .85rem;
+  font-weight: 700;
+  box-shadow: 0 2px 9px rgba(10,23,40,.14);
+}
+.find-us .vmg-map-directions-link:hover,
+.find-us .vmg-map-directions-link:focus-visible {
+  border-color: #b87943;
+  outline-offset: 2px;
+}
+
 .vmg-contact-information .container,
-.vmg-contact-form-section .container { max-width: 1160px; }
+.vmg-contact-form-section .container,
+.find-us > .container { max-width: 1080px; }
 .vmg-contact-information h2,
 .vmg-contact-form-section .form-header h2 { text-align: center; }
-.vmg-contact-information h2 { margin: 0 0 30px; }
-.vmg-contact-info-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: clamp(22px,3vw,48px); align-items: start; }
-.vmg-contact-info-column { min-width: 0; }
-.vmg-contact-info-column h3 { margin: 0 0 12px; text-align: left; }
-.vmg-contact-info-column h3:not(:first-child) { margin-top: 22px; }
-.vmg-contact-info-column p { overflow-wrap: anywhere; text-align: left; }
-.vmg-contact-form-section { padding-top: clamp(40px,4vw,56px); }
-.vmg-contact-form-grid { max-width: 940px !important; margin-inline: auto; }
-.vmg-contact-form-grid .contact-form-container { width: 100%; max-width: none; }
-.vmg-contact-form-grid .contact-form-new { width: 100%; }
-.vmg-contact-form-section .form-header { text-align: center; }
-.vmg-contact-form-section .form-header h2 { margin-inline: auto; }
+.vmg-contact-information h2 { margin: 0 0 24px; }
+.vmg-contact-information h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 2px;
+  margin: 12px auto 0;
+  background: #b87943;
+}
+.vmg-contact-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  align-items: stretch;
+}
+.vmg-contact-info-column {
+  min-width: 0;
+  align-self: stretch;
+  padding-inline: clamp(20px, 2.5vw, 36px);
+  border-left: 1px solid #e3e8ef;
+  text-align: left;
+}
+.vmg-contact-info-column:first-child { border-left: 0; padding-left: 0; }
+.vmg-contact-info-column:last-child { padding-right: 0; }
+.vmg-contact-info-column h3 {
+  margin: 0 0 10px;
+  color: #0a1728;
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  text-align: left;
+}
+.vmg-contact-info-column h3:not(:first-child) {
+  margin-top: 16px;
+  padding-top: 0;
+  border-top: 0;
+}
+.vmg-contact-info-column p {
+  margin: 5px 0 9px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+.vmg-contact-info-column .vmg-contact-person { margin: 0 0 13px; }
+.vmg-contact-info-column .vmg-contact-person strong,
+.vmg-contact-info-column .vmg-contact-person a {
+  display: block;
+  text-align: left;
+}
+.vmg-contact-info-column .vmg-contact-person a { margin-top: 3px; }
+.vmg-contact-information .vmg-contact-info-column {
+  border-radius: 8px;
+  transition: background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+.vmg-contact-info-column .vmg-contact-person strong,
+.vmg-contact-info-column .vmg-contact-person .vmg-contact-role { display: inline; }
+.vmg-contact-info-column .vmg-contact-role {
+  font-size: .75rem; font-weight: 600; margin-left: 7px;
+  color: #64748b; white-space: normal;
+}
+.vmg-contact-info-column a[href^="tel:"],
+.vmg-contact-info-column a[href^="mailto:"] {
+  color: #0a1728; text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 160ms ease, border-color 160ms ease;
+}
+.vmg-contact-info-column a[href^="tel:"]:hover,
+.vmg-contact-info-column a[href^="mailto:"]:hover,
+.vmg-contact-info-column a[href^="tel:"]:focus-visible,
+.vmg-contact-info-column a[href^="mailto:"]:focus-visible {
+  color: #b87943; border-bottom-color: currentColor;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .vmg-contact-info-column:hover {
+    transform: translateY(-3px);
+    background-color: #fbfaf8;
+    box-shadow: 0 8px 24px rgba(10, 23, 40, .045);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vmg-contact-info-column,
+  .vmg-contact-info-column a { transition: none; }
+  .vmg-contact-info-column:hover { transform: none; }
+}
+.vmg-contact-form-grid { max-width: 1080px !important; margin-inline: auto; }
+/* Remove only the redundant outer frame; preserve the actual form card. */
+.vmg-contact-form-section .vmg-contact-form-grid .contact-form-container {
+  width: 100%;
+  max-width: none;
+  min-height: 0;
+  height: auto;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+/* The map itself remains interactive; discard the decorative outer frame. */
+.find-us .map-wrap {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.find-us .map-embed {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.vmg-contact-form-grid .contact-form-new {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: clamp(12px, 1.8vw, 20px);
+  row-gap: 7px;
+  align-items: start;
+}
+/* The original form rows stay in the DOM for JS selectors and phone/country
+   initialization. display:contents changes presentation only. */
+.vmg-contact-form-grid .contact-form-new > .form-row { display: contents; }
+.vmg-contact-form-grid .contact-form-new > .form-row > .form-field { min-width: 0; }
+.vmg-contact-form-grid .contact-form-new > .form-header,
+.vmg-contact-form-grid .contact-form-new > .form-field.full-width,
+.vmg-contact-form-grid .contact-form-new > .form-checkbox,
+.vmg-contact-form-grid .contact-form-new > .form-result,
+.vmg-contact-form-grid .contact-form-new > .submit-btn {
+  grid-column: 1 / -1;
+}
+.vmg-contact-form-grid .contact-form-new > .submit-btn {
+  justify-self: center;
+  margin: 2px auto 0;
+}
+.vmg-contact-form-section .form-header {
+  text-align: center;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+.vmg-contact-form-section .form-header h2 { margin: 0 auto 9px; line-height: 1.2; }
+.vmg-contact-form-section .form-field input:not([type="checkbox"]),
+.vmg-contact-form-section .form-field select,
+.vmg-contact-form-section .vmg-custom-select-button,
+.vmg-contact-form-section .phone-input-group { min-height: 48px; }
+/* Consistent restrained section spacing; no change to map data or functionality. */
+.page .section.find-us { padding-block: clamp(26px, 3vw, 40px); }
+.find-us .map-wrap { width: 100%; margin-top: 14px; }
+.find-us .map-embed {
+  width: 100%;
+  max-width: 1080px;
+  height: clamp(230px, 25vw, 300px);
+  padding-bottom: 0;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.find-us .map-embed iframe { display: block; width: 100%; height: 100%; }
+.find-us .address-note { margin: 10px auto 0; }
+.find-us .overlay-ctas.ctas-center {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 12px auto 0;
+}
+.find-us .overlay-ctas.ctas-center .btn-animated {
+  width: auto;
+  flex: 0 1 220px;
+  min-width: min(190px, 100%);
+  max-width: none;
+}
+@media (max-width: 640px) {
+  .find-us .map-embed { height: 230px; }
+  .find-us .overlay-ctas.ctas-center { flex-direction: column; gap: 10px; }
+  .find-us .overlay-ctas.ctas-center .btn-animated {
+    width: min(100%, 310px);
+    min-width: 0;
+    flex: 0 0 auto;
+  }
+}
+/* One-time viewport reveal. If JS or IO is unavailable content remains visible. */
+@media (prefers-reduced-motion: no-preference) {
+  .vmg-contact-information.vmg-contact-animate-ready .vmg-contact-info-column {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 420ms ease-out, transform 420ms cubic-bezier(.2,.75,.25,1);
+  }
+  .vmg-contact-information.vmg-contact-animate-ready .vmg-contact-info-column.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .vmg-contact-information.vmg-contact-animate-ready .vmg-contact-info-column:nth-child(2) { transition-delay: 70ms; }
+  .vmg-contact-information.vmg-contact-animate-ready .vmg-contact-info-column:nth-child(3) { transition-delay: 140ms; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vmg-contact-information .vmg-contact-info-column { opacity: 1; transform: none; transition: none; }
+}
 .products-grid { align-items: start; }
 .product-search .search-container { margin-inline: auto; }
 body:has(.products-grid) .page-hero .container { text-align: center; }
@@ -2050,12 +2270,162 @@ body:has(.products-grid) .page-hero p { max-width: 72ch; margin-inline: auto; }
 .who-page #mission-block p { text-align: left; text-align-last: auto; }
 .who-page #history-block .two-col > div:last-child,
 .who-page #mission-block .two-col > div:last-child { max-width: 72ch; }
+@media (max-width: 1100px) {
+  .vmg-contact-form-grid .contact-form-new { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 @media (max-width: 900px) {
-  .vmg-contact-info-grid { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+  .vmg-contact-info-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vmg-contact-info-column:nth-child(3) {
+    grid-column: 1 / -1;
+    padding: 16px 0 0;
+    margin-top: 16px;
+    border-left: 0;
+    border-top: 1px solid #e3e8ef;
+  }
 }
 @media (max-width: 640px) {
-  .vmg-contact-info-grid { grid-template-columns: minmax(0,1fr); gap: 26px; }
-  .vmg-contact-information h2 { margin-bottom: 26px; }
-  .vmg-contact-form-grid { width: min(100% - 32px, 940px); }
+  .vmg-contact-info-grid { grid-template-columns: minmax(0, 1fr); }
+  .vmg-contact-info-column,
+  .vmg-contact-info-column:first-child,
+  .vmg-contact-info-column:last-child,
+  .vmg-contact-info-column:nth-child(3) {
+    grid-column: 1;
+    margin: 0;
+    padding: 16px 0 0;
+    border-left: 0;
+    border-top: 1px solid #e3e8ef;
+  }
+  .vmg-contact-info-column:first-child { padding-top: 0; border-top: 0; }
+  .vmg-contact-information h2 { margin-bottom: 18px; }
+  .vmg-contact-form-grid { width: min(100% - 32px, 1080px); }
+  .vmg-contact-form-grid .contact-form-new { grid-template-columns: minmax(0, 1fr); }
   body:has(.products-grid) .page-hero .container { padding-inline: 0; }
+}
+
+/* In-field message recommendations. Keep the trigger small and typographically
+   identical to the contact designation (0.75rem, weight 600). */
+.vmg-contact-form-section .vmg-message-input-wrap {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+.vmg-contact-form-section .vmg-message-input-wrap #message {
+  display: block;
+  width: 100%;
+  min-height: 124px;
+  padding-top: 44px;
+  box-sizing: border-box;
+}
+.vmg-contact-form-section .vmg-message-recommendations-toggle {
+  position: absolute;
+  top: 8px;
+  right: 9px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 32px;
+  padding: 5px 8px;
+  border: 1px solid #e1e6ed;
+  border-radius: 6px;
+  background: #fff;
+  color: #64748b;
+  font-family: inherit;
+  font-size: .75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  cursor: pointer;
+}
+.vmg-contact-form-section .vmg-message-recommendations-toggle::after {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 150ms ease;
+}
+.vmg-contact-form-section .vmg-message-recommendations-toggle[aria-expanded="true"]::after {
+  transform: rotate(225deg) translateY(-1px);
+}
+.vmg-contact-form-section .vmg-message-recommendations-toggle:hover,
+.vmg-contact-form-section .vmg-message-recommendations-toggle:focus-visible {
+  border-color: #b87943;
+  color: #956037;
+}
+.vmg-contact-form-section .vmg-message-recommendations-toggle:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+.vmg-contact-form-section .vmg-message-suggestions {
+  position: absolute;
+  top: 44px;
+  right: 9px;
+  z-index: 8;
+  display: grid;
+  gap: 0;
+  width: min(330px, calc(100% - 18px));
+  max-height: min(260px, 45vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px;
+  border: 1px solid #dfe5ec;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(10, 23, 40, .16);
+}
+.vmg-contact-form-section .vmg-message-suggestions[hidden],
+.vmg-contact-form-section .vmg-message-hint[hidden] { display: none; }
+.vmg-contact-form-section .vmg-message-preset {
+  display: block;
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #0a1728;
+  font-family: inherit;
+  font-size: .75rem;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: left;
+  white-space: normal;
+  cursor: pointer;
+}
+.vmg-contact-form-section .vmg-message-preset:hover,
+.vmg-contact-form-section .vmg-message-preset:focus-visible {
+  background: #fff7f0;
+  color: #956037;
+}
+.vmg-contact-form-section .vmg-message-custom {
+  border-top: 1px solid #e5e9ee;
+  border-radius: 0;
+  color: #956037;
+  font-weight: 600;
+}
+.vmg-contact-form-section .vmg-message-hint {
+  margin: 6px 0 0;
+  font-size: .75rem;
+  color: #64748b;
+}
+@media (max-width: 640px) {
+  .vmg-contact-form-section .vmg-message-recommendations-toggle {
+    top: 6px;
+    right: 6px;
+    min-height: 34px;
+  }
+  .vmg-contact-form-section .vmg-message-suggestions {
+    top: 42px;
+    right: 6px;
+    width: calc(100% - 12px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vmg-contact-form-section .vmg-message-recommendations-toggle::after {
+    transition: none;
+  }
 }
