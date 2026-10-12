@@ -55,3 +55,47 @@
 @media(max-width:900px){.seo-two-col{grid-template-columns:1fr}.material-page .seo-side-card{height:auto}.seo-grade-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.seo-catalogue-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.seo-final-cta .container{grid-template-columns:1fr;align-items:start}.seo-final-cta .seo-actions{justify-content:flex-start}}
 @media(max-width:560px){.seo-hero{padding:54px 0 48px}.seo-hero h1{font-size:clamp(2.2rem,10vw,2.55rem)}.seo-section{padding:44px 0}.guide-page .seo-section{padding:34px 0}.seo-grade-grid,.seo-catalogue-grid{grid-template-columns:1fr}.seo-actions{flex-direction:column;align-items:stretch}.seo-btn{width:100%}.material-page .seo-section-head,.guide-page .seo-section-head{max-width:100%}}
 @media(min-width:400px) and (max-width:560px){.material-page .seo-catalogue-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* VMG material-detail template: explicit semantic bands, shared density and
+   responsive catalogue distribution. See DESIGN.md §7. */
+.material-page {
+  --vmg-material-alternate: #f4f3f0;
+}
+.material-page .seo-section.vmg-material-overview,
+.material-page .seo-section.vmg-material-grades { background: #fff; }
+.material-page .seo-section.vmg-material-catalogue,
+.material-page .seo-section.vmg-material-related {
+  background: var(--vmg-material-alternate);
+}
+.material-page .vmg-material-catalogue .container { max-width: 1360px; }
+.material-page .vmg-material-catalogue .seo-catalogue-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(190px, 100%), 210px));
+  gap: 16px;
+  justify-content: center;
+  align-items: stretch;
+}
+.material-page .vmg-material-catalogue .seo-catalogue-card { background: #fff; }
+.material-page .vmg-material-grades .seo-grade-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
+}
+.material-page .vmg-material-related { padding-block: 40px; }
+.material-page .vmg-material-overview .seo-two-col {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(24px, 3vw, 40px);
+}
+.material-page .vmg-material-overview .seo-two-col > * { min-width: 0; }
+.material-page .vmg-material-hero { padding-block: clamp(46px, 4.3vw, 66px); }
+.material-page .vmg-material-hero h1 { max-width: 20ch; overflow-wrap: normal; }
+@media (max-width: 900px) {
+  .material-page .vmg-material-overview .seo-two-col { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .material-page .vmg-material-catalogue .seo-catalogue-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(152px, 100%), 1fr));
+    gap: 12px;
+  }
+  .material-page .vmg-material-grades .seo-grade-grid { grid-template-columns: minmax(0, 1fr); }
+  .material-page .vmg-material-hero { padding-block: 46px; }
+}

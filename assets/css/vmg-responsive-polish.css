@@ -2019,3 +2019,74 @@
     max-height: 150px;
   }
 }
+
+
+/* Final layout alignment: Contact, Products directory, Guides and Who We Are. */
+.page .section.vmg-contact-information { padding-block: clamp(30px,3.4vw,44px); }
+.page .section.vmg-contact-form-section {
+  padding-block: clamp(36px,4vw,52px);
+  border-top: 1px solid #e5e9ef;
+}
+.vmg-contact-form-grid .contact-form-container { min-height: 0; }
+.find-us .map-embed { position: relative; }
+.find-us .vmg-map-directions-link {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #dfe5ec;
+  background: #fff;
+  color: #0a1728;
+  text-decoration: none;
+  font-size: .85rem;
+  font-weight: 700;
+  box-shadow: 0 2px 9px rgba(10,23,40,.14);
+}
+.find-us .vmg-map-directions-link:hover,
+.find-us .vmg-map-directions-link:focus-visible {
+  border-color: #b87943;
+  outline-offset: 2px;
+}
+
+.vmg-contact-information .container,
+.vmg-contact-form-section .container { max-width: 1160px; }
+.vmg-contact-information h2,
+.vmg-contact-form-section .form-header h2 { text-align: center; }
+.vmg-contact-information h2 { margin: 0 0 20px; }
+.vmg-contact-info-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: clamp(20px,3vw,42px); align-items: start; }
+.vmg-contact-info-column { min-width: 0; }
+.vmg-contact-info-column h3 { margin: 0 0 8px; text-align: left; }
+.vmg-contact-info-column h3:not(:first-child) { margin-top: 16px; }
+.vmg-contact-info-column p { margin: 5px 0 9px; line-height: 1.5; overflow-wrap: anywhere; text-align: left; }
+.vmg-contact-form-section { padding-block: clamp(36px,4vw,52px); }
+.vmg-contact-form-grid { max-width: 940px !important; margin-inline: auto; }
+.vmg-contact-form-grid .contact-form-container { width: 100%; max-width: none; }
+.vmg-contact-form-grid .contact-form-new { width: 100%; }
+.vmg-contact-form-section .form-header { text-align: center; }
+.vmg-contact-form-section .form-header h2 { margin-inline: auto; }
+.products-grid { align-items: start; }
+.product-search .search-container { margin-inline: auto; }
+body:has(.products-grid) .page-hero .container { text-align: center; }
+body:has(.products-grid) .page-hero p { max-width: 72ch; margin-inline: auto; }
+.guide-page .seo-section > .container { max-width: 860px; }
+.guide-page .seo-section:not(:has(.seo-related)) p,
+.guide-page .seo-section:not(:has(.seo-related)) li { text-align: left; }
+.who-page #history-block .lead,
+.who-page #history-block p,
+.who-page #mission-block p { text-align: left; text-align-last: auto; }
+.who-page #history-block .two-col > div:last-child,
+.who-page #mission-block .two-col > div:last-child { max-width: 72ch; }
+@media (max-width: 900px) {
+  .vmg-contact-info-grid { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+}
+@media (max-width: 640px) {
+  .vmg-contact-info-grid { grid-template-columns: minmax(0,1fr); gap: 18px; }
+  .vmg-contact-information h2 { margin-bottom: 18px; }
+  .vmg-contact-form-grid { width: min(100% - 32px, 940px); }
+  body:has(.products-grid) .page-hero .container { padding-inline: 0; }
+}
