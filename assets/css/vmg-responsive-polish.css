@@ -2074,10 +2074,11 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0;
-  align-items: start;
+  align-items: stretch;
 }
 .vmg-contact-info-column {
   min-width: 0;
+  align-self: stretch;
   padding-inline: clamp(20px, 2.5vw, 36px);
   border-left: 1px solid #e3e8ef;
   text-align: left;
@@ -2092,8 +2093,8 @@
 }
 .vmg-contact-info-column h3:not(:first-child) {
   margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid #e7ebf0;
+  padding-top: 0;
+  border-top: 0;
 }
 .vmg-contact-info-column p {
   margin: 5px 0 9px;
@@ -2109,7 +2110,30 @@
 }
 .vmg-contact-info-column .vmg-contact-person a { margin-top: 3px; }
 .vmg-contact-form-grid { max-width: 1080px !important; margin-inline: auto; }
-.vmg-contact-form-grid .contact-form-container { width: 100%; max-width: none; }
+/* Remove only the redundant outer frame; preserve the actual form card. */
+.vmg-contact-form-section .vmg-contact-form-grid .contact-form-container {
+  width: 100%;
+  max-width: none;
+  min-height: 0;
+  height: auto;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+/* The map itself remains interactive; discard the decorative outer frame. */
+.find-us .map-wrap {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.find-us .map-embed {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
 .vmg-contact-form-grid .contact-form-new {
   display: grid;
   width: 100%;
