@@ -2302,23 +2302,130 @@ body:has(.products-grid) .page-hero p { max-width: 72ch; margin-inline: auto; }
   body:has(.products-grid) .page-hero .container { padding-inline: 0; }
 }
 
-/* Contact enquiry guidance: compact, optional shortcuts that remain editable. */
+/* In-field message recommendations. Keep the trigger small and typographically
+   identical to the contact designation (0.75rem, weight 600). */
+.vmg-contact-form-section .vmg-message-input-wrap {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+.vmg-contact-form-section .vmg-message-input-wrap #message {
+  display: block;
+  width: 100%;
+  min-height: 124px;
+  padding-top: 44px;
+  box-sizing: border-box;
+}
+.vmg-contact-form-section .vmg-message-recommendations-toggle {
+  position: absolute;
+  top: 8px;
+  right: 9px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 32px;
+  padding: 5px 8px;
+  border: 1px solid #e1e6ed;
+  border-radius: 6px;
+  background: #fff;
+  color: #64748b;
+  font-family: inherit;
+  font-size: .75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  cursor: pointer;
+}
+.vmg-contact-form-section .vmg-message-recommendations-toggle::after {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 150ms ease;
+}
+.vmg-contact-form-section .vmg-message-recommendations-toggle[aria-expanded="true"]::after {
+  transform: rotate(225deg) translateY(-1px);
+}
+.vmg-contact-form-section .vmg-message-recommendations-toggle:hover,
+.vmg-contact-form-section .vmg-message-recommendations-toggle:focus-visible {
+  border-color: #b87943;
+  color: #956037;
+}
+.vmg-contact-form-section .vmg-message-recommendations-toggle:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
 .vmg-contact-form-section .vmg-message-suggestions {
-  display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px;
+  position: absolute;
+  top: 44px;
+  right: 9px;
+  z-index: 8;
+  display: grid;
+  gap: 0;
+  width: min(330px, calc(100% - 18px));
+  max-height: min(260px, 45vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px;
+  border: 1px solid #dfe5ec;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(10, 23, 40, .16);
 }
 .vmg-contact-form-section .vmg-message-suggestions[hidden],
 .vmg-contact-form-section .vmg-message-hint[hidden] { display: none; }
-.vmg-contact-form-section .vmg-message-prompt {
-  flex: 1 0 100%; margin: 0 0 2px; color: #64748b; font-size: .77rem;
-}
 .vmg-contact-form-section .vmg-message-preset {
-  appearance: none; border: 1px solid #d7dee7; border-radius: 8px;
-  padding: 7px 10px; background: #fff; color: #0a1728;
-  text-align: left; font-size: .76rem; line-height: 1.4; cursor: pointer;
+  display: block;
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #0a1728;
+  font-family: inherit;
+  font-size: .75rem;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: left;
+  white-space: normal;
+  cursor: pointer;
 }
 .vmg-contact-form-section .vmg-message-preset:hover,
 .vmg-contact-form-section .vmg-message-preset:focus-visible {
-  border-color: #b87943; background: #fffaf5;
+  background: #fff7f0;
+  color: #956037;
 }
-.vmg-contact-form-section .vmg-message-custom { color: #956037; }
-.vmg-contact-form-section .vmg-message-hint { margin: 4px 0 0; font-size: .76rem; color: #64748b; }
+.vmg-contact-form-section .vmg-message-custom {
+  border-top: 1px solid #e5e9ee;
+  border-radius: 0;
+  color: #956037;
+  font-weight: 600;
+}
+.vmg-contact-form-section .vmg-message-hint {
+  margin: 6px 0 0;
+  font-size: .75rem;
+  color: #64748b;
+}
+@media (max-width: 640px) {
+  .vmg-contact-form-section .vmg-message-recommendations-toggle {
+    top: 6px;
+    right: 6px;
+    min-height: 34px;
+  }
+  .vmg-contact-form-section .vmg-message-suggestions {
+    top: 42px;
+    right: 6px;
+    width: calc(100% - 12px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vmg-contact-form-section .vmg-message-recommendations-toggle::after {
+    transition: none;
+  }
+}

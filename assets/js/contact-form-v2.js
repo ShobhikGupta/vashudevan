@@ -315,19 +315,65 @@
   };
   var messageFieldWrapper = fields.message.closest('.form-field');
   var messageLabel = form.querySelector('label[for="message"]');
+  // Keep the original textarea, IDs and validation. Only wrap it for
+  // a small recommendations control inside the input border.
+  var messageInputWrap = document.createElement('div');
+  messageInputWrap.className = 'vmg-message-input-wrap';
+  fields.message.parentNode.insertBefore(messageInputWrap, fields.message);
+  messageInputWrap.appendChild(fields.message);
+
+  var recommendationsToggle = document.createElement('button');
+  recommendationsToggle.type = 'button';
+  recommendationsToggle.className = 'vmg-message-recommendations-toggle';
+  recommendationsToggle.textContent = 'Recommendations';
+  recommendationsToggle.setAttribute('aria-controls', 'vmg-message-recommendations');
+  recommendationsToggle.setAttribute('aria-expanded', 'false');
+  recommendationsToggle.setAttribute('aria-haspopup', 'true');
+  recommendationsToggle.setAttribute('aria-label', 'Show recommended messages');
+  messageInputWrap.appendChild(recommendationsToggle);
+
   var messageSuggestions = document.createElement('div');
   messageSuggestions.className = 'vmg-message-suggestions';
+  messageSuggestions.id = 'vmg-message-recommendations';
   messageSuggestions.setAttribute('role', 'group');
-  messageSuggestions.setAttribute('aria-label', 'Suggested messages');
+  messageSuggestions.setAttribute('aria-label', 'Suggested messages for your enquiry');
   messageSuggestions.hidden = true;
+  messageInputWrap.appendChild(messageSuggestions);
+
   var messageHint = document.createElement('p');
   messageHint.className = 'vmg-message-hint';
   messageHint.id = 'vmg-message-hint';
   messageHint.hidden = true;
-  if (messageFieldWrapper) {
-    messageFieldWrapper.appendChild(messageSuggestions);
-    messageFieldWrapper.appendChild(messageHint);
+  if (messageFieldWrapper) messageFieldWrapper.appendChild(messageHint);
+
+  function closeRecommendations(returnFocus) {
+    messageSuggestions.hidden = true;
+    recommendationsToggle.setAttribute('aria-expanded', 'false');
+    recommendationsToggle.setAttribute('aria-label', 'Show recommended messages');
+    if (returnFocus) recommendationsToggle.focus();
   }
+  function openRecommendations() {
+    if (recommendationsToggle.disabled) return;
+    messageSuggestions.hidden = false;
+    recommendationsToggle.setAttribute('aria-expanded', 'true');
+    recommendationsToggle.setAttribute('aria-label', 'Hide recommended messages');
+  }
+  recommendationsToggle.addEventListener('click', function () {
+    if (messageSuggestions.hidden) openRecommendations();
+    else closeRecommendations(false);
+  });
+  // Clicking or typing directly in the field returns control to the visitor.
+  fields.message.addEventListener('focus', function () { closeRecommendations(false); });
+  document.addEventListener('pointerdown', function (event) {
+    if (!messageSuggestions.hidden && !messageInputWrap.contains(event.target)) closeRecommendations(false);
+  });
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && !messageSuggestions.hidden) {
+      event.preventDefault();
+      closeRecommendations(true);
+    }
+  });
+
   function syncMessageGuidance() {
     var type = fields.type.value;
     var callback = type === 'callback';
@@ -337,36 +383,38 @@
     fields.message.placeholder = callback ? 'Optional: preferred callback time or topic' : 'Type your query here...';
     messageHint.hidden = !callback;
     messageHint.textContent = callback ? 'We can call you using the contact number above. No message is required.' : '';
-    var presets = MESSAGE_PRESETS[type] || [];
+
+    closeRecommendations(false);
     messageSuggestions.replaceChildren();
-    messageSuggestions.hidden = !presets.length;
-    if (!presets.length) return;
-    var caption = document.createElement('p');
-    caption.className = 'vmg-message-prompt';
-    caption.textContent = 'Choose a starting message or write your own:';
-    messageSuggestions.appendChild(caption);
+    var presets = MESSAGE_PRESETS[type] || [];
+    recommendationsToggle.disabled = !presets.length;
+    recommendationsToggle.title = presets.length ? 'Choose a suggested message' : 'Choose an enquiry type first';
     presets.forEach(function (copy) {
-      var button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'vmg-message-preset';
-      button.textContent = copy;
-      button.addEventListener('click', function () {
+      var option = document.createElement('button');
+      option.type = 'button';
+      option.className = 'vmg-message-preset';
+      option.textContent = copy;
+      option.addEventListener('click', function () {
         fields.message.value = copy;
         fields.message.dispatchEvent(new Event('input', { bubbles: true }));
+        closeRecommendations(false);
         fields.message.focus();
       });
-      messageSuggestions.appendChild(button);
+      messageSuggestions.appendChild(option);
     });
-    var custom = document.createElement('button');
-    custom.type = 'button';
-    custom.className = 'vmg-message-preset vmg-message-custom';
-    custom.textContent = 'Write my own message';
-    custom.addEventListener('click', function () {
-      fields.message.value = '';
-      fields.message.dispatchEvent(new Event('input', { bubbles: true }));
-      fields.message.focus();
-    });
-    messageSuggestions.appendChild(custom);
+    if (presets.length) {
+      var custom = document.createElement('button');
+      custom.type = 'button';
+      custom.className = 'vmg-message-preset vmg-message-custom';
+      custom.textContent = 'Write my own message';
+      custom.addEventListener('click', function () {
+        // Never erase visitor-entered text. This option simply closes
+        // the menu and returns focus to the existing textarea.
+        closeRecommendations(false);
+        fields.message.focus();
+      });
+      messageSuggestions.appendChild(custom);
+    }
   }
 
   function emailOkay(value) { return value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value); }
