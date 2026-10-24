@@ -7,9 +7,10 @@
   var wrap = input && input.closest('.search-container');
   if (!input || !wrap || wrap.dataset.vmgSearchOdometer === 'true') return;
 
-  var examples = ['Copper', 'Aluminium', 'UBC', '6063', 'Brass', 'Stainless Steel', 'Zurik', 'Auto Scrap'];
-  var ROTATE_MS = 2900;
-  var ROLL_MS = 390;
+  var examples = ["Bare Bright Wire (BARLEY)","6063 Extrusions (TOTO)","HMS 1 & 2","Used Beverage Cans (TALDON) (UBC)","304 Solids (SABOT)","Yellow Brass (HONEY)","#1 Copper (BERRY/CANDY)","Cast Aluminum (TENSE)","ZORBA","Mixed Motors (ELMO)","AC Compressors","316 Solids"];
+  // Faster cadence: 1.8s read time plus 0.3s upward roll.
+  var ROTATE_MS = 1800;
+  var ROLL_MS = 300;
   var reducedMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
   var currentIndex = 0;
   var timer = null, finishTimer = null, frame = null;
