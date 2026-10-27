@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="/assets/css/vmg-nav-premium-overrides.css" data-vmg-nav-premium="true">
     <link rel="stylesheet" href="/assets/css/vmg-feedback.css" data-vmg-feedback-style="true">
     <link rel="stylesheet" href="/assets/css/vmg-footer.css" data-vmg-footer-style="true">
-    <link rel="stylesheet" href="/assets/css/vmg-responsive-polish.css?v=20261027-contact-map-review" data-vmg-responsive-polish="true">
+    <link rel="stylesheet" href="/assets/css/vmg-responsive-polish.css?v=20261027-contact-navigation-and-layout" data-vmg-responsive-polish="true">
     <link rel="stylesheet" href="/assets/css/vmg-header-sticky-fix.css?v=20260822b" data-vmg-header-sticky-fix="true">
 
     <meta property="og:type" content="website">
@@ -111,7 +111,7 @@
   </div>
 </header>
 
-  <main class="page">
+  <main class="page vmg-contact-page">
     <section class="page-hero">
       <div class="container">
         <nav class="breadcrumbs" aria-label="Breadcrumb">
@@ -458,13 +458,31 @@
             </div>
           </div>
           <p class="address-note">Use Get Directions to see the route from your current location in Google Maps.</p>
-          <div class="overlay-ctas ctas-center">
-            <a class="btn-animated secondary" target="_blank" rel="noopener"
-              href="https://www.google.com/maps/dir/?api=1&destination=Vashudevan+MetGlobal+LLP,+Vesu,+Surat,+Gujarat">Get
-              Directions</a>
-            <a class="btn-animated secondary" target="_blank" rel="noopener noreferrer"
-              href="https://g.page/r/CSCBVakLZrvXEBM/review"
+          <div class="overlay-ctas ctas-center vmg-map-actions">
+            <button type="button" class="vmg-map-action" id="vmg-map-chooser-trigger"
+              aria-haspopup="dialog" aria-controls="vmg-map-chooser"
+              aria-expanded="false">Get Directions</button>
+            <a class="vmg-map-action" href="https://g.page/r/CSCBVakLZrvXEBM/review"
+              target="_blank" rel="noopener noreferrer"
               aria-label="Write a Google review for Vashudevan MetGlobal LLP (opens Google Maps)">Write a Google Review</a>
+          </div>
+          <div id="vmg-map-chooser" class="vmg-map-chooser" role="dialog"
+            aria-modal="false" aria-labelledby="vmg-map-chooser-heading" hidden>
+            <div class="vmg-map-chooser-heading">
+              <strong id="vmg-map-chooser-heading">Open directions in</strong>
+              <button type="button" class="vmg-map-chooser-close"
+                aria-label="Close map options">×</button>
+            </div>
+            <div class="vmg-map-chooser-options">
+              <a href="https://www.google.com/maps/dir/?api=1&destination=Vashudevan+MetGlobal+LLP,+Vesu,+Surat,+Gujarat" target="_blank" rel="noopener noreferrer"
+                class="vmg-map-chooser-option">Google Maps <span aria-hidden="true">↗</span></a>
+              <a href="https://maps.apple.com/?daddr=Vashudevan%20MetGlobal%20LLP%2C%20Vesu%2C%20Surat%2C%20Gujarat&dirflg=d" target="_blank" rel="noopener noreferrer"
+                class="vmg-map-chooser-option">Apple Maps <span aria-hidden="true">↗</span></a>
+              <a href="https://www.waze.com/ul?q=Vashudevan%20MetGlobal%20LLP%2C%20Vesu%2C%20Surat%2C%20Gujarat&navigate=yes" target="_blank" rel="noopener noreferrer"
+                class="vmg-map-chooser-option">Waze <span aria-hidden="true">↗</span></a>
+              <a href="geo:0,0?q=Vashudevan%20MetGlobal%20LLP%2C%20Vesu%2C%20Surat%2C%20Gujarat" data-vmg-android-map hidden
+                class="vmg-map-chooser-option">Device Maps (Android) <span aria-hidden="true">↗</span></a>
+            </div>
           </div>
         </div>
       </div>
@@ -519,7 +537,7 @@
   <script src="/assets/js/config.js?v=20260904c"></script>
   <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.12/build/js/intlTelInput.min.js"></script>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
-  <script src="/assets/js/contact-page-shell.js?v=20260904a"></script>
+  <script src="/assets/js/contact-page-shell.js?v=20261027-map-chooser"></script>
   <script src="/assets/js/contact-form.js?v=20260904a"></script>
 </body>
 

@@ -152,4 +152,45 @@
     }
   }
 
+
+  // Contact Find Us: accessible map-service picker, no app-install probing.
+  // The Android device option delegates to Android's URI handler: the OS
+  // may open the only suitable app directly or present its chooser.
+  var mapsTrigger = document.getElementById('vmg-map-chooser-trigger');
+  var mapsChooser = document.getElementById('vmg-map-chooser');
+  if (mapsTrigger && mapsChooser) {
+    var closeMaps = mapsChooser.querySelector('.vmg-map-chooser-close');
+    var options = mapsChooser.querySelectorAll('a.vmg-map-chooser-option');
+    var androidOption = mapsChooser.querySelector('[data-vmg-android-map]');
+    if (androidOption && /Android/i.test(navigator.userAgent || '')) {
+      androidOption.hidden = false;
+    }
+    function setMapsOpen(open, returnFocus) {
+      mapsChooser.hidden = !open;
+      mapsTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) {
+        var first = mapsChooser.querySelector('a.vmg-map-chooser-option:not([hidden])');
+        if (first) first.focus();
+      } else if (returnFocus) mapsTrigger.focus();
+    }
+    mapsTrigger.addEventListener('click', function () {
+      setMapsOpen(mapsChooser.hidden, false);
+    });
+    if (closeMaps) closeMaps.addEventListener('click', function () { setMapsOpen(false, true); });
+    options.forEach(function (link) {
+      link.addEventListener('click', function () { setMapsOpen(false, false); });
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && !mapsChooser.hidden) {
+        event.preventDefault();
+        setMapsOpen(false, true);
+      }
+    });
+    document.addEventListener('pointerdown', function (event) {
+      if (!mapsChooser.hidden && !mapsChooser.contains(event.target) && !mapsTrigger.contains(event.target)) {
+        setMapsOpen(false, false);
+      }
+    });
+  }
+
 })();

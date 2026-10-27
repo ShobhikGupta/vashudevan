@@ -2221,19 +2221,111 @@
   gap: 12px;
   margin: 12px auto 0;
 }
-.find-us .overlay-ctas.ctas-center .btn-animated {
-  width: auto;
-  flex: 0 1 220px;
-  min-width: min(190px, 100%);
-  max-width: none;
+/* One shared component for both map actions: identical dimensions. */
+.vmg-contact-page .find-us .vmg-map-actions > .vmg-map-action {
+  display: inline-flex;
+  flex: 0 0 220px;
+  align-items: center;
+  justify-content: center;
+  width: 220px;
+  min-width: 0;
+  height: 50px;
+  min-height: 50px;
+  padding: 10px 14px;
+  box-sizing: border-box;
+  border: 1px solid #d6dde6;
+  border-radius: 9px;
+  background: #fff;
+  color: #0a1728;
+  box-shadow: none;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: normal;
+  white-space: nowrap;
+  text-decoration: none;
+  text-transform: none;
+  cursor: pointer;
+  transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease, transform 160ms ease;
 }
+.vmg-contact-page .find-us .vmg-map-actions > .vmg-map-action:hover,
+.vmg-contact-page .find-us .vmg-map-actions > .vmg-map-action:focus-visible {
+  border-color: #b87943;
+  background: #fffaf5;
+  color: #81502c;
+  transform: translateY(-2px);
+}
+.vmg-contact-page .find-us .vmg-map-chooser {
+  width: min(100%, 460px);
+  margin: 12px auto 0;
+  padding: 12px;
+  box-sizing: border-box;
+  border: 1px solid #dbe2e9;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 14px 32px rgba(8, 23, 40, .12);
+  text-align: left;
+}
+.vmg-contact-page .find-us .vmg-map-chooser[hidden],
+.vmg-contact-page .find-us .vmg-map-chooser-option[hidden] { display: none; }
+.vmg-contact-page .find-us .vmg-map-chooser-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 4px 8px;
+  color: #0a1728;
+  font-size: 14px;
+}
+.vmg-contact-page .find-us .vmg-map-chooser-close {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 8px;
+  background: #f2f5f8;
+  color: #0a1728;
+  font-size: 22px;
+  cursor: pointer;
+}
+.vmg-contact-page .find-us .vmg-map-chooser-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.vmg-contact-page .find-us .vmg-map-chooser-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 0;
+  min-height: 48px;
+  padding: 11px 12px;
+  box-sizing: border-box;
+  border: 1px solid #e2e7ee;
+  border-radius: 8px;
+  background: #fbfcfe;
+  color: #0a1728;
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: none;
+}
+.vmg-contact-page .find-us .vmg-map-chooser-option:hover,
+.vmg-contact-page .find-us .vmg-map-chooser-option:focus-visible {
+  border-color: #b87943;
+  background: #fffaf5;
+}
+
 @media (max-width: 640px) {
   .find-us .map-embed { height: 230px; }
   .find-us .overlay-ctas.ctas-center { flex-direction: column; gap: 10px; }
-  .find-us .overlay-ctas.ctas-center .btn-animated {
+  .vmg-contact-page .find-us .vmg-map-actions > .vmg-map-action {
     width: min(100%, 310px);
-    min-width: 0;
     flex: 0 0 auto;
+  }
+  .vmg-contact-page .find-us .vmg-map-chooser-options {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 /* One-time viewport reveal. If JS or IO is unavailable content remains visible. */
@@ -2295,6 +2387,60 @@ body:has(.products-grid) .page-hero p { max-width: 72ch; margin-inline: auto; }
   .vmg-contact-form-grid { width: min(100% - 32px, 1080px); }
   .vmg-contact-form-grid .contact-form-new { grid-template-columns: minmax(0, 1fr); }
   body:has(.products-grid) .page-hero .container { padding-inline: 0; }
+}
+
+/* Contact-only form alignment: all six short fields share one control
+   geometry across 3 / 2 / 1 column layouts. No input IDs or JS changes. */
+.vmg-contact-page .vmg-contact-form-section .contact-form-new > .form-row > .form-field {
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+  min-width: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+.vmg-contact-page .vmg-contact-form-section .contact-form-new .form-field > label {
+  display: block;
+  margin: 0 0 6px;
+  line-height: 1.35;
+}
+.vmg-contact-page .vmg-contact-form-section .contact-form-new .form-field > input:not([type="hidden"]),
+.vmg-contact-page .vmg-contact-form-section .contact-form-new .form-field > select,
+.vmg-contact-page .vmg-contact-form-section .contact-form-new .vmg-custom-select-button,
+.vmg-contact-page .vmg-contact-form-section .contact-form-new .phone-input-group {
+  width: 100%;
+  min-width: 0;
+  height: 48px;
+  min-height: 48px;
+  box-sizing: border-box;
+  margin: 0;
+  border-radius: 7px;
+}
+.vmg-contact-page .vmg-contact-form-section .contact-form-new .phone-input-group .phone-code,
+.vmg-contact-page .vmg-contact-form-section .contact-form-new .phone-input-group input[type="tel"] {
+  height: 46px;
+  min-height: 46px;
+  line-height: 1.4;
+}
+.vmg-contact-page .vmg-contact-form-section .contact-form-new > .form-row > .form-field .error:not(.show) {
+  margin: 0;
+}
+.vmg-contact-page .vmg-contact-form-section .contact-form-new .form-field.full-width {
+  min-width: 0;
+}
+/* Shared .page adds 40px after every page, which leaves a redundant white
+   band above Contact's footer. Remove that band only on this page. */
+main.page.vmg-contact-page { padding-bottom: 0; }
+.vmg-contact-page #join-family.section.cta-join {
+  padding-block: clamp(26px, 3vw, 40px) clamp(20px, 2.6vw, 30px);
+}
+.vmg-contact-page #join-family .lead { margin-bottom: 10px; }
+.vmg-contact-page #join-family .cta-email { margin-block: 8px; }
+.vmg-contact-page #join-family .small-note { margin-top: 6px; margin-bottom: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .vmg-contact-page .find-us .vmg-map-actions > .vmg-map-action { transition: none; }
+  .vmg-contact-page .find-us .vmg-map-actions > .vmg-map-action:hover { transform: none; }
 }
 
 /* Contact Message: compact auto-growing textarea and a disclosure aligned
