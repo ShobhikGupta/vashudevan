@@ -172,7 +172,7 @@
   }
 
   .vmg-econship-header .site-nav > ul {
-    width: min(1200px, calc(100% - 56px));
+    width: min(1440px, calc(100% - 96px));
     min-height: 52px;
   }
 
@@ -441,5 +441,13 @@
   .vmg-econship-header .site-nav .submenu a:hover,
   .vmg-econship-header .site-nav .submenu a:focus-visible {
     transform: none;
+  }
+}
+
+/* VMG desktop Tier 2: six evenly distributed navigation tracks with
+   wider coverage but deliberate outer gutters, like the user's reference. */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .vmg-econship-header .site-nav > ul {
+    width: calc(100% - 48px);
   }
 }

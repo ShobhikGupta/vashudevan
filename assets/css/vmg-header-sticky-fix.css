@@ -67,7 +67,7 @@
     left: 0 !important;
     right: 0 !important;
     transform: translate3d(0,0,0) !important;
-    transition: transform 320ms cubic-bezier(.22,1,.36,1), box-shadow 180ms ease !important;
+    transition: transform 360ms cubic-bezier(.22,1,.36,1), box-shadow 240ms ease !important;
     will-change: transform;
   }
 
@@ -80,6 +80,11 @@
     transform: none !important;
     overflow: visible !important;
     pointer-events: auto !important;
+  }
+
+  /* A little depth for the white mobile header while scrolling. */
+  .site-header.vmg-econship-header.is-scrolled {
+    box-shadow: 0 8px 20px rgba(4,12,23,.10) !important;
   }
 
   .site-header.vmg-econship-header.vmg-footer-in-view:not(.vmg-menu-open) {
@@ -146,7 +151,7 @@
     right: auto !important;
     width: 100% !important;
     transform: translate3d(0,0,0) !important;
-    transition: transform 300ms cubic-bezier(.22,1,.36,1), box-shadow 180ms ease !important;
+    transition: transform 360ms cubic-bezier(.22,1,.36,1), box-shadow 240ms ease, opacity 240ms ease !important;
     will-change: transform;
   }
 
@@ -158,7 +163,16 @@
     width: 100% !important;
     z-index: 1300 !important;
     transform: translate3d(0,0,0) !important;
-    box-shadow: 0 8px 24px rgba(4,12,23,.14) !important;
+    box-shadow: 0 11px 28px rgba(4,12,23,.19), 0 2px 6px rgba(4,12,23,.07) !important;
+  }
+
+  /* Fade the newly pinned tier into place; don't animate page layout. */
+  .site-header.vmg-econship-header.vmg-tier2-pinned:not(.vmg-footer-in-view) .site-nav {
+    animation: vmg-nav-soft-appear 220ms ease-out both;
+  }
+  @keyframes vmg-nav-soft-appear {
+    from { opacity: .88; }
+    to { opacity: 1; }
   }
 
   .site-header.vmg-econship-header.vmg-tier2-pinned.vmg-footer-in-view .site-nav {
@@ -188,6 +202,9 @@ body.scroll-top-visible:not(.vmg-help-open) .back-to-top.visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .site-header.vmg-econship-header.vmg-tier2-pinned .site-nav {
+    animation: none !important;
+  }
   .site-header.vmg-econship-header,
   .site-header.vmg-econship-header .site-nav,
   .back-to-top {
