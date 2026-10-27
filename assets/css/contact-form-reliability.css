@@ -106,12 +106,28 @@
   font-weight: 700;
 }
 
-/* Country keeps its normal visual weight and left alignment. */
-.contact-form-new #country + .vmg-custom-select .vmg-custom-select-button,
-.contact-form-new #country + .vmg-custom-select .vmg-custom-select-label,
-.contact-form-new #country + .vmg-custom-select .vmg-custom-select-option {
+/* Country: center the selected value within its container, as for Type.
+   Preserve the left-aligned field label and readable country options. */
+.contact-form-new #country {
+  text-align: center;
+  text-align-last: center;
+  padding-inline: 36px;
+}
+.contact-form-new #country + .vmg-custom-select .vmg-custom-select-button {
+  position: relative;
+  justify-content: center;
+  text-align: center;
   font-weight: inherit;
+}
+.contact-form-new #country + .vmg-custom-select .vmg-custom-select-label {
+  width: 100%;
+  padding-inline: 24px;
+  text-align: center;
+  font-weight: inherit;
+}
+.contact-form-new #country + .vmg-custom-select .vmg-custom-select-option {
   text-align: left;
+  font-weight: inherit;
 }
 
 .contact-form-new .vmg-attachments-field { margin-top: 2px; }

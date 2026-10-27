@@ -2187,13 +2187,24 @@
   justify-self: center;
   margin: 2px auto 0;
 }
+/* Contact form title is centered with deliberate breathing room;
+   its legacy card previously had only 5px of top padding. */
+.vmg-contact-page .vmg-contact-form-section .contact-form-new {
+  padding: clamp(18px, 2vw, 24px) clamp(16px, 2vw, 26px) clamp(18px, 2.1vw, 26px);
+}
 .vmg-contact-form-section .form-header {
   text-align: center;
-  padding-top: 0;
-  padding-bottom: 0;
-  margin-bottom: 0;
+  padding: 0 0 11px;
+  margin: 0;
 }
-.vmg-contact-form-section .form-header h2 { margin: 0 auto 9px; line-height: 1.2; }
+.vmg-contact-page .vmg-contact-form-section .form-header h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.05vw, 1.85rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  text-align: center;
+}
 .vmg-contact-form-section .form-field input:not([type="checkbox"]),
 .vmg-contact-form-section .form-field select,
 .vmg-contact-form-section .vmg-custom-select-button,
@@ -2256,76 +2267,12 @@
   color: #81502c;
   transform: translateY(-2px);
 }
-.vmg-contact-page .find-us .vmg-map-chooser {
-  width: min(100%, 460px);
-  margin: 12px auto 0;
-  padding: 12px;
-  box-sizing: border-box;
-  border: 1px solid #dbe2e9;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 14px 32px rgba(8, 23, 40, .12);
-  text-align: left;
-}
-.vmg-contact-page .find-us .vmg-map-chooser[hidden],
-.vmg-contact-page .find-us .vmg-map-chooser-option[hidden] { display: none; }
-.vmg-contact-page .find-us .vmg-map-chooser-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 0 4px 8px;
-  color: #0a1728;
-  font-size: 14px;
-}
-.vmg-contact-page .find-us .vmg-map-chooser-close {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border: 0;
-  border-radius: 8px;
-  background: #f2f5f8;
-  color: #0a1728;
-  font-size: 22px;
-  cursor: pointer;
-}
-.vmg-contact-page .find-us .vmg-map-chooser-options {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-.vmg-contact-page .find-us .vmg-map-chooser-option {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-width: 0;
-  min-height: 48px;
-  padding: 11px 12px;
-  box-sizing: border-box;
-  border: 1px solid #e2e7ee;
-  border-radius: 8px;
-  background: #fbfcfe;
-  color: #0a1728;
-  font-size: 13px;
-  font-weight: 650;
-  text-decoration: none;
-}
-.vmg-contact-page .find-us .vmg-map-chooser-option:hover,
-.vmg-contact-page .find-us .vmg-map-chooser-option:focus-visible {
-  border-color: #b87943;
-  background: #fffaf5;
-}
-
 @media (max-width: 640px) {
   .find-us .map-embed { height: 230px; }
   .find-us .overlay-ctas.ctas-center { flex-direction: column; gap: 10px; }
   .vmg-contact-page .find-us .vmg-map-actions > .vmg-map-action {
     width: min(100%, 310px);
     flex: 0 0 auto;
-  }
-  .vmg-contact-page .find-us .vmg-map-chooser-options {
-    grid-template-columns: minmax(0, 1fr);
   }
 }
 /* One-time viewport reveal. If JS or IO is unavailable content remains visible. */
@@ -2438,6 +2385,17 @@ main.page.vmg-contact-page { padding-bottom: 0; }
 .vmg-contact-page #join-family .lead { margin-bottom: 10px; }
 .vmg-contact-page #join-family .cta-email { margin-block: 8px; }
 .vmg-contact-page #join-family .small-note { margin-top: 6px; margin-bottom: 0; }
+.vmg-contact-page #join-family .small-note a {
+  color: #475569;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 150ms ease;
+}
+.vmg-contact-page #join-family .small-note a:hover,
+.vmg-contact-page #join-family .small-note a:focus-visible {
+  color: #9a602f;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .vmg-contact-page .find-us .vmg-map-actions > .vmg-map-action { transition: none; }
   .vmg-contact-page .find-us .vmg-map-actions > .vmg-map-action:hover { transform: none; }
