@@ -404,20 +404,22 @@
     var nav = header && header.querySelector('.site-nav');
     var footer = document.querySelector('footer.vmg-global-footer, footer.site-footer');
     if (!header || !nav || !footer) return;
+    if (header.dataset.vmgHeaderController === 'footer-observer-v2') return;
+    header.dataset.vmgHeaderController = 'footer-observer-v2';
 
     var desktopQuery = window.matchMedia('(min-width: 992px)');
     var navParent = nav.parentNode;
     var rafId = 0;
+    var footerVisible = false;
+    var observesFooter = typeof IntersectionObserver !== 'undefined';
 
     var sentinel = navParent.querySelector('.vmg-tier2-sentinel');
     if (!sentinel) {
       sentinel = document.createElement('div');
       sentinel.className = 'vmg-tier2-sentinel';
       sentinel.setAttribute('aria-hidden', 'true');
-      navParent.insertBefore(sentinel, nav);
-    } else if (sentinel.nextElementSibling !== nav) {
-      navParent.insertBefore(sentinel, nav);
     }
+    if (sentinel.nextElementSibling !== nav) navParent.insertBefore(sentinel, nav);
 
     var spacer = navParent.querySelector('.vmg-tier2-spacer');
     if (!spacer) {
@@ -425,55 +427,64 @@
       spacer.className = 'vmg-tier2-spacer';
       spacer.setAttribute('aria-hidden', 'true');
     }
-    nav.insertAdjacentElement('afterend', spacer);
+    if (spacer.previousElementSibling !== nav) nav.insertAdjacentElement('afterend', spacer);
 
     function isMenuOpen() {
       return nav.classList.contains('open') || document.body.classList.contains('menu-open');
     }
 
-    function footerIsActuallyVisible() {
-      var rect = footer.getBoundingClientRect();
-      var viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
-      return rect.top < viewportHeight && rect.bottom > 0;
-    }
-
-    function setDesktopPinned(desktop) {
+    function syncDesktopTier2(desktop) {
       if (!desktop) {
         header.classList.remove('vmg-tier2-pinned');
         spacer.style.height = '0px';
+        header.style.removeProperty('--vmg-tier2-height');
         return false;
       }
-
-      var shouldPin = sentinel.getBoundingClientRect().top <= 0;
-      var navHeight = Math.max(1, Math.round(nav.getBoundingClientRect().height));
-      header.style.setProperty('--vmg-tier2-height', navHeight + 'px');
-      header.classList.toggle('vmg-tier2-pinned', shouldPin);
-      spacer.style.height = shouldPin ? navHeight + 'px' : '0px';
-      return shouldPin;
+      var pin = sentinel.getBoundingClientRect().top <= 0;
+      var height = Math.max(1, Math.round(nav.getBoundingClientRect().height));
+      header.style.setProperty('--vmg-tier2-height', height + 'px');
+      spacer.style.height = pin ? height + 'px' : '0px';
+      header.classList.toggle('vmg-tier2-pinned', pin);
+      return pin;
     }
 
     function applyState() {
       rafId = 0;
+      if (!observesFooter) {
+        // Legacy fallback only; modern browsers use the exact footer observer.
+        var rect = footer.getBoundingClientRect();
+        footerVisible = rect.top < window.innerHeight && rect.bottom > 0;
+      }
       var desktop = desktopQuery.matches;
-      var pinned = setDesktopPinned(desktop);
+      var pinned = syncDesktopTier2(desktop);
       var menuOpen = isMenuOpen();
-      var footerVisible = footerIsActuallyVisible();
       var retreat = footerVisible && !menuOpen && (!desktop || pinned);
       header.classList.toggle('vmg-footer-in-view', footerVisible);
       header.classList.toggle('vmg-menu-open', menuOpen);
       document.body.classList.toggle('vmg-footer-visible', footerVisible);
       document.body.classList.toggle('vmg-header-retreated', retreat);
-      // Back-to-top visibility is owned by the hero sentinel in vmg-help.js.
+      // Go To Top is controlled by vmg-help.js's hero sentinel.
     }
 
     function requestState() {
       if (!rafId) rafId = window.requestAnimationFrame(applyState);
     }
 
+    if (observesFooter) {
+      var footerObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.target !== footer) return;
+          footerVisible = entry.isIntersecting && entry.intersectionRect.height > 0;
+          requestState();
+        });
+      }, { root: null, rootMargin: '0px', threshold: 0 });
+      footerObserver.observe(footer);
+    }
+
     window.addEventListener('scroll', requestState, { passive: true });
     window.addEventListener('resize', requestState, { passive: true });
     window.addEventListener('orientationchange', requestState, { passive: true });
-    window.addEventListener('load', requestState, { once: true });
+    window.addEventListener('pageshow', requestState);
     document.addEventListener('vmg:loader-hidden', requestState);
     if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', requestState);
     else if (desktopQuery.addListener) desktopQuery.addListener(requestState);

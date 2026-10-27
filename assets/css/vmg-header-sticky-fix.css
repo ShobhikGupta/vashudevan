@@ -5,7 +5,17 @@
 /* VMG header/footer scroll behavior — single source of truth. */
 .site-header.vmg-econship-header {
   z-index: 1200 !important;
-  background: #fff;
+  background: #fff !important;
+  /* Backdrop blur creates a containing block and breaks a fixed nav. */
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+}
+.site-header.vmg-econship-header .header-inner {
+  /* Release the legacy 80px fixed height so the Tier 2 spacer is in flow. */
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
 }
 
 .vmg-tier2-sentinel {
@@ -162,12 +172,7 @@
   }
 }
 
-/* =========================================================
-   GO TO TOP
-   This is intentionally driven by the exact SAME state that means
-   the mobile header / desktop Tier 2 has actually retreated.
-   Older JS is allowed to add/remove .visible; it cannot override this.
-   ========================================================= */
+/* GO TO TOP: shown when hero is passed, never based on footer retreat. */
 .back-to-top,
 .back-to-top.visible {
   opacity: 0 !important;
@@ -175,21 +180,11 @@
   pointer-events: none !important;
   transform: translateY(16px) !important;
 }
-
-body.vmg-header-retreated .back-to-top,
-body.vmg-header-retreated .back-to-top.visible {
+body.scroll-top-visible:not(.vmg-help-open) .back-to-top.visible {
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
   transform: translateY(0) !important;
-}
-
-body:not(.vmg-header-retreated) .back-to-top,
-body:not(.vmg-header-retreated) .back-to-top.visible {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  transform: translateY(16px) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
