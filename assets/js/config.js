@@ -402,7 +402,7 @@
   function initHeaderBehavior() {
     var header = document.querySelector('.site-header.vmg-econship-header');
     var nav = header && header.querySelector('.site-nav');
-    var footer = document.querySelector('footer.vmg-global-footer, footer.site-footer');
+    var footer = document.querySelector('footer.vmg-global-footer .vmg-footer-main, footer.site-footer .vmg-footer-main, footer.vmg-global-footer, footer.site-footer');
     if (!header || !nav || !footer) return;
     if (header.dataset.vmgHeaderController === 'footer-observer-v2') return;
     header.dataset.vmgHeaderController = 'footer-observer-v2';

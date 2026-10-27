@@ -82,6 +82,34 @@
     pointer-events: auto !important;
   }
 
+
+  /* Explicit brand/menu edges with symmetric spacing on narrow screens. */
+  .vmg-econship-header .vmg-nav-brand-row {
+    width: calc(100% - 32px);
+    margin-inline: auto;
+    justify-content: space-between;
+  }
+  .vmg-econship-header .vmg-nav-brand-row > .logo {
+    margin: 0;
+    padding-left: 0;
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+  .vmg-econship-header .vmg-nav-brand-row > .nav-toggle {
+    margin-left: auto;
+    margin-right: 0;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+  }
+  /* The remainder of the open navigation is an invisible outside-tap zone. */
+  .vmg-econship-header .site-nav:not(.open) { background: transparent; }
+  .vmg-econship-header .site-nav > ul {
+    border: 1px solid rgba(255,255,255,.18);
+    border-top: 0;
+    border-radius: 0 0 10px 10px;
+  }
+
   /* A little depth for the white mobile header while scrolling. */
   .site-header.vmg-econship-header.is-scrolled {
     box-shadow: 0 8px 20px rgba(4,12,23,.10) !important;

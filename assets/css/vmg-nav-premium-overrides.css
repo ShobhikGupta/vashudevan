@@ -451,3 +451,31 @@
     width: calc(100% - 48px);
   }
 }
+
+/* Keyboard-visible focus and restrained premium desktop feedback. */
+@media (min-width: 992px) {
+  .vmg-econship-header .site-nav > ul > li > a:focus-visible {
+    outline: 2px solid #e1b487;
+    outline-offset: -5px;
+    border-radius: 3px;
+  }
+  .vmg-econship-header .site-nav > ul > li > a:hover::before,
+  .vmg-econship-header .site-nav > ul > li > a:focus-visible::before {
+    width: 42px;
+  }
+  .vmg-econship-header .site-nav .submenu {
+    box-shadow: 0 12px 28px rgba(10,23,40,.14);
+  }
+  .vmg-econship-header .site-nav .submenu a:focus-visible {
+    outline: 2px solid #b87943;
+    outline-offset: -2px;
+  }
+}
+@media (max-width: 991px) {
+  .vmg-econship-header .site-nav > ul > li > a:focus-visible,
+  .vmg-econship-header .site-nav .submenu a:focus-visible,
+  .vmg-econship-header .nav-toggle:focus-visible {
+    outline: 2px solid #d3a378;
+    outline-offset: -3px;
+  }
+}
