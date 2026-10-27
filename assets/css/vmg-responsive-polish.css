@@ -2023,7 +2023,7 @@
 
 /* Final layout alignment: Contact, Products directory, Guides and Who We Are. */
 .page .section.vmg-contact-information {
-  padding-block: clamp(26px, 3vw, 40px);
+  padding-block: clamp(24px, 2.8vw, 36px);
   background: #fff;
   border-bottom: 1px solid #e5e9ef;
 }
@@ -2033,42 +2033,20 @@
 }
 .vmg-contact-form-grid .contact-form-container { min-height: 0; }
 .find-us .map-embed { position: relative; }
-.find-us .vmg-map-directions-link {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #dfe5ec;
-  background: #fff;
-  color: #0a1728;
-  text-decoration: none;
-  font-size: .85rem;
-  font-weight: 700;
-  box-shadow: 0 2px 9px rgba(10,23,40,.14);
-}
-.find-us .vmg-map-directions-link:hover,
-.find-us .vmg-map-directions-link:focus-visible {
-  border-color: #b87943;
-  outline-offset: 2px;
-}
 
 .vmg-contact-information .container,
 .vmg-contact-form-section .container,
 .find-us > .container { max-width: 1080px; }
 .vmg-contact-information h2,
 .vmg-contact-form-section .form-header h2 { text-align: center; }
-.vmg-contact-information h2 { margin: 0 0 24px; }
+.vmg-contact-information h2 { margin: 0 0 18px; }
 .vmg-contact-information h2::after {
   content: "";
   display: block;
-  width: 48px;
-  height: 2px;
-  margin: 12px auto 0;
+  width: 56px;
+  height: 3px;
+  margin: 11px auto 0;
+  border-radius: 3px;
   background: #b87943;
 }
 .vmg-contact-info-grid {
@@ -2080,7 +2058,7 @@
 .vmg-contact-info-column {
   min-width: 0;
   align-self: stretch;
-  padding-inline: clamp(20px, 2.5vw, 36px);
+  padding-inline: clamp(16px, 2.2vw, 30px);
   border-left: 1px solid #e3e8ef;
   text-align: left;
 }
@@ -2313,7 +2291,7 @@ body:has(.products-grid) .page-hero p { max-width: 72ch; margin-inline: auto; }
     border-top: 1px solid #e3e8ef;
   }
   .vmg-contact-info-column:first-child { padding-top: 0; border-top: 0; }
-  .vmg-contact-information h2 { margin-bottom: 18px; }
+  .vmg-contact-information h2 { margin-bottom: 16px; }
   .vmg-contact-form-grid { width: min(100% - 32px, 1080px); }
   .vmg-contact-form-grid .contact-form-new { grid-template-columns: minmax(0, 1fr); }
   body:has(.products-grid) .page-hero .container { padding-inline: 0; }
