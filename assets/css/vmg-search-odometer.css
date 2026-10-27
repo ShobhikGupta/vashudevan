@@ -70,3 +70,35 @@
     color: #94a3b8;
   }
 }
+
+/* Products directory only: understated left magnifier, like the search
+   reference but drawn with VMG's existing typography and navy stroke. */
+.product-search .search-container .vmg-product-search-icon {
+  position: absolute;
+  z-index: 2;
+  left: 14px;
+  top: 50%;
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  color: #0a1728;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.product-search .search-container .vmg-product-search-icon svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+.product-search .search-container > #product-search.search-input {
+  padding-left: 47px;
+}
+.product-search .search-container .vmg-search-placeholder {
+  left: 47px;
+}
+@media (max-width: 420px) {
+  .product-search .search-container .vmg-product-search-icon { left: 12px; }
+  .product-search .search-container > #product-search.search-input { padding-left: 43px; }
+  .product-search .search-container .vmg-search-placeholder { left: 43px; }
+}

@@ -7,7 +7,7 @@
   var wrap = input && input.closest('.search-container');
   if (!input || !wrap || wrap.dataset.vmgSearchOdometer === 'true') return;
 
-  var examples = ["Bare Bright Wire (BARLEY)","6063 Extrusions (TOTO)","HMS 1 & 2","Used Beverage Cans (TALDON) (UBC)","304 Solids (SABOT)","Yellow Brass (HONEY)","#1 Copper (BERRY/CANDY)","Cast Aluminum (TENSE)","ZORBA","Mixed Motors (ELMO)","AC Compressors","316 Solids"];
+  var examples = ["6063 Extrusions (TOTO)","6061 Truck Wheels (TROMA)","Used Beverage Cans (TALDON) (UBC)","Bare Bright Wire (BARLEY)","#1 Copper (BERRY/CANDY)","HMS 1 & 2","304 Solids (SABOT)","Yellow Brass (HONEY)","Cast Aluminum (TENSE)","ZORBA","316 Solids","EC Wire (TALON)","#2 Copper (BIRCH/CLIFF)","304 Turnings (ULTRA)","Aluminum Extrusions (TATA)","Red Brass (EBONY)","ZURIK","PNS","Mixed Motors (ELMO)","Drained Lead Acid Batteries (RAINS)","AC Compressors"];
   // Faster cadence: 1.8s read time plus 0.3s upward roll.
   var ROTATE_MS = 1800;
   var ROLL_MS = 300;
