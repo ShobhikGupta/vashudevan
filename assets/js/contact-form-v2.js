@@ -315,12 +315,15 @@
   };
   var messageFieldWrapper = fields.message.closest('.form-field');
   var messageLabel = form.querySelector('label[for="message"]');
-  // Keep the original textarea, IDs and validation. Only wrap it for
-  // a small recommendations control inside the input border.
-  var messageInputWrap = document.createElement('div');
-  messageInputWrap.className = 'vmg-message-input-wrap';
-  fields.message.parentNode.insertBefore(messageInputWrap, fields.message);
-  messageInputWrap.appendChild(fields.message);
+
+  // Keep the native textarea exactly where the original form expects it.
+  // Recommendations belong to the heading row, not inside the text field.
+  var messageHeading = document.createElement('div');
+  messageHeading.className = 'vmg-message-heading';
+  if (messageLabel) {
+    messageLabel.parentNode.insertBefore(messageHeading, messageLabel);
+    messageHeading.appendChild(messageLabel);
+  }
 
   var recommendationsToggle = document.createElement('button');
   recommendationsToggle.type = 'button';
@@ -328,9 +331,8 @@
   recommendationsToggle.textContent = 'Recommendations';
   recommendationsToggle.setAttribute('aria-controls', 'vmg-message-recommendations');
   recommendationsToggle.setAttribute('aria-expanded', 'false');
-  recommendationsToggle.setAttribute('aria-haspopup', 'true');
   recommendationsToggle.setAttribute('aria-label', 'Show recommended messages');
-  messageInputWrap.appendChild(recommendationsToggle);
+  messageHeading.appendChild(recommendationsToggle);
 
   var messageSuggestions = document.createElement('div');
   messageSuggestions.className = 'vmg-message-suggestions';
@@ -338,13 +340,29 @@
   messageSuggestions.setAttribute('role', 'group');
   messageSuggestions.setAttribute('aria-label', 'Suggested messages for your enquiry');
   messageSuggestions.hidden = true;
-  messageInputWrap.appendChild(messageSuggestions);
+  messageHeading.appendChild(messageSuggestions);
 
   var messageHint = document.createElement('p');
   messageHint.className = 'vmg-message-hint';
   messageHint.id = 'vmg-message-hint';
   messageHint.hidden = true;
   if (messageFieldWrapper) messageFieldWrapper.appendChild(messageHint);
+
+  // Start compact (roughly two lines) and grow with typed or suggested
+  // content. After 280px, keep the form slim by scrolling within the field.
+  var MESSAGE_MIN_HEIGHT = 76;
+  var MESSAGE_MAX_HEIGHT = 280;
+  function resizeMessageBox() {
+    fields.message.style.height = MESSAGE_MIN_HEIGHT + 'px';
+    var required = Math.ceil(fields.message.scrollHeight + 2);
+    fields.message.style.height = Math.min(MESSAGE_MAX_HEIGHT, Math.max(MESSAGE_MIN_HEIGHT, required)) + 'px';
+    fields.message.style.overflowY = required > MESSAGE_MAX_HEIGHT ? 'auto' : 'hidden';
+  }
+  fields.message.addEventListener('input', resizeMessageBox);
+  window.addEventListener('resize', resizeMessageBox, { passive: true });
+  form.addEventListener('reset', function () {
+    window.requestAnimationFrame(resizeMessageBox);
+  });
 
   function closeRecommendations(returnFocus) {
     messageSuggestions.hidden = true;
@@ -362,10 +380,9 @@
     if (messageSuggestions.hidden) openRecommendations();
     else closeRecommendations(false);
   });
-  // Clicking or typing directly in the field returns control to the visitor.
   fields.message.addEventListener('focus', function () { closeRecommendations(false); });
   document.addEventListener('pointerdown', function (event) {
-    if (!messageSuggestions.hidden && !messageInputWrap.contains(event.target)) closeRecommendations(false);
+    if (!messageSuggestions.hidden && !messageHeading.contains(event.target)) closeRecommendations(false);
   });
   document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape' && !messageSuggestions.hidden) {
@@ -408,13 +425,13 @@
       custom.className = 'vmg-message-preset vmg-message-custom';
       custom.textContent = 'Write my own message';
       custom.addEventListener('click', function () {
-        // Never erase visitor-entered text. This option simply closes
-        // the menu and returns focus to the existing textarea.
+        // This action closes the dropdown and preserves any typed content.
         closeRecommendations(false);
         fields.message.focus();
       });
       messageSuggestions.appendChild(custom);
     }
+    resizeMessageBox();
   }
 
   function emailOkay(value) { return value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value); }

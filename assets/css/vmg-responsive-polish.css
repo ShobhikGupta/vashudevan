@@ -2302,34 +2302,46 @@ body:has(.products-grid) .page-hero p { max-width: 72ch; margin-inline: auto; }
   body:has(.products-grid) .page-hero .container { padding-inline: 0; }
 }
 
-/* In-field message recommendations. Keep the trigger small and typographically
-   identical to the contact designation (0.75rem, weight 600). */
-.vmg-contact-form-section .vmg-message-input-wrap {
+/* Contact Message: compact auto-growing textarea and a disclosure aligned
+   with the field label, never floating over the visitor's typed text. */
+.vmg-contact-form-section .vmg-message-heading {
+  display: flex;
   position: relative;
+  z-index: 3;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   width: 100%;
   min-width: 0;
+  margin-bottom: 7px;
 }
-.vmg-contact-form-section .vmg-message-input-wrap #message {
-  display: block;
+.vmg-contact-form-section .vmg-message-heading > label {
+  margin: 0;
+  min-width: 0;
+  line-height: 1.4;
+}
+.vmg-contact-form-section .form-field.full-width > #message {
   width: 100%;
-  min-height: 124px;
-  padding-top: 44px;
+  height: 76px;
+  min-height: 76px;
+  max-height: 280px;
+  padding: 12px 14px;
   box-sizing: border-box;
+  resize: none;
+  overflow-y: hidden;
+  line-height: 1.5;
 }
 .vmg-contact-form-section .vmg-message-recommendations-toggle {
-  position: absolute;
-  top: 8px;
-  right: 9px;
-  z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 7px;
-  min-height: 32px;
+  flex: 0 0 auto;
+  min-height: 34px;
   padding: 5px 8px;
-  border: 1px solid #e1e6ed;
+  border: 1px solid transparent;
   border-radius: 6px;
-  background: #fff;
+  background: transparent;
   color: #64748b;
   font-family: inherit;
   font-size: .75rem;
@@ -2354,6 +2366,7 @@ body:has(.products-grid) .page-hero p { max-width: 72ch; margin-inline: auto; }
 .vmg-contact-form-section .vmg-message-recommendations-toggle:hover,
 .vmg-contact-form-section .vmg-message-recommendations-toggle:focus-visible {
   border-color: #b87943;
+  background: #fffaf5;
   color: #956037;
 }
 .vmg-contact-form-section .vmg-message-recommendations-toggle:disabled {
@@ -2362,12 +2375,12 @@ body:has(.products-grid) .page-hero p { max-width: 72ch; margin-inline: auto; }
 }
 .vmg-contact-form-section .vmg-message-suggestions {
   position: absolute;
-  top: 44px;
-  right: 9px;
+  top: calc(100% + 5px);
+  right: 0;
   z-index: 8;
   display: grid;
   gap: 0;
-  width: min(330px, calc(100% - 18px));
+  width: min(330px, 100%);
   max-height: min(260px, 45vh);
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -2413,15 +2426,10 @@ body:has(.products-grid) .page-hero p { max-width: 72ch; margin-inline: auto; }
   color: #64748b;
 }
 @media (max-width: 640px) {
+  .vmg-contact-form-section .vmg-message-heading { gap: 8px; }
   .vmg-contact-form-section .vmg-message-recommendations-toggle {
-    top: 6px;
-    right: 6px;
-    min-height: 34px;
-  }
-  .vmg-contact-form-section .vmg-message-suggestions {
-    top: 42px;
-    right: 6px;
-    width: calc(100% - 12px);
+    min-height: 38px;
+    padding-inline: 6px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

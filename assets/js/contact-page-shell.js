@@ -95,7 +95,7 @@
 
     function loadV2() {
       if (document.querySelector('script[data-vmg-contact-v2]')) return;
-      ensureScript('/assets/js/contact-form-v2.js?v=20261012-recommendations-dropdown', 'data-vmg-contact-v2');
+      ensureScript('/assets/js/contact-form-v2.js?v=20261027-label-rec-autogrow', 'data-vmg-contact-v2');
     }
 
     if (window.VMGCountryPhone) loadV2();
