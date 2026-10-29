@@ -29,6 +29,16 @@
   --shadow: 0 8px 20px rgba(2, 8, 23, 0.08);
 }
 
+/* Before the Strobi avatar mounts, the legacy Help buttons must not flash
+   on refresh. The controller exposes the original Help only on real failure.
+   This rule is shipped in the initial blocking stylesheet, not injected by JS. */
+body:not(.vmg-chatbot-enabled):not(.vmg-chatbot-fallback) .vmg-floating-actions,
+body:not(.vmg-chatbot-enabled):not(.vmg-chatbot-fallback) > #vmg-help {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 body.menu-open {
   overflow: hidden;
 }
