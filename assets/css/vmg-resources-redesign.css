@@ -528,3 +528,44 @@
   }
   .resources-view .resources-page .hub-panel.is-panel-entering{animation:none!important}
 }
+
+/* Resource Hub: compact cards with natural content height and no artificial blank footer. */
+.resources-view .resources-page #resource-hub .hub-grid{align-items:start}
+.resources-view .resources-page #resource-hub .hub-card{height:auto;min-height:0;gap:0}
+.resources-view .resources-page #resource-hub .hub-card .card-link,
+.resources-view .resources-page #resource-hub .hub-card .card-note{margin-top:0;padding-top:11px}
+@media(max-width:640px){
+  .resources-view .resources-page #resource-hub .hub-card{padding:14px 15px}
+  .resources-view .resources-page #resource-hub .hub-card p{line-height:1.48}
+  /* Mobile floating controls: one orderly right-side stack instead of intruding left. */
+  body.resources-view .vmg-floating-actions{
+    position:fixed!important;
+    right:calc(10px + env(safe-area-inset-right))!important;
+    left:auto!important;
+    bottom:calc(12px + env(safe-area-inset-bottom))!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:flex-end!important;
+    gap:7px!important;
+    width:max-content!important;
+    max-width:68px!important;
+    z-index:2002;
+  }
+  body.resources-view .vmg-floating-actions>.back-to-top,
+  body.resources-view .vmg-floating-actions>.vmg-call-float,
+  body.resources-view .vmg-floating-actions>.whatsapp-float,
+  body.resources-view .vmg-floating-actions>#vmg-help{
+    position:relative!important;
+    top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;
+    margin:0!important;
+  }
+  body.resources-view .vmg-floating-actions>.back-to-top,
+  body.resources-view .vmg-floating-actions>.vmg-call-float,
+  body.resources-view .vmg-floating-actions>.whatsapp-float{
+    width:42px!important;height:42px!important;flex:0 0 42px!important;
+  }
+  body.resources-view .vmg-floating-actions>#vmg-help{justify-items:end!important}
+  body.resources-view .vmg-floating-actions>.back-to-top:not(.visible){display:none!important}
+  body.resources-view .vmg-floating-actions>.whatsapp-float{transition:transform .16s ease!important}
+  body.resources-view .vmg-global-footer{padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+}
