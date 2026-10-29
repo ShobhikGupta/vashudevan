@@ -81,7 +81,25 @@
   .vmg-footer-main-inner{padding:13px 0 11px}
   .vmg-footer-mini-links{justify-content:center;row-gap:5px;margin-bottom:9px}
   .vmg-footer-mini-links li+li:before{margin:0 6px}
-  .vmg-footer-mini-links a,.vmg-footer-mini-links button{font-size:.72rem}
+  /* Single-line mini navigation with fluid type. At high zoom or unusually
+     narrow widths, permit horizontal scrolling rather than illegible type. */
+  .vmg-footer-mini-links{
+    width:calc(100% + 24px);
+    max-width:none;
+    margin-left:-12px;
+    flex-wrap:nowrap;
+    justify-content:center;
+    white-space:nowrap;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-x:contain;
+  }
+  .vmg-footer-mini-links::-webkit-scrollbar{display:none}
+  .vmg-footer-mini-links li{flex:0 0 auto}
+  .vmg-footer-mini-links li+li:before{margin:0 clamp(3px,.75vw,6px)}
+  .vmg-footer-mini-links a,.vmg-footer-mini-links button{font-size:clamp(9px,2.55vw,11.52px)}
   .vmg-footer-subscribe-row{grid-template-columns:1fr;gap:8px;padding:9px 0}
   .vmg-footer-subscribe-copy{text-align:center}
   .vmg-footer-bottom{grid-template-columns:1fr;justify-items:center;gap:7px;min-height:0;padding-top:10px;text-align:center}
