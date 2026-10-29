@@ -108,7 +108,20 @@
     width: 44px;
     height: 44px;
   }
-  /* The remainder of the open navigation is an invisible outside-tap zone. */
+  /* Bring the visible hamburger/X towards the right without shrinking
+     or moving its 44px touch target. The existing X transforms stay intact. */
+  .vmg-econship-header .vmg-nav-brand-row > .nav-toggle span {
+    position: relative;
+    left: 12px;
+  }
+
+  /* The full-screen nav surface is an unblurred, transparent outside-tap zone.
+     The existing navy <ul> remains opaque and document click closes on nav. */
+  .site-header.vmg-econship-header .site-nav {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
   .vmg-econship-header .site-nav:not(.open) { background: transparent; }
   .vmg-econship-header .site-nav > ul {
     border: 1px solid rgba(255,255,255,.18);
