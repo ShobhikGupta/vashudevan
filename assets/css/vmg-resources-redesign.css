@@ -438,13 +438,93 @@
     from{opacity:.4;transform:translateY(6px)}
     to{opacity:1;transform:none}
   }
-  .resources-view .resources-page .hub-panel.active .hub-card{
-    animation:resPanelFade 180ms ease both;
+  /* Run the panel transition only on an actual user tab change, not page load. */
+  .resources-view .resources-page .hub-panel.is-panel-entering{
+    animation:resPanelFade 220ms cubic-bezier(.2,.75,.25,1) both;
   }
-  @keyframes resPanelFade{from{opacity:.65}to{opacity:1}}
+  @keyframes resPanelFade{
+    from{opacity:.4;transform:translateY(4px)}
+    to{opacity:1;transform:translateY(0)}
+  }
 }
 @media(prefers-reduced-motion:reduce){
   .resources-view .resources-page .res-reveal{transition:none}
-  .resources-view .resources-page .hub-panel.active .hub-card,
+  .resources-view .resources-page .hub-panel.is-panel-entering,
   .resources-view .resources-page .process-list li{animation:none!important}
+}
+
+/* Resources Hub partner cards: explicit 3/2/1 responsive layout.
+   Overrides the legacy half-width last-card rule in vmg-responsive-polish.css. */
+.resources-view .resources-page #resource-hub .hub-grid.partner-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+.resources-view .resources-page #resource-hub .hub-grid.partner-grid>.hub-card{
+  min-width:0;
+  width:100%;
+  max-width:none;
+  grid-column:auto;
+  justify-self:stretch;
+  height:auto;
+}
+.resources-view .resources-page #resource-hub .hub-grid.partner-grid>.hub-card:last-child:nth-child(odd){
+  grid-column:auto;
+  width:100%;
+  justify-self:stretch;
+}
+@media(min-width:701px) and (max-width:1099px){
+  .resources-view .resources-page #resource-hub .hub-grid.partner-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .resources-view .resources-page #resource-hub .hub-grid.partner-grid>.hub-card:last-child:nth-child(odd){
+    grid-column:1/-1;
+    width:100%;
+  }
+}
+@media(max-width:700px){
+  .resources-view .resources-page #resource-hub .hub-grid.partner-grid{
+    grid-template-columns:minmax(0,1fr);
+    gap:10px;
+  }
+  .resources-view .resources-page #resource-hub .hub-grid.partner-grid>.hub-card:last-child:nth-child(odd){
+    grid-column:auto;
+    width:100%;
+  }
+}
+/* Keep readable text in the long partnership cards and let each card be slim. */
+.resources-view .resources-page #resource-hub .hub-grid.partner-grid .hub-card{
+  min-height:0;
+  padding:clamp(15px,1.5vw,18px);
+}
+.resources-view .resources-page #resource-hub .hub-grid.partner-grid .card-note,
+.resources-view .resources-page #resource-hub .hub-grid.partner-grid .card-link{
+  margin-top:auto;
+}
+/* Content defaults to visible if JS fails or IntersectionObserver is absent.
+   Only JS-enabled motion activates the opt-in off-screen reveal state. */
+.resources-view .resources-page .res-reveal{
+  opacity:1;
+  transform:none;
+}
+@media(prefers-reduced-motion:no-preference){
+  .resources-view.res-motion-ready .resources-page .res-reveal:not(.is-visible){
+    opacity:0;
+    transform:translateY(8px);
+  }
+  .resources-view.res-motion-ready .resources-page .res-reveal.is-visible{
+    opacity:1;
+    transform:translateY(0);
+  }
+  .resources-view.res-motion-ready .resources-page .res-reveal{
+    transition:opacity 360ms ease-out,transform 360ms cubic-bezier(.2,.75,.25,1);
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .resources-view .resources-page .res-reveal{
+    opacity:1!important;
+    transform:none!important;
+    transition:none!important;
+  }
+  .resources-view .resources-page .hub-panel.is-panel-entering{animation:none!important}
 }
