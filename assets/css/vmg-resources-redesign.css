@@ -369,3 +369,82 @@
   .resources-view .resources-page .res-cover-line{margin:3px 5px 4px;font-size:3px}
   .resources-view .resources-page .res-cover-img img{height:48%;max-height:none;flex-basis:48%}
 }
+
+/* Final Resources polish: accessible compact editorial layouts. */
+.resources-view .resources-page .res-section{padding-block:clamp(43px,4.5vw,59px)}
+.resources-view .resources-page .process-section .res-copy,
+.resources-view .resources-page #our-process .process-overview>.res-copy{color:#cbd5e0!important}
+.resources-view .resources-page .profile-visual>.res-cover-img{
+  display:block;object-fit:cover;object-position:center top;width:100%;
+  height:auto;max-height:260px;aspect-ratio:2 / 3;border-radius:3px;
+  background:#fff;border:1px solid rgba(255,255,255,.2);
+}
+@media (min-width:900px){
+  .resources-view .resources-page #resource-hub .hub-grid.partner-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+}
+.resources-view .resources-page #recyclable-metal-guides .res-guide-card{
+  position:relative;padding-right:148px;min-height:126px;
+}
+.resources-view .resources-page #recyclable-metal-guides .res-guide-thumb{
+  position:absolute;right:12px;top:12px;bottom:12px;
+  width:122px;height:calc(100% - 24px);max-height:116px;
+  object-fit:cover;border-radius:4px;filter:saturate(.9);
+}
+@media(max-width:640px){
+  .resources-view .resources-page .res-section,
+  .resources-view .resources-page .process-section{padding-block:36px}
+  .resources-view .resources-page .profile-visual>.res-cover-img{
+    height:116px;max-height:116px;aspect-ratio:2 / 3;
+    grid-column:1;grid-row:1;object-fit:cover;
+  }
+  .resources-view .resources-page #recyclable-metal-guides .res-guide-card{
+    padding-right:109px;min-height:126px
+  }
+  .resources-view .resources-page #recyclable-metal-guides .res-guide-thumb{
+    width:86px;right:11px;top:11px;bottom:11px;
+    height:calc(100% - 22px);max-height:110px;
+  }
+  /* Keep floating action buttons clear of the text column, rather than scaling them up. */
+  .resources-view .whatsapp-float{width:42px!important;height:42px!important}
+  .resources-view .back-to-top{width:38px!important;height:38px!important}
+  .resources-view .vmg-help-trigger{min-height:32px}
+}
+@media(max-width:350px){
+  .resources-view .resources-page #recyclable-metal-guides .res-guide-card{
+    padding-right:15px;padding-bottom:108px
+  }
+  .resources-view .resources-page #recyclable-metal-guides .res-guide-thumb{
+    top:auto;bottom:11px;left:15px;right:auto;width:92px;height:88px;
+  }
+}
+/* Hover and entrance polish without excessive movement. */
+@media(hover:hover) and (pointer:fine){
+  .resources-view .resources-page .hub-card:hover,
+  .resources-view .resources-page .doc-card:hover{
+    border-color:rgba(184,121,67,.65);
+  }
+}
+@media(prefers-reduced-motion:no-preference){
+  .resources-view .resources-page .res-reveal{transition:opacity 420ms ease,transform 420ms ease}
+  .resources-view .resources-page .res-guide-card .card-link::after{transition:transform 180ms ease}
+  .resources-view .resources-page .process-list li{transition:opacity 300ms ease,transform 300ms ease}
+  .resources-view .resources-page .process-list.is-entering li{
+    animation:resStepReveal 320ms both;
+    animation-delay:calc(var(--step-index,0) * 65ms);
+  }
+  @keyframes resStepReveal{
+    from{opacity:.4;transform:translateY(6px)}
+    to{opacity:1;transform:none}
+  }
+  .resources-view .resources-page .hub-panel.active .hub-card{
+    animation:resPanelFade 180ms ease both;
+  }
+  @keyframes resPanelFade{from{opacity:.65}to{opacity:1}}
+}
+@media(prefers-reduced-motion:reduce){
+  .resources-view .resources-page .res-reveal{transition:none}
+  .resources-view .resources-page .hub-panel.active .hub-card,
+  .resources-view .resources-page .process-list li{animation:none!important}
+}
