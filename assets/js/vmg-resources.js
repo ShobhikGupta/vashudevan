@@ -88,6 +88,21 @@
     initTabs();
     initReveals(reducedMotion);
     initFaq();
+    if (!reducedMotion && 'IntersectionObserver' in window) {
+      var processList = document.querySelector('#our-process .process-list');
+      if (processList) {
+        processList.querySelectorAll('li').forEach(function(step,index){
+          step.style.setProperty('--step-index', index);
+        });
+        var processObserver = new IntersectionObserver(function(entries){
+          if (entries.some(function(entry){return entry.isIntersecting;})) {
+            processList.classList.add('is-entering');
+            processObserver.disconnect();
+          }
+        }, {threshold:.12});
+        processObserver.observe(processList);
+      }
+    }
   }
 
   if (document.readyState === 'loading') {
