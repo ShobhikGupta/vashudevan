@@ -8,14 +8,22 @@
       if (!tabs.length) return;
 
       function activate(tab, moveFocus) {
+        var changed = tab.getAttribute('aria-selected') !== 'true';
         tabs.forEach(function (item) {
           var selected = item === tab;
           var panel = document.getElementById(item.getAttribute('aria-controls'));
           item.setAttribute('aria-selected', selected ? 'true' : 'false');
           item.tabIndex = selected ? 0 : -1;
           if (panel) {
+            if (!selected) panel.classList.remove('is-panel-entering');
             panel.hidden = !selected;
             panel.classList.toggle('active', selected);
+            if (selected && changed && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+              panel.classList.remove('is-panel-entering');
+              // Force reflow to restart only after the selected panel is shown.
+              void panel.offsetWidth;
+              panel.classList.add('is-panel-entering');
+            }
           }
         });
         if (moveFocus) tab.focus();
@@ -46,14 +54,16 @@
       reveals.forEach(function (element) { element.classList.add('is-visible'); });
       return;
     }
+
+    // Do not hide content unless scroll-reveal initialization has succeeded.
+    document.body.classList.add('res-motion-ready');
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target);
-        }
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
       });
-    }, { threshold: 0.12 });
+    }, { threshold: 0.08, rootMargin: '0px 0px -4% 0px' });
     reveals.forEach(function (element) { observer.observe(element); });
   }
 
@@ -95,11 +105,13 @@
           step.style.setProperty('--step-index', index);
         });
         var processObserver = new IntersectionObserver(function(entries){
-          if (entries.some(function(entry){return entry.isIntersecting;})) {
+          if (!entries.some(function(entry){return entry.isIntersecting;})) return;
+          // Trigger when the numbered steps themselves become visible, once.
+          requestAnimationFrame(function(){
             processList.classList.add('is-entering');
-            processObserver.disconnect();
-          }
-        }, {threshold:.12});
+          });
+          processObserver.disconnect();
+        }, {threshold:.08, rootMargin:'0px 0px -6% 0px'});
         processObserver.observe(processList);
       }
     }
