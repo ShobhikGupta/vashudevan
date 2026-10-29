@@ -339,3 +339,33 @@
   .resources-view .resources-page .res-btn,
   .resources-view .resources-page .hub-card{transition:none}
 }
+
+/* Brochure-inspired cover, using existing local shipment photography.
+   Exact PDF cover image should replace this when the approved asset is published. */
+.resources-view .resources-page .res-cover-img{
+  overflow:hidden;position:relative;display:flex;flex-direction:column;
+  min-height:0;background:#fff;color:#183659;
+}
+.resources-view .resources-page .res-cover-top{
+  padding:12px 11px 4px;display:flex;justify-content:space-between;
+  gap:5px;align-items:start;color:#1d3658;font-size:8px;line-height:1.1;font-weight:800;
+}
+.resources-view .resources-page .res-cover-top small{font-size:9px;font-weight:700;color:#a56b38}
+.resources-view .resources-page .res-cover-brand{
+  margin:auto 9px 0;font-size:clamp(10px,1.25vw,17px);
+  line-height:1.02;font-weight:850;letter-spacing:-.035em;
+}
+.resources-view .resources-page .res-cover-line{
+  margin:5px 9px 10px;font-size:6px;letter-spacing:.09em;font-weight:750;
+}
+.resources-view .resources-page .res-cover-img img{
+  display:block;width:100%;height:46%;max-height:130px;object-fit:cover;
+  object-position:center;flex:0 0 46%;margin-top:auto;
+}
+@media(max-width:640px){
+  .resources-view .resources-page .res-cover-top{padding:6px 5px 2px;font-size:5px}
+  .resources-view .resources-page .res-cover-top small{font-size:5px}
+  .resources-view .resources-page .res-cover-brand{margin:0 5px 0;font-size:7px}
+  .resources-view .resources-page .res-cover-line{margin:3px 5px 4px;font-size:3px}
+  .resources-view .resources-page .res-cover-img img{height:48%;max-height:none;flex-basis:48%}
+}
