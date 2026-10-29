@@ -821,18 +821,30 @@
       ({createAvatar, availableAnimations} = await import(AVATAR_SRC));
     } catch (err) {
       console.warn('[VMG Bot] Original avatar module not available; existing Help remains active.', err);
+      document.body.classList.add('vmg-chatbot-fallback');
       return;
     }
     const attempt = () => {
       const root = document.getElementById(ROOT_ID);
       if (!root || !root.querySelector('.vmg-help-trigger')) return false;
-      initialize(root, createAvatar, availableAnimations);
+      try {
+        initialize(root, createAvatar, availableAnimations);
+        if (document.body.classList.contains('vmg-chatbot-enabled')) return true;
+      } catch (err) {
+        console.warn('[VMG Bot] Avatar initialization failed; showing standard Help.', err);
+      }
+      document.body.classList.add('vmg-chatbot-fallback');
       return true;
     };
     if (attempt()) return;
     const observer = new MutationObserver(() => { if (attempt()) observer.disconnect(); });
     observer.observe(document.documentElement, {childList:true,subtree:true});
-    setTimeout(() => observer.disconnect(), 5000);
+    setTimeout(() => {
+      observer.disconnect();
+      if (!document.body.classList.contains('vmg-chatbot-enabled')) {
+        document.body.classList.add('vmg-chatbot-fallback');
+      }
+    }, 5000);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, {once:true});
   else boot();
