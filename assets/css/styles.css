@@ -6403,6 +6403,8 @@ button:active,
 .home-main .home-impact-loop { position: absolute; top: -42px; right: -12px; width: 140px; opacity: .17; }
 .home-main .home-impact-loop svg { width: 100%; fill: none; stroke: var(--home-copper); stroke-width: 1.5; stroke-linecap: round; stroke-dasharray: 420; stroke-dashoffset: 420; transition: stroke-dashoffset 1.4s ease 250ms; }
 .home-main .home-impact-copy.is-visible .home-impact-loop svg { stroke-dashoffset: 0; }
+/* Remove the ornamental loop beside the sustainability copy (no decorative circles). */
+.home-main .home-impact-loop { display: none !important; }
 
 /* Market and resources utility pair. */
 .home-main .home-utilities { background: #f1eee7; }
