@@ -1,0 +1,112 @@
+/* Product-only search examples: Blinkit-inspired vertical word roll,
+   independently styled with VMG's existing input geometry and typography. */
+.product-search .search-container.vmg-search-odometer { position: relative; }
+.product-search .search-container.vmg-search-odometer.vmg-search-idle .search-input::placeholder {
+  color: transparent;
+}
+.product-search .vmg-search-placeholder {
+  position: absolute;
+  inset: 0 45px 0 17px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: .28em;
+  min-width: 0;
+  overflow: hidden;
+  color: #94a3b8;
+  font-family: inherit;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.4;
+  text-align: left;
+  white-space: nowrap;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+}
+.product-search .search-container.vmg-search-idle .vmg-search-placeholder {
+  visibility: visible;
+  opacity: 1;
+}
+.product-search .vmg-search-placeholder__lead { flex: none; }
+.product-search .vmg-search-placeholder__window {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 1.45em;
+  overflow: hidden;
+}
+.product-search .vmg-search-placeholder__word {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transform: translateY(0);
+  opacity: 1;
+  transition: transform 300ms cubic-bezier(.25,.8,.25,1), opacity 300ms ease;
+}
+.product-search .vmg-search-placeholder__word--next {
+  transform: translateY(112%);
+  opacity: 0;
+  transition: none;
+}
+.product-search .vmg-search-placeholder__word--leaving {
+  transform: translateY(-112%);
+  opacity: 0;
+}
+.product-search .vmg-search-placeholder__word--entering {
+  transform: translateY(0);
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .product-search .vmg-search-placeholder { display: none; }
+  .product-search .search-container.vmg-search-odometer .search-input::placeholder {
+    color: #94a3b8;
+  }
+}
+
+/* Products directory only: understated left magnifier, like the search
+   reference but drawn with VMG's existing typography and navy stroke. */
+.product-search .search-container .vmg-product-search-icon {
+  position: absolute;
+  z-index: 2;
+  left: 14px;
+  top: 50%;
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  color: #0a1728;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.product-search .search-container .vmg-product-search-icon svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+.product-search .search-container > #product-search.search-input {
+  padding-left: 47px;
+}
+.product-search .search-container .vmg-search-placeholder {
+  left: 47px;
+}
+@media (max-width: 420px) {
+  .product-search .search-container .vmg-product-search-icon { left: 12px; }
+  .product-search .search-container > #product-search.search-input { padding-left: 43px; }
+  .product-search .search-container .vmg-search-placeholder { left: 43px; }
+}
+
+/* Empty focused input shows a caret only. Neither the rotating example nor
+   native placeholder should replace it until focus is removed. */
+.product-search .search-container.vmg-search-odometer:focus-within .search-input:placeholder-shown:focus::placeholder{
+  color:transparent!important;
+  opacity:0!important;
+}
+.product-search .search-container.vmg-search-odometer:focus-within .vmg-search-placeholder{visibility:hidden!important;opacity:0!important}

@@ -1,95 +1,184 @@
-/* Lightweight VMG first-paint skeleton. Inert outside the real static site shell. */
+@import url('/assets/css/production-hotfix.css?v=20260824a');
+
+/* Layout-preserving VMG skeleton: the existing page boxes define every placeholder. */
 :root {
-  --vmg-loader-navy: #071422;
-  --vmg-loader-panel: #f4f1eb;
-  --vmg-loader-steel: #d9dde0;
-  --vmg-loader-steel-2: #e8eaeb;
-  --vmg-loader-copper: #b8794f;
+  --vmg-skeleton-base: #d9dde0;
+  --vmg-skeleton-soft: #e7e9ea;
+  --vmg-skeleton-highlight: rgba(255,255,255,.68);
 }
 
-/*
-  The static site already ships its real content in the DOM. These two fixed
-  pseudo layers simply cover it during first paint, never trap focus, and have
-  a CSS failsafe that clears even if JS fails.
-*/
-body:has(> header[data-vmg-static-header="true"]):not(.vmg-loader-hidden)::before,
-body:has(> header[data-vmg-static-header="true"]):not(.vmg-loader-hidden)::after {
+/* Skeleton surfaces are overlays on real elements, so geometry never changes and
+   the page automatically becomes usable if JS fails after the CSS failsafe. */
+body:has(> header[data-vmg-static-header="true"]):not(.vmg-loader-hidden) :is(
+  .site-header .logo,
+  .site-header .vmg-track-shipment,
+  .site-header .site-nav,
+  main h1,
+  main h2,
+  main h3,
+  main p,
+  main figure,
+  main .overlay-ctas,
+  main .form-field,
+  main .card,
+  main .home-capability,
+  main .home-trade-item,
+  main .hub-card,
+  main .doc-card,
+  main .faq-item,
+  main .market-notice,
+  main .market-chart-selector
+) {
+  position: relative;
+}
+
+body:has(> header[data-vmg-static-header="true"]):not(.vmg-loader-hidden) :is(
+  .site-header .logo,
+  .site-header .vmg-track-shipment,
+  .site-header .site-nav,
+  main h1,
+  main h2,
+  main h3,
+  main p,
+  main figure,
+  main .overlay-ctas,
+  main .form-field,
+  main .card,
+  main .home-capability,
+  main .home-trade-item,
+  main .hub-card,
+  main .doc-card,
+  main .faq-item,
+  main .market-notice,
+  main .market-chart-selector
+)::after {
   content: "";
-  position: fixed;
+  position: absolute;
   inset: 0;
-  z-index: 5000;
+  z-index: 40;
+  border-radius: inherit;
   pointer-events: none;
-  animation: vmg-loader-failsafe 1800ms linear forwards;
+  background-color: var(--vmg-skeleton-base);
+  background-image: linear-gradient(
+    100deg,
+    var(--vmg-skeleton-base) 15%,
+    var(--vmg-skeleton-highlight) 38%,
+    var(--vmg-skeleton-base) 62%
+  );
+  background-size: 220% 100%;
+  animation:
+    vmgSkeletonShimmer 1.35s ease-in-out infinite,
+    vmgSkeletonFailsafe 1400ms linear forwards;
 }
 
-body:has(> header[data-vmg-static-header="true"]):not(.vmg-loader-hidden)::before {
-  background: var(--vmg-loader-panel);
-  opacity: 1;
-  transition: opacity 220ms ease, visibility 220ms ease;
+/* Media/card areas use the softer steel surface while preserving their exact boxes. */
+body:has(> header[data-vmg-static-header="true"]):not(.vmg-loader-hidden) :is(
+  main figure,
+  main .card,
+  main .home-capability,
+  main .home-trade-item,
+  main .hub-card,
+  main .doc-card,
+  main .faq-item
+)::after {
+  background-color: var(--vmg-skeleton-soft);
+  background-image: linear-gradient(
+    100deg,
+    var(--vmg-skeleton-soft) 15%,
+    var(--vmg-skeleton-highlight) 38%,
+    var(--vmg-skeleton-soft) 62%
+  );
 }
 
-body:has(> header[data-vmg-static-header="true"]):not(.vmg-loader-hidden)::after {
+/* The real hero itself supplies the loading geometry instead of a generic full-page mock. */
+body.home-view:not(.vmg-loader-hidden) .carousel-slide.active {
+  position: relative;
+}
+
+body.home-view:not(.vmg-loader-hidden) .carousel-slide.active::after {
+  content: "";
+  position: absolute;
   inset: 0;
-  background:
-    linear-gradient(90deg, transparent 0 6%, rgba(255,255,255,.78) 6% 19%, transparent 19% 100%) 0 23px / 100% 48px no-repeat,
-    linear-gradient(90deg, transparent 30%, rgba(255,255,255,.48) 30% 70%, transparent 70%) 0 91px / 100% 17px no-repeat,
-    linear-gradient(90deg, var(--vmg-loader-copper) 0 10%, transparent 10%) 7% 174px / 100% 6px no-repeat,
-    linear-gradient(90deg, var(--vmg-loader-steel) 0 55%, transparent 55%) 7% 205px / 100% 27px no-repeat,
-    linear-gradient(90deg, var(--vmg-loader-steel) 0 43%, transparent 43%) 7% 244px / 100% 27px no-repeat,
-    linear-gradient(90deg, var(--vmg-loader-steel-2) 0 48%, transparent 48%) 7% 294px / 100% 10px no-repeat,
-    linear-gradient(90deg, var(--vmg-loader-steel-2) 0 35%, transparent 35%) 7% 314px / 100% 10px no-repeat,
-    linear-gradient(90deg, #c8cdd0 0 132px, transparent 132px 150px, #c8cdd0 150px 282px, transparent 282px) 7% 352px / 100% 38px no-repeat,
-    linear-gradient(90deg, #e0e3e4 0 29%, transparent 29% 35.5%, #e0e3e4 35.5% 64.5%, transparent 64.5% 71%, #e0e3e4 71% 100%) 7% 466px / 86% 150px no-repeat,
-    linear-gradient(110deg, transparent 28%, rgba(255,255,255,.72) 42%, transparent 57%) -130vw 0 / 260vw 100% no-repeat,
-    var(--vmg-loader-navy);
-  opacity: .96;
-  animation: vmg-loader-shimmer 1500ms ease-in-out infinite, vmg-loader-failsafe 1800ms linear forwards;
-  transition: opacity 220ms ease, visibility 220ms ease;
+  z-index: 30;
+  pointer-events: none;
+  background-color: #cfd4d7;
+  background-image: linear-gradient(100deg, #cfd4d7 15%, rgba(255,255,255,.56) 38%, #cfd4d7 62%);
+  background-size: 220% 100%;
+  animation:
+    vmgSkeletonShimmer 1.35s ease-in-out infinite,
+    vmgSkeletonFailsafe 1400ms linear forwards;
 }
 
-body.vmg-loader-hidden::before,
-body.vmg-loader-hidden::after {
+/* Never overlay TradingView or the moving Locations strip. They must initialize/animate normally. */
+body:has(> header[data-vmg-static-header="true"]):not(.vmg-loader-hidden) :is(
+  .tradingview-widget-container,
+  .market-ticker-tradingview,
+  .market-widget-panel,
+  .market-chart-widget,
+  .country-ticker-wrap,
+  .country-ticker
+)::after {
+  content: none !important;
+}
+
+body.vmg-loader-hidden :is(
+  .site-header .logo,
+  .site-header .vmg-track-shipment,
+  .site-header .site-nav,
+  main h1,
+  main h2,
+  main h3,
+  main p,
+  main figure,
+  main .overlay-ctas,
+  main .form-field,
+  main .card,
+  main .home-capability,
+  main .home-trade-item,
+  main .hub-card,
+  main .doc-card,
+  main .faq-item,
+  main .market-notice,
+  main .market-chart-selector
+)::after,
+body.home-view.vmg-loader-hidden .carousel-slide.active::after {
   opacity: 0 !important;
   visibility: hidden !important;
-  pointer-events: none !important;
 }
 
-@keyframes vmg-loader-shimmer {
-  0% { background-position: 0 23px, 0 91px, 7% 174px, 7% 205px, 7% 244px, 7% 294px, 7% 314px, 7% 352px, 7% 466px, -130vw 0, 0 0; }
-  100% { background-position: 0 23px, 0 91px, 7% 174px, 7% 205px, 7% 244px, 7% 294px, 7% 314px, 7% 352px, 7% 466px, 130vw 0, 0 0; }
+@keyframes vmgSkeletonShimmer {
+  from { background-position: 115% 0; }
+  to { background-position: -115% 0; }
 }
 
-@keyframes vmg-loader-failsafe {
-  0%, 92% { opacity: 1; visibility: visible; }
+@keyframes vmgSkeletonFailsafe {
+  0%, 94% { opacity: 1; visibility: visible; }
   100% { opacity: 0; visibility: hidden; }
 }
 
-@media (max-width: 991px) {
-  body:has(> header[data-vmg-static-header="true"]):not(.vmg-loader-hidden)::after {
-    background:
-      linear-gradient(90deg, transparent 5%, rgba(255,255,255,.78) 5% 47%, transparent 47% 82%, rgba(255,255,255,.5) 82% 91%, transparent 91%) 0 13px / 100% 42px no-repeat,
-      linear-gradient(90deg, var(--vmg-loader-copper) 0 22%, transparent 22%) 6% 112px / 100% 5px no-repeat,
-      linear-gradient(90deg, var(--vmg-loader-steel) 0 84%, transparent 84%) 6% 138px / 100% 23px no-repeat,
-      linear-gradient(90deg, var(--vmg-loader-steel) 0 69%, transparent 69%) 6% 171px / 100% 23px no-repeat,
-      linear-gradient(90deg, var(--vmg-loader-steel-2) 0 83%, transparent 83%) 6% 215px / 100% 9px no-repeat,
-      linear-gradient(90deg, #c8cdd0 0 43%, transparent 43% 48%, #c8cdd0 48% 91%, transparent 91%) 6% 252px / 100% 36px no-repeat,
-      linear-gradient(90deg, #e0e3e4 0 47%, transparent 47% 53%, #e0e3e4 53% 100%) 6% 344px / 88% 128px no-repeat,
-      linear-gradient(90deg, #e0e3e4 0 47%, transparent 47% 53%, #e0e3e4 53% 100%) 6% 488px / 88% 128px no-repeat,
-      linear-gradient(110deg, transparent 28%, rgba(255,255,255,.72) 42%, transparent 57%) -130vw 0 / 260vw 100% no-repeat,
-      var(--vmg-loader-navy);
-    animation: vmg-loader-shimmer-mobile 1500ms ease-in-out infinite, vmg-loader-failsafe 1800ms linear forwards;
-  }
-}
-
-@keyframes vmg-loader-shimmer-mobile {
-  0% { background-position: 0 13px, 6% 112px, 6% 138px, 6% 171px, 6% 215px, 6% 252px, 6% 344px, 6% 488px, -130vw 0, 0 0; }
-  100% { background-position: 0 13px, 6% 112px, 6% 138px, 6% 171px, 6% 215px, 6% 252px, 6% 344px, 6% 488px, 130vw 0, 0 0; }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  body:has(> header[data-vmg-static-header="true"]):not(.vmg-loader-hidden)::before,
-  body:has(> header[data-vmg-static-header="true"]):not(.vmg-loader-hidden)::after {
-    animation: vmg-loader-failsafe 500ms linear forwards !important;
-    transition: none !important;
+  body:has(> header[data-vmg-static-header="true"]):not(.vmg-loader-hidden) :is(
+    .site-header .logo,
+    .site-header .vmg-track-shipment,
+    .site-header .site-nav,
+    main h1,
+    main h2,
+    main h3,
+    main p,
+    main figure,
+    main .overlay-ctas,
+    main .form-field,
+    main .card,
+    main .home-capability,
+    main .home-trade-item,
+    main .hub-card,
+    main .doc-card,
+    main .faq-item,
+    main .market-notice,
+    main .market-chart-selector
+  )::after,
+  body.home-view:not(.vmg-loader-hidden) .carousel-slide.active::after {
+    background-image: none !important;
+    animation: vmgSkeletonFailsafe 450ms linear forwards !important;
   }
 }

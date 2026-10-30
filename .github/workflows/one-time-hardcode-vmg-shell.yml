@@ -77,15 +77,15 @@ jobs:
               </div>
             </li>
             <li><a href="/index.html" data-vmg-nav-path="home">Home</a></li>
-            <li class="has-submenu"><a href="javascript:void(0)" aria-haspopup="true" aria-expanded="false">About Us</a><ul class="submenu"><li><a href="/who-we-are.html">Who We Are</a></li><li><a href="/our-impact.html">Our Impact</a></li></ul></li>
-            <li><a href="/products.html" data-vmg-nav-path="products">Products</a></li>
-            <li><a href="/market-prices" data-vmg-nav-path="market">Market</a></li>
-            <li><a href="/resources.html" data-vmg-nav-path="resources">Resources</a></li>
-            <li><a href="/contact.html" data-vmg-nav-path="contact">Contact Us</a></li>
+            <li class="has-submenu"><a href="javascript:void(0)" aria-haspopup="true" aria-expanded="false">About Us</a><ul class="submenu"><li><a href="/about/who-we-are/">Who We Are</a></li><li><a href="/about/our-impact/">Our Impact</a></li></ul></li>
+            <li><a href="/products/" data-vmg-nav-path="products">Products</a></li>
+            <li><a href="/market/" data-vmg-nav-path="market">Market</a></li>
+            <li><a href="/resources/" data-vmg-nav-path="resources">Resources</a></li>
+            <li><a href="/contact-us/" data-vmg-nav-path="contact">Contact Us</a></li>
             <li class="vmg-mobile-feedback-item"><button class="vmg-feedback-trigger vmg-feedback-trigger-mobile" type="button" aria-controls="vmg-feedback-drawer" aria-expanded="false">{feedback_svg}<span>Give Feedback</span></button></li>
             <li class="vmg-mobile-socials-item"><span class="vmg-mobile-socials-label">Follow VMG</span>{mobile_socials}</li>
             <li class="vmg-mobile-bottom-links">
-              <div class="vmg-mobile-bottom-links-row" aria-label="FAQ and legal links"><a href="/faq.html">FAQ</a><a href="/privacy-policy.html">Privacy Policy</a><a href="/disclaimer.html">Disclaimer</a></div>
+              <div class="vmg-mobile-bottom-links-row" aria-label="FAQ and legal links"><a href="/faq/">FAQ</a><a href="/privacy-policy/">Privacy Policy</a><a href="/disclaimer/">Disclaimer</a></div>
               <a class="vmg-mobile-brochure-cta" href="/Vashudevan-MetGlobal-Company-Profile.pdf" target="_blank" rel="noopener noreferrer" aria-label="View VMG brochure">{brochure_svg}<span>VMG BROCHURE</span><span class="vmg-mobile-brochure-arrow" aria-hidden="true">↗</span></a>
             </li>
           </ul>
@@ -113,7 +113,7 @@ jobs:
       </div>
       <div class="vmg-footer-main">
         <div class="vmg-footer-wrap vmg-footer-main-inner">
-          <ul class="vmg-footer-mini-links" aria-label="Footer links"><li><a href="/faq.html">FAQ</a></li><li><a href="/privacy-policy.html">Privacy Policy</a></li><li><a href="/disclaimer.html">Disclaimer</a></li><li><a href="/Vashudevan-MetGlobal-Company-Profile.pdf" target="_blank" rel="noopener">VMG Brochure</a></li><li><a href="/contact.html">Contact Us</a></li></ul>
+          <ul class="vmg-footer-mini-links" aria-label="Footer links"><li><a href="/faq/">FAQ</a></li><li><a href="/privacy-policy/">Privacy Policy</a></li><li><a href="/disclaimer/">Disclaimer</a></li><li><a href="/Vashudevan-MetGlobal-Company-Profile.pdf" target="_blank" rel="noopener">VMG Brochure</a></li><li><a href="/contact-us/">Contact Us</a></li></ul>
           <div class="vmg-footer-subscribe-row"><div class="vmg-footer-subscribe-copy"><strong>VMG Trade Updates</strong><span>Occasional recyclable-metal market updates.</span></div><form class="vmg-footer-subscribe-form" data-vmg-subscribe-form novalidate><div class="vmg-footer-subscribe-controls"><input class="vmg-footer-subscribe-input" type="email" name="email" autocomplete="email" placeholder="Business email address" aria-label="Business email address" aria-describedby="vmg-footer-subscribe-status" aria-invalid="false" required><button class="vmg-footer-subscribe-button" type="submit">Subscribe</button></div><p class="vmg-footer-subscribe-status" id="vmg-footer-subscribe-status" role="status" aria-live="polite"></p></form></div>
           <div class="vmg-footer-bottom"><a class="vmg-footer-brand-lockup" href="/index.html"><strong>Vashudevan MetGlobal LLP</strong></a><span class="vmg-footer-copyright">© 2026 Vashudevan MetGlobal LLP. All rights reserved.</span><div class="vmg-footer-socials"><a href="https://wa.me/919879208178" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">{whatsapp_svg}</a><a href="https://www.facebook.com/profile.php?id=61577681908111" target="_blank" rel="noopener noreferrer" aria-label="Facebook">{facebook_svg}</a><a href="https://www.linkedin.com/company/109161337/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">{linkedin_svg}</a><a href="https://www.instagram.com/vashudevan_metglobal_llp?igsh=NWJrZjQ3MTNqdTU4&utm_source=qr" target="_blank" rel="noopener noreferrer" aria-label="Instagram">{instagram_svg}</a></div></div>
         </div>
@@ -129,7 +129,7 @@ jobs:
     <link rel="stylesheet" href="/assets/css/vmg-header-sticky-fix.css?v=20260822a" data-vmg-header-sticky-fix="true">'''
 
           pages = sorted(repo.glob('*.html'))
-          market_page = repo / 'market-prices' / 'index.html'
+          market_page = repo / 'market' / 'index.html'
           if market_page.exists(): pages.append(market_page)
 
           for path in pages:
@@ -222,12 +222,17 @@ jobs:
       var key = link.getAttribute('data-vmg-nav-path');
       var match =
         (key === 'home' && (path === '/' || path === '/index.html')) ||
-        (key === 'products' && (path === '/products.html' || path === '/product.html')) ||
-        (key === 'market' && (path === '/market-prices' || path === '/market-prices/index.html')) ||
-        (key === 'resources' && (path === '/resources.html' || path === '/faq.html')) ||
-        (key === 'contact' && path === '/contact.html');
+        (key === 'products' && (path === '/products' || path.indexOf('/products/') === 0 || path === '/product.html')) ||
+        (key === 'market' && path === '/market') ||
+        (key === 'resources' && (path === '/resources' || path.indexOf('/resources/guides/') === 0 || path === '/faq')) ||
+        (key === 'contact' && path === '/contact-us');
       if (match) link.setAttribute('aria-current','page');
     });
+    var aboutLink = document.querySelector('#site-nav > ul > li.has-submenu > a[aria-haspopup="true"]');
+    if (aboutLink) {
+      aboutLink.removeAttribute('aria-current');
+      if (path.indexOf('/about/') === 0) aboutLink.setAttribute('aria-current','page');
+    }
   }
 
   function updateHeader(){
@@ -430,7 +435,7 @@ body.menu-open .site-header.vmg-econship-header.vmg-footer-in-view {
           python - <<'PY'
           from pathlib import Path
           import re
-          pages=list(Path('.').glob('*.html'))+[Path('market-prices/index.html')]
+          pages=list(Path('.').glob('*.html'))+[Path('market/index.html')]
           for p in pages:
             if not p.exists(): continue
             s=p.read_text()

@@ -1,0 +1,185 @@
+/* Aluminium material page: product-first catalogue presentation.
+   Exclusively scoped to .vmg-aluminium-page. No global material-page changes. */
+
+/* Direct access to the actual material gallery without adding another filled CTA. */
+.vmg-aluminium-page .vmg-aluminium-explore-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 15px;
+  padding: 5px 2px;
+  color: #f0c39b;
+  font-size: 13px;
+  font-weight: 730;
+  letter-spacing: .01em;
+  text-decoration: none;
+  text-underline-offset: 4px;
+}
+.vmg-aluminium-page .vmg-aluminium-explore-link:hover,
+.vmg-aluminium-page .vmg-aluminium-explore-link:focus-visible {
+  color: #fff;
+  text-decoration: underline;
+}
+.vmg-aluminium-page #aluminium-materials { scroll-margin-top: 80px; }
+
+/* Real material examples become the first post-hero section. */
+.vmg-aluminium-page .vmg-material-catalogue .container {
+  max-width: 1240px;
+}
+.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-grid {
+  grid-template-columns: repeat(5,minmax(0,1fr));
+  gap: 12px;
+  justify-content: stretch;
+  align-items: stretch;
+}
+.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-card {
+  min-width: 0;
+  border: 1px solid #dce3e9;
+  background: #fff;
+  box-shadow: none;
+}
+.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-card img {
+  aspect-ratio: 5 / 4;
+  object-fit: cover;
+  background: #f0f1f1;
+}
+.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-card figcaption {
+  min-height: 51px;
+  padding: 9px 11px !important;
+  line-height: 1.32;
+  font-size: 12.5px !important;
+}
+.vmg-aluminium-page .vmg-material-catalogue .seo-section-head { margin-bottom: 20px; }
+
+/* On wide desktop, two complete rows of five keep the initial catalogue
+   symmetrical; smaller breakpoints retain 12 (4x3 or 3x4) and mobile 8 (2x4).
+   All 23 remain accessible with the existing disclosure control. */
+@media (min-width: 1101px) {
+  .vmg-aluminium-page .seo-catalogue-grid.vmg-catalogue-collapsible:not(.is-expanded)
+  > .seo-catalogue-card:nth-child(n + 11) {
+    display: none !important;
+  }
+}
+
+/* Progressive disclosure: default HTML always shows all 23 examples.
+   Only JS adds .vmg-catalogue-collapsible after creating the control. */
+.vmg-aluminium-page .seo-catalogue-grid.vmg-catalogue-collapsible:not(.is-expanded)
+> .seo-catalogue-card:nth-child(n + 13) {
+  display: none !important;
+}
+.vmg-aluminium-page .vmg-aluminium-more-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+.vmg-aluminium-page .vmg-aluminium-more[hidden] { display: none !important; }
+.vmg-aluminium-page .vmg-aluminium-more {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 11px 20px;
+  border: 1px solid #bcc9d4;
+  border-radius: 6px;
+  background: #fff;
+  color: #0a1728;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: background-color .18s ease, border-color .18s ease;
+}
+.vmg-aluminium-page .vmg-aluminium-more:hover { background: #f7f9fa; border-color: #9aaaba; }
+.vmg-aluminium-page .vmg-aluminium-more:focus-visible,
+.vmg-aluminium-page .vmg-aluminium-explore-link:focus-visible {
+  outline: 3px solid rgba(184,121,67,.4);
+  outline-offset: 3px;
+}
+
+/* Six educational cards: deliberately slimmer and equal 3x2 desktop rows. */
+.vmg-aluminium-page .vmg-material-grades .seo-grade-grid {
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 12px;
+  align-items: stretch;
+}
+.vmg-aluminium-page .vmg-material-grades .seo-grade-card {
+  min-width: 0;
+  padding: 16px 17px;
+  border: 1px solid #dce3e9;
+  border-left: 2px solid #b87943;
+  border-radius: 5px;
+  box-shadow: none;
+  background: #fff;
+}
+.vmg-aluminium-page .vmg-material-grades .seo-grade-card h3 {
+  margin: 0 0 7px;
+  color: #0a1728;
+  font-size: 15px;
+  line-height: 1.3;
+  font-weight: 800;
+}
+.vmg-aluminium-page .vmg-material-grades .seo-grade-card p {
+  margin: 0;
+  color: #4e5c6c;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+/* Two explicit, equally accessible actions for buyer and supplier. */
+.vmg-aluminium-page .aluminium-final-cta .seo-actions {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.vmg-aluminium-page .aluminium-final-cta .seo-btn {
+  min-height: 46px;
+  white-space: normal;
+  text-align: center;
+  font-size: 13px;
+}
+@media (max-width: 1100px) {
+  .vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-grid {
+    grid-template-columns: repeat(4,minmax(0,1fr));
+  }
+}
+@media (max-width: 900px) {
+  .vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-grid {
+    grid-template-columns: repeat(3,minmax(0,1fr));
+  }
+  .vmg-aluminium-page .vmg-material-grades .seo-grade-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width: 600px) {
+  .vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 10px;
+  }
+  .vmg-aluminium-page .seo-catalogue-grid.vmg-catalogue-collapsible:not(.is-expanded)
+  > .seo-catalogue-card:nth-child(n + 9) {
+    display: none !important;
+  }
+  .vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-card figcaption {
+    min-height: 54px;
+    padding: 9px 10px !important;
+    font-size: 12px !important;
+  }
+  .vmg-aluminium-page .vmg-material-grades .seo-grade-grid {
+    grid-template-columns: minmax(0,1fr);
+  }
+  .vmg-aluminium-page .vmg-material-grades .seo-grade-card { padding: 14px 15px; }
+  .vmg-aluminium-page .vmg-aluminium-more { width: min(100%,320px); }
+  .vmg-aluminium-page .aluminium-final-cta .seo-actions { width: 100%; }
+  .vmg-aluminium-page .aluminium-final-cta .seo-btn { width: 100%; }
+}
+@media (max-width: 320px) {
+  .vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-grid {
+    grid-template-columns: minmax(0,1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vmg-aluminium-page .vmg-aluminium-more { transition: none; }
+}

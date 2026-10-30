@@ -11,8 +11,8 @@
 .product-card-cta,
 .products-grid .card.product .product-figure figcaption,
 .home-main .home-product-tile figcaption {
-  justify-content: center;
-  text-align: center;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 .products-grid {
@@ -29,17 +29,18 @@
 }
 
 .home-main .home-utility--resources {
-  text-align: center;
+  text-align: left;
 }
 
 .home-main .home-utility--resources .home-text-link {
-  justify-content: center;
-  margin-inline: auto;
+  justify-content: flex-start;
+  margin-left: 0;
+  margin-right: auto;
 }
 
 .home-main .home-utility--resources li,
 .home-main .home-utility--resources li a {
-  text-align: center;
+  text-align: left;
 }
 
 .home-main .home-profile-inner {
@@ -131,10 +132,10 @@
   width: min(286px, calc(100vw - 32px));
   padding: 9px;
   border: 1px solid rgba(211, 163, 120, .3);
-  border-radius: 14px;
+  border-radius: 10px;
   background: rgba(10, 23, 40, .97);
   color: #fff;
-  box-shadow: 0 24px 54px rgba(3, 12, 23, .3), inset 0 1px 0 rgba(255, 255, 255, .05);
+  box-shadow: 0 10px 28px rgba(3, 12, 23, .24), inset 0 1px 0 rgba(255, 255, 255, .05);
   opacity: 0;
   visibility: hidden;
   transform: translateY(8px) scale(.98);
@@ -279,8 +280,14 @@
   .home-main .home-hero .overlay-ctas,
   .home-main .home-profile-actions,
   .home-main .home-final-actions,
+  .res-actions {
+    justify-content: flex-start;
+    margin-right: auto;
+    margin-left: 0;
+    text-align: left;
+  }
+
   .home-main .home-products-cta,
-  .res-actions,
   .docs-action {
     justify-content: center;
     margin-right: auto;
@@ -294,9 +301,9 @@
 
   .home-main .home-trade-item > a,
   .home-main .home-utility .home-text-link {
-    justify-content: center;
+    justify-content: flex-start;
     margin-right: auto;
-    margin-left: auto;
+    margin-left: 0;
   }
 
   .home-main .home-products-cta {
@@ -311,15 +318,15 @@
   .home-main .home-profile-copy {
     max-width: none;
     padding: 34px 24px 18px;
-    text-align: center;
+    text-align: left;
   }
 
   .home-main .home-profile-copy .section-eyebrow,
   .home-main .home-profile h2,
   .home-main .home-profile-copy > p:not(.section-eyebrow) {
     margin-right: auto;
-    margin-left: auto;
-    text-align: center;
+    margin-left: 0;
+    text-align: left;
   }
 
   .home-main .home-profile-actions {
@@ -337,31 +344,31 @@
   }
 
   .home-main .home-utility {
-    text-align: center;
+    text-align: left;
   }
 
   .resources-view .res-hero-grid > .res-reveal:first-child,
   .resources-view .hub-card {
-    text-align: center;
+    text-align: left;
   }
 
   .resources-view .res-hero .res-eyebrow {
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .resources-view .res-hero-text {
     margin-right: auto;
-    margin-left: auto;
+    margin-left: 0;
   }
 
   .resources-view .hub-card .card-link {
-    align-self: center;
+    align-self: flex-start;
   }
 
   .resources-view .company-profile-card,
   .resources-view .market-strip,
   .resources-view .final-cta {
-    text-align: center;
+    text-align: left;
   }
 
   .resources-view .company-profile-card .res-actions,
@@ -369,7 +376,7 @@
   .resources-view .final-cta .res-actions {
     width: min(100%, 340px);
     margin-right: auto;
-    margin-left: auto;
+    margin-left: 0;
   }
 
   .vmg-help {
@@ -447,10 +454,17 @@
 
   .home-view .home-main .home-hero .overlay-ctas,
   .home-view .home-main .home-profile-actions,
-  .home-view .home-main .home-products-cta,
   .home-view .home-main .home-impact-copy .home-text-link,
   .home-view .home-main .home-utility .home-text-link,
-  .resources-view .resources-page .res-actions,
+  .resources-view .resources-page .res-actions {
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-left: 0;
+    margin-right: auto;
+    text-align: left;
+  }
+
+  .home-view .home-main .home-products-cta,
   .resources-view .resources-page .docs-action,
   .resources-view .resources-page .faq-teaser {
     justify-content: center;
@@ -460,8 +474,15 @@
   }
 
   .home-view .home-main .home-impact-copy .home-text-link,
-  .home-view .home-main .home-products-cta .home-text-link,
   .home-view .home-main .home-utility .home-text-link {
+    display: flex;
+    width: max-content;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  .home-view .home-main .home-products-cta .home-text-link {
     display: flex;
     width: max-content;
     max-width: 100%;
@@ -601,7 +622,7 @@
   .home-view .home-main .home-trade-item:last-child {
     min-height: 0;
     padding: 10px clamp(8px, 2.2vw, 18px);
-    text-align: center;
+    text-align: left;
   }
 
   .home-view .home-main .home-trade-item + .home-trade-item::before {
@@ -631,11 +652,11 @@
   }
 
   .home-view .home-main .home-trade-item > a {
-    justify-content: center;
-    margin: 11px auto 0;
+    justify-content: flex-start;
+    margin: 11px auto 0 0;
     padding-top: 0;
     font-size: clamp(.62rem, 1.7vw, .74rem);
-    text-align: center;
+    text-align: left;
   }
 
   .home-view .home-main .home-impact-grid {
@@ -644,7 +665,7 @@
   }
 
   .home-view .home-main .home-impact h2 {
-    font-size: clamp(1.8rem, 7.5vw, 3rem);
+    font-size: clamp(1.55rem, 6.5vw, 2.4rem);
   }
 
   .home-view .home-main .home-impact-copy {
@@ -668,7 +689,7 @@
   .home-view .home-main .home-utility {
     min-height: 0;
     padding: clamp(16px, 4vw, 26px);
-    text-align: center;
+    text-align: left;
   }
 
   .home-view .home-main .home-utility h3 {
@@ -711,8 +732,8 @@
 
   .home-view .home-main .home-final-actions {
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    align-items: flex-start;
+    justify-content: flex-start;
     width: min(150px, 34vw);
     gap: 8px;
   }
@@ -1996,5 +2017,522 @@
   .home-view .home-main .home-profile-visual img {
     width: 108px;
     max-height: 150px;
+  }
+}
+
+
+/* Final layout alignment: Contact, Products directory, Guides and Who We Are. */
+.page .section.vmg-contact-information {
+  padding-block: clamp(24px, 2.8vw, 36px);
+  background: #fff;
+  border-bottom: 1px solid #e5e9ef;
+}
+.page .section.vmg-contact-form-section {
+  padding-block: clamp(26px, 3vw, 40px);
+  background: #f8fafc;
+}
+.vmg-contact-form-grid .contact-form-container { min-height: 0; }
+.find-us .map-embed { position: relative; }
+
+.vmg-contact-information .container,
+.vmg-contact-form-section .container,
+.find-us > .container { max-width: 1080px; }
+.vmg-contact-information h2,
+.vmg-contact-form-section .form-header h2 { text-align: center; }
+.vmg-contact-information h2 { margin: 0 0 18px; }
+.vmg-contact-information h2::after {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 3px;
+  margin: 11px auto 0;
+  border-radius: 3px;
+  background: #b87943;
+}
+.vmg-contact-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  align-items: stretch;
+}
+.vmg-contact-info-column {
+  min-width: 0;
+  align-self: stretch;
+  padding-inline: clamp(16px, 2.2vw, 30px);
+  border-left: 1px solid #e3e8ef;
+  text-align: left;
+}
+.vmg-contact-info-column:first-child { border-left: 0; padding-left: 0; }
+.vmg-contact-info-column:last-child { padding-right: 0; }
+/* Contact card information hierarchy: small industrial copper marker,
+   stronger headings and natural reading-copy rhythm on desktop and mobile. */
+.vmg-contact-info-column h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  color: #0a1728;
+  font-size: clamp(1.1rem, 1.55vw, 1.25rem);
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  text-align: left;
+}
+.vmg-contact-info-column h3::before {
+  content: "";
+  display: block;
+  flex: 0 0 3px;
+  width: 3px;
+  height: 19px;
+  border-radius: 3px;
+  background-color: #b87943;
+}
+.vmg-contact-info-column h3:not(:first-child) {
+  margin-top: 22px;
+  padding-top: 0;
+  border-top: 0;
+}
+.vmg-contact-info-column p {
+  margin: 5px 0 9px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+.vmg-contact-info-column .vmg-contact-person { margin: 0 0 13px; }
+.vmg-contact-info-column .vmg-contact-person strong,
+.vmg-contact-info-column .vmg-contact-person a {
+  display: block;
+  text-align: left;
+}
+.vmg-contact-info-column .vmg-contact-person a { margin-top: 3px; }
+.vmg-contact-information .vmg-contact-info-column {
+  border-radius: 8px;
+  transition: background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+.vmg-contact-info-column .vmg-contact-person strong,
+.vmg-contact-info-column .vmg-contact-person .vmg-contact-role { display: inline; }
+.vmg-contact-info-column .vmg-contact-role {
+  font-size: .75rem; font-weight: 600; margin-left: 7px;
+  color: #64748b; white-space: normal;
+}
+.vmg-contact-info-column a[href^="tel:"],
+.vmg-contact-info-column a[href^="mailto:"] {
+  color: #0a1728; text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 160ms ease, border-color 160ms ease;
+}
+.vmg-contact-info-column a[href^="tel:"]:hover,
+.vmg-contact-info-column a[href^="mailto:"]:hover,
+.vmg-contact-info-column a[href^="tel:"]:focus-visible,
+.vmg-contact-info-column a[href^="mailto:"]:focus-visible {
+  color: #b87943; border-bottom-color: currentColor;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .vmg-contact-info-column:hover {
+    transform: translateY(-3px);
+    background-color: #fbfaf8;
+    box-shadow: 0 8px 24px rgba(10, 23, 40, .045);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vmg-contact-info-column,
+  .vmg-contact-info-column a { transition: none; }
+  .vmg-contact-info-column:hover { transform: none; }
+}
+.vmg-contact-form-grid { max-width: 1080px !important; margin-inline: auto; }
+/* Remove only the redundant outer frame; preserve the actual form card. */
+.vmg-contact-form-section .vmg-contact-form-grid .contact-form-container {
+  width: 100%;
+  max-width: none;
+  min-height: 0;
+  height: auto;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+/* The map itself remains interactive; discard the decorative outer frame. */
+.find-us .map-wrap {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.find-us .map-embed {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.vmg-contact-form-grid .contact-form-new {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: clamp(12px, 1.8vw, 20px);
+  row-gap: 7px;
+  align-items: start;
+}
+/* The original form rows stay in the DOM for JS selectors and phone/country
+   initialization. display:contents changes presentation only. */
+.vmg-contact-form-grid .contact-form-new > .form-row { display: contents; }
+.vmg-contact-form-grid .contact-form-new > .form-row > .form-field { min-width: 0; }
+.vmg-contact-form-grid .contact-form-new > .form-header,
+.vmg-contact-form-grid .contact-form-new > .form-field.full-width,
+.vmg-contact-form-grid .contact-form-new > .form-checkbox,
+.vmg-contact-form-grid .contact-form-new > .form-result,
+.vmg-contact-form-grid .contact-form-new > .submit-btn {
+  grid-column: 1 / -1;
+}
+.vmg-contact-form-grid .contact-form-new > .submit-btn {
+  justify-self: center;
+  margin: 2px auto 0;
+}
+/* Contact form title is centered with deliberate breathing room;
+   its legacy card previously had only 5px of top padding. */
+.vmg-contact-page .vmg-contact-form-section .contact-form-new {
+  padding: clamp(18px, 2vw, 24px) clamp(16px, 2vw, 26px) clamp(18px, 2.1vw, 26px);
+}
+.vmg-contact-form-section .form-header {
+  text-align: center;
+  padding: 0 0 11px;
+  margin: 0;
+}
+.vmg-contact-page .vmg-contact-form-section .form-header h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.05vw, 1.85rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  text-align: center;
+}
+.vmg-contact-form-section .form-field input:not([type="checkbox"]),
+.vmg-contact-form-section .form-field select,
+.vmg-contact-form-section .vmg-custom-select-button,
+.vmg-contact-form-section .phone-input-group { min-height: 48px; }
+/* Consistent restrained section spacing; no change to map data or functionality. */
+.page .section.find-us { padding-block: clamp(26px, 3vw, 40px); }
+.find-us .map-wrap { width: 100%; margin-top: 14px; }
+.find-us .map-embed {
+  width: 100%;
+  max-width: 1080px;
+  height: clamp(230px, 25vw, 300px);
+  padding-bottom: 0;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.find-us .map-embed iframe { display: block; width: 100%; height: 100%; }
+.find-us .address-note { margin: 10px auto 0; }
+.find-us .overlay-ctas.ctas-center {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 12px auto 0;
+}
+/* One shared component for both map actions: identical dimensions. */
+.vmg-contact-page .find-us .vmg-map-actions > .vmg-map-action {
+  display: inline-flex;
+  flex: 0 0 220px;
+  align-items: center;
+  justify-content: center;
+  width: 220px;
+  min-width: 0;
+  height: 50px;
+  min-height: 50px;
+  padding: 10px 14px;
+  box-sizing: border-box;
+  border: 1px solid #d6dde6;
+  border-radius: 9px;
+  background: #fff;
+  color: #0a1728;
+  box-shadow: none;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: normal;
+  white-space: nowrap;
+  text-decoration: none;
+  text-transform: none;
+  cursor: pointer;
+  transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease, transform 160ms ease;
+}
+.vmg-contact-page .find-us .vmg-map-actions > .vmg-map-action:hover,
+.vmg-contact-page .find-us .vmg-map-actions > .vmg-map-action:focus-visible {
+  border-color: #b87943;
+  background: #fffaf5;
+  color: #81502c;
+  transform: translateY(-2px);
+}
+@media (max-width: 640px) {
+  .find-us .map-embed { height: 230px; }
+  .find-us .overlay-ctas.ctas-center { flex-direction: column; gap: 10px; }
+  .vmg-contact-page .find-us .vmg-map-actions > .vmg-map-action {
+    width: min(100%, 310px);
+    flex: 0 0 auto;
+  }
+}
+/* One-time viewport reveal. If JS or IO is unavailable content remains visible. */
+@media (prefers-reduced-motion: no-preference) {
+  .vmg-contact-information.vmg-contact-animate-ready .vmg-contact-info-column {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 420ms ease-out, transform 420ms cubic-bezier(.2,.75,.25,1);
+  }
+  .vmg-contact-information.vmg-contact-animate-ready .vmg-contact-info-column.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .vmg-contact-information.vmg-contact-animate-ready .vmg-contact-info-column:nth-child(2) { transition-delay: 70ms; }
+  .vmg-contact-information.vmg-contact-animate-ready .vmg-contact-info-column:nth-child(3) { transition-delay: 140ms; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vmg-contact-information .vmg-contact-info-column { opacity: 1; transform: none; transition: none; }
+}
+.products-grid { align-items: start; }
+.product-search .search-container { margin-inline: auto; }
+body:has(.products-grid) .page-hero .container { text-align: center; }
+body:has(.products-grid) .page-hero p { max-width: 72ch; margin-inline: auto; }
+.guide-page .seo-section > .container { max-width: 860px; }
+.guide-page .seo-section:not(:has(.seo-related)) p,
+.guide-page .seo-section:not(:has(.seo-related)) li { text-align: left; }
+.who-page #history-block .lead,
+.who-page #history-block p,
+.who-page #mission-block p { text-align: left; text-align-last: auto; }
+.who-page #history-block .two-col > div:last-child,
+.who-page #mission-block .two-col > div:last-child { max-width: 72ch; }
+@media (max-width: 1100px) {
+  .vmg-contact-form-grid .contact-form-new { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .vmg-contact-info-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vmg-contact-info-column:nth-child(3) {
+    grid-column: 1 / -1;
+    padding: 16px 0 0;
+    margin-top: 16px;
+    border-left: 0;
+    border-top: 1px solid #e3e8ef;
+  }
+}
+@media (max-width: 640px) {
+  .vmg-contact-info-grid { grid-template-columns: minmax(0, 1fr); }
+  .vmg-contact-info-column,
+  .vmg-contact-info-column:first-child,
+  .vmg-contact-info-column:last-child,
+  .vmg-contact-info-column:nth-child(3) {
+    grid-column: 1;
+    margin: 0;
+    padding: 16px 0 0;
+    border-left: 0;
+    border-top: 1px solid #e3e8ef;
+  }
+  .vmg-contact-info-column:first-child { padding-top: 0; border-top: 0; }
+  .vmg-contact-information h2 { margin-bottom: 16px; }
+  .vmg-contact-form-grid { width: min(100% - 32px, 1080px); }
+  .vmg-contact-form-grid .contact-form-new { grid-template-columns: minmax(0, 1fr); }
+  body:has(.products-grid) .page-hero .container { padding-inline: 0; }
+}
+
+/* Contact-only form alignment: all six short fields share one control
+   geometry across 3 / 2 / 1 column layouts. No input IDs or JS changes. */
+.vmg-contact-page .vmg-contact-form-section .contact-form-new > .form-row > .form-field {
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+  min-width: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+.vmg-contact-page .vmg-contact-form-section .contact-form-new .form-field > label {
+  display: block;
+  margin: 0 0 6px;
+  line-height: 1.35;
+}
+.vmg-contact-page .vmg-contact-form-section .contact-form-new .form-field > input:not([type="hidden"]),
+.vmg-contact-page .vmg-contact-form-section .contact-form-new .form-field > select,
+.vmg-contact-page .vmg-contact-form-section .contact-form-new .vmg-custom-select-button,
+.vmg-contact-page .vmg-contact-form-section .contact-form-new .phone-input-group {
+  width: 100%;
+  min-width: 0;
+  height: 48px;
+  min-height: 48px;
+  box-sizing: border-box;
+  margin: 0;
+  border-radius: 7px;
+}
+.vmg-contact-page .vmg-contact-form-section .contact-form-new .phone-input-group .phone-code,
+.vmg-contact-page .vmg-contact-form-section .contact-form-new .phone-input-group input[type="tel"] {
+  height: 46px;
+  min-height: 46px;
+  line-height: 1.4;
+}
+.vmg-contact-page .vmg-contact-form-section .contact-form-new > .form-row > .form-field .error:not(.show) {
+  margin: 0;
+}
+.vmg-contact-page .vmg-contact-form-section .contact-form-new .form-field.full-width {
+  min-width: 0;
+}
+/* Shared .page adds 40px after every page, which leaves a redundant white
+   band above Contact's footer. Remove that band only on this page. */
+main.page.vmg-contact-page { padding-bottom: 0; }
+.vmg-contact-page #join-family.section.cta-join {
+  padding-block: clamp(26px, 3vw, 40px) clamp(20px, 2.6vw, 30px);
+}
+.vmg-contact-page #join-family .lead { margin-bottom: 10px; }
+.vmg-contact-page #join-family .cta-email { margin-block: 8px; }
+.vmg-contact-page #join-family .small-note { margin-top: 6px; margin-bottom: 0; }
+.vmg-contact-page #join-family .small-note a {
+  color: #475569;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 150ms ease;
+}
+.vmg-contact-page #join-family .small-note a:hover,
+.vmg-contact-page #join-family .small-note a:focus-visible {
+  color: #9a602f;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vmg-contact-page .find-us .vmg-map-actions > .vmg-map-action { transition: none; }
+  .vmg-contact-page .find-us .vmg-map-actions > .vmg-map-action:hover { transform: none; }
+}
+
+/* Contact Message: compact auto-growing textarea and a disclosure aligned
+   with the field label, never floating over the visitor's typed text. */
+.vmg-contact-form-section .vmg-message-heading {
+  display: flex;
+  position: relative;
+  z-index: 3;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 7px;
+}
+.vmg-contact-form-section .vmg-message-heading > label {
+  margin: 0;
+  min-width: 0;
+  line-height: 1.4;
+}
+.vmg-contact-form-section .form-field.full-width > #message {
+  width: 100%;
+  height: 76px;
+  min-height: 76px;
+  max-height: 280px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  resize: none;
+  overflow-y: hidden;
+  line-height: 1.5;
+}
+.vmg-contact-form-section .vmg-message-recommendations-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  min-height: 34px;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #64748b;
+  font-family: inherit;
+  font-size: .75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  cursor: pointer;
+}
+.vmg-contact-form-section .vmg-message-recommendations-toggle::after {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 150ms ease;
+}
+.vmg-contact-form-section .vmg-message-recommendations-toggle[aria-expanded="true"]::after {
+  transform: rotate(225deg) translateY(-1px);
+}
+.vmg-contact-form-section .vmg-message-recommendations-toggle:hover,
+.vmg-contact-form-section .vmg-message-recommendations-toggle:focus-visible {
+  border-color: #b87943;
+  background: #fffaf5;
+  color: #956037;
+}
+.vmg-contact-form-section .vmg-message-recommendations-toggle:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+.vmg-contact-form-section .vmg-message-suggestions {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  z-index: 8;
+  display: grid;
+  gap: 0;
+  width: min(330px, 100%);
+  max-height: min(260px, 45vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px;
+  border: 1px solid #dfe5ec;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(10, 23, 40, .16);
+}
+.vmg-contact-form-section .vmg-message-suggestions[hidden],
+.vmg-contact-form-section .vmg-message-hint[hidden] { display: none; }
+.vmg-contact-form-section .vmg-message-preset {
+  display: block;
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #0a1728;
+  font-family: inherit;
+  font-size: .75rem;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: left;
+  white-space: normal;
+  cursor: pointer;
+}
+.vmg-contact-form-section .vmg-message-preset:hover,
+.vmg-contact-form-section .vmg-message-preset:focus-visible {
+  background: #fff7f0;
+  color: #956037;
+}
+.vmg-contact-form-section .vmg-message-custom {
+  border-top: 1px solid #e5e9ee;
+  border-radius: 0;
+  color: #956037;
+  font-weight: 600;
+}
+.vmg-contact-form-section .vmg-message-hint {
+  margin: 6px 0 0;
+  font-size: .75rem;
+  color: #64748b;
+}
+@media (max-width: 640px) {
+  .vmg-contact-form-section .vmg-message-heading { gap: 8px; }
+  .vmg-contact-form-section .vmg-message-recommendations-toggle {
+    min-height: 38px;
+    padding-inline: 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vmg-contact-form-section .vmg-message-recommendations-toggle::after {
+    transition: none;
   }
 }
