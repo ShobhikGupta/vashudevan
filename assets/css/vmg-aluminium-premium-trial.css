@@ -51,6 +51,16 @@
 }
 .vmg-aluminium-page .vmg-material-catalogue .seo-section-head { margin-bottom: 20px; }
 
+/* On wide desktop, two complete rows of five keep the initial catalogue
+   symmetrical; smaller breakpoints retain 12 (4x3 or 3x4) and mobile 8 (2x4).
+   All 23 remain accessible with the existing disclosure control. */
+@media (min-width: 1101px) {
+  .vmg-aluminium-page .seo-catalogue-grid.vmg-catalogue-collapsible:not(.is-expanded)
+  > .seo-catalogue-card:nth-child(n + 11) {
+    display: none !important;
+  }
+}
+
 /* Progressive disclosure: default HTML always shows all 23 examples.
    Only JS adds .vmg-catalogue-collapsible after creating the control. */
 .vmg-aluminium-page .seo-catalogue-grid.vmg-catalogue-collapsible:not(.is-expanded)
