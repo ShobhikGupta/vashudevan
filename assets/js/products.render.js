@@ -313,12 +313,12 @@
           img.loading = 'lazy';
           img.decoding = 'async';
           figure.appendChild(img);
-          var overlay = document.createElement('div');
-          overlay.className = 'vmg-atlas-overlay';
-          overlay.appendChild(heading);
-          overlay.appendChild(meta);
+          var panel = document.createElement('div');
+          panel.className = 'vmg-atlas-panel';
+          panel.appendChild(heading);
+          panel.appendChild(meta);
           link.appendChild(figure);
-          link.appendChild(overlay);
+          link.appendChild(panel);
           article.appendChild(link);
           productsGrid.appendChild(article);
         });
