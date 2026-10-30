@@ -113,3 +113,67 @@ body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-c
     font-size:11.5px!important;
   }
 }
+
+/* V3: approved individual-material treatment also on category galleries.
+   Existing <figure>, <img>, <figcaption>, IDs and 84 material entries stay intact.
+   No false favourite icon, fake product action or extra white card element. */
+body.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-card,
+body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-card{
+ display:flex;
+ flex-direction:column;
+ isolation:auto;
+ background:#fff;
+ border:1px solid #dce3e9;
+ border-radius:8px;
+ overflow:hidden;
+}
+body.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-card::after,
+body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-card::after{
+ content:none;
+ display:none;
+}
+body.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-card img,
+body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-card img{
+ grid-area:auto;
+ position:static;
+ display:block;
+ flex:0 0 auto;
+ width:100%;
+ height:auto;
+ min-height:0;
+ aspect-ratio:5/4;
+ object-fit:cover;
+}
+body.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-card figcaption,
+body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-card figcaption{
+ grid-area:auto;
+ position:static;
+ z-index:auto;
+ display:flex;
+ flex:1 1 auto;
+ align-items:center;
+ justify-content:flex-start;
+ width:100%;
+ min-height:52px;
+ padding:10px 11px!important;
+ color:#102339!important;
+ background:#fff!important;
+ text-align:left!important;
+ font-size:clamp(11.5px,.95vw,13px)!important;
+ font-weight:760!important;
+ line-height:1.35;
+ text-shadow:none;
+}
+body.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-card:hover,
+body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-card:hover{
+ border-color:#b87943;
+ box-shadow:0 0 0 1px rgba(184,121,67,.3),0 5px 15px rgba(8,25,42,.07);
+}
+@media(max-width:600px){
+ body.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-card figcaption,
+ body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-card figcaption{
+  min-height:54px;
+  padding:9px 10px!important;
+  font-size:11.5px!important;
+ }
+}
