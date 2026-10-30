@@ -942,53 +942,42 @@
 
     // Create deep-linking subproduct card
     function createDeepLinkSubproductCard(parentProduct, subproduct, searchTerm) {
-      const card = document.createElement('div');
+      const card = document.createElement('article');
       card.className = 'card product subproduct-search-result';
-      
-      // Create deep link to parent product page with subproduct anchor
-      const deepLink = `${materialPageUrl(parentProduct.slug)}#${encodeURIComponent(subproduct.slug)}`;
-      
-      // Highlight matching characters in subproduct name with smart color detection
-      // We'll apply the highlighting after the card is created and added to DOM
-      const highlightedSubproductName = subproduct.name;
-      // Don't highlight parent name in badge - it's just for reference
-      const highlightedParentName = parentProduct.name;
-      
-      card.innerHTML = `
-        <a href="${deepLink}" class="subproduct-deep-link">
-          <figure class="product-figure">
-            <img src="${subproduct.image}" alt="${subproduct.name}" loading="lazy" decoding="async">
-            <figcaption>${highlightedSubproductName}</figcaption>
-          </figure>
-          <span class="vmg-search-card-action" aria-hidden="true">View Material →</span>
-          <div class="product-info">
-            <div class="parent-product-badge">${highlightedParentName}</div>
-          </div>
-        </a>
-      `;
-      
-      // Store ID as data attribute for reference but don't display it
       card.setAttribute('data-subproduct-id', subproduct.slug);
-      
-      // Apply smart highlighting after the card is created
-      const figcaption = card.querySelector('.product-figure figcaption');
-      if (figcaption) {
-        const highlightedText = smartHighlightSearchTerm(subproduct.name, searchTerm, figcaption);
-        figcaption.innerHTML = highlightedText;
-      }
-      
-      // Parent product badges should not be highlighted - they serve categorization purposes
-      
-      // Add click handler for deep-linking with scroll behavior
-      const link = card.querySelector('.subproduct-deep-link');
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        navigateToSubproduct(parentProduct.slug, subproduct.slug);
+      const link = document.createElement('a');
+      link.className = 'subproduct-deep-link';
+      link.href = materialPageUrl(parentProduct.slug) + '#' + encodeURIComponent(subproduct.slug);
+      link.setAttribute('aria-label', 'View ' + subproduct.name + ' in ' + parentProduct.name);
+      const image = document.createElement('img');
+      image.className = 'vmg-atlas-result-image';
+      image.src = subproduct.image || parentProduct.icon || '';
+      image.alt = subproduct.name;
+      image.loading = 'lazy';
+      image.decoding = 'async';
+      const details = document.createElement('div');
+      details.className = 'vmg-atlas-result-copy';
+      const category = document.createElement('span');
+      category.className = 'vmg-atlas-parent-label';
+      category.textContent = parentProduct.slug === 'aluminum' ? 'Aluminium' : parentProduct.name;
+      const name = document.createElement('span');
+      name.className = 'vmg-atlas-result-name';
+      name.textContent = subproduct.name;
+      const action = document.createElement('span');
+      action.className = 'vmg-atlas-result-action';
+      action.textContent = 'View material ';
+      const arrow = document.createElement('span');
+      arrow.textContent = '→';
+      arrow.setAttribute('aria-hidden','true');
+      action.appendChild(arrow);
+      details.append(category,name,action);
+      link.append(image,details);
+      card.appendChild(link);
+      link.addEventListener('click', function () {
+        try { sessionStorage.setItem('highlightSubproduct', subproduct.slug); } catch (_) {}
       });
-      
       return card;
     }
-
 
     // Function to highlight main product names
     function highlightMainProductName(card, searchTerm) {
