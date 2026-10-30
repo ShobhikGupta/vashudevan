@@ -784,163 +784,52 @@
 
   // Product search functionality
   function initProductSearch() {
-    const searchInput = document.getElementById('product-search');
-    const clearButton = document.getElementById('clear-search');
-    const resultsCount = document.getElementById('search-results-count');
-    const productsGrid = document.querySelector('.products-grid');
-    
-    if (!searchInput || !productsGrid) {
-      return;
-    }
-
-    // Load products data for enhanced search
-    let productsData = null;
-    fetch('/assets/data/products.json')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to load products data: ' + response.status);
-        }
-        return response.json();
-      })
-      .then(data => {
-        productsData = Array.isArray(data.products) ? data.products : [];
-        if (searchInput.value.trim()) searchProducts(searchInput.value);
-        console.log('Products data loaded successfully:', productsData.length, 'products');
-      })
-      .catch(error => {
-        console.error('Could not load products data for search:', error);
-      });
-
-    const materialPageUrls = {
-      'aluminum': '/products/aluminium/',
-      'auto-scrap': '/products/auto-scrap/',
-      'brass': '/products/brass/',
-      'copper': '/products/copper/',
-      'copper-bearing': '/products/copper-bearing/',
-      'ferrous': '/products/ferrous/',
-      'lead': '/products/lead/',
-      'shredder-scrap': '/products/shredder-scrap/',
-      'stainless-steel': '/products/stainless-steel/',
-      'zinc': '/products/zinc/'
+    const input = document.getElementById('product-search');
+    const clear = document.getElementById('clear-search');
+    const count = document.getElementById('search-results-count');
+    const grid = document.getElementById('main-products-grid');
+    const toggle = document.getElementById('vmg-browse-toggle');
+    const menu = document.getElementById('vmg-category-browse');
+    const categorySection = document.getElementById('vmg-matching-category-section');
+    const categoryList = document.getElementById('vmg-matching-category-list');
+    const materialHeading = document.getElementById('vmg-matching-materials-heading');
+    const errorBox = document.getElementById('vmg-search-error');
+    const retry = document.getElementById('vmg-search-retry');
+    if (!input || !grid) return;
+    const urls = {
+      aluminum:'/products/aluminium/', 'auto-scrap':'/products/auto-scrap/',
+      brass:'/products/brass/', copper:'/products/copper/',
+      'copper-bearing':'/products/copper-bearing/', ferrous:'/products/ferrous/',
+      lead:'/products/lead/', 'shredder-scrap':'/products/shredder-scrap/',
+      'stainless-steel':'/products/stainless-steel/', zinc:'/products/zinc/'
     };
-
-    function materialPageUrl(slug) {
-      return materialPageUrls[slug] || '/products/';
-    }
-
-    // Advanced deep-linking search function that shows individual subproduct cards
-    function searchProducts(term) {
-      const searchTerm = term.toLowerCase().trim();
-      const productCards = productsGrid.querySelectorAll('.card.product:not(.subproduct-search-result)');
-      let visibleCount = 0;
-
-      console.log('Searching for:', searchTerm);
-      console.log('Products data available:', !!productsData);
-
-      // Add loading state
-      if (searchTerm !== '') {
-        productsGrid.classList.add('search-loading');
-      }
-
-      // Remove existing no-results message and subproduct results
-      const existingNoResults = productsGrid.querySelector('.no-results');
-      if (existingNoResults) {
-        existingNoResults.remove();
-      }
-      
-      // Remove existing subproduct search results
-      const existingSubproductResults = productsGrid.querySelectorAll('.subproduct-search-result');
-      existingSubproductResults.forEach(result => result.remove());
-
-      if (searchTerm === '') {
-        // Show all main products and clear any highlighting
-        productCards.forEach(card => {
-          card.classList.remove('hidden', 'highlighted');
-          
-          // Clear any HTML highlighting from figcaptions
-          const figcaption = card.querySelector('figcaption');
-          if (figcaption) {
-            // Store original text if not already stored
-            if (!figcaption.dataset.originalText) {
-              figcaption.dataset.originalText = figcaption.textContent;
-            }
-            // Restore original text content
-            figcaption.textContent = figcaption.dataset.originalText;
-          }
-          
-          // Parent product badges are not highlighted, so no need to clear them
-          
-          visibleCount++;
-        });
-        if (resultsCount) resultsCount.textContent = 'Showing all products';
-      } else {
-        // Hide all main products first
-        productCards.forEach(card => {
-          card.classList.add('hidden');
-          card.classList.remove('highlighted');
-        });
-
-        // Find and display matching subproducts as individual cards
-        if (productsData) {
-          console.log('Searching through', productsData.length, 'products for term:', searchTerm);
-          productsData.forEach(product => {
-            if (product.subproducts) {
-              console.log('Checking product:', product.name, 'with', product.subproducts.length, 'subproducts');
-              product.subproducts.forEach(subproduct => {
-                const subproductName = subproduct.name.toLowerCase();
-                const subproductSlug = subproduct.slug.toLowerCase();
-                
-                if (subproductName.includes(searchTerm) || subproductSlug.includes(searchTerm)) {
-                  console.log('Found matching subproduct:', subproduct.name);
-                  // Create subproduct result card with deep-linking and highlighting
-                  const subproductCard = createDeepLinkSubproductCard(product, subproduct, searchTerm);
-                  productsGrid.appendChild(subproductCard);
-                  visibleCount++;
-                }
-              });
-            }
-          });
-        }
-        // The initial catalogue fetch refreshes the current query when ready.
-
-        // Also show main products that match directly
-        productCards.forEach(card => {
-          const cardText = card.textContent.toLowerCase();
-          if (cardText.includes(searchTerm)) {
-            card.classList.remove('hidden');
-            card.classList.add('highlighted');
-            
-            // Highlight matching characters in main product names
-            highlightMainProductName(card, searchTerm);
-            visibleCount++;
-          }
-        });
-
-        // Update results count
-        if (!productsData) {
-          if (resultsCount) resultsCount.textContent = 'Searching material catalogue…';
-        } else if (visibleCount === 0) {
-          showNoResults();
-          if (resultsCount) resultsCount.textContent = 'No products or subproducts found';
-        } else {
-          if (resultsCount) resultsCount.textContent = `Found ${visibleCount} result${visibleCount === 1 ? '' : 's'}`;
-        }
-      }
-
-      // Show/hide clear button
-      if (clearButton) {
-        if (searchTerm === '') {
-          clearButton.classList.remove('visible');
-        } else {
-          clearButton.classList.add('visible');
-        }
-      }
-
-      // Remove loading state
-      productsGrid.classList.remove('search-loading');
-    }
-
-    // Create deep-linking subproduct card
+    const materialPageUrl = slug => urls[slug] || '/products/';
+    const normalize = value => String(value || '').toLowerCase().replace(/aluminium/g,'aluminum').replace(/[^a-z0-9]+/g,' ').trim();
+    const matches = (value, term) => normalize(value).includes(term);
+    let data = null, pending = false, failed = false, sequence = 0;
+    const parentCards = () => Array.from(grid.querySelectorAll('.vmg-atlas-parent'));
+    const closeMenu = () => {
+      if (!menu || !toggle) return;
+      menu.hidden = true;
+      toggle.setAttribute('aria-expanded','false');
+    };
+    const showError = show => { if(errorBox) errorBox.hidden = !show; };
+    const setStatus = text => { if(count) count.textContent = text; };
+    const makeCategoryRow = (product) => {
+      const link = document.createElement('a');
+      link.className='vmg-matching-category-card';
+      link.href=materialPageUrl(product.slug);
+      const img=document.createElement('img'); img.src=product.icon || ''; img.alt='';
+      img.loading='lazy'; img.decoding='async';
+      const copy=document.createElement('span');copy.className='vmg-matching-category-copy';
+      const eyebrow=document.createElement('small');eyebrow.textContent='Matching Category';
+      const title=document.createElement('strong');title.textContent=product.slug==='aluminum'?'Aluminium':product.name;
+      const quantity=document.createElement('span');quantity.textContent='View all '+(product.subproducts||[]).length+' materials';
+      copy.append(eyebrow,title,quantity);
+      const arrow=document.createElement('span');arrow.className='vmg-category-arrow';arrow.textContent='→';arrow.setAttribute('aria-hidden','true');
+      link.append(img,copy,arrow);
+      return link;
+    };
     function createDeepLinkSubproductCard(parentProduct, subproduct, searchTerm) {
       const card = document.createElement('article');
       card.className = 'card product subproduct-search-result';
@@ -990,101 +879,91 @@
       return card;
     }
 
-    // Function to highlight main product names
-    function highlightMainProductName(card, searchTerm) {
-      const figcaption = card.querySelector('figcaption');
-      if (figcaption) {
-        // Store original text if not already stored
-        if (!figcaption.dataset.originalText) {
-          figcaption.dataset.originalText = figcaption.textContent;
-        }
-        const originalText = figcaption.dataset.originalText;
-        // Use smart highlighting with color detection
-        const highlightedText = smartHighlightSearchTerm(originalText, searchTerm, figcaption);
-        figcaption.innerHTML = highlightedText;
+
+    const clearGenerated = () => {
+      grid.querySelectorAll('.subproduct-search-result,.no-results').forEach(node=>node.remove());
+      if(categoryList)categoryList.replaceChildren();
+    };
+    const display = () => {
+      const raw=input.value.trim();
+      const term=normalize(raw);
+      clearGenerated();
+      showError(failed && !!raw);
+      if(clear) clear.classList.toggle('visible',!!raw);
+      if(!raw) {
+        parentCards().forEach(card=>card.classList.remove('hidden','highlighted'));
+        if(categorySection)categorySection.hidden=true;
+        if(materialHeading)materialHeading.hidden=true;
+        setStatus('Showing all products');
+        return;
       }
-    }
-
-    // Navigate to subproduct with deep-linking and highlighting
-    function navigateToSubproduct(parentSlug, subproductSlug) {
-      console.log('Navigating to subproduct:', parentSlug, subproductSlug);
-      
-      // Store the subproduct to highlight when the page loads
-      sessionStorage.setItem('highlightSubproduct', subproductSlug);
-      console.log('Stored subproduct in session storage:', subproductSlug);
-      
-      // Navigate to the parent product page
-      const targetUrl = `${materialPageUrl(parentSlug)}#${encodeURIComponent(subproductSlug)}`;
-      console.log('Navigating to URL:', targetUrl);
-      window.location.href = targetUrl;
-    }
-
-
-    // Show no results message
-    function showNoResults() {
-      const noResultsDiv = document.createElement('div');
-      noResultsDiv.className = 'no-results';
-      noResultsDiv.innerHTML = `
-        <h3>No products or subproducts found</h3>
-        <p>Try searching with different keywords like "copper", "aluminum", "steel", or specific subproduct names like "316"</p>
-      `;
-      productsGrid.appendChild(noResultsDiv);
-    }
-
-    // Event listeners
-    searchInput.addEventListener('input', function() {
-      searchProducts(this.value);
-    });
-
-    if (clearButton) {
-      clearButton.addEventListener('click', function() {
-        searchInput.value = '';
-        searchProducts('');
-        searchInput.focus();
+      parentCards().forEach(card=>card.classList.add('hidden'));
+      if(!data) {
+        if(categorySection)categorySection.hidden=true;
+        if(materialHeading)materialHeading.hidden=true;
+        setStatus(failed?'Search unavailable. Browse categories or retry.':'Loading material catalogue…');
+        return;
+      }
+      const categories=data.filter(p=>matches(p.name,term)||matches(p.slug,term)||(p.slug==='aluminum'&&matches('Aluminium',term)));
+      const materials=[];
+      data.forEach(p=>(p.subproducts||[]).forEach(sub=>{
+        if(matches(sub.name,term)||matches(sub.slug,term))materials.push({parent:p,sub});
+      }));
+      if(categoryList)categories.forEach(p=>categoryList.appendChild(makeCategoryRow(p)));
+      if(categorySection)categorySection.hidden=categories.length===0;
+      if(materialHeading)materialHeading.hidden=materials.length===0;
+      materials.forEach(entry=>grid.appendChild(createDeepLinkSubproductCard(entry.parent,entry.sub,raw)));
+      const total=categories.length+materials.length;
+      setStatus(total===0?'No matching categories or materials':categories.length+' categor'+(categories.length===1?'y':'ies')+' · '+materials.length+' material'+(materials.length===1?'':'s'));
+      if(!total) {
+        const empty=document.createElement('div');empty.className='no-results';
+        const title=document.createElement('h3');title.textContent='No matching materials';
+        const hint=document.createElement('p');hint.textContent='Try a material, trade grade, or a category such as copper, aluminium, or ZURIK.';
+        empty.append(title,hint);grid.appendChild(empty);
+      }
+    };
+    const fetchCatalogue = () => {
+      if(pending)return;
+      pending=true; failed=false; showError(false);
+      const run=++sequence;
+      if(input.value.trim())setStatus('Loading material catalogue…');
+      fetch('/assets/data/products.json',{cache:'no-cache'})
+        .then(response=>{if(!response.ok)throw Error('Catalogue request '+response.status);return response.json()})
+        .then(value=>{if(!Array.isArray(value.products)||!value.products.length)throw Error('Invalid catalogue');if(run!==sequence)return;data=value.products;failed=false;})
+        .catch(err=>{if(run!==sequence)return;failed=true;console.error('VMG search catalogue:',err);})
+        .finally(()=>{if(run!==sequence)return;pending=false;display();});
+    };
+    if(toggle && menu){
+      toggle.addEventListener('click',()=>{
+        const open=menu.hidden;
+        menu.hidden=!open;
+        toggle.setAttribute('aria-expanded',String(open));
+        if(open)toggle.focus();
+      });
+      document.addEventListener('pointerdown',event=>{
+        if(!menu.hidden&&!menu.contains(event.target)&&!toggle.contains(event.target))closeMenu();
+      });
+      document.addEventListener('keydown',event=>{
+        if(event.key==='Escape' && !menu.hidden){event.preventDefault();closeMenu();toggle.focus();}
       });
     }
-
-    // Keyboard shortcuts
-    searchInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        this.value = '';
-        searchProducts('');
+    input.addEventListener('input',()=>{closeMenu();display();});
+    input.addEventListener('keydown',event=>{
+      if(event.key==='Escape' && ( !menu || menu.hidden )){
+        if(input.value){input.value='';display();}
       }
     });
-
-    // Store original text for all product cards on initialization
-    function storeOriginalText() {
-      const productCards = productsGrid.querySelectorAll('.card.product');
-      productCards.forEach(card => {
-        const figcaption = card.querySelector('figcaption');
-        if (figcaption && !figcaption.dataset.originalText) {
-          figcaption.dataset.originalText = figcaption.textContent;
-        }
-      });
-    }
-
-    // Prevent products.render.js async category refresh from wiping a live query.
-    document.addEventListener('vmg:products-rendered', function () {
-      storeOriginalText();
-      searchProducts(searchInput.value);
-    });
-
-    // Initialize
-    storeOriginalText();
-    // Clear any previous search value from browser autocomplete
-    searchInput.value = '';
-    searchProducts('');
+    if(clear)clear.addEventListener('click',()=>{input.value='';closeMenu();display();input.focus();});
+    if(retry)retry.addEventListener('click',fetchCatalogue);
+    document.addEventListener('vmg:products-rendered',display);
+    display();
+    fetchCatalogue();
   }
 
-  // Initialize product search when DOM is loaded
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initProductSearch);
-  } else {
-    initProductSearch();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initProductSearch);
+  else initProductSearch();
 
-  }
-
-  // Subproduct search functionality
+    // Subproduct search functionality
   function initSubproductSearch() {
     const searchInput = document.getElementById('subproduct-search-input');
     const clearButton = document.getElementById('clear-subproduct-search');
