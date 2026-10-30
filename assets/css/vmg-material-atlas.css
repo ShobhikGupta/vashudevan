@@ -787,3 +787,147 @@ body.vmg-products-page #main-products-grid>.subproduct-search-result .vmg-atlas-
 }
 body.vmg-products-page #main-products-grid>.subproduct-search-result .vmg-atlas-result-copy{gap:5px}
 body.vmg-products-page #main-products-grid>.subproduct-search-result .vmg-atlas-result-action:empty{display:none}
+
+/* Search experience v4: field geometry is isolated from dropdown height. */
+body.vmg-products-page .product-search{
+  position:relative;
+  z-index:10;
+  width:min(100%,560px);
+}
+body.vmg-products-page .product-search .search-container{
+  position:relative;
+  display:block;
+  height:44px;
+  width:100%;
+  overflow:visible;
+}
+body.vmg-products-page .product-search .search-container #product-search{
+  display:block;
+  width:100%;
+  height:44px;
+  padding-left:45px!important;
+  padding-right:89px!important;
+}
+body.vmg-products-page .product-search .search-container .vmg-product-search-icon{
+  display:grid!important;
+  position:absolute;
+  left:13px;
+  top:22px;
+  z-index:6;
+  transform:translateY(-50%);
+  color:#102339;
+}
+body.vmg-products-page .product-search .search-container .clear-search{
+  position:absolute;
+  top:22px;
+  right:46px;
+  transform:translateY(-50%);
+  z-index:6;
+}
+body.vmg-products-page .product-search .search-container .vmg-browse-toggle{
+  display:grid!important;
+  position:absolute;
+  top:22px;
+  right:3px;
+  transform:translateY(-50%);
+  z-index:6;
+}
+body.vmg-products-page .product-search > .vmg-category-browse{
+  position:relative;
+  inset:auto;
+  top:auto;
+  display:block;
+  width:100%;
+  margin:6px auto 0;
+  max-height:min(48vh,380px);
+  overflow-y:auto;
+  z-index:10;
+}
+body.vmg-products-page .product-search > .vmg-category-browse[hidden]{display:none!important}
+body.vmg-products-page .product-search .vmg-search-placeholder{
+  inset-block:0;
+  right:88px;
+}
+body.vmg-products-page .vmg-category-browse.vmg-suggestion-mode .vmg-browse-options{
+  display:flex;
+  flex-direction:column;
+  gap:0;
+}
+body.vmg-products-page .vmg-suggestion-heading{
+  display:block;
+  padding:9px 7px 6px;
+  border-bottom:1px solid #e7ebef;
+  color:#a26637;
+  font-size:10px;
+  font-weight:800;
+  line-height:1.3;
+  letter-spacing:.045em;
+  text-transform:uppercase;
+}
+body.vmg-products-page .vmg-suggestion-mode .vmg-browse-option{
+  display:flex;
+  min-height:44px;
+  padding:6px;
+  gap:10px;
+}
+body.vmg-products-page .vmg-suggestion-thumb{
+  display:block;
+  flex:none;
+  width:34px;
+  height:32px;
+  object-fit:cover;
+  border-radius:4px;
+}
+body.vmg-products-page .vmg-suggestion-empty{
+  display:block;
+  padding:13px 7px;
+  color:#6b7888;
+  font-size:12px;
+}
+body.vmg-products-page .vmg-matching-materials-heading{
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+  flex-wrap:wrap;
+}
+body.vmg-products-page .vmg-materials-hint{
+  color:#6b7888;
+  font-size:12px;
+}
+body.vmg-products-page #main-products-grid>.subproduct-search-result .vmg-atlas-result-copy{
+  flex:0 1 auto;
+  justify-content:space-between;
+  padding:9px 10px 8px;
+  gap:5px;
+  min-height:51px;
+}
+body.vmg-products-page #main-products-grid>.subproduct-search-result .vmg-atlas-result-name{
+  line-height:1.25;
+}
+body.vmg-products-page #main-products-grid>.subproduct-search-result .vmg-atlas-result-action{
+  display:none;
+}
+body.vmg-products-page #main-products-grid>.subproduct-search-result .vmg-atlas-result-name::after{
+  content:"→";
+  display:inline-block;
+  float:right;
+  margin-left:7px;
+  color:#b87943;
+  font-size:17px;
+  font-weight:500;
+  line-height:1;
+}
+body.vmg-products-page #main-products-grid>.subproduct-search-result:hover .vmg-atlas-result-name::after{
+  transform:translateX(2px);
+}
+@media(max-width:700px){
+  body.vmg-products-page .product-search > .vmg-category-browse{max-height:min(54vh,360px)}
+  body.vmg-products-page .vmg-matching-materials-heading{gap:2px}
+  body.vmg-products-page .vmg-materials-hint{font-size:11px}
+  body.vmg-products-page #main-products-grid>.subproduct-search-result .vmg-atlas-result-copy{
+    padding:8px 9px;min-height:48px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  body.vmg-products-page #main-products-grid>.subproduct-search-result .vmg-atlas-result-name::after{transition:none;transform:none}
+}
