@@ -57,7 +57,7 @@
     <link rel="stylesheet" href="/assets/css/vmg-premium-system.css">
     <link rel="stylesheet" href="/assets/css/vmg-search-odometer.css?v=20261027-top21-search-icon">
     <link rel="stylesheet" href="/assets/css/vmg-products-search-refinement.css?v=20261030b">
-    <link rel="stylesheet" href="/assets/css/vmg-material-atlas.css?v=20261030-white-v1">
+    <link rel="stylesheet" href="/assets/css/vmg-material-atlas.css?v=20261030-searchbrowse-v1">
 </head>
   <body class="vmg-products-page">
     <header class="site-header vmg-econship-header" data-vmg-static-header="true">
@@ -124,17 +124,41 @@
                   <path d="m16 16 5 5"></path>
                 </svg>
               </span>
-              <input type="text" id="product-search" placeholder="Search products..." class="search-input">
+              <input type="text" id="product-search" placeholder="Search products..." class="search-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Search product categories and recyclable-metal materials">
               <button type="button" id="clear-search" class="clear-search" aria-label="Clear search">×</button>
+              <button type="button" id="vmg-browse-toggle" class="vmg-browse-toggle" aria-label="Browse material categories" aria-controls="vmg-category-browse" aria-expanded="false">
+                <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <div id="vmg-category-browse" class="vmg-category-browse" hidden>
+                <div class="vmg-browse-header"><strong>Browse material categories</strong><span>10 categories</span></div>
+                <div class="vmg-browse-options">
+                  <a class="vmg-browse-option" href="/products/aluminium/"><span class="vmg-browse-name">Aluminium</span><span class="vmg-browse-meta">23 materials</span><span class="vmg-browse-chevron" aria-hidden="true">→</span></a>
+                <a class="vmg-browse-option" href="/products/auto-scrap/"><span class="vmg-browse-name">AUTO SCRAP</span><span class="vmg-browse-meta">13 materials</span><span class="vmg-browse-chevron" aria-hidden="true">→</span></a>
+                <a class="vmg-browse-option" href="/products/brass/"><span class="vmg-browse-name">BRASS</span><span class="vmg-browse-meta">11 materials</span><span class="vmg-browse-chevron" aria-hidden="true">→</span></a>
+                <a class="vmg-browse-option" href="/products/copper/"><span class="vmg-browse-name">COPPER</span><span class="vmg-browse-meta">3 materials</span><span class="vmg-browse-chevron" aria-hidden="true">→</span></a>
+                <a class="vmg-browse-option" href="/products/copper-bearing/"><span class="vmg-browse-name">COPPER BEARING</span><span class="vmg-browse-meta">8 materials</span><span class="vmg-browse-chevron" aria-hidden="true">→</span></a>
+                <a class="vmg-browse-option" href="/products/ferrous/"><span class="vmg-browse-name">FERROUS</span><span class="vmg-browse-meta">9 materials</span><span class="vmg-browse-chevron" aria-hidden="true">→</span></a>
+                <a class="vmg-browse-option" href="/products/lead/"><span class="vmg-browse-name">LEAD</span><span class="vmg-browse-meta">3 materials</span><span class="vmg-browse-chevron" aria-hidden="true">→</span></a>
+                <a class="vmg-browse-option" href="/products/shredder-scrap/"><span class="vmg-browse-name">SHREDDER SCRAP</span><span class="vmg-browse-meta">6 materials</span><span class="vmg-browse-chevron" aria-hidden="true">→</span></a>
+                <a class="vmg-browse-option" href="/products/stainless-steel/"><span class="vmg-browse-name">STAINLESS STEEL</span><span class="vmg-browse-meta">4 materials</span><span class="vmg-browse-chevron" aria-hidden="true">→</span></a>
+                <a class="vmg-browse-option" href="/products/zinc/"><span class="vmg-browse-name">ZINC</span><span class="vmg-browse-meta">4 materials</span><span class="vmg-browse-chevron" aria-hidden="true">→</span></a>
+                </div>
+              </div>
             </div>
             <div class="search-results-info">
-              <span id="search-results-count">Showing all products</span>
+              <span id="search-results-count" role="status" aria-live="polite" aria-atomic="true">Showing all products</span>
+              <div id="vmg-search-error" class="vmg-search-error" hidden><span>Unable to load the material catalogue.</span><button type="button" id="vmg-search-retry">Retry</button></div>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="section">
+      <section class="section vmg-products-directory">
+        <div id="vmg-matching-category-section" class="container vmg-matching-category-section" hidden>
+          <h2>Matching Categories</h2>
+          <div id="vmg-matching-category-list" class="vmg-matching-category-list"></div>
+        </div>
+        <div id="vmg-matching-materials-heading" class="container vmg-matching-materials-heading" hidden><h2>Matching Materials</h2></div>
         <div class="container cards grid-3 products-grid equal-card-grid" id="main-products-grid">
           <article id="aluminum" class="card product vmg-atlas-parent">
             <a href="/products/aluminium/" aria-label="View Aluminium category">
@@ -254,8 +278,8 @@
 </footer>
 
     <script src="/assets/js/config.js?v=20260822b"></script>
-    <script src="/assets/js/main.js?v=20261030-material-cards"></script>
+    <script src="/assets/js/main.js?v=20261030-searchbrowse-v1"></script>
     <script src="/assets/js/products.render.js?v=20261030-white-v1"></script>
-    <script src="/assets/js/vmg-search-odometer.js?v=20261027-top21"></script>
+    <script src="/assets/js/vmg-search-odometer.js?v=20261030-searchbrowse-v1"></script>
   </body>
   </html>
