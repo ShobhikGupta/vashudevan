@@ -729,7 +729,7 @@
 
   // Global function to highlight search terms with smart color detection
   function highlightSearchTerm(text, searchTerm, highlightType = false) {
-    if (!searchTerm || searchTerm.trim() === '') {
+    if (!searchTerm || searchTerm.trim().length < 2) {
       return text;
     }
     
@@ -803,7 +803,8 @@
         return response.json();
       })
       .then(data => {
-        productsData = data.products;
+        productsData = Array.isArray(data.products) ? data.products : [];
+        if (searchInput.value.trim()) searchProducts(searchInput.value);
         console.log('Products data loaded successfully:', productsData.length, 'products');
       })
       .catch(error => {
@@ -830,7 +831,7 @@
     // Advanced deep-linking search function that shows individual subproduct cards
     function searchProducts(term) {
       const searchTerm = term.toLowerCase().trim();
-      const productCards = productsGrid.querySelectorAll('.card.product');
+      const productCards = productsGrid.querySelectorAll('.card.product:not(.subproduct-search-result)');
       let visibleCount = 0;
 
       console.log('Searching for:', searchTerm);
@@ -899,21 +900,8 @@
               });
             }
           });
-        } else {
-          console.log('Products data not loaded yet, retrying...');
-          // Retry loading data if not available
-          fetch('/assets/data/products.json')
-            .then(response => response.json())
-            .then(data => {
-              productsData = data.products;
-              console.log('Products data loaded on retry:', productsData.length, 'products');
-              // Re-run search with loaded data
-              searchProducts(searchTerm);
-            })
-            .catch(error => {
-              console.error('Failed to load products data on retry:', error);
-            });
         }
+        // The initial catalogue fetch refreshes the current query when ready.
 
         // Also show main products that match directly
         productCards.forEach(card => {
@@ -929,7 +917,9 @@
         });
 
         // Update results count
-        if (visibleCount === 0) {
+        if (!productsData) {
+          if (resultsCount) resultsCount.textContent = 'Searching material catalogue…';
+        } else if (visibleCount === 0) {
           showNoResults();
           if (resultsCount) resultsCount.textContent = 'No products or subproducts found';
         } else {
@@ -953,7 +943,7 @@
     // Create deep-linking subproduct card
     function createDeepLinkSubproductCard(parentProduct, subproduct, searchTerm) {
       const card = document.createElement('div');
-      card.className = 'card product subproduct-search-result highlighted';
+      card.className = 'card product subproduct-search-result';
       
       // Create deep link to parent product page with subproduct anchor
       const deepLink = `${materialPageUrl(parentProduct.slug)}#${encodeURIComponent(subproduct.slug)}`;
@@ -970,10 +960,7 @@
             <img src="${subproduct.image}" alt="${subproduct.name}" loading="lazy" decoding="async">
             <figcaption>${highlightedSubproductName}</figcaption>
           </figure>
-          <div class="search-result-indicator">
-            <span class="search-icon">🔍</span>
-            <span class="search-text">Click to view</span>
-          </div>
+          <span class="vmg-search-card-action" aria-hidden="true">View Material →</span>
         </a>
         <div class="product-info">
           <div class="parent-product-badge">${highlightedParentName}</div>
@@ -1075,6 +1062,12 @@
         }
       });
     }
+
+    // Prevent products.render.js async category refresh from wiping a live query.
+    document.addEventListener('vmg:products-rendered', function () {
+      storeOriginalText();
+      searchProducts(searchInput.value);
+    });
 
     // Initialize
     storeOriginalText();
