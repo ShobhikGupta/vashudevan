@@ -295,7 +295,6 @@
           img.src = product.icon || '';
           img.alt = displayName;
           
-          var caption = document.createElement('figcaption');
           var heading = document.createElement('span');
           heading.className = 'vmg-atlas-heading';
           heading.textContent = displayName;
@@ -310,14 +309,16 @@
           arrow.textContent = '→';
           meta.appendChild(count);
           meta.appendChild(arrow);
-          caption.appendChild(heading);
-          caption.appendChild(meta);
           article.classList.add('vmg-atlas-parent');
           img.loading = 'lazy';
           img.decoding = 'async';
           figure.appendChild(img);
-          figure.appendChild(caption);
+          var overlay = document.createElement('div');
+          overlay.className = 'vmg-atlas-overlay';
+          overlay.appendChild(heading);
+          overlay.appendChild(meta);
           link.appendChild(figure);
+          link.appendChild(overlay);
           article.appendChild(link);
           productsGrid.appendChild(article);
         });
