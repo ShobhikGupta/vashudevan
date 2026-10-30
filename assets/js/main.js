@@ -1748,7 +1748,7 @@
     safe(disableProductTooltips);
     safe(addClickHandlers);
     // Image animations disabled per request
-    safe(window.initWhatsAppFloat);
+    // WhatsApp is owned by the unified VMG floating-action stack (vmg-help.js).
     safe(window.initOpeningPopup);
     // Initialize intl-tel-input for main contact form (default: India)
     safe(function(){
@@ -1934,46 +1934,8 @@
   }
 })();
 
-// Floating WhatsApp chat button
-(function(){
-  function initWhatsAppFloat() {
-    try {
-      var existing = document.getElementById('whatsapp-float');
-      if (existing) return;
-
-      var link = document.createElement('a');
-      link.id = 'whatsapp-float';
-      link.className = 'whatsapp-float';
-      link.href = 'https://wa.me/919879208178?text=Hello%2C%20I%20visited%20your%20website%20and%20want%20to%20know%20more.';
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.setAttribute('aria-label', 'Chat with us on WhatsApp');
-
-      // Use the provided PNG asset (with cache-busting)
-      var logoSrc = '/assets/img/whatsapp-logo.png?v=' + Date.now();
-      link.innerHTML = '\n        <img src="' + logoSrc + '" alt="WhatsApp" decoding="async" />\n        <span class="whatsapp-tooltip">Chat with us</span>\n      ';
-
-      // Ensure the image becomes visible despite global lazy opacity rule
-      var img = link.querySelector('img');
-      if (img) {
-        var markLoaded = function(){ img.classList.add('loaded'); };
-        // Add load handler and handle cached case
-        img.addEventListener('load', markLoaded, { once: true });
-        if (img.complete) { markLoaded(); }
-      }
-
-      // Append near end of body
-      (document.body || document.documentElement).appendChild(link);
-
-    } catch (e) {
-      console.error('Failed to initialize WhatsApp button', e);
-    }
-  }
-
-  // Expose for reuse if needed elsewhere
-  window.initWhatsAppFloat = initWhatsAppFloat;
-})();
-
+// Unified floating-action stack (vmg-help.js) exclusively owns #whatsapp-float.
+// Do not create a standalone legacy WhatsApp link on DOMContentLoaded.
 
 // Lightweight country code sync for contact form custom phone input
 document.addEventListener('DOMContentLoaded', function() {
