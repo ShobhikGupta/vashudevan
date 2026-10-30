@@ -1011,15 +1011,13 @@
     }
     // The browse menu must not hide actual search results or remain open when
     // visitors move back into the text input to search.
-    input.addEventListener('focus',()=>{ if(input.value.trim()) {renderBrowse('suggestions');menu.hidden=false;toggle.setAttribute('aria-expanded','true');} });
-    input.addEventListener('input',()=>{
+    // The suggestions menu is disclosure-only: the chevron is its sole opener.
+    // Focusing or typing in the search field runs the regular results filter
+    // without opening suggestions or obscuring the results.
+    input.addEventListener('focus', closeMenu);
+    input.addEventListener('input', () => {
+      closeMenu();
       display();
-      if(input.value.trim()){
-        renderBrowse('suggestions');
-        if(menu){menu.hidden=false;toggle.setAttribute('aria-expanded','true');}
-      } else {
-        closeMenu();
-      }
     });
     input.addEventListener('keydown',event=>{
       if(event.key==='Escape' && ( !menu || menu.hidden )){
