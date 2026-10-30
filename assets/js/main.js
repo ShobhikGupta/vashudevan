@@ -863,7 +863,9 @@
       name.textContent = subproduct.name;
       const action = document.createElement('span');
       action.className = 'vmg-atlas-result-action';
-      action.textContent = 'View Material';
+      // The complete card is already a link with an accessible material name.
+      // Keep just a small arrow to avoid a redundant full-width 'View Material' row.
+      action.setAttribute('aria-hidden', 'true');
       const arrow = document.createElement('span');
       arrow.textContent = '→';
       arrow.setAttribute('aria-hidden', 'true');
@@ -947,6 +949,9 @@
         if(event.key==='Escape' && !menu.hidden){event.preventDefault();closeMenu();toggle.focus();}
       });
     }
+    // The browse menu must not hide actual search results or remain open when
+    // visitors move back into the text input to search.
+    input.addEventListener('focus',closeMenu);
     input.addEventListener('input',()=>{closeMenu();display();});
     input.addEventListener('keydown',event=>{
       if(event.key==='Escape' && ( !menu || menu.hidden )){
