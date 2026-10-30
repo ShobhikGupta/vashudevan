@@ -308,6 +308,8 @@
           
           productsGrid.appendChild(article);
         });
+          // Tell search to reconcile against freshly-rendered categories.
+          document.dispatchEvent(new Event('vmg:products-rendered'));
         } else {
           console.log('No products to render, keeping existing static content');
         }
