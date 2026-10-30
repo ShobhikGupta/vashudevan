@@ -812,9 +812,69 @@
       if (!menu || !toggle) return;
       menu.hidden = true;
       toggle.setAttribute('aria-expanded','false');
+      menuMode='closed';
     };
     const showError = show => { if(errorBox) errorBox.hidden = !show; };
     const setStatus = text => { if(count) count.textContent = text; };
+    const suggestions = menu && menu.querySelector('.vmg-browse-options');
+    const menuHeader = menu && menu.querySelector('.vmg-browse-header');
+    const menuTitle = menuHeader && menuHeader.querySelector('strong');
+    const menuCount = menuHeader && menuHeader.querySelector('span');
+    const initialBrowse = suggestions ? suggestions.innerHTML : '';
+    let menuMode = 'closed';
+    const createSuggestion = (name, href, detail, image) => {
+      const link = document.createElement('a');
+      link.className = 'vmg-browse-option vmg-smart-suggestion';
+      link.href = href;
+      if(image){
+        const img=document.createElement('img');img.src=image;img.alt='';img.loading='lazy';img.className='vmg-suggestion-thumb';
+        link.appendChild(img);
+      }
+      const label=document.createElement('span');label.className='vmg-browse-name';label.textContent=name;
+      const meta=document.createElement('span');meta.className='vmg-browse-meta';meta.textContent=detail;
+      const arrow=document.createElement('span');arrow.className='vmg-browse-chevron';arrow.textContent='→';arrow.setAttribute('aria-hidden','true');
+      link.append(label,meta,arrow);
+      return link;
+    };
+    const renderBrowse = (mode) => {
+      if(!menu || !suggestions)return;
+      menuMode=mode;
+      suggestions.replaceChildren();
+      if(mode==='categories' || !input.value.trim()){
+        if(menuTitle)menuTitle.textContent='Browse material categories';
+        if(menuCount)menuCount.textContent='10 categories';
+        // Restore the exact existing links. This works even when JSON is offline.
+        const template=document.createElement('template');template.innerHTML=initialBrowse;
+        suggestions.appendChild(template.content.cloneNode(true));
+        menu.classList.remove('vmg-suggestion-mode');
+        return;
+      }
+      menu.classList.add('vmg-suggestion-mode');
+      if(menuTitle)menuTitle.textContent='Search suggestions';
+      const term=normalize(input.value);
+      if(!data){
+        if(menuCount)menuCount.textContent='Loading…';
+        return;
+      }
+      const cats=data.filter(p=>matches(p.name,term)||matches(p.slug,term));
+      const mats=[];
+      data.forEach(p=>(p.subproducts||[]).forEach(sub=>{
+        if(matches(sub.name,term)||matches(sub.slug,term))mats.push({p,sub});
+      }));
+      const heading=(text) => {const el=document.createElement('span');el.className='vmg-suggestion-heading';el.textContent=text;suggestions.appendChild(el);};
+      if(cats.length){
+        heading('Matching categories');
+        cats.forEach(p=>suggestions.appendChild(createSuggestion(p.slug==='aluminum'?'Aluminium':p.name,materialPageUrl(p.slug),(p.subproducts||[]).length+' materials',p.icon)));
+      }
+      if(mats.length){
+        heading('Matching materials');
+        mats.slice(0,6).forEach(({p,sub})=>suggestions.appendChild(createSuggestion(sub.name,materialPageUrl(p.slug)+'#'+encodeURIComponent(sub.slug),p.slug==='aluminum'?'Aluminium':p.name,sub.image)));
+      }
+      if(!cats.length&&!mats.length){
+        const empty=document.createElement('span');empty.className='vmg-suggestion-empty';empty.textContent='No suggestions. Try another material or category.';suggestions.appendChild(empty);
+      }
+      if(menuCount)menuCount.textContent=(cats.length+mats.length)+' matches';
+    };
     const makeCategoryRow = (product) => {
       const link = document.createElement('a');
       link.className='vmg-matching-category-card';
@@ -933,14 +993,14 @@
         .then(response=>{if(!response.ok)throw Error('Catalogue request '+response.status);return response.json()})
         .then(value=>{if(!Array.isArray(value.products)||!value.products.length)throw Error('Invalid catalogue');if(run!==sequence)return;data=value.products;failed=false;})
         .catch(err=>{if(run!==sequence)return;failed=true;console.error('VMG search catalogue:',err);})
-        .finally(()=>{if(run!==sequence)return;pending=false;display();});
+        .finally(()=>{if(run!==sequence)return;pending=false;display();if(menu && !menu.hidden && menuMode==='suggestions')renderBrowse('suggestions');});
     };
     if(toggle && menu){
       toggle.addEventListener('click',()=>{
         const open=menu.hidden;
         menu.hidden=!open;
         toggle.setAttribute('aria-expanded',String(open));
-        if(open)toggle.focus();
+        if(open){renderBrowse(input.value.trim()?'suggestions':'categories');toggle.focus();}
       });
       document.addEventListener('pointerdown',event=>{
         if(!menu.hidden&&!menu.contains(event.target)&&!toggle.contains(event.target))closeMenu();
@@ -951,8 +1011,16 @@
     }
     // The browse menu must not hide actual search results or remain open when
     // visitors move back into the text input to search.
-    input.addEventListener('focus',closeMenu);
-    input.addEventListener('input',()=>{closeMenu();display();});
+    input.addEventListener('focus',()=>{ if(input.value.trim()) {renderBrowse('suggestions');menu.hidden=false;toggle.setAttribute('aria-expanded','true');} });
+    input.addEventListener('input',()=>{
+      display();
+      if(input.value.trim()){
+        renderBrowse('suggestions');
+        if(menu){menu.hidden=false;toggle.setAttribute('aria-expanded','true');}
+      } else {
+        closeMenu();
+      }
+    });
     input.addEventListener('keydown',event=>{
       if(event.key==='Escape' && ( !menu || menu.hidden )){
         if(input.value){input.value='';display();}
