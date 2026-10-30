@@ -296,16 +296,29 @@
           img.alt = displayName;
           
           var caption = document.createElement('figcaption');
-          caption.textContent = displayName;
-
-          var cta = createCategoryCta();
-          
+          var heading = document.createElement('span');
+          heading.className = 'vmg-atlas-heading';
+          heading.textContent = displayName;
+          var meta = document.createElement('span');
+          meta.className = 'vmg-atlas-caption-row';
+          var count = document.createElement('span');
+          var number = (product.subproducts || []).length;
+          count.textContent = number + ' material' + (number === 1 ? '' : 's');
+          var arrow = document.createElement('span');
+          arrow.className = 'vmg-atlas-arrow';
+          arrow.setAttribute('aria-hidden', 'true');
+          arrow.textContent = '→';
+          meta.appendChild(count);
+          meta.appendChild(arrow);
+          caption.appendChild(heading);
+          caption.appendChild(meta);
+          article.classList.add('vmg-atlas-parent');
+          img.loading = 'lazy';
+          img.decoding = 'async';
           figure.appendChild(img);
           figure.appendChild(caption);
           link.appendChild(figure);
-          link.appendChild(cta);
           article.appendChild(link);
-          
           productsGrid.appendChild(article);
         });
           // Tell search to reconcile against freshly-rendered categories.
