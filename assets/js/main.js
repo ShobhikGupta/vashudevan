@@ -961,10 +961,10 @@
             <figcaption>${highlightedSubproductName}</figcaption>
           </figure>
           <span class="vmg-search-card-action" aria-hidden="true">View Material →</span>
+          <div class="product-info">
+            <div class="parent-product-badge">${highlightedParentName}</div>
+          </div>
         </a>
-        <div class="product-info">
-          <div class="parent-product-badge">${highlightedParentName}</div>
-        </div>
       `;
       
       // Store ID as data attribute for reference but don't display it
