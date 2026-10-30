@@ -608,3 +608,159 @@ body.vmg-products-page #main-products-grid>.vmg-atlas-parent:hover .vmg-atlas-ar
 @media(prefers-reduced-motion:reduce){
   body.vmg-products-page #main-products-grid>.vmg-atlas-parent .vmg-atlas-arrow{transition:none}
 }
+
+/* Final search-and-browse UI. Applies only to the Products directory. */
+body.vmg-products-page .product-search{position:relative;z-index:10}
+body.vmg-products-page .product-search .search-container{position:relative;overflow:visible}
+body.vmg-products-page .product-search .search-container .search-input{
+ padding-right:92px;
+}
+body.vmg-products-page .product-search .clear-search{
+ right:48px;
+ z-index:4;
+}
+body.vmg-products-page .vmg-browse-toggle{
+ position:absolute;
+ top:50%;
+ right:5px;
+ transform:translateY(-50%);
+ display:grid;
+ place-items:center;
+ width:39px;
+ height:39px;
+ padding:0;
+ border:0;
+ border-left:1px solid #e2e7ed;
+ border-radius:0 5px 5px 0;
+ background:#fff;
+ color:#1c3047;
+ cursor:pointer;
+ z-index:5;
+}
+body.vmg-products-page .vmg-browse-toggle svg{transition:transform .18s ease}
+body.vmg-products-page .vmg-browse-toggle[aria-expanded="true"] svg{transform:rotate(180deg)}
+body.vmg-products-page .vmg-browse-toggle:focus-visible{outline:2px solid #b87943;outline-offset:-3px}
+body.vmg-products-page .vmg-category-browse[hidden],
+body.vmg-products-page .vmg-matching-category-section[hidden],
+body.vmg-products-page .vmg-matching-materials-heading[hidden],
+body.vmg-products-page .vmg-search-error[hidden] {display:none!important}
+body.vmg-products-page .vmg-category-browse{
+ position:absolute;
+ top:calc(100% + 6px);
+ left:0;
+ right:0;
+ z-index:30;
+ border:1px solid #dce3e9;
+ border-radius:8px;
+ box-shadow:0 12px 28px rgba(7,25,44,.16);
+ background:#fff;
+ padding:13px;
+ text-align:left;
+ max-height:min(68vh,420px);
+ overflow-y:auto;
+ overscroll-behavior:contain;
+}
+body.vmg-products-page .vmg-browse-header{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:10px;padding:0 3px 10px;border-bottom:1px solid #edf0f3;
+ color:#102339;font-size:13px;
+}
+body.vmg-products-page .vmg-browse-header span{color:#778392;font-size:11px}
+body.vmg-products-page .vmg-browse-options{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ column-gap:10px;
+}
+body.vmg-products-page .vmg-browse-option{
+ display:flex;align-items:center;gap:8px;
+ min-width:0;min-height:43px;padding:9px 5px;
+ border-bottom:1px solid #edf0f3;
+ text-decoration:none;color:#14283e;
+ font-size:12px;
+}
+body.vmg-products-page .vmg-browse-option:hover,
+body.vmg-products-page .vmg-browse-option:focus-visible{
+ background:#f7f9fa;color:#a26637;
+}
+body.vmg-products-page .vmg-browse-name{font-weight:760;flex:1 1 auto;min-width:0}
+body.vmg-products-page .vmg-browse-meta{color:#6b7888;font-size:10px;white-space:nowrap}
+body.vmg-products-page .vmg-browse-chevron{color:#b87943;font-size:15px}
+body.vmg-products-page .vmg-search-error{
+ display:flex;align-items:center;justify-content:center;
+ flex-wrap:wrap;gap:10px;margin-top:8px;
+ color:#833b20;font-size:12px;
+}
+body.vmg-products-page .vmg-search-error button{
+ min-height:32px;padding:5px 12px;border:1px solid #b87943;
+ border-radius:5px;background:#fff;color:#884c25;
+ cursor:pointer;font-weight:750;
+}
+body.vmg-products-page .vmg-matching-category-section{padding-bottom:18px;margin-bottom:16px}
+body.vmg-products-page .vmg-matching-category-section h2,
+body.vmg-products-page .vmg-matching-materials-heading h2{
+ margin:0 0 13px;color:#102339;font-size:16px;font-weight:800;
+ letter-spacing:-.015em;text-align:left;
+}
+body.vmg-products-page .vmg-matching-category-list{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;
+}
+body.vmg-products-page .vmg-matching-category-card{
+ display:grid;grid-template-columns:84px minmax(0,1fr) 22px;
+ align-items:center;gap:12px;
+ width:100%;min-height:90px;padding:7px 12px 7px 7px;
+ background:#fff;border:1px solid #dce3e9;border-radius:7px;
+ color:#102339;text-decoration:none;
+}
+body.vmg-products-page .vmg-matching-category-card:hover,
+body.vmg-products-page .vmg-matching-category-card:focus-visible{
+ border-color:#b87943;
+ box-shadow:0 3px 11px rgba(8,25,42,.07);
+}
+body.vmg-products-page .vmg-matching-category-card img{
+ display:block;width:84px;height:74px;border-radius:4px;
+ object-fit:cover;
+}
+body.vmg-products-page .vmg-matching-category-copy{
+ display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+ min-width:0;text-align:left;
+}
+body.vmg-products-page .vmg-matching-category-copy small{
+ color:#a26637;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+}
+body.vmg-products-page .vmg-matching-category-copy strong{
+ color:#102339;font-size:15px;line-height:1.25;
+}
+body.vmg-products-page .vmg-matching-category-copy>span{
+ color:#a26637;font-size:12px;font-weight:650;
+}
+body.vmg-products-page .vmg-category-arrow{font-size:19px;color:#b87943}
+body.vmg-products-page .vmg-matching-materials-heading{padding-bottom:14px}
+body.vmg-products-page #main-products-grid{
+ grid-template-columns:repeat(5,minmax(0,1fr));
+}
+body.vmg-products-page #main-products-grid>.subproduct-search-result{
+ grid-column:span 1;
+}
+@media(max-width:1080px){
+ body.vmg-products-page #main-products-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:800px){
+ body.vmg-products-page #main-products-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ body.vmg-products-page #main-products-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.vmg-products-page .vmg-browse-options{grid-template-columns:minmax(0,1fr)}
+ body.vmg-products-page .vmg-matching-category-list{grid-template-columns:minmax(0,1fr)}
+ body.vmg-products-page .vmg-category-browse{max-height:min(65vh,460px);padding:11px}
+ body.vmg-products-page .vmg-matching-category-card{
+  grid-template-columns:72px minmax(0,1fr) 20px;min-height:80px;
+ }
+ body.vmg-products-page .vmg-matching-category-card img{width:72px;height:66px}
+}
+@media(max-width:420px){
+ body.vmg-products-page .product-search .search-container .search-input{padding-right:86px}
+ body.vmg-products-page .vmg-browse-option{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){
+ body.vmg-products-page .vmg-browse-toggle svg{transition:none}
+}
