@@ -8,9 +8,9 @@
   if (!input || !wrap || wrap.dataset.vmgSearchOdometer === 'true') return;
 
   var examples = ["6063 Extrusions (TOTO)","6061 Truck Wheels (TROMA)","Used Beverage Cans (TALDON) (UBC)","Bare Bright Wire (BARLEY)","#1 Copper (BERRY/CANDY)","HMS 1 & 2","304 Solids (SABOT)","Yellow Brass (HONEY)","Cast Aluminum (TENSE)","ZORBA","316 Solids","EC Wire (TALON)","#2 Copper (BIRCH/CLIFF)","304 Turnings (ULTRA)","Aluminum Extrusions (TATA)","Red Brass (EBONY)","ZURIK","PNS","Mixed Motors (ELMO)","Drained Lead Acid Batteries (RAINS)","AC Compressors"];
-  // Faster cadence: 1.8s read time plus 0.3s upward roll.
-  var ROTATE_MS = 3500;
-  var ROLL_MS = 300;
+  // Quick Blinkit-inspired cadence, using the same 21 VMG material examples.
+  var ROTATE_MS = 1150;
+  var ROLL_MS = 240;
   var reducedMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
   var currentIndex = 0;
   var timer = null, finishTimer = null, frame = null;
