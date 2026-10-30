@@ -261,3 +261,95 @@ body.vmg-products-page #main-products-grid>.card.product.hidden{
     transition:none!important;
   }
 }
+
+/* V2: isolated editorial overlay. Avoid legacy figcaption sizing and colors. */
+body.vmg-products-page #main-products-grid>.vmg-atlas-parent{
+  background:#091726!important;
+  border-color:#d4dce3!important;
+}
+body.vmg-products-page #main-products-grid>.vmg-atlas-parent>a{
+  display:block!important;
+  position:relative;
+  height:100%;
+}
+body.vmg-products-page #main-products-grid>.vmg-atlas-parent .product-figure{
+  aspect-ratio:4 / 5;
+  border:0!important;
+  border-radius:0!important;
+}
+body.vmg-products-page #main-products-grid>.vmg-atlas-parent .product-figure::after{
+  background:linear-gradient(180deg,transparent 28%,rgba(4,17,30,.20) 54%,rgba(4,17,30,.92) 100%)!important;
+}
+body.vmg-products-page #main-products-grid>.vmg-atlas-parent .vmg-atlas-overlay{
+  position:absolute;
+  inset:auto 0 0;
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:flex-end;
+  gap:9px;
+  padding:30px 14px 15px;
+  text-align:left;
+  color:#fff!important;
+  pointer-events:none;
+}
+body.vmg-products-page #main-products-grid>.vmg-atlas-parent .vmg-atlas-heading{
+  display:block;
+  color:#fff!important;
+  font-size:clamp(16px,1.3vw,20px);
+  line-height:1.15;
+  letter-spacing:-.025em;
+  font-weight:800;
+  text-align:left;
+}
+body.vmg-products-page #main-products-grid>.vmg-atlas-parent .vmg-atlas-caption-row{
+  display:flex;
+  flex-direction:row;
+  flex-wrap:nowrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  width:100%;
+  font-size:12px;
+  font-weight:600;
+  line-height:1.3;
+  color:#e0e7ec!important;
+  text-align:left;
+}
+body.vmg-products-page #main-products-grid>.vmg-atlas-parent .vmg-atlas-caption-row>span:first-child{
+  min-width:0;
+  flex:1 1 auto;
+}
+body.vmg-products-page #main-products-grid>.vmg-atlas-parent .vmg-atlas-arrow{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:30px;
+  height:30px;
+  border:1px solid rgba(255,255,255,.55);
+  border-radius:50%;
+  color:#fff!important;
+  font-size:19px;
+  line-height:1;
+}
+body.vmg-products-page #main-products-grid>.vmg-atlas-parent:hover .vmg-atlas-arrow{
+  border-color:#ce986a;
+  color:#f5ba86!important;
+}
+@media(max-width:700px){
+ body.vmg-products-page #main-products-grid>.vmg-atlas-parent .vmg-atlas-overlay{
+   padding:18px 11px 12px;
+   gap:7px;
+ }
+ body.vmg-products-page #main-products-grid>.vmg-atlas-parent .vmg-atlas-heading{
+   font-size:clamp(13px,3.6vw,17px);
+ }
+ body.vmg-products-page #main-products-grid>.vmg-atlas-parent .vmg-atlas-caption-row{
+   font-size:10px;
+ }
+ body.vmg-products-page #main-products-grid>.vmg-atlas-parent .vmg-atlas-arrow{
+   width:25px;height:25px;font-size:16px;
+ }
+}
