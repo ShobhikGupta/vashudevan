@@ -945,34 +945,45 @@
       const card = document.createElement('article');
       card.className = 'card product subproduct-search-result';
       card.setAttribute('data-subproduct-id', subproduct.slug);
+
+      // The complete card is a single, keyboard-accessible link. No decorative
+      // favourite buttons or non-functional 'selected' toggle are rendered.
       const link = document.createElement('a');
       link.className = 'subproduct-deep-link';
       link.href = materialPageUrl(parentProduct.slug) + '#' + encodeURIComponent(subproduct.slug);
       link.setAttribute('aria-label', 'View ' + subproduct.name + ' in ' + parentProduct.name);
+
+      const categoryName = parentProduct.slug === 'aluminum' ? 'Aluminium' : parentProduct.name;
+      const visual = document.createElement('div');
+      visual.className = 'vmg-atlas-result-visual';
       const image = document.createElement('img');
       image.className = 'vmg-atlas-result-image';
       image.src = subproduct.image || parentProduct.icon || '';
       image.alt = subproduct.name;
       image.loading = 'lazy';
       image.decoding = 'async';
+      const badge = document.createElement('span');
+      badge.className = 'vmg-atlas-result-badge';
+      badge.textContent = categoryName;
+      visual.append(image, badge);
+
       const details = document.createElement('div');
       details.className = 'vmg-atlas-result-copy';
-      const category = document.createElement('span');
-      category.className = 'vmg-atlas-parent-label';
-      category.textContent = parentProduct.slug === 'aluminum' ? 'Aluminium' : parentProduct.name;
       const name = document.createElement('span');
       name.className = 'vmg-atlas-result-name';
       name.textContent = subproduct.name;
       const action = document.createElement('span');
       action.className = 'vmg-atlas-result-action';
-      action.textContent = 'View material ';
+      action.textContent = 'View Material';
       const arrow = document.createElement('span');
       arrow.textContent = '→';
-      arrow.setAttribute('aria-hidden','true');
+      arrow.setAttribute('aria-hidden', 'true');
       action.appendChild(arrow);
-      details.append(category,name,action);
-      link.append(image,details);
+      details.append(name, action);
+      link.append(visual, details);
       card.appendChild(link);
+
+      // Existing destination and deep-link tracking remain unchanged.
       link.addEventListener('click', function () {
         try { sessionStorage.setItem('highlightSubproduct', subproduct.slug); } catch (_) {}
       });
