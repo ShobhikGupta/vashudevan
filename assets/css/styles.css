@@ -33,10 +33,18 @@
    on refresh. The controller exposes the original Help only on real failure.
    This rule is shipped in the initial blocking stylesheet, not injected by JS. */
 body:not(.vmg-chatbot-enabled):not(.vmg-chatbot-fallback) .vmg-floating-actions,
-body:not(.vmg-chatbot-enabled):not(.vmg-chatbot-fallback) > #vmg-help {
+body:not(.vmg-chatbot-enabled):not(.vmg-chatbot-fallback) > #vmg-help,
+body:not(.vmg-chatbot-enabled):not(.vmg-chatbot-fallback) > #whatsapp-float,
+body:not(.vmg-chatbot-enabled):not(.vmg-chatbot-fallback) > .whatsapp-float {
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
+}
+/* A stray standalone WhatsApp button should never duplicate the unified stack.
+   The only supported visible floating WhatsApp control lives inside it. */
+body > #whatsapp-float,
+body > .whatsapp-float {
+  display: none !important;
 }
 
 body.menu-open {
