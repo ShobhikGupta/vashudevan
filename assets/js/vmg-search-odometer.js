@@ -9,7 +9,7 @@
 
   var examples = ["6063 Extrusions (TOTO)","6061 Truck Wheels (TROMA)","Used Beverage Cans (TALDON) (UBC)","Bare Bright Wire (BARLEY)","#1 Copper (BERRY/CANDY)","HMS 1 & 2","304 Solids (SABOT)","Yellow Brass (HONEY)","Cast Aluminum (TENSE)","ZORBA","316 Solids","EC Wire (TALON)","#2 Copper (BIRCH/CLIFF)","304 Turnings (ULTRA)","Aluminum Extrusions (TATA)","Red Brass (EBONY)","ZURIK","PNS","Mixed Motors (ELMO)","Drained Lead Acid Batteries (RAINS)","AC Compressors"];
   // Faster cadence: 1.8s read time plus 0.3s upward roll.
-  var ROTATE_MS = 1800;
+  var ROTATE_MS = 3500;
   var ROLL_MS = 300;
   var reducedMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
   var currentIndex = 0;
@@ -38,7 +38,7 @@
 
   function allowed() {
     return !document.hidden && document.activeElement !== input &&
-      !input.value && !(reducedMotion && reducedMotion.matches);
+      !input.value && !(wrap.querySelector('.vmg-browse-toggle[aria-expanded="true"]')) && !(reducedMotion && reducedMotion.matches);
   }
 
   function stop() {
@@ -84,6 +84,8 @@
   }
 
   input.addEventListener('focus', sync);
+  var browseToggle=wrap.querySelector('.vmg-browse-toggle');
+  if(browseToggle) browseToggle.addEventListener('click',function(){window.setTimeout(sync,0)});
   input.addEventListener('blur', sync);
   input.addEventListener('input', sync);
   document.addEventListener('visibilitychange', sync);
