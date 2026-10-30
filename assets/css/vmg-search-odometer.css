@@ -102,3 +102,11 @@
   .product-search .search-container > #product-search.search-input { padding-left: 43px; }
   .product-search .search-container .vmg-search-placeholder { left: 43px; }
 }
+
+/* Empty focused input shows a caret only. Neither the rotating example nor
+   native placeholder should replace it until focus is removed. */
+.product-search .search-container.vmg-search-odometer:focus-within .search-input:placeholder-shown:focus::placeholder{
+  color:transparent!important;
+  opacity:0!important;
+}
+.product-search .search-container.vmg-search-odometer:focus-within .vmg-search-placeholder{visibility:hidden!important;opacity:0!important}
