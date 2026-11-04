@@ -805,6 +805,11 @@
     const browseEmpty=document.getElementById('vmg-empty-browse');
     const errorBox=document.getElementById('vmg-search-error');
     const retry=document.getElementById('vmg-search-retry');
+    const moreWrap=document.getElementById('vmg-search-more-wrap');
+    const moreButton=document.getElementById('vmg-search-more');
+    const visibleCount=document.getElementById('vmg-search-visible-count');
+    const PAGE_SIZE=20;
+    let visibleLimit=PAGE_SIZE;
     if(!input||!grid)return;
     const urls={aluminum:'/products/aluminium/','auto-scrap':'/products/auto-scrap/',brass:'/products/brass/',copper:'/products/copper/','copper-bearing':'/products/copper-bearing/',ferrous:'/products/ferrous/',lead:'/products/lead/','shredder-scrap':'/products/shredder-scrap/','stainless-steel':'/products/stainless-steel/',zinc:'/products/zinc/'};
     const materialPageUrl=slug=>urls[slug]||'/products/';
@@ -830,6 +835,7 @@
       const searching=!!input.value.trim(),ready=!!data&&!failed;
       grid.hidden=searching&&ready&&!isProducts;
       if(categorySection)categorySection.hidden=!searching||!ready||isProducts;
+      if(moreWrap)moreWrap.hidden=!searching||!ready||!isProducts||grid.querySelectorAll('.subproduct-search-result').length<=0||grid.querySelectorAll('.subproduct-search-result').length<20;
       if(focus)(isProducts?productsTab:categoriesTab)?.focus();
     };
     const makeCategoryRow=product=>{
@@ -903,6 +909,7 @@
       if(categoryList)categoryList.replaceChildren();
       parentCards().forEach(card=>card.classList.toggle('hidden',!!raw));
       if(!raw){
+        if(moreWrap)moreWrap.hidden=true;
         activeTab='products';
         if(resultsControls)resultsControls.hidden=true;
         if(categorySection)categorySection.hidden=true;
@@ -933,7 +940,16 @@
       if(emptyHeading&&total===0)emptyHeading.textContent='No results found for “'+raw+'”';
       if(emptyCategories)emptyCategories.hidden=categories.length!==0;
       categories.forEach(p=>categoryList?.appendChild(makeCategoryRow(p)));
-      materials.forEach(({p,sub})=>grid.appendChild(createDeepLinkSubproductCard(p,sub,raw)));
+      materials.slice(0,visibleLimit).forEach(({p,sub})=>grid.appendChild(createDeepLinkSubproductCard(p,sub,raw)));
+      if(moreWrap)moreWrap.hidden=materials.length<=PAGE_SIZE||activeTab!=='products';
+      if(moreButton){
+        const hasMore=visibleLimit<materials.length;
+        moreButton.hidden=!hasMore;
+        moreButton.textContent='Show More Materials';
+      }
+      if(visibleCount)visibleCount.textContent=materials.length>PAGE_SIZE
+        ?'Showing '+Math.min(visibleLimit,materials.length)+' of '+materials.length+' materials':'';
+
       setStatus(materials.length+' material'+(materials.length===1?'':'s')+' · '+categories.length+' categor'+(categories.length===1?'y':'ies'));
       setTab(activeTab);
       if(!total)grid.hidden=true;
@@ -983,11 +999,15 @@
       });
     }
     input.addEventListener('focus',closeMenu);
-    input.addEventListener('input',()=>{closeMenu();activeTab='products';render();});
+    input.addEventListener('input',()=>{closeMenu();activeTab='products';visibleLimit=PAGE_SIZE;render();});
     input.addEventListener('keydown',event=>{
       if(event.key==='Escape'&&(!menu||menu.hidden)&&input.value){input.value='';render();}
     });
-    if(clear)clear.addEventListener('click',()=>{input.value='';closeMenu();render();input.focus();});
+    if(clear)clear.addEventListener('click',()=>{input.value='';closeMenu();visibleLimit=PAGE_SIZE;render();input.focus();});
+    if(moreButton)moreButton.addEventListener('click',()=>{
+      visibleLimit+=PAGE_SIZE;
+      render();
+    });
     if(retry)retry.addEventListener('click',fetchCatalogue);
     if(browseEmpty)browseEmpty.addEventListener('click',()=>{closeMenu();if(toggle)toggle.click();});
     document.addEventListener('vmg:products-rendered',render);
