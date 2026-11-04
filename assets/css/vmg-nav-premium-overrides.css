@@ -17,9 +17,9 @@
 
   /* Stable three-column Tier 1. Equal side columns keep the VMG lockup truly centered. */
   .vmg-nav-brand-row {
-    width: min(1400px, calc(100% - 72px));
+    width: min(1240px, calc(100% - 80px));
     min-height: 82px;
-    grid-template-columns: minmax(360px, 1fr) auto minmax(360px, 1fr);
+    grid-template-columns: minmax(330px, 1fr) auto minmax(330px, 1fr);
     gap: 20px;
     border: 0;
   }
@@ -172,7 +172,7 @@
   }
 
   .vmg-econship-header .site-nav > ul {
-    width: min(1200px, calc(100% - 56px));
+    width: min(1440px, calc(100% - 96px));
     min-height: 52px;
   }
 
@@ -291,7 +291,7 @@
 
 @media (max-width: 1320px) and (min-width: 992px) {
   .vmg-nav-brand-row {
-    width: calc(100% - 48px);
+    width: min(1240px, calc(100% - 48px));
     grid-template-columns: minmax(280px, 1fr) auto minmax(280px, 1fr);
     gap: 16px;
   }
@@ -441,5 +441,41 @@
   .vmg-econship-header .site-nav .submenu a:hover,
   .vmg-econship-header .site-nav .submenu a:focus-visible {
     transform: none;
+  }
+}
+
+/* VMG desktop Tier 2: six evenly distributed navigation tracks with
+   wider coverage but deliberate outer gutters, like the user's reference. */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .vmg-econship-header .site-nav > ul {
+    width: calc(100% - 48px);
+  }
+}
+
+/* Keyboard-visible focus and restrained premium desktop feedback. */
+@media (min-width: 992px) {
+  .vmg-econship-header .site-nav > ul > li > a:focus-visible {
+    outline: 2px solid #e1b487;
+    outline-offset: -5px;
+    border-radius: 3px;
+  }
+  .vmg-econship-header .site-nav > ul > li > a:hover::before,
+  .vmg-econship-header .site-nav > ul > li > a:focus-visible::before {
+    width: 42px;
+  }
+  .vmg-econship-header .site-nav .submenu {
+    box-shadow: 0 12px 28px rgba(10,23,40,.14);
+  }
+  .vmg-econship-header .site-nav .submenu a:focus-visible {
+    outline: 2px solid #b87943;
+    outline-offset: -2px;
+  }
+}
+@media (max-width: 991px) {
+  .vmg-econship-header .site-nav > ul > li > a:focus-visible,
+  .vmg-econship-header .site-nav .submenu a:focus-visible,
+  .vmg-econship-header .nav-toggle:focus-visible {
+    outline: 2px solid #d3a378;
+    outline-offset: -3px;
   }
 }

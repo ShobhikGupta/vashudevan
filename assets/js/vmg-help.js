@@ -5,6 +5,8 @@
   var activeTrigger = null;
   var helpIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.5 2.5 0 0 1 4.8 1c0 1.8-2.5 2-2.5 3.6M12 17.2h.01"/></svg>';
   var brochureIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h8l4 4V20.5H6z"/><path d="M14 3.5v4h4M9 12h6M9 15h6"/></svg>';
+  var callIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.6 3.8 9 3.2l2.1 5.1-1.6 1.5c1.1 2.2 2.9 4 5.1 5.1l1.5-1.6 5.1 2.1-.6 2.4c-.4 1.5-1.8 2.5-3.3 2.3C10.2 19.2 4.8 13.8 3.9 6.7c-.2-1.5.8-2.9 2.3-3.3l.4-.1Z"/></svg>';
+  var topIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg>';
 
   function ensureFixStylesheet() {
     if (!document.head) return;
@@ -14,16 +16,62 @@
       link.rel = 'stylesheet';
       link.href = '/assets/css/vmg-chatgpt-mobile-fixes.css?v=20260821h';
       link.setAttribute('data-vmg-chatgpt-mobile-fixes', 'true');
-      document.head.appendChild(link);
+      var premium = document.querySelector('link[href*="vmg-premium-system.css"]');
+      if (premium) document.head.insertBefore(link, premium);
+      else document.head.appendChild(link);
     }
 
     if (!document.querySelector('link[data-vmg-header-sticky-fix]')) {
       var sticky = document.createElement('link');
       sticky.rel = 'stylesheet';
-      sticky.href = '/assets/css/vmg-header-sticky-fix.css?v=20260821b';
+      sticky.href = '/assets/css/vmg-header-sticky-fix.css?v=20260822b';
       sticky.setAttribute('data-vmg-header-sticky-fix', 'true');
-      document.head.appendChild(sticky);
+      var premium = document.querySelector('link[href*="vmg-premium-system.css"]');
+      if (premium) document.head.insertBefore(sticky, premium);
+      else document.head.appendChild(sticky);
     }
+
+    if (!document.querySelector('link[data-vmg-header-combined]')) {
+      var combined = document.createElement('link');
+      combined.rel = 'stylesheet';
+      combined.href = '/assets/css/vmg-header-combined.css?v=20260907a';
+      combined.setAttribute('data-vmg-header-combined', 'true');
+      var premium = document.querySelector('link[href*="vmg-premium-system.css"]');
+      if (premium) document.head.insertBefore(combined, premium);
+      else document.head.appendChild(combined);
+    }
+  }
+
+  function upgradeHeaderBrand(attempt) {
+    attempt = attempt || 0;
+    var brands = document.querySelectorAll('.site-header.vmg-econship-header .logo');
+    if (!brands.length) {
+      if (attempt < 30) window.setTimeout(function () { upgradeHeaderBrand(attempt + 1); }, 80);
+      return;
+    }
+
+    brands.forEach(function (brand) {
+      if (brand.dataset.vmgCombinedBrand === 'true') return;
+      brand.dataset.vmgCombinedBrand = 'true';
+      brand.classList.add('vmg-logo-combined');
+      brand.setAttribute('aria-label', 'Vashudevan MetGlobal LLP home');
+
+      var image = brand.querySelector('img');
+      if (!image) {
+        image = document.createElement('img');
+        brand.insertBefore(image, brand.firstChild);
+      }
+      image.className = 'vmg-header-logo-combined';
+      image.src = '/assets/img/vmg-combined-logo.png';
+      image.alt = 'Vashudevan MetGlobal LLP';
+      image.removeAttribute('width');
+      image.removeAttribute('height');
+      image.decoding = 'async';
+
+      Array.prototype.slice.call(brand.children).forEach(function (child) {
+        if (child !== image) brand.removeChild(child);
+      });
+    });
   }
 
   function replaceTextNodes(element, replacements) {
@@ -49,6 +97,8 @@
     ];
 
     document.querySelectorAll('a, button, h1, h2, h3, h4, .section-label, .eyebrow').forEach(function (element) {
+      // FAQ visible copy must remain byte/meaning aligned with its FAQPage JSON-LD.
+      if (element.closest && element.closest('.faq-list')) return;
       replaceTextNodes(element, brochureReplacements);
       ['aria-label', 'title'].forEach(function (attribute) {
         var value = element.getAttribute && element.getAttribute(attribute);
@@ -60,10 +110,10 @@
 
     document.querySelectorAll('a').forEach(function (link) {
       var text = link.textContent.trim();
-      if (/^privacy policy$/i.test(text)) link.href = '/privacy-policy.html';
+      if (/^privacy policy$/i.test(text)) link.href = '/privacy-policy/';
       if (/^(terms\s*&\s*conditions|terms and conditions|t&c)$/i.test(text)) {
         link.textContent = 'Disclaimer';
-        link.href = '/disclaimer.html';
+        link.href = '/disclaimer/';
       }
     });
   }
@@ -78,9 +128,9 @@
     }
 
     row.innerHTML = [
-      '<a href="/faq.html">FAQ</a>',
-      '<a href="/privacy-policy.html">Privacy Policy</a>',
-      '<a href="/disclaimer.html">Disclaimer</a>'
+      '<a href="/faq/">FAQ</a>',
+      '<a href="/privacy-policy/">Privacy Policy</a>',
+      '<a href="/disclaimer/">Disclaimer</a>'
     ].join('');
     row.setAttribute('aria-label', 'FAQ and legal links');
 
@@ -105,11 +155,11 @@
       return;
     }
     list.innerHTML = [
-      '<li><a href="/faq.html">FAQ</a></li>',
-      '<li><a href="/privacy-policy.html">Privacy Policy</a></li>',
-      '<li><a href="/disclaimer.html">Disclaimer</a></li>',
+      '<li><a href="/faq/">FAQ</a></li>',
+      '<li><a href="/privacy-policy/">Privacy Policy</a></li>',
+      '<li><a href="/disclaimer/">Disclaimer</a></li>',
       '<li><a href="/Vashudevan-MetGlobal-Company-Profile.pdf" target="_blank" rel="noopener">VMG Brochure</a></li>',
-      '<li><a href="/contact.html">Contact Us</a></li>'
+      '<li><a href="/contact-us/">Contact Us</a></li>'
     ].join('');
   }
 
@@ -135,97 +185,9 @@
     }
 
     var privacyLink = document.querySelector('.privacy-link');
-    if (privacyLink) privacyLink.href = '/privacy-policy.html';
+    if (privacyLink) privacyLink.href = '/privacy-policy/';
     var smallNote = document.querySelector('.cta-join .small-note');
-    if (smallNote) smallNote.innerHTML = 'Learn about our <a href="/privacy-policy.html">Privacy Policy</a> &amp; <a href="/disclaimer.html">Disclaimer</a>';
-  }
-
-  function initHeaderStickyBehavior(attempt) {
-    attempt = attempt || 0;
-    var header = document.querySelector('.site-header.vmg-econship-header, .site-header');
-    var nav = header && header.querySelector('.site-nav');
-    var brandRow = header && header.querySelector('.vmg-nav-brand-row');
-    if (!header || !nav || !brandRow) {
-      if (attempt < 30) window.setTimeout(function () { initHeaderStickyBehavior(attempt + 1); }, 100);
-      return;
-    }
-    if (header.dataset.vmgStickyFix === 'true') return;
-    header.dataset.vmgStickyFix = 'true';
-
-    header.classList.remove('vmg-tier1-collapsed', 'vmg-header-retreat', 'vmg-tier2-pinned', 'vmg-footer-active');
-
-    var desktopQuery = window.matchMedia('(min-width: 992px)');
-    var navStart = 0;
-    var raf = 0;
-    var footerObserver = null;
-    var observedFooter = null;
-    var footerMutationObserver = null;
-
-    function measure() {
-      header.classList.remove('vmg-tier2-pinned');
-      header.style.removeProperty('--vmg-nav-height');
-      var headerTop = header.getBoundingClientRect().top + window.scrollY;
-      navStart = headerTop + brandRow.getBoundingClientRect().height;
-      header.style.setProperty('--vmg-nav-height', Math.max(1, Math.round(nav.getBoundingClientRect().height)) + 'px');
-      update();
-    }
-
-    function update() {
-      raf = 0;
-      if (desktopQuery.matches) {
-        header.classList.toggle('vmg-tier2-pinned', window.scrollY >= navStart - 1);
-      } else {
-        header.classList.remove('vmg-tier2-pinned');
-      }
-    }
-
-    function requestUpdate() {
-      if (raf) return;
-      raf = window.requestAnimationFrame(update);
-    }
-
-    function attachFooterObserver() {
-      var footer = document.querySelector('footer.vmg-global-footer, footer.site-footer');
-      if (!footer || footer === observedFooter) return;
-
-      if (footerObserver) footerObserver.disconnect();
-      observedFooter = footer;
-      header.classList.remove('vmg-footer-active');
-
-      footerObserver = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.target !== observedFooter) return;
-          header.classList.toggle('vmg-footer-active', entry.isIntersecting && entry.intersectionRect.height > 0);
-        });
-      }, { root: null, rootMargin: '0px', threshold: [0, 0.01] });
-
-      footerObserver.observe(footer);
-    }
-
-    function startFooterWatcher() {
-      attachFooterObserver();
-      footerMutationObserver = new MutationObserver(function () {
-        attachFooterObserver();
-      });
-      footerMutationObserver.observe(document.body, { childList: true, subtree: true });
-      window.setTimeout(attachFooterObserver, 250);
-      window.setTimeout(attachFooterObserver, 800);
-      window.setTimeout(attachFooterObserver, 1600);
-    }
-
-    window.addEventListener('scroll', requestUpdate, { passive: true });
-    window.addEventListener('resize', function () {
-      window.clearTimeout(window.__vmgHeaderResizeTimer);
-      window.__vmgHeaderResizeTimer = window.setTimeout(measure, 120);
-    }, { passive: true });
-
-    if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', measure);
-    else if (desktopQuery.addListener) desktopQuery.addListener(measure);
-
-    window.setTimeout(measure, 60);
-    window.setTimeout(measure, 450);
-    window.setTimeout(measure, 1200);
-    startFooterWatcher();
+    if (smallNote) smallNote.innerHTML = 'Learn about our <a href="/privacy-policy/">Privacy Policy</a> &amp; <a href="/disclaimer/">Disclaimer</a>';
   }
 
   function closeMenu(restoreFocus) {
@@ -249,13 +211,136 @@
     window.setTimeout(function () { var first = root.querySelector('.vmg-help-menu a'); if (first) first.focus(); }, 20);
   }
 
+  function resolveHero() {
+    var selectors = [
+      '.home-hero', '.market-page-hero', '.who-hero', '.res-hero', '.faq-hero', '.legal-hero',
+      'main > .page-hero', 'main .page-hero'
+    ];
+    for (var i = 0; i < selectors.length; i += 1) {
+      var found = document.querySelector(selectors[i]);
+      if (found) return found;
+    }
+    var main = document.querySelector('main');
+    return main ? main.querySelector(':scope > section') : null;
+  }
+
+  function ensureWhatsappFloat() {
+    var existing = document.getElementById('whatsapp-float');
+    if (existing) return existing;
+    var link = document.createElement('a');
+    link.id = 'whatsapp-float';
+    link.className = 'whatsapp-float';
+    link.href = 'https://wa.me/919879208178?text=Hello%2C%20I%20visited%20your%20website%20and%20want%20to%20know%20more.';
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.setAttribute('aria-label', 'Chat with Vashudevan MetGlobal LLP on WhatsApp');
+    link.innerHTML = '<img src="/assets/img/whatsapp-logo.png" alt="" decoding="async"><span class="whatsapp-tooltip">Chat with us</span>';
+    document.body.appendChild(link);
+    return link;
+  }
+
+  function ensureCallButton() {
+    var button = document.getElementById('vmg-call-float');
+    if (button) return button;
+    button = document.createElement('a');
+    button.id = 'vmg-call-float';
+    button.className = 'vmg-floating-circle vmg-call-float';
+    button.href = 'tel:+919879208178';
+    button.setAttribute('aria-label', 'Call Vashudevan MetGlobal LLP');
+    button.innerHTML = callIcon;
+    return button;
+  }
+
+  function ensureTopButton() {
+    var button = document.getElementById('back-to-top');
+    if (!button) {
+      button = document.createElement('button');
+      button.type = 'button';
+      button.id = 'back-to-top';
+      button.className = 'back-to-top';
+      document.body.appendChild(button);
+    }
+    button.setAttribute('aria-label', 'Back to top');
+    button.innerHTML = topIcon;
+    if (button.dataset.vmgTopBound !== 'true') {
+      button.dataset.vmgTopBound = 'true';
+      button.addEventListener('click', function () {
+        var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+      });
+    }
+    return button;
+  }
+
+  function bindHeroVisibility(button) {
+    if (!button || button.dataset.vmgHeroVisibility === 'true') return;
+    var hero = resolveHero();
+    if (!hero) {
+      button.classList.remove('visible');
+      return;
+    }
+    button.dataset.vmgHeroVisibility = 'true';
+    var sentinel = document.createElement('span');
+    sentinel.className = 'vmg-hero-passed-sentinel';
+    sentinel.setAttribute('aria-hidden', 'true');
+    hero.insertAdjacentElement('afterend', sentinel);
+
+    function setPassed(passed) {
+      button.classList.toggle('visible', !!passed);
+      document.body.classList.toggle('scroll-top-visible', !!passed);
+    }
+    setPassed(hero.getBoundingClientRect().bottom <= 0);
+
+    if ('IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          setPassed(entry.boundingClientRect.top <= 0 && !entry.isIntersecting);
+        });
+      }, { root: null, threshold: 0 });
+      observer.observe(sentinel);
+    }
+
+    var ticking = false;
+    function syncFromHero() {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(function () {
+        setPassed(hero.getBoundingClientRect().bottom <= 0);
+        ticking = false;
+      });
+    }
+    window.addEventListener('scroll', syncFromHero, { passive: true });
+    window.addEventListener('resize', syncFromHero, { passive: true });
+    window.addEventListener('orientationchange', syncFromHero, { passive: true });
+  }
+
+  function buildFloatingActions() {
+    var help = document.getElementById(ROOT_ID);
+    if (!help) return;
+    var stack = document.querySelector('.vmg-floating-actions');
+    if (!stack) {
+      stack = document.createElement('div');
+      stack.className = 'vmg-floating-actions';
+      stack.setAttribute('aria-label', 'Quick contact actions');
+      document.body.appendChild(stack);
+    }
+    var top = ensureTopButton();
+    var call = ensureCallButton();
+    var whatsapp = ensureWhatsappFloat();
+    whatsapp.setAttribute('aria-label', 'Chat with Vashudevan MetGlobal LLP on WhatsApp');
+    [top, call, whatsapp, help].forEach(function (node) { if (node.parentNode !== stack) stack.appendChild(node); });
+    bindHeroVisibility(top);
+  }
+
   function createHelp() {
     ensureFixStylesheet();
+    upgradeHeaderBrand();
     polishMobileNavUtilityLinks();
     polishFooterLinks();
     enhanceContactPage();
     normalizeLegalAndBrochureLabels();
-    initHeaderStickyBehavior();
+    window.setTimeout(upgradeHeaderBrand, 350);
+    window.setTimeout(upgradeHeaderBrand, 1200);
     window.setTimeout(normalizeLegalAndBrochureLabels, 350);
     window.setTimeout(normalizeLegalAndBrochureLabels, 1200);
 
@@ -268,9 +353,9 @@
       '<div class="vmg-help-menu" id="vmg-help-menu" role="menu" aria-label="VMG help options" aria-hidden="true">',
         '<p>How can we help?</p>',
         '<a role="menuitem" href="https://wa.me/919879208178" target="_blank" rel="noopener noreferrer">WhatsApp VMG</a>',
-        '<a role="menuitem" href="/contact.html">Call Back Request</a>',
-        '<a role="menuitem" href="/contact.html">Submit Material Offer</a>',
-        '<a role="menuitem" href="/contact.html">Send Buying Requirement</a>',
+        '<a role="menuitem" href="/contact-us/?type=callback#contact-form">Call Back Request</a>',
+        '<a role="menuitem" href="/contact-us/?type=seller#contact-form">Submit Material Offer</a>',
+        '<a role="menuitem" href="/contact-us/?type=buyer#contact-form">Send Buying Requirement</a>',
         '<a role="menuitem" href="mailto:exim@vashudevan.com">Email Us</a>',
         '<a role="menuitem" href="/Vashudevan-MetGlobal-Company-Profile.pdf" download="Vashudevan-MetGlobal-Company-Profile.pdf">Download VMG Brochure</a>',
       '</div>',
@@ -281,6 +366,9 @@
     ].join('');
 
     document.body.appendChild(root);
+    buildFloatingActions();
+    window.setTimeout(buildFloatingActions, 250);
+    window.setTimeout(buildFloatingActions, 900);
     var trigger = root.querySelector('.vmg-help-trigger');
     trigger.addEventListener('click', function () { if (root.classList.contains('is-open')) closeMenu(false); else openMenu(trigger); });
     root.querySelectorAll('.vmg-help-menu a').forEach(function (link) { link.addEventListener('click', function () { closeMenu(false); }); });

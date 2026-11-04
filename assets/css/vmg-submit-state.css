@@ -1,0 +1,76 @@
+@import url('/assets/css/vmg-header-consistency.css?v=20260905a');
+
+/* Shared VMG submit-state animation. Keeps each button's existing idle design. */
+.vmg-submit-state {
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate;
+}
+
+.vmg-submit-state::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 17px;
+  height: 17px;
+  margin: -8.5px 0 0 -8.5px;
+  opacity: 0;
+  border: 2px solid rgba(255,255,255,.45);
+  border-top-color: #fff;
+  border-radius: 50%;
+  transform: scale(.82);
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.vmg-submit-state.is-submitting {
+  color: transparent !important;
+  cursor: wait !important;
+}
+
+.vmg-submit-state.is-submitting > * { opacity: 0 !important; }
+
+.vmg-submit-state.is-submitting::after {
+  opacity: 1;
+  transform: scale(1);
+  animation: vmgSubmitSpin .72s linear infinite;
+}
+
+.vmg-submit-state.is-success { color: transparent !important; }
+.vmg-submit-state.is-success > * { opacity: 0 !important; }
+
+.vmg-submit-state.is-success::after {
+  width: 9px;
+  height: 15px;
+  margin: -9px 0 0 -4px;
+  opacity: 1;
+  border: 0;
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  border-radius: 0;
+  transform: rotate(45deg) scale(1);
+  animation: vmgSubmitCheck .22s ease-out both;
+}
+
+.vmg-submit-state.is-error { animation: vmgSubmitError .18s ease-out 1; }
+
+@keyframes vmgSubmitSpin { to { transform: scale(1) rotate(360deg); } }
+@keyframes vmgSubmitCheck {
+  from { opacity: 0; transform: rotate(45deg) scale(.65); }
+  to { opacity: 1; transform: rotate(45deg) scale(1); }
+}
+@keyframes vmgSubmitError {
+  0%,100% { transform: translateX(0); }
+  35% { transform: translateX(-2px); }
+  70% { transform: translateX(2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vmg-submit-state,
+  .vmg-submit-state::after { animation: none !important; transition: none !important; }
+  .vmg-submit-state.is-submitting,
+  .vmg-submit-state.is-success { color: inherit !important; }
+  .vmg-submit-state.is-submitting::after,
+  .vmg-submit-state.is-success::after { display: none !important; }
+}

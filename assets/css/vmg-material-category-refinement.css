@@ -1,0 +1,205 @@
+/* Product-first category pages other than Aluminium.
+   Page-scoped, shared rules; preserves original headings, descriptions,
+   image assets, anchors, trading language and transactional disclaimers. */
+body.material-page.vmg-category-refined {
+  --vmg-category-ink: #0b1c31;
+  --vmg-category-border: #dce3e9;
+  --vmg-category-copper: #b87943;
+}
+body.material-page.vmg-category-refined .vmg-category-explore-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 15px;
+  padding: 5px 2px;
+  color: #f0c39b;
+  font-size: 13px;
+  font-weight: 730;
+  text-decoration: none;
+  text-underline-offset: 4px;
+}
+body.material-page.vmg-category-refined .vmg-category-explore-link:hover,
+body.material-page.vmg-category-refined .vmg-category-explore-link:focus-visible {
+  color: white;
+  text-decoration: underline;
+}
+body.material-page.vmg-category-refined #material-examples {
+  scroll-margin-top: 84px;
+}
+/* Responsive catalogue uses page-specific columns so three-item categories
+   do not generate enormous image tiles or orphaned blank tracks. */
+body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--vmg-category-columns, 4),minmax(0,1fr));
+  justify-content: stretch;
+  align-items: stretch;
+  gap: 12px;
+  width: min(100%,var(--vmg-category-grid-width,940px));
+  margin-inline: auto;
+}
+body.material-page.vmg-category-refined .vmg-material-catalogue .seo-section-head {
+  margin-bottom: 20px;
+}
+body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-card {
+  min-width: 0;
+  background: white;
+  border: 1px solid var(--vmg-category-border);
+  border-radius: 6px;
+  box-shadow: none;
+}
+body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-card img {
+  width: 100%;
+  aspect-ratio: 5/4;
+  object-fit: cover;
+}
+body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-card figcaption {
+  min-height: 51px;
+  padding: 9px 11px;
+  font-size: 12.5px;
+  line-height: 1.35;
+  font-weight: 720;
+}
+/* The four informational grades form one slim row on wide screens. */
+body.material-page.vmg-category-refined .vmg-material-grades .seo-grade-grid {
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  align-items: stretch;
+  gap: 12px;
+}
+body.material-page.vmg-category-refined .vmg-material-grades .seo-grade-card {
+  min-width: 0;
+  padding: 15px 16px;
+  border: 1px solid var(--vmg-category-border);
+  border-left: 2px solid var(--vmg-category-copper);
+  border-radius: 5px;
+  background: #fff;
+  box-shadow: none;
+}
+body.material-page.vmg-category-refined .vmg-material-grades .seo-grade-card h3 {
+  margin: 0 0 7px;
+  color: var(--vmg-category-ink);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+body.material-page.vmg-category-refined .vmg-material-grades .seo-grade-card p {
+  margin: 0;
+  color: #4e5c6c;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+body.material-page.vmg-category-refined .vmg-material-final .seo-actions {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+body.material-page.vmg-category-refined .vmg-material-final .seo-btn {
+  min-height: 46px;
+  white-space: normal;
+  text-align: center;
+  font-size: 13px;
+}
+/* Only Auto Scrap has enough products to warrant progressive disclosure.
+   In the absence of JS, the class never appears and all 13 remain visible. */
+body.material-page.vmg-category-refined .seo-catalogue-grid.vmg-catalogue-collapsible:not(.is-expanded)
+> .seo-catalogue-card:nth-child(n + 13) {
+  display: none !important;
+}
+body.material-page.vmg-category-refined .vmg-material-more-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+body.material-page.vmg-category-refined .vmg-material-more[hidden] { display: none !important; }
+body.material-page.vmg-category-refined .vmg-material-more {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid #bcc9d4;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--vmg-category-ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: background-color .18s ease,border-color .18s ease;
+}
+body.material-page.vmg-category-refined .vmg-material-more:hover {
+  background: #f7f9fa;
+  border-color: #9aaaba;
+}
+body.material-page.vmg-category-refined .vmg-material-more:focus-visible,
+body.material-page.vmg-category-refined .vmg-category-explore-link:focus-visible {
+  outline: 3px solid rgba(184,121,67,.42);
+  outline-offset: 3px;
+}
+@media (min-width: 1101px) {
+  body.material-page.vmg-category-refined .seo-catalogue-grid.vmg-catalogue-collapsible:not(.is-expanded)
+  > .seo-catalogue-card:nth-child(n + 11) {
+    display: none !important;
+  }
+}
+@media (max-width: 1100px) {
+  body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-grid {
+    grid-template-columns: repeat(var(--vmg-category-tablet-columns,3),minmax(0,1fr));
+  }
+  body.material-page.vmg-category-refined .vmg-material-grades .seo-grade-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width: 600px) {
+  body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 10px;
+  }
+  body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-card figcaption {
+    padding: 9px 10px;
+    min-height: 54px;
+    font-size: 12px;
+  }
+  body.material-page.vmg-category-refined .vmg-material-grades .seo-grade-grid {
+    grid-template-columns: minmax(0,1fr);
+  }
+  body.material-page.vmg-category-refined .vmg-material-grades .seo-grade-card {
+    padding: 14px 15px;
+  }
+  body.material-page.vmg-category-refined .seo-catalogue-grid.vmg-catalogue-collapsible:not(.is-expanded)
+  > .seo-catalogue-card:nth-child(n + 9) {
+    display: none !important;
+  }
+  body.material-page.vmg-category-refined .vmg-material-more {
+    width: min(100%,320px);
+  }
+  body.material-page.vmg-category-refined .vmg-material-final .seo-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+  body.material-page.vmg-category-refined .vmg-material-final .seo-btn {
+    width: 100%;
+  }
+  /* For three-product grids, centre the last half-row instead of stretching
+     an image to full width. Other pages have an even number or a disclosure. */
+  body.material-page.vmg-category-refined[data-vmg-catalogue-count="3"] .seo-catalogue-grid
+  > .seo-catalogue-card:last-child {
+    grid-column: 1/-1;
+    justify-self: center;
+    width: calc((100% - 10px)/2);
+  }
+}
+@media (max-width: 320px) {
+  body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-grid {
+    grid-template-columns: minmax(0,1fr);
+  }
+  body.material-page.vmg-category-refined[data-vmg-catalogue-count="3"] .seo-catalogue-grid
+  > .seo-catalogue-card:last-child {grid-column: auto;width: 100%}
+}
+@media (prefers-reduced-motion: reduce) {
+  body.material-page.vmg-category-refined .vmg-material-more { transition: none; }
+}

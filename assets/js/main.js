@@ -189,49 +189,7 @@
     initSmoothScrolling();
   }
 
-  // Back to top button functionality
-  function initBackToTop() {
-    const backToTopButton = document.getElementById('back-to-top');
-    if (!backToTopButton) return;
-
-    // Show/hide button based on scroll position
-    function toggleBackToTop() {
-      // Get footer position for more accurate threshold
-      const footer = document.querySelector('.site-footer');
-      const footerTop = footer ? footer.offsetTop : 800;
-      const threshold = footerTop - window.innerHeight + 200; // 200px before footer comes into view
-      
-      if (window.scrollY > threshold) {
-        backToTopButton.classList.add('visible');
-        document.body.classList.add('scroll-top-visible');
-      } else {
-        backToTopButton.classList.remove('visible');
-        // Remove class immediately when scrolling up past footer
-        document.body.classList.remove('scroll-top-visible');
-      }
-    }
-
-    // Scroll to top when clicked
-    backToTopButton.addEventListener('click', function() {
-      window.scrollTo({
-        top: 0,
-        behavior: prefersReducedMotion.matches ? 'auto' : 'smooth'
-      });
-    });
-
-    // Listen for scroll events
-    window.addEventListener('scroll', toggleBackToTop, { passive: true });
-    
-    // Initial check
-    toggleBackToTop();
-  }
-
-  // Initialize back to top when DOM is loaded
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initBackToTop);
-  } else {
-    initBackToTop();
-  }
+  // Back to top visibility/click behaviour is owned globally by vmg-help.js.
 
   // Hero Carousel functionality
   function initHeroCarousel() {
@@ -771,7 +729,7 @@
 
   // Global function to highlight search terms with smart color detection
   function highlightSearchTerm(text, searchTerm, highlightType = false) {
-    if (!searchTerm || searchTerm.trim() === '') {
+    if (!searchTerm || searchTerm.trim().length < 2) {
       return text;
     }
     
@@ -826,297 +784,247 @@
 
   // Product search functionality
   function initProductSearch() {
-    const searchInput = document.getElementById('product-search');
-    const clearButton = document.getElementById('clear-search');
-    const resultsCount = document.getElementById('search-results-count');
-    const productsGrid = document.querySelector('.products-grid');
-    
-    if (!searchInput || !productsGrid) {
-      return;
-    }
-
-    // Load products data for enhanced search
-    let productsData = null;
-    fetch('assets/data/products.json')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to load products data: ' + response.status);
-        }
-        return response.json();
-      })
-      .then(data => {
-        productsData = data.products;
-        console.log('Products data loaded successfully:', productsData.length, 'products');
-      })
-      .catch(error => {
-        console.error('Could not load products data for search:', error);
-      });
-
-    // Advanced deep-linking search function that shows individual subproduct cards
-    function searchProducts(term) {
-      const searchTerm = term.toLowerCase().trim();
-      const productCards = productsGrid.querySelectorAll('.card.product');
-      let visibleCount = 0;
-
-      console.log('Searching for:', searchTerm);
-      console.log('Products data available:', !!productsData);
-
-      // Add loading state
-      if (searchTerm !== '') {
-        productsGrid.classList.add('search-loading');
-      }
-
-      // Remove existing no-results message and subproduct results
-      const existingNoResults = productsGrid.querySelector('.no-results');
-      if (existingNoResults) {
-        existingNoResults.remove();
-      }
-      
-      // Remove existing subproduct search results
-      const existingSubproductResults = productsGrid.querySelectorAll('.subproduct-search-result');
-      existingSubproductResults.forEach(result => result.remove());
-
-      if (searchTerm === '') {
-        // Show all main products and clear any highlighting
-        productCards.forEach(card => {
-          card.classList.remove('hidden', 'highlighted');
-          
-          // Clear any HTML highlighting from figcaptions
-          const figcaption = card.querySelector('figcaption');
-          if (figcaption) {
-            // Store original text if not already stored
-            if (!figcaption.dataset.originalText) {
-              figcaption.dataset.originalText = figcaption.textContent;
-            }
-            // Restore original text content
-            figcaption.textContent = figcaption.dataset.originalText;
-          }
-          
-          // Parent product badges are not highlighted, so no need to clear them
-          
-          visibleCount++;
-        });
-        if (resultsCount) resultsCount.textContent = 'Showing all products';
-      } else {
-        // Hide all main products first
-        productCards.forEach(card => {
-          card.classList.add('hidden');
-          card.classList.remove('highlighted');
-        });
-
-        // Find and display matching subproducts as individual cards
-        if (productsData) {
-          console.log('Searching through', productsData.length, 'products for term:', searchTerm);
-          productsData.forEach(product => {
-            if (product.subproducts) {
-              console.log('Checking product:', product.name, 'with', product.subproducts.length, 'subproducts');
-              product.subproducts.forEach(subproduct => {
-                const subproductName = subproduct.name.toLowerCase();
-                const subproductSlug = subproduct.slug.toLowerCase();
-                
-                if (subproductName.includes(searchTerm) || subproductSlug.includes(searchTerm)) {
-                  console.log('Found matching subproduct:', subproduct.name);
-                  // Create subproduct result card with deep-linking and highlighting
-                  const subproductCard = createDeepLinkSubproductCard(product, subproduct, searchTerm);
-                  productsGrid.appendChild(subproductCard);
-                  visibleCount++;
-                }
-              });
-            }
-          });
-        } else {
-          console.log('Products data not loaded yet, retrying...');
-          // Retry loading data if not available
-          fetch('assets/data/products.json')
-            .then(response => response.json())
-            .then(data => {
-              productsData = data.products;
-              console.log('Products data loaded on retry:', productsData.length, 'products');
-              // Re-run search with loaded data
-              searchProducts(searchTerm);
-            })
-            .catch(error => {
-              console.error('Failed to load products data on retry:', error);
-            });
-        }
-
-        // Also show main products that match directly
-        productCards.forEach(card => {
-          const cardText = card.textContent.toLowerCase();
-          if (cardText.includes(searchTerm)) {
-            card.classList.remove('hidden');
-            card.classList.add('highlighted');
-            
-            // Highlight matching characters in main product names
-            highlightMainProductName(card, searchTerm);
-            visibleCount++;
-          }
-        });
-
-        // Update results count
-        if (visibleCount === 0) {
-          showNoResults();
-          if (resultsCount) resultsCount.textContent = 'No products or subproducts found';
-        } else {
-          if (resultsCount) resultsCount.textContent = `Found ${visibleCount} result${visibleCount === 1 ? '' : 's'}`;
-        }
-      }
-
-      // Show/hide clear button
-      if (clearButton) {
-        if (searchTerm === '') {
-          clearButton.classList.remove('visible');
-        } else {
-          clearButton.classList.add('visible');
-        }
-      }
-
-      // Remove loading state
-      productsGrid.classList.remove('search-loading');
-    }
-
-    // Create deep-linking subproduct card
+    const input=document.getElementById('product-search');
+    const clear=document.getElementById('clear-search');
+    const count=document.getElementById('search-results-count');
+    const grid=document.getElementById('main-products-grid');
+    const toggle=document.getElementById('vmg-browse-toggle');
+    const menu=document.getElementById('vmg-category-browse');
+    const categorySection=document.getElementById('vmg-matching-category-section');
+    const categoryList=document.getElementById('vmg-matching-category-list');
+    const resultsControls=document.getElementById('vmg-results-controls');
+    const resultsTitle=document.getElementById('vmg-results-title');
+    const resultsSummary=document.getElementById('vmg-results-summary');
+    const productsTab=document.getElementById('vmg-products-tab');
+    const categoriesTab=document.getElementById('vmg-categories-tab');
+    const productsTabCount=document.getElementById('vmg-products-tab-count');
+    const categoriesTabCount=document.getElementById('vmg-categories-tab-count');
+    const emptyState=document.getElementById('vmg-no-results');
+    const emptyHeading=document.getElementById('vmg-empty-heading');
+    const emptyCategories=document.getElementById('vmg-empty-categories');
+    const browseEmpty=document.getElementById('vmg-empty-browse');
+    const errorBox=document.getElementById('vmg-search-error');
+    const retry=document.getElementById('vmg-search-retry');
+    const moreWrap=document.getElementById('vmg-search-more-wrap');
+    const moreButton=document.getElementById('vmg-search-more');
+    const visibleCount=document.getElementById('vmg-search-visible-count');
+    const PAGE_SIZE=20;
+    let visibleLimit=PAGE_SIZE;
+    if(!input||!grid)return;
+    const urls={aluminum:'/products/aluminium/','auto-scrap':'/products/auto-scrap/',brass:'/products/brass/',copper:'/products/copper/','copper-bearing':'/products/copper-bearing/',ferrous:'/products/ferrous/',lead:'/products/lead/','shredder-scrap':'/products/shredder-scrap/','stainless-steel':'/products/stainless-steel/',zinc:'/products/zinc/'};
+    const materialPageUrl=slug=>urls[slug]||'/products/';
+    const normalize=value=>window.VMGSearchCore?window.VMGSearchCore.normalize(value):String(value||'').toLowerCase().replace(/aluminium/g,'aluminum').replace(/[^a-z0-9]+/g,' ').trim();
+    const score=(name,slug,term)=>{
+      if(window.VMGSearchCore)return Math.min(window.VMGSearchCore.rank(name,term),window.VMGSearchCore.rank(slug,term));
+      const candidates=[normalize(name),normalize(slug)];
+      if(candidates.some(x=>x===term))return 0;
+      if(candidates.some(x=>x.startsWith(term)))return 1;
+      if(candidates.some(x=>x.includes(term)))return 2;
+      return Infinity;
+    };
+    let data=null,pending=false,failed=false,activeTab='products';
+    const originalBrowse=menu?menu.querySelector('.vmg-browse-options')?.innerHTML||'':'';
+    const parentCards=()=>Array.from(grid.querySelectorAll('.vmg-atlas-parent'));
+    const setStatus=value=>{if(count)count.textContent=value;};
+    const closeMenu=()=>{if(menu)menu.hidden=true;if(toggle)toggle.setAttribute('aria-expanded','false');};
+    const showError=show=>{if(errorBox)errorBox.hidden=!show;};
+    const setTab=(which,focus)=>{
+      activeTab=which;
+      const isProducts=which==='products';
+      if(productsTab){productsTab.setAttribute('aria-selected',String(isProducts));productsTab.tabIndex=isProducts?0:-1;}
+      if(categoriesTab){categoriesTab.setAttribute('aria-selected',String(!isProducts));categoriesTab.tabIndex=isProducts?-1:0;}
+      const searching=!!input.value.trim(),ready=!!data&&!failed;
+      grid.hidden=searching&&ready&&!isProducts;
+      if(categorySection)categorySection.hidden=!searching||!ready||isProducts;
+      if(moreWrap)moreWrap.hidden=!searching||!ready||!isProducts||grid.querySelectorAll('.subproduct-search-result').length<=0||grid.querySelectorAll('.subproduct-search-result').length<20;
+      if(focus)(isProducts?productsTab:categoriesTab)?.focus();
+    };
+    const makeCategoryRow=product=>{
+      const link=document.createElement('a');link.className='vmg-matching-category-card';link.href=materialPageUrl(product.slug);
+      const img=document.createElement('img');img.src=product.icon||'';img.alt='';img.loading='lazy';img.decoding='async';
+      const copy=document.createElement('span');copy.className='vmg-matching-category-copy';
+      const eyebrow=document.createElement('small');eyebrow.textContent='Matching Category';
+      const title=document.createElement('strong');title.textContent=product.slug==='aluminum'?'Aluminium':product.name;
+      const quantity=document.createElement('span');quantity.textContent='View all '+(product.subproducts||[]).length+' materials';
+      const arrow=document.createElement('span');arrow.className='vmg-category-arrow';arrow.textContent='→';arrow.setAttribute('aria-hidden','true');
+      copy.append(eyebrow,title,quantity);link.append(img,copy,arrow);return link;
+    };
     function createDeepLinkSubproductCard(parentProduct, subproduct, searchTerm) {
-      const card = document.createElement('div');
-      card.className = 'card product subproduct-search-result highlighted';
-      
-      // Create deep link to parent product page with subproduct anchor
-      const deepLink = `product.html?slug=${parentProduct.slug}#${subproduct.slug}`;
-      
-      // Highlight matching characters in subproduct name with smart color detection
-      // We'll apply the highlighting after the card is created and added to DOM
-      const highlightedSubproductName = subproduct.name;
-      // Don't highlight parent name in badge - it's just for reference
-      const highlightedParentName = parentProduct.name;
-      
-      card.innerHTML = `
-        <a href="${deepLink}" class="subproduct-deep-link">
-          <figure class="product-figure">
-            <img src="${subproduct.image}" alt="${subproduct.name}" loading="lazy" decoding="async">
-            <figcaption>${highlightedSubproductName}</figcaption>
-          </figure>
-          <div class="search-result-indicator">
-            <span class="search-icon">🔍</span>
-            <span class="search-text">Click to view</span>
-          </div>
-        </a>
-        <div class="product-info">
-          <div class="parent-product-badge">${highlightedParentName}</div>
-        </div>
-      `;
-      
-      // Store ID as data attribute for reference but don't display it
+      const card = document.createElement('article');
+      card.className = 'card product subproduct-search-result';
       card.setAttribute('data-subproduct-id', subproduct.slug);
-      
-      // Apply smart highlighting after the card is created
-      const figcaption = card.querySelector('.product-figure figcaption');
-      if (figcaption) {
-        const highlightedText = smartHighlightSearchTerm(subproduct.name, searchTerm, figcaption);
-        figcaption.innerHTML = highlightedText;
-      }
-      
-      // Parent product badges should not be highlighted - they serve categorization purposes
-      
-      // Add click handler for deep-linking with scroll behavior
-      const link = card.querySelector('.subproduct-deep-link');
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        navigateToSubproduct(parentProduct.slug, subproduct.slug);
+
+      // The complete card is a single, keyboard-accessible link. No decorative
+      // favourite buttons or non-functional 'selected' toggle are rendered.
+      const link = document.createElement('a');
+      link.className = 'subproduct-deep-link';
+      link.href = materialPageUrl(parentProduct.slug) + '#' + encodeURIComponent(subproduct.slug);
+      link.setAttribute('aria-label', 'View ' + subproduct.name + ' in ' + parentProduct.name);
+
+      const categoryName = parentProduct.slug === 'aluminum' ? 'Aluminium' : parentProduct.name;
+      const visual = document.createElement('div');
+      visual.className = 'vmg-atlas-result-visual';
+      const image = document.createElement('img');
+      image.className = 'vmg-atlas-result-image';
+      image.src = subproduct.image || parentProduct.icon || '';
+      image.alt = subproduct.name;
+      image.loading = 'lazy';
+      image.decoding = 'async';
+      const badge = document.createElement('span');
+      badge.className = 'vmg-atlas-result-badge';
+      badge.textContent = categoryName;
+      visual.append(image, badge);
+
+      const details = document.createElement('div');
+      details.className = 'vmg-atlas-result-copy';
+      const name = document.createElement('span');
+      name.className = 'vmg-atlas-result-name';
+      name.textContent = subproduct.name;
+      const action = document.createElement('span');
+      action.className = 'vmg-atlas-result-action';
+      // The complete card is already a link with an accessible material name.
+      // Keep just a small arrow to avoid a redundant full-width 'View Material' row.
+      action.setAttribute('aria-hidden', 'true');
+      const arrow = document.createElement('span');
+      arrow.textContent = '→';
+      arrow.setAttribute('aria-hidden', 'true');
+      action.appendChild(arrow);
+      details.append(name, action);
+      link.append(visual, details);
+      card.appendChild(link);
+
+      // Existing destination and deep-link tracking remain unchanged.
+      link.addEventListener('click', function () {
+        try { sessionStorage.setItem('highlightSubproduct', subproduct.slug); } catch (_) {}
       });
-      
       return card;
     }
 
 
-    // Function to highlight main product names
-    function highlightMainProductName(card, searchTerm) {
-      const figcaption = card.querySelector('figcaption');
-      if (figcaption) {
-        // Store original text if not already stored
-        if (!figcaption.dataset.originalText) {
-          figcaption.dataset.originalText = figcaption.textContent;
-        }
-        const originalText = figcaption.dataset.originalText;
-        // Use smart highlighting with color detection
-        const highlightedText = smartHighlightSearchTerm(originalText, searchTerm, figcaption);
-        figcaption.innerHTML = highlightedText;
+
+    const rankItems=(items,term,name,slug)=>items.map((item,i)=>({item,i,rank:score(name(item),slug(item),term)})).filter(x=>x.rank<Infinity).sort((a,b)=>a.rank-b.rank||a.i-b.i).map(x=>x.item);
+    const render=()=>{
+      const raw=input.value.trim(),term=normalize(raw);
+      if(clear)clear.classList.toggle('visible',!!raw);
+      grid.querySelectorAll('.subproduct-search-result,.no-results').forEach(node=>node.remove());
+      if(categoryList)categoryList.replaceChildren();
+      parentCards().forEach(card=>card.classList.toggle('hidden',!!raw));
+      if(!raw){
+        if(moreWrap)moreWrap.hidden=true;
+        activeTab='products';
+        if(resultsControls)resultsControls.hidden=true;
+        if(categorySection)categorySection.hidden=true;
+        if(emptyState)emptyState.hidden=true;
+        grid.hidden=false;setTab('products');
+        showError(false);setStatus('Showing all products');return;
       }
-    }
+      if(resultsTitle)resultsTitle.textContent='Search Results for “'+raw+'”';
+      if(!data||failed){
+        if(resultsControls)resultsControls.hidden=true;
+        if(categorySection)categorySection.hidden=true;
+        if(emptyState)emptyState.hidden=true;
+        grid.hidden=false;
+        showError(failed);
+        setStatus(failed?'Search unavailable. Browse categories or retry.':'Loading material catalogue…');
+        return;
+      }
+      showError(false);
+      const categories=rankItems(data,term,p=>p.name,p=>p.slug);
+      const entries=[];data.forEach(p=>(p.subproducts||[]).forEach(sub=>entries.push({p,sub})));
+      const materials=rankItems(entries,term,x=>x.sub.name,x=>x.sub.slug);
+      const total=categories.length+materials.length;
+      if(resultsSummary)resultsSummary.textContent=materials.length+' material'+(materials.length===1?'':'s')+' · '+categories.length+' categor'+(categories.length===1?'y':'ies');
+      if(productsTabCount)productsTabCount.textContent='('+materials.length+')';
+      if(categoriesTabCount)categoriesTabCount.textContent='('+categories.length+')';
+      if(resultsControls)resultsControls.hidden=total===0;
+      if(emptyState)emptyState.hidden=total!==0;
+      if(emptyHeading&&total===0)emptyHeading.textContent='No results found for “'+raw+'”';
+      if(emptyCategories)emptyCategories.hidden=categories.length!==0;
+      categories.forEach(p=>categoryList?.appendChild(makeCategoryRow(p)));
+      materials.slice(0,visibleLimit).forEach(({p,sub})=>grid.appendChild(createDeepLinkSubproductCard(p,sub,raw)));
+      if(moreWrap)moreWrap.hidden=materials.length<=PAGE_SIZE||activeTab!=='products';
+      if(moreButton){
+        const hasMore=visibleLimit<materials.length;
+        moreButton.hidden=!hasMore;
+        moreButton.textContent='Show More Materials';
+      }
+      if(visibleCount)visibleCount.textContent=materials.length>PAGE_SIZE
+        ?'Showing '+Math.min(visibleLimit,materials.length)+' of '+materials.length+' materials':'';
 
-    // Navigate to subproduct with deep-linking and highlighting
-    function navigateToSubproduct(parentSlug, subproductSlug) {
-      console.log('Navigating to subproduct:', parentSlug, subproductSlug);
-      
-      // Store the subproduct to highlight when the page loads
-      sessionStorage.setItem('highlightSubproduct', subproductSlug);
-      console.log('Stored subproduct in session storage:', subproductSlug);
-      
-      // Navigate to the parent product page
-      const targetUrl = `product.html?slug=${parentSlug}#${subproductSlug}`;
-      console.log('Navigating to URL:', targetUrl);
-      window.location.href = targetUrl;
-    }
-
-
-    // Show no results message
-    function showNoResults() {
-      const noResultsDiv = document.createElement('div');
-      noResultsDiv.className = 'no-results';
-      noResultsDiv.innerHTML = `
-        <h3>No products or subproducts found</h3>
-        <p>Try searching with different keywords like "copper", "aluminum", "steel", or specific subproduct names like "316"</p>
-      `;
-      productsGrid.appendChild(noResultsDiv);
-    }
-
-    // Event listeners
-    searchInput.addEventListener('input', function() {
-      searchProducts(this.value);
+      setStatus(materials.length+' material'+(materials.length===1?'':'s')+' · '+categories.length+' categor'+(categories.length===1?'y':'ies'));
+      setTab(activeTab);
+      if(!total)grid.hidden=true;
+    };
+    const fetchCatalogue=()=>{
+      if(pending)return;
+      pending=true;failed=false;showError(false);
+      if(input.value.trim())setStatus('Loading material catalogue…');
+      (window.VMGSearchCore?window.VMGSearchCore.loadProducts():
+        fetch('/assets/data/products.json',{cache:'no-cache'})
+          .then(response=>{if(!response.ok)throw Error('Catalogue request '+response.status);return response.json();})
+          .then(value=>value.products))
+        .then(products=>{if(!Array.isArray(products)||!products.length)throw Error('Invalid catalogue');data=products;failed=false;})
+        .catch(error=>{failed=true;console.error('VMG catalogue search:',error);})
+        .finally(()=>{pending=false;render();});
+    };
+    function chooseTab(which,focus){closeMenu();setTab(which,focus);}
+    [productsTab,categoriesTab].forEach((button,index)=>{
+      if(!button)return;
+      const target=index===0?'products':'categories';
+      button.addEventListener('click',()=>chooseTab(target,false));
+      button.addEventListener('keydown',event=>{
+        if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+        event.preventDefault();
+        const next=event.key==='Home'?'products':event.key==='End'?'categories':event.key==='ArrowRight'?'categories':'products';
+        chooseTab(next,true);
+      });
     });
-
-    if (clearButton) {
-      clearButton.addEventListener('click', function() {
-        searchInput.value = '';
-        searchProducts('');
-        searchInput.focus();
+    if(toggle&&menu){
+      toggle.addEventListener('click',()=>{
+        const opening=menu.hidden;
+        menu.hidden=!opening;
+        toggle.setAttribute('aria-expanded',String(opening));
+        if(opening){
+          const box=menu.querySelector('.vmg-browse-options');
+          if(box){const tpl=document.createElement('template');tpl.innerHTML=originalBrowse;box.replaceChildren(tpl.content.cloneNode(true));}
+          menu.classList.remove('vmg-suggestion-mode');
+          const title=menu.querySelector('.vmg-browse-header strong');
+          const n=menu.querySelector('.vmg-browse-header span');
+          if(title)title.textContent='Browse material categories';
+          if(n)n.textContent='10 categories';
+        }
+      });
+      document.addEventListener('pointerdown',event=>{
+        if(!menu.hidden&&!menu.contains(event.target)&&!toggle.contains(event.target))closeMenu();
+      });
+      document.addEventListener('keydown',event=>{
+        if(event.key==='Escape'&&!menu.hidden){event.preventDefault();closeMenu();toggle.focus();}
       });
     }
-
-    // Keyboard shortcuts
-    searchInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        this.value = '';
-        searchProducts('');
-      }
+    input.addEventListener('focus',closeMenu);
+    input.addEventListener('input',()=>{closeMenu();activeTab='products';visibleLimit=PAGE_SIZE;render();});
+    input.addEventListener('keydown',event=>{
+      if(event.key==='Escape'&&(!menu||menu.hidden)&&input.value){input.value='';render();}
     });
-
-    // Store original text for all product cards on initialization
-    function storeOriginalText() {
-      const productCards = productsGrid.querySelectorAll('.card.product');
-      productCards.forEach(card => {
-        const figcaption = card.querySelector('figcaption');
-        if (figcaption && !figcaption.dataset.originalText) {
-          figcaption.dataset.originalText = figcaption.textContent;
-        }
-      });
-    }
-
-    // Initialize
-    storeOriginalText();
-    // Clear any previous search value from browser autocomplete
-    searchInput.value = '';
-    searchProducts('');
+    if(clear)clear.addEventListener('click',()=>{input.value='';closeMenu();visibleLimit=PAGE_SIZE;render();input.focus();});
+    if(moreButton)moreButton.addEventListener('click',()=>{
+      visibleLimit+=PAGE_SIZE;
+      render();
+    });
+    if(retry)retry.addEventListener('click',fetchCatalogue);
+    if(browseEmpty)browseEmpty.addEventListener('click',()=>{closeMenu();if(toggle)toggle.click();});
+    document.addEventListener('vmg:products-rendered',render);
+    // Support direct search links from the mobile header overlay.
+    try{
+      const q=new URLSearchParams(window.location.search).get('q');
+      if(q&&!input.value)input.value=q.slice(0,120);
+    }catch(_){}
+    render();fetchCatalogue();
   }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initProductSearch);
+  else initProductSearch();
 
-  // Initialize product search when DOM is loaded
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initProductSearch);
-  } else {
-    initProductSearch();
-
-  }
-
-  // Subproduct search functionality
+    // Subproduct search functionality
   function initSubproductSearch() {
     const searchInput = document.getElementById('subproduct-search-input');
     const clearButton = document.getElementById('clear-subproduct-search');
@@ -1415,7 +1323,7 @@
   };
 
   // Contact form validation and submit via configured endpoint
-  // DISABLED: Contact form now uses inline Google Apps Script handler in contact.html
+  // DISABLED: Contact form now uses inline Google Apps Script handler in /contact-us/
   // to avoid duplicate submissions. This handler is kept for reference only.
   const form = document.getElementById('contact-form');
   if (false && form) {
@@ -1773,13 +1681,12 @@
     safe(disableProductTooltips);
     safe(addClickHandlers);
     // Image animations disabled per request
-    safe(window.initWhatsAppFloat);
+    // WhatsApp is owned by the unified VMG floating-action stack (vmg-help.js).
     safe(window.initOpeningPopup);
     // Initialize intl-tel-input for main contact form (default: India)
     safe(function(){
       var phoneInput = document.getElementById('contact');
       if (!phoneInput) {
-        console.error('Phone input element not found');
         return;
       }
       
@@ -1791,7 +1698,8 @@
             link.id='__iti_css__'; 
             link.rel='stylesheet'; 
             link.href=href; 
-            document.head.appendChild(link); 
+            var premium=document.querySelector('link[href*="vmg-premium-system.css"]');
+            if (premium) document.head.insertBefore(link,premium); else document.head.appendChild(link);
             console.log('intl-tel-input CSS loaded');
           } 
         } catch(e) {
@@ -1959,48 +1867,8 @@
   }
 })();
 
-// Floating WhatsApp chat button
-(function(){
-  function initWhatsAppFloat() {
-    try {
-      var existing = document.getElementById('whatsapp-float');
-      if (existing) return;
-
-      var link = document.createElement('a');
-      link.id = 'whatsapp-float';
-      link.className = 'whatsapp-float';
-      link.href = 'https://wa.me/919879208178?text=Hello%2C%20I%20visited%20your%20website%20and%20want%20to%20know%20more.';
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.setAttribute('aria-label', 'Chat with us on WhatsApp');
-
-      // Use the provided PNG asset (with cache-busting)
-      var logoSrc = 'assets/img/whatsapp-logo.png?v=' + Date.now();
-      link.innerHTML = '\n        <img src="' + logoSrc + '" alt="WhatsApp" decoding="async" />\n        <span class="whatsapp-tooltip">Chat with us</span>\n      ';
-
-      // Ensure the image becomes visible despite global lazy opacity rule
-      var img = link.querySelector('img');
-      if (img) {
-        var markLoaded = function(){ img.classList.add('loaded'); };
-        // Add load handler and handle cached case
-        img.addEventListener('load', markLoaded, { once: true });
-        if (img.complete) { markLoaded(); }
-      }
-
-      // Append near end of body
-      (document.body || document.documentElement).appendChild(link);
-
-      // Prevent overlapping critical UI (e.g., back-to-top on right side)
-      // Button is bottom-left; ensure it doesn't block footer actions by raising z-index and keeping distance.
-    } catch (e) {
-      console.error('Failed to initialize WhatsApp button', e);
-    }
-  }
-
-  // Expose for reuse if needed elsewhere
-  window.initWhatsAppFloat = initWhatsAppFloat;
-})();
-
+// Unified floating-action stack (vmg-help.js) exclusively owns #whatsapp-float.
+// Do not create a standalone legacy WhatsApp link on DOMContentLoaded.
 
 // Lightweight country code sync for contact form custom phone input
 document.addEventListener('DOMContentLoaded', function() {
@@ -2171,40 +2039,53 @@ document.addEventListener('DOMContentLoaded', function() {
   } catch(_){ }
 });
 
-// Opening popup form (auto after load, once per user)
+// Opening popup form (Home + Market; document-lifecycle state)
 (function(){
-  var STORAGE_KEY = 'openingPopupCompleted';
   var SHOW_DELAY_MS = 2000;
+  var REOPEN_DELAY_MS = 45000;
+  var submittedThisPageLoad = false;
+  var isPopupOpen = false;
+  var popupReopenTimer = null;
+  var initialPopupTimer = null;
 
-  function isHomePage() {
+  function normalizedPopupPath() {
     try {
       var path = (window.location && window.location.pathname) ? window.location.pathname : '/';
-      if (path === '/' || path === '') return true;
-      // Handle common index paths both on server and local file URLs
-      if (path === '/index.html' || path === 'index.html') return true;
-      if (path.slice(-11) === '/index.html') return true;
+      if (!path) return '/';
+      return path.replace(/\/{2,}/g, '/');
     } catch(e) {}
-    return false;
+    return '/';
   }
 
-  function hasCompleted() {
-    // Single source of truth: localStorage only
-    try {
-      return localStorage.getItem(STORAGE_KEY) === '1';
-    } catch(e) {}
-    return false;
+  function isPopupEligiblePage() {
+    var path = normalizedPopupPath();
+    return path === '/' ||
+      path === '/index.html' ||
+      path === '/market/' ||
+      path === '/market/' ||
+      path === '/market/';
   }
 
   function shouldShowPopup() {
-    // Only show on home page and if user has not already completed the popup
-    if (!isHomePage()) return false;
-    if (hasCompleted()) return false;
-    return true;
+    return isPopupEligiblePage() && !submittedThisPageLoad && !isPopupOpen;
   }
 
-  function markCompleted() {
-    // Persist completion once; localStorage is enough for this static site
-    try { localStorage.setItem(STORAGE_KEY, '1'); } catch(e) {}
+  function clearPopupReopenTimer() {
+    if (popupReopenTimer === null) return;
+    window.clearTimeout(popupReopenTimer);
+    popupReopenTimer = null;
+  }
+
+  function schedulePopupReopen() {
+    clearPopupReopenTimer();
+    if (!isPopupEligiblePage() || submittedThisPageLoad) return;
+
+    popupReopenTimer = window.setTimeout(function(){
+      popupReopenTimer = null;
+      if (!submittedThisPageLoad && !isPopupOpen) {
+        createPopup();
+      }
+    }, REOPEN_DELAY_MS);
   }
 
   function buildCountryOptions() {
@@ -2462,6 +2343,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     overlay.appendChild(card);
     document.body.appendChild(overlay);
+    clearPopupReopenTimer();
+    isPopupOpen = true;
 
     // Lock body scroll while popup is open
     var __prevBodyOverflow = document.body.style.overflow;
@@ -2595,7 +2478,8 @@ document.addEventListener('DOMContentLoaded', function() {
         link.id = '__iti_css__';
         link.rel = 'stylesheet'; 
         link.href = href; 
-        document.head.appendChild(link);
+        var premium=document.querySelector('link[href*="vmg-premium-system.css"]');
+        if (premium) document.head.insertBefore(link,premium); else document.head.appendChild(link);
       }
       
       function loadScript(src, cb){
@@ -2794,10 +2678,11 @@ document.addEventListener('DOMContentLoaded', function() {
     })();
 
     function removePopup() {
-      if (!card) return;
+      if (!isPopupOpen) return;
+      isPopupOpen = false;
       card.classList.add('fade-out');
       setTimeout(function(){
-        overlay.remove();
+        if (overlay.isConnected) overlay.remove();
         // Restore body scroll
         document.body.style.overflow = __prevBodyOverflow || '';
       }, 240);
@@ -2857,8 +2742,9 @@ document.addEventListener('DOMContentLoaded', function() {
     updateSubmitState();
 
     function onClose() {
-      // Just close the popup; completion is only recorded on successful submit
+      if (!isPopupOpen) return;
       removePopup();
+      schedulePopupReopen();
     }
 
     // Prevent overlay clicks from dismissing the popup or interacting with the page
@@ -2880,16 +2766,17 @@ document.addEventListener('DOMContentLoaded', function() {
       var values = { country: country, phone: phone, email: email };
       if (!validate(values)) return;
 
+      submittedThisPageLoad = true;
+      clearPopupReopenTimer();
       submitBtn.disabled = true;
 
       // Prepare data and send to Google Apps Script used on the site
       var scriptUrl = (window.AppConfig && window.AppConfig.googleScriptUrl) || '';
       if (!scriptUrl) {
-        // fallback: mark completed so we don't annoy users
+        // Preserve the existing client-side thank-you behavior if no endpoint is configured.
         successEl.style.display = 'block';
         successEl.textContent = "Thank you! Your details have been submitted.";
-        markCompleted();
-        setTimeout(onClose, 1600);
+        setTimeout(removePopup, 1600);
         return;
       }
 
@@ -2997,16 +2884,25 @@ document.addEventListener('DOMContentLoaded', function() {
         // User feedback
         successEl.style.display = 'block';
         successEl.textContent = "Thank you! Your details have been submitted.";
-        markCompleted();
-        setTimeout(onClose, 1400);
+        setTimeout(removePopup, 1400);
       } finally {
         setTimeout(function(){ submitBtn.disabled = false; }, 1600);
       }
     });
   }
 
-  window.initOpeningPopup = function initOpeningPopup(){
-    if (!shouldShowPopup()) return;
-    setTimeout(createPopup, SHOW_DELAY_MS);
+  window.initLegacyOpeningPopup = function initLegacyOpeningPopup(){
+    if (!isPopupEligiblePage() || submittedThisPageLoad) return;
+
+    if (initialPopupTimer !== null) {
+      window.clearTimeout(initialPopupTimer);
+    }
+
+    initialPopupTimer = window.setTimeout(function(){
+      initialPopupTimer = null;
+      if (!submittedThisPageLoad) {
+        createPopup();
+      }
+    }, SHOW_DELAY_MS);
   };
 })();

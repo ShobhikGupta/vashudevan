@@ -1,0 +1,101 @@
+:root{--seo-navy:#0a1728;--seo-ink:#18283d;--seo-muted:#667386;--seo-line:#dfe5ec;--seo-copper:#b87943;--seo-off:#f6f5f1;--seo-white:#fff}
+.seo-page{background:#fff;color:var(--seo-ink)}
+.seo-hero{background:linear-gradient(135deg,#0a1728 0%,#122944 100%);color:#fff;padding:72px 0 66px}
+.seo-hero .container{max-width:1160px;text-align:left}
+.seo-eyebrow{margin:0 0 12px;color:#d6a06f;font-size:.75rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase}
+.seo-hero h1{max-width:850px;margin:0;font-size:clamp(2.35rem,5vw,4rem);line-height:1.03;letter-spacing:-.042em;color:#fff;text-align:left}
+.seo-hero .seo-lead{max-width:70ch;margin:20px 0 0;color:rgba(255,255,255,.82);font-size:clamp(1rem,1.55vw,1.15rem);line-height:1.68;text-align:left}
+.seo-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px;justify-content:flex-start}
+.seo-btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:750;letter-spacing:.01em}
+.seo-btn.primary{background:var(--seo-copper);color:#071526}.seo-btn.secondary{border:1px solid rgba(255,255,255,.55);color:#fff;background:rgba(255,255,255,.04)}
+.seo-section{padding:58px 0}.seo-section.alt{background:var(--seo-off)}.seo-section .container{max-width:1160px}
+.seo-section-head{max-width:72ch;margin:0 0 26px;text-align:left}
+.seo-kicker{margin:0 0 8px;color:var(--seo-copper);font-size:.73rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.seo-section h2{margin:0 0 14px;color:var(--seo-navy);font-size:clamp(1.8rem,3vw,2.55rem);line-height:1.1;letter-spacing:-.03em}.seo-section h3{color:var(--seo-navy)}
+.seo-section p,.seo-section li{font-size:1rem;line-height:1.68;text-align:left}.seo-section a:not(.seo-btn){color:#81562f;text-underline-offset:3px}
+.seo-two-col{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(300px,.9fr);gap:42px;align-items:start}.seo-two-col h2{text-align:left}.seo-side-card{border:1px solid var(--seo-line);border-radius:10px;padding:24px;background:#fff;box-shadow:0 2px 8px rgba(10,23,40,.04)}
+.seo-side-card h2,.seo-side-card h3{font-size:1.35rem;margin-top:0;text-align:left}.seo-checklist{margin:0;padding-left:20px}.seo-checklist li+li{margin-top:8px}
+.seo-grade-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(228px,100%),1fr));gap:14px}.seo-grade-card{border:1px solid var(--seo-line);border-radius:9px;padding:18px;background:#fff;text-align:left}.seo-grade-card h3{margin:0 0 6px;font-size:1.08rem;text-align:left}.seo-grade-card p{margin:0;color:var(--seo-muted);font-size:.94rem;text-align:left}
+.seo-catalogue-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.material-page .seo-catalogue-grid{grid-template-columns:repeat(auto-fill,minmax(200px,220px));justify-content:center}.seo-catalogue-card{margin:0;border:1px solid var(--seo-line);border-radius:9px;overflow:hidden;background:#fff}.seo-catalogue-card img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#eef1f4}.seo-catalogue-card figcaption{padding:12px 14px;color:var(--seo-navy);font-size:.86rem;font-weight:700;line-height:1.35;text-align:left}
+.seo-callout{border-left:4px solid var(--seo-copper);background:#f8f4ef;padding:18px 20px;border-radius:0 8px 8px 0}.seo-callout p{margin:0;text-align:left}
+.seo-related{display:flex;flex-wrap:wrap;gap:10px}.seo-related a{display:inline-flex;padding:10px 13px;border:1px solid var(--seo-line);border-radius:999px;background:#fff;text-decoration:none;font-size:.92rem;font-weight:700}
+.seo-source-list{margin:16px 0 0;padding-left:20px;color:var(--seo-muted);max-width:72ch}
+.material-page .seo-section-head{max-width:760px;margin-left:auto;margin-right:auto;text-align:center}
+.material-page .seo-section-head .seo-kicker,.material-page .seo-section-head h2,.material-page .seo-section-head>p{text-align:center}
+.material-page .seo-grade-card h3,.material-page .seo-grade-card p,.material-page .seo-side-card h2,.material-page .seo-side-card li,.material-page .seo-callout p{text-align:left}
+.material-page .seo-catalogue-card figcaption{text-align:left}
+.material-page .seo-section:has(.seo-related) .seo-related{justify-content:center}
+
+/* Material-detail composition: one centred presentation axis, left-aligned reading, balanced overview. */
+.material-page .seo-hero{padding:56px 0}
+.material-page .seo-hero .container{max-width:1020px;margin-inline:auto;text-align:center}
+.material-page .seo-hero .seo-eyebrow{display:block;text-align:center}
+.material-page .seo-hero h1{max-width:960px;margin-inline:auto;text-align:center}
+.material-page .seo-hero .seo-lead{max-width:800px;margin:18px auto 0;text-align:center}
+.material-page .seo-hero .seo-actions{margin-top:24px;justify-content:center}
+.material-page .seo-hero + .seo-section{padding:54px 0}
+.material-page .seo-two-col{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;align-items:start}
+.material-page .seo-two-col>div:first-child{min-width:0}
+.material-page .seo-side-card{height:auto;align-self:start}
+.material-page .seo-section:has(.seo-grade-grid){padding:48px 0}
+.material-page .seo-section:has(.seo-grade-grid) .seo-section-head{margin-bottom:22px}
+.material-page .seo-section:has(.seo-catalogue-grid){padding:52px 0}
+.material-page .seo-section:has(.seo-catalogue-grid) .seo-section-head{margin-bottom:24px}
+.material-page .seo-section:has(.seo-related){padding:40px 0}
+.guide-page .seo-hero .container{max-width:860px;margin-inline:auto;text-align:left}
+.guide-page .seo-hero h1{max-width:860px}.guide-page .seo-hero .seo-lead{max-width:72ch}
+.guide-page .seo-section{padding:42px 0}.guide-page .seo-section-head{max-width:72ch;margin:0 auto 18px;text-align:left}
+.guide-page .seo-section-head h2,.guide-page .seo-section-head p,.guide-page .seo-section-head .seo-kicker,.guide-page .seo-section li{text-align:left}
+.guide-page .seo-section:has(.seo-related) .seo-section-head{margin-left:auto;margin-right:auto;text-align:center}
+.guide-page .seo-section:has(.seo-related) .seo-section-head h2,.guide-page .seo-section:has(.seo-related) .seo-section-head .seo-kicker{text-align:center}
+.guide-page .seo-section:has(.seo-related) .seo-related{justify-content:center}
+.seo-final-cta{background:#0a1728;color:#fff;padding:44px 0}.seo-final-cta .container{max-width:1160px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:30px}
+.seo-final-cta h2{color:#fff;margin:0 0 8px;text-align:left}.seo-final-cta p{max-width:68ch;margin:0;color:rgba(255,255,255,.76);text-align:left}.seo-final-cta .seo-actions{margin-top:0;justify-content:flex-end}
+@media(max-width:900px){.seo-two-col{grid-template-columns:1fr}.material-page .seo-side-card{height:auto}.seo-grade-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.seo-catalogue-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.seo-final-cta .container{grid-template-columns:1fr;align-items:start}.seo-final-cta .seo-actions{justify-content:flex-start}}
+@media(max-width:560px){.seo-hero{padding:54px 0 48px}.seo-hero h1{font-size:clamp(2.2rem,10vw,2.55rem)}.seo-section{padding:44px 0}.guide-page .seo-section{padding:34px 0}.seo-grade-grid,.seo-catalogue-grid{grid-template-columns:1fr}.seo-actions{flex-direction:column;align-items:stretch}.seo-btn{width:100%}.material-page .seo-section-head,.guide-page .seo-section-head{max-width:100%}}
+@media(min-width:400px) and (max-width:560px){.material-page .seo-catalogue-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* VMG material-detail template: explicit semantic bands, shared density and
+   responsive catalogue distribution. See DESIGN.md §7. */
+.material-page {
+  --vmg-material-alternate: #f4f3f0;
+}
+.material-page .seo-section.vmg-material-overview,
+.material-page .seo-section.vmg-material-grades { background: #fff; }
+.material-page .seo-section.vmg-material-catalogue,
+.material-page .seo-section.vmg-material-related {
+  background: var(--vmg-material-alternate);
+}
+.material-page .vmg-material-catalogue .container { max-width: 1360px; }
+.material-page .vmg-material-catalogue .seo-catalogue-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(190px, 100%), 210px));
+  gap: 16px;
+  justify-content: center;
+  align-items: stretch;
+}
+.material-page .vmg-material-catalogue .seo-catalogue-card { background: #fff; }
+.material-page .vmg-material-grades .seo-grade-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
+}
+.material-page .vmg-material-related { padding-block: 40px; }
+.material-page .vmg-material-overview .seo-two-col {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(24px, 3vw, 40px);
+}
+.material-page .vmg-material-overview .seo-two-col > * { min-width: 0; }
+.material-page .vmg-material-hero { padding-block: clamp(46px, 4.3vw, 66px); }
+.material-page .vmg-material-hero h1 { max-width: 20ch; overflow-wrap: normal; }
+@media (max-width: 900px) {
+  .material-page .vmg-material-overview .seo-two-col { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .material-page .vmg-material-catalogue .seo-catalogue-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(152px, 100%), 1fr));
+    gap: 12px;
+  }
+  .material-page .vmg-material-grades .seo-grade-grid { grid-template-columns: minmax(0, 1fr); }
+  .material-page .vmg-material-hero { padding-block: 46px; }
+}

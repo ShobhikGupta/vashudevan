@@ -14,7 +14,7 @@ STYLE_BLOCK = '''
     <link rel="stylesheet" href="/assets/css/vmg-header-sticky-fix.css?v=20260822c" data-vmg-header-sticky-fix="true">'''
 
 pages = sorted(ROOT.glob('*.html'))
-market = ROOT / 'market-prices' / 'index.html'
+market = ROOT / 'market' / 'index.html'
 if market.exists():
     pages.append(market)
 

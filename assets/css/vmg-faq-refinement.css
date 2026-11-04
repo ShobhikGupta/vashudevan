@@ -1,0 +1,37 @@
+/* Refined native FAQ split-card treatment; preserves all current answers,
+   IDs, controls, and the existing single-open accordion behaviour. */
+.faq-view .faq-item, body:has(.faq-page) .faq-item {
+  border:1px solid #dfe5ec;border-radius:7px;overflow:hidden;
+  background:#fff;margin-bottom:9px;box-shadow:none;
+  transition:border-color .18s ease,background-color .18s ease;
+}
+.faq-view .faq-item.is-open,body:has(.faq-page) .faq-item.is-open{
+  border-color:#cfa27d;background:#fff;
+}
+.faq-view .faq-trigger,body:has(.faq-page) .faq-trigger{
+  width:100%;min-height:52px;display:flex;align-items:center;
+  gap:12px;text-align:left;padding:13px 16px;
+  border:0;background:transparent;color:#102339;
+  line-height:1.45;font-weight:750;cursor:pointer;
+}
+.faq-view .faq-trigger:focus-visible,body:has(.faq-page) .faq-trigger:focus-visible{
+  outline:3px solid #b87943;outline-offset:-3px;
+}
+.faq-view .faq-item.is-open .faq-trigger,body:has(.faq-page) .faq-item.is-open .faq-trigger{
+  color:#9e6739;
+}
+.faq-view .faq-answer-panel,body:has(.faq-page) .faq-answer-panel{
+  transition:grid-template-rows .22s ease,max-height .22s ease,opacity .2s ease;
+}
+.faq-view .faq-answer-inner,body:has(.faq-page) .faq-answer-inner{
+  border-top:1px solid #e8edf1;padding:14px 16px;
+  background:#fbfaf8;color:#536478;
+  font-size:14px;line-height:1.7;
+}
+@media(max-width:700px){
+ .faq-view .faq-trigger,body:has(.faq-page) .faq-trigger{padding:12px 13px;min-height:50px}
+ .faq-view .faq-answer-inner,body:has(.faq-page) .faq-answer-inner{padding:12px 13px;font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){
+ .faq-item,.faq-answer-panel{transition:none!important;animation:none!important}
+}
