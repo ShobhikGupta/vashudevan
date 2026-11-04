@@ -784,111 +784,63 @@
 
   // Product search functionality
   function initProductSearch() {
-    const input = document.getElementById('product-search');
-    const clear = document.getElementById('clear-search');
-    const count = document.getElementById('search-results-count');
-    const grid = document.getElementById('main-products-grid');
-    const toggle = document.getElementById('vmg-browse-toggle');
-    const menu = document.getElementById('vmg-category-browse');
-    const categorySection = document.getElementById('vmg-matching-category-section');
-    const categoryList = document.getElementById('vmg-matching-category-list');
-    const materialHeading = document.getElementById('vmg-matching-materials-heading');
-    const errorBox = document.getElementById('vmg-search-error');
-    const retry = document.getElementById('vmg-search-retry');
-    if (!input || !grid) return;
-    const urls = {
-      aluminum:'/products/aluminium/', 'auto-scrap':'/products/auto-scrap/',
-      brass:'/products/brass/', copper:'/products/copper/',
-      'copper-bearing':'/products/copper-bearing/', ferrous:'/products/ferrous/',
-      lead:'/products/lead/', 'shredder-scrap':'/products/shredder-scrap/',
-      'stainless-steel':'/products/stainless-steel/', zinc:'/products/zinc/'
+    const input=document.getElementById('product-search');
+    const clear=document.getElementById('clear-search');
+    const count=document.getElementById('search-results-count');
+    const grid=document.getElementById('main-products-grid');
+    const toggle=document.getElementById('vmg-browse-toggle');
+    const menu=document.getElementById('vmg-category-browse');
+    const categorySection=document.getElementById('vmg-matching-category-section');
+    const categoryList=document.getElementById('vmg-matching-category-list');
+    const resultsControls=document.getElementById('vmg-results-controls');
+    const resultsTitle=document.getElementById('vmg-results-title');
+    const resultsSummary=document.getElementById('vmg-results-summary');
+    const productsTab=document.getElementById('vmg-products-tab');
+    const categoriesTab=document.getElementById('vmg-categories-tab');
+    const productsTabCount=document.getElementById('vmg-products-tab-count');
+    const categoriesTabCount=document.getElementById('vmg-categories-tab-count');
+    const emptyState=document.getElementById('vmg-no-results');
+    const emptyHeading=document.getElementById('vmg-empty-heading');
+    const emptyCategories=document.getElementById('vmg-empty-categories');
+    const browseEmpty=document.getElementById('vmg-empty-browse');
+    const errorBox=document.getElementById('vmg-search-error');
+    const retry=document.getElementById('vmg-search-retry');
+    if(!input||!grid)return;
+    const urls={aluminum:'/products/aluminium/','auto-scrap':'/products/auto-scrap/',brass:'/products/brass/',copper:'/products/copper/','copper-bearing':'/products/copper-bearing/',ferrous:'/products/ferrous/',lead:'/products/lead/','shredder-scrap':'/products/shredder-scrap/','stainless-steel':'/products/stainless-steel/',zinc:'/products/zinc/'};
+    const materialPageUrl=slug=>urls[slug]||'/products/';
+    const normalize=value=>String(value||'').toLowerCase().replace(/aluminium/g,'aluminum').replace(/[^a-z0-9]+/g,' ').trim();
+    const score=(name,slug,term)=>{
+      const candidates=[normalize(name),normalize(slug)];
+      if(candidates.some(x=>x===term))return 0;
+      if(candidates.some(x=>x.startsWith(term)))return 1;
+      if(candidates.some(x=>x.includes(term)))return 2;
+      return Infinity;
     };
-    const materialPageUrl = slug => urls[slug] || '/products/';
-    const normalize = value => String(value || '').toLowerCase().replace(/aluminium/g,'aluminum').replace(/[^a-z0-9]+/g,' ').trim();
-    const matches = (value, term) => normalize(value).includes(term);
-    let data = null, pending = false, failed = false, sequence = 0;
-    const parentCards = () => Array.from(grid.querySelectorAll('.vmg-atlas-parent'));
-    const closeMenu = () => {
-      if (!menu || !toggle) return;
-      menu.hidden = true;
-      toggle.setAttribute('aria-expanded','false');
-      menuMode='closed';
+    let data=null,pending=false,failed=false,activeTab='products';
+    const originalBrowse=menu?menu.querySelector('.vmg-browse-options')?.innerHTML||'':'';
+    const parentCards=()=>Array.from(grid.querySelectorAll('.vmg-atlas-parent'));
+    const setStatus=value=>{if(count)count.textContent=value;};
+    const closeMenu=()=>{if(menu)menu.hidden=true;if(toggle)toggle.setAttribute('aria-expanded','false');};
+    const showError=show=>{if(errorBox)errorBox.hidden=!show;};
+    const setTab=(which,focus)=>{
+      activeTab=which;
+      const isProducts=which==='products';
+      if(productsTab){productsTab.setAttribute('aria-selected',String(isProducts));productsTab.tabIndex=isProducts?0:-1;}
+      if(categoriesTab){categoriesTab.setAttribute('aria-selected',String(!isProducts));categoriesTab.tabIndex=isProducts?-1:0;}
+      const searching=!!input.value.trim(),ready=!!data&&!failed;
+      grid.hidden=searching&&ready&&!isProducts;
+      if(categorySection)categorySection.hidden=!searching||!ready||isProducts;
+      if(focus)(isProducts?productsTab:categoriesTab)?.focus();
     };
-    const showError = show => { if(errorBox) errorBox.hidden = !show; };
-    const setStatus = text => { if(count) count.textContent = text; };
-    const suggestions = menu && menu.querySelector('.vmg-browse-options');
-    const menuHeader = menu && menu.querySelector('.vmg-browse-header');
-    const menuTitle = menuHeader && menuHeader.querySelector('strong');
-    const menuCount = menuHeader && menuHeader.querySelector('span');
-    const initialBrowse = suggestions ? suggestions.innerHTML : '';
-    let menuMode = 'closed';
-    const createSuggestion = (name, href, detail, image) => {
-      const link = document.createElement('a');
-      link.className = 'vmg-browse-option vmg-smart-suggestion';
-      link.href = href;
-      if(image){
-        const img=document.createElement('img');img.src=image;img.alt='';img.loading='lazy';img.className='vmg-suggestion-thumb';
-        link.appendChild(img);
-      }
-      const label=document.createElement('span');label.className='vmg-browse-name';label.textContent=name;
-      const meta=document.createElement('span');meta.className='vmg-browse-meta';meta.textContent=detail;
-      const arrow=document.createElement('span');arrow.className='vmg-browse-chevron';arrow.textContent='→';arrow.setAttribute('aria-hidden','true');
-      link.append(label,meta,arrow);
-      return link;
-    };
-    const renderBrowse = (mode) => {
-      if(!menu || !suggestions)return;
-      menuMode=mode;
-      suggestions.replaceChildren();
-      if(mode==='categories' || !input.value.trim()){
-        if(menuTitle)menuTitle.textContent='Browse material categories';
-        if(menuCount)menuCount.textContent='10 categories';
-        // Restore the exact existing links. This works even when JSON is offline.
-        const template=document.createElement('template');template.innerHTML=initialBrowse;
-        suggestions.appendChild(template.content.cloneNode(true));
-        menu.classList.remove('vmg-suggestion-mode');
-        return;
-      }
-      menu.classList.add('vmg-suggestion-mode');
-      if(menuTitle)menuTitle.textContent='Search suggestions';
-      const term=normalize(input.value);
-      if(!data){
-        if(menuCount)menuCount.textContent='Loading…';
-        return;
-      }
-      const cats=data.filter(p=>matches(p.name,term)||matches(p.slug,term));
-      const mats=[];
-      data.forEach(p=>(p.subproducts||[]).forEach(sub=>{
-        if(matches(sub.name,term)||matches(sub.slug,term))mats.push({p,sub});
-      }));
-      const heading=(text) => {const el=document.createElement('span');el.className='vmg-suggestion-heading';el.textContent=text;suggestions.appendChild(el);};
-      if(cats.length){
-        heading('Matching categories');
-        cats.forEach(p=>suggestions.appendChild(createSuggestion(p.slug==='aluminum'?'Aluminium':p.name,materialPageUrl(p.slug),(p.subproducts||[]).length+' materials',p.icon)));
-      }
-      if(mats.length){
-        heading('Matching materials');
-        mats.slice(0,6).forEach(({p,sub})=>suggestions.appendChild(createSuggestion(sub.name,materialPageUrl(p.slug)+'#'+encodeURIComponent(sub.slug),p.slug==='aluminum'?'Aluminium':p.name,sub.image)));
-      }
-      if(!cats.length&&!mats.length){
-        const empty=document.createElement('span');empty.className='vmg-suggestion-empty';empty.textContent='No suggestions. Try another material or category.';suggestions.appendChild(empty);
-      }
-      if(menuCount)menuCount.textContent=(cats.length+mats.length)+' matches';
-    };
-    const makeCategoryRow = (product) => {
-      const link = document.createElement('a');
-      link.className='vmg-matching-category-card';
-      link.href=materialPageUrl(product.slug);
-      const img=document.createElement('img'); img.src=product.icon || ''; img.alt='';
-      img.loading='lazy'; img.decoding='async';
+    const makeCategoryRow=product=>{
+      const link=document.createElement('a');link.className='vmg-matching-category-card';link.href=materialPageUrl(product.slug);
+      const img=document.createElement('img');img.src=product.icon||'';img.alt='';img.loading='lazy';img.decoding='async';
       const copy=document.createElement('span');copy.className='vmg-matching-category-copy';
       const eyebrow=document.createElement('small');eyebrow.textContent='Matching Category';
       const title=document.createElement('strong');title.textContent=product.slug==='aluminum'?'Aluminium':product.name;
       const quantity=document.createElement('span');quantity.textContent='View all '+(product.subproducts||[]).length+' materials';
-      copy.append(eyebrow,title,quantity);
       const arrow=document.createElement('span');arrow.className='vmg-category-arrow';arrow.textContent='→';arrow.setAttribute('aria-hidden','true');
-      link.append(img,copy,arrow);
-      return link;
+      copy.append(eyebrow,title,quantity);link.append(img,copy,arrow);return link;
     };
     function createDeepLinkSubproductCard(parentProduct, subproduct, searchTerm) {
       const card = document.createElement('article');
@@ -942,95 +894,105 @@
     }
 
 
-    const clearGenerated = () => {
+
+    const rankItems=(items,term,name,slug)=>items.map((item,i)=>({item,i,rank:score(name(item),slug(item),term)})).filter(x=>x.rank<Infinity).sort((a,b)=>a.rank-b.rank||a.i-b.i).map(x=>x.item);
+    const render=()=>{
+      const raw=input.value.trim(),term=normalize(raw);
+      if(clear)clear.classList.toggle('visible',!!raw);
       grid.querySelectorAll('.subproduct-search-result,.no-results').forEach(node=>node.remove());
       if(categoryList)categoryList.replaceChildren();
-    };
-    const display = () => {
-      const raw=input.value.trim();
-      const term=normalize(raw);
-      clearGenerated();
-      showError(failed && !!raw);
-      if(clear) clear.classList.toggle('visible',!!raw);
-      if(!raw) {
-        parentCards().forEach(card=>card.classList.remove('hidden','highlighted'));
+      parentCards().forEach(card=>card.classList.toggle('hidden',!!raw));
+      if(!raw){
+        activeTab='products';
+        if(resultsControls)resultsControls.hidden=true;
         if(categorySection)categorySection.hidden=true;
-        if(materialHeading)materialHeading.hidden=true;
-        setStatus('Showing all products');
-        return;
+        if(emptyState)emptyState.hidden=true;
+        grid.hidden=false;setTab('products');
+        showError(false);setStatus('Showing all products');return;
       }
-      parentCards().forEach(card=>card.classList.add('hidden'));
-      if(!data) {
+      if(resultsTitle)resultsTitle.textContent='Search Results for “'+raw+'”';
+      if(!data||failed){
+        if(resultsControls)resultsControls.hidden=true;
         if(categorySection)categorySection.hidden=true;
-        if(materialHeading)materialHeading.hidden=true;
+        if(emptyState)emptyState.hidden=true;
+        grid.hidden=false;
+        showError(failed);
         setStatus(failed?'Search unavailable. Browse categories or retry.':'Loading material catalogue…');
         return;
       }
-      const categories=data.filter(p=>matches(p.name,term)||matches(p.slug,term)||(p.slug==='aluminum'&&matches('Aluminium',term)));
-      const materials=[];
-      data.forEach(p=>(p.subproducts||[]).forEach(sub=>{
-        if(matches(sub.name,term)||matches(sub.slug,term))materials.push({parent:p,sub});
-      }));
-      if(categoryList)categories.forEach(p=>categoryList.appendChild(makeCategoryRow(p)));
-      if(categorySection)categorySection.hidden=categories.length===0;
-      if(materialHeading)materialHeading.hidden=materials.length===0;
-      materials.forEach(entry=>grid.appendChild(createDeepLinkSubproductCard(entry.parent,entry.sub,raw)));
+      showError(false);
+      const categories=rankItems(data,term,p=>p.name,p=>p.slug);
+      const entries=[];data.forEach(p=>(p.subproducts||[]).forEach(sub=>entries.push({p,sub})));
+      const materials=rankItems(entries,term,x=>x.sub.name,x=>x.sub.slug);
       const total=categories.length+materials.length;
-      setStatus(total===0?'No matching categories or materials':categories.length+' categor'+(categories.length===1?'y':'ies')+' · '+materials.length+' material'+(materials.length===1?'':'s'));
-      if(!total) {
-        const empty=document.createElement('div');empty.className='no-results';
-        const title=document.createElement('h3');title.textContent='No matching materials';
-        const hint=document.createElement('p');hint.textContent='Try a material, trade grade, or a category such as copper, aluminium, or ZURIK.';
-        empty.append(title,hint);grid.appendChild(empty);
-      }
+      if(resultsSummary)resultsSummary.textContent=materials.length+' material'+(materials.length===1?'':'s')+' · '+categories.length+' categor'+(categories.length===1?'y':'ies');
+      if(productsTabCount)productsTabCount.textContent='('+materials.length+')';
+      if(categoriesTabCount)categoriesTabCount.textContent='('+categories.length+')';
+      if(resultsControls)resultsControls.hidden=total===0;
+      if(emptyState)emptyState.hidden=total!==0;
+      if(emptyHeading&&total===0)emptyHeading.textContent='No results found for “'+raw+'”';
+      if(emptyCategories)emptyCategories.hidden=categories.length!==0;
+      categories.forEach(p=>categoryList?.appendChild(makeCategoryRow(p)));
+      materials.forEach(({p,sub})=>grid.appendChild(createDeepLinkSubproductCard(p,sub,raw)));
+      setStatus(materials.length+' material'+(materials.length===1?'':'s')+' · '+categories.length+' categor'+(categories.length===1?'y':'ies'));
+      setTab(activeTab);
+      if(!total)grid.hidden=true;
     };
-    const fetchCatalogue = () => {
+    const fetchCatalogue=()=>{
       if(pending)return;
-      pending=true; failed=false; showError(false);
-      const run=++sequence;
+      pending=true;failed=false;showError(false);
       if(input.value.trim())setStatus('Loading material catalogue…');
       fetch('/assets/data/products.json',{cache:'no-cache'})
-        .then(response=>{if(!response.ok)throw Error('Catalogue request '+response.status);return response.json()})
-        .then(value=>{if(!Array.isArray(value.products)||!value.products.length)throw Error('Invalid catalogue');if(run!==sequence)return;data=value.products;failed=false;})
-        .catch(err=>{if(run!==sequence)return;failed=true;console.error('VMG search catalogue:',err);})
-        .finally(()=>{if(run!==sequence)return;pending=false;display();if(menu && !menu.hidden && menuMode==='suggestions')renderBrowse('suggestions');});
+        .then(response=>{if(!response.ok)throw Error('Catalogue request '+response.status);return response.json();})
+        .then(value=>{if(!Array.isArray(value.products)||!value.products.length)throw Error('Invalid catalogue');data=value.products;failed=false;})
+        .catch(error=>{failed=true;console.error('VMG catalogue search:',error);})
+        .finally(()=>{pending=false;render();});
     };
-    if(toggle && menu){
+    function chooseTab(which,focus){closeMenu();setTab(which,focus);}
+    [productsTab,categoriesTab].forEach((button,index)=>{
+      if(!button)return;
+      const target=index===0?'products':'categories';
+      button.addEventListener('click',()=>chooseTab(target,false));
+      button.addEventListener('keydown',event=>{
+        if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+        event.preventDefault();
+        const next=event.key==='Home'?'products':event.key==='End'?'categories':event.key==='ArrowRight'?'categories':'products';
+        chooseTab(next,true);
+      });
+    });
+    if(toggle&&menu){
       toggle.addEventListener('click',()=>{
-        const open=menu.hidden;
-        menu.hidden=!open;
-        toggle.setAttribute('aria-expanded',String(open));
-        if(open){renderBrowse(input.value.trim()?'suggestions':'categories');toggle.focus();}
+        const opening=menu.hidden;
+        menu.hidden=!opening;
+        toggle.setAttribute('aria-expanded',String(opening));
+        if(opening){
+          const box=menu.querySelector('.vmg-browse-options');
+          if(box){const tpl=document.createElement('template');tpl.innerHTML=originalBrowse;box.replaceChildren(tpl.content.cloneNode(true));}
+          menu.classList.remove('vmg-suggestion-mode');
+          const title=menu.querySelector('.vmg-browse-header strong');
+          const n=menu.querySelector('.vmg-browse-header span');
+          if(title)title.textContent='Browse material categories';
+          if(n)n.textContent='10 categories';
+        }
       });
       document.addEventListener('pointerdown',event=>{
         if(!menu.hidden&&!menu.contains(event.target)&&!toggle.contains(event.target))closeMenu();
       });
       document.addEventListener('keydown',event=>{
-        if(event.key==='Escape' && !menu.hidden){event.preventDefault();closeMenu();toggle.focus();}
+        if(event.key==='Escape'&&!menu.hidden){event.preventDefault();closeMenu();toggle.focus();}
       });
     }
-    // The browse menu must not hide actual search results or remain open when
-    // visitors move back into the text input to search.
-    // The suggestions menu is disclosure-only: the chevron is its sole opener.
-    // Focusing or typing in the search field runs the regular results filter
-    // without opening suggestions or obscuring the results.
-    input.addEventListener('focus', closeMenu);
-    input.addEventListener('input', () => {
-      closeMenu();
-      display();
-    });
+    input.addEventListener('focus',closeMenu);
+    input.addEventListener('input',()=>{closeMenu();activeTab='products';render();});
     input.addEventListener('keydown',event=>{
-      if(event.key==='Escape' && ( !menu || menu.hidden )){
-        if(input.value){input.value='';display();}
-      }
+      if(event.key==='Escape'&&(!menu||menu.hidden)&&input.value){input.value='';render();}
     });
-    if(clear)clear.addEventListener('click',()=>{input.value='';closeMenu();display();input.focus();});
+    if(clear)clear.addEventListener('click',()=>{input.value='';closeMenu();render();input.focus();});
     if(retry)retry.addEventListener('click',fetchCatalogue);
-    document.addEventListener('vmg:products-rendered',display);
-    display();
-    fetchCatalogue();
+    if(browseEmpty)browseEmpty.addEventListener('click',()=>{closeMenu();if(toggle)toggle.click();});
+    document.addEventListener('vmg:products-rendered',render);
+    render();fetchCatalogue();
   }
-
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initProductSearch);
   else initProductSearch();
 
