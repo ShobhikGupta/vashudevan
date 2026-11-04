@@ -1,0 +1,224 @@
+/* VMG homepage gallery — continuous loop inspired by the referenced editorial gallery.
+   Self-contained: no gallery styles affect the products directory or other pages. */
+.home-main .vmg-home-gallery{
+  --vmg-gallery-copper:#b87943;
+  --vmg-gallery-navy:#09192b;
+  --vmg-gallery-gap:14px;
+  padding:clamp(42px,5vw,66px) 0 48px;
+  overflow:hidden;
+  background:#fff;
+  color:#102339;
+}
+.vmg-home-gallery .vmg-gallery-shell{
+  width:min(100% - 38px,1400px);
+  margin-inline:auto;
+}
+.vmg-home-gallery .vmg-gallery-heading{
+  margin:0 auto 28px;
+  max-width:920px;
+  text-align:center;
+}
+.vmg-home-gallery .vmg-gallery-heading .section-eyebrow{
+  margin:0 0 10px;
+  color:#b87943;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.115em;
+}
+.vmg-home-gallery .vmg-gallery-heading h2{
+  margin:0 0 10px;
+  font-size:clamp(28px,3.6vw,48px);
+  font-weight:800;
+  line-height:1.12;
+  letter-spacing:-.035em;
+  color:#0b1d33;
+}
+.vmg-home-gallery .vmg-gallery-heading>p:last-child{
+  margin:0 auto;
+  color:#637386;
+  font-size:clamp(13px,1.25vw,15px);
+  line-height:1.6;
+}
+.vmg-home-gallery .vmg-gallery-tabs{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  margin:0 0 21px;
+  border-bottom:1px solid #dce3e9;
+}
+.vmg-home-gallery .vmg-gallery-tab{
+  position:relative;
+  min-height:48px;
+  border:0;
+  border-radius:0;
+  padding:12px 8px;
+  background:transparent;
+  color:#102339;
+  font:800 12px/1.3 'Manrope',system-ui,sans-serif;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.vmg-home-gallery .vmg-gallery-tab::after{
+  content:'';
+  position:absolute;
+  height:3px;
+  left:0;
+  right:0;
+  bottom:-2px;
+  background:transparent;
+  transition:background-color .18s ease;
+}
+.vmg-home-gallery .vmg-gallery-tab[aria-selected="true"]{
+  color:#a45f2e;
+}
+.vmg-home-gallery .vmg-gallery-tab[aria-selected="true"]::after{
+  background:var(--vmg-gallery-copper);
+}
+.vmg-home-gallery .vmg-gallery-tab:focus-visible,
+.vmg-home-gallery .vmg-gallery-nav:focus-visible,
+.vmg-home-gallery .vmg-gallery-card:focus-visible{
+  outline:3px solid var(--vmg-gallery-copper);
+  outline-offset:3px;
+}
+.vmg-home-gallery .vmg-gallery-stage{
+  position:relative;
+}
+.vmg-home-gallery .vmg-gallery-viewport{
+  position:relative;
+  width:100%;
+  overflow:hidden;
+  touch-action:pan-y;
+  outline:none;
+}
+.vmg-home-gallery .vmg-gallery-track{
+  display:flex;
+  flex-wrap:nowrap;
+  align-items:stretch;
+  gap:var(--vmg-gallery-gap);
+  width:max-content;
+  transform:translate3d(0,0,0);
+  will-change:transform;
+}
+.vmg-home-gallery .vmg-gallery-group{
+  display:flex;
+  flex:0 0 auto;
+  flex-wrap:nowrap;
+  gap:var(--vmg-gallery-gap);
+}
+.vmg-home-gallery .vmg-gallery-card{
+  display:flex;
+  flex:0 0 var(--vmg-gallery-card-width,calc((100vw - 66px)/3));
+  flex-direction:column;
+  width:var(--vmg-gallery-card-width,calc((100vw - 66px)/3));
+  min-width:0;
+  overflow:hidden;
+  text-decoration:none;
+  background:#fff;
+  color:#102339;
+  border-radius:2px;
+  box-shadow:none;
+}
+.vmg-home-gallery .vmg-gallery-image{
+  position:relative;
+  display:block;
+  overflow:hidden;
+  height:clamp(240px,25vw,365px);
+  background:#e9edef;
+}
+.vmg-home-gallery .vmg-gallery-image img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:transform .45s ease;
+}
+.vmg-home-gallery .vmg-gallery-card:hover .vmg-gallery-image img{
+  transform:scale(1.035);
+}
+.vmg-home-gallery .vmg-gallery-caption{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  min-height:46px;
+  padding:10px 15px;
+  color:#fff;
+  background:var(--vmg-gallery-navy);
+}
+.vmg-home-gallery .vmg-gallery-caption strong{
+  font-size:clamp(12px,1.2vw,15px);
+  font-weight:800;
+  line-height:1.25;
+  letter-spacing:.015em;
+  text-transform:uppercase;
+}
+.vmg-home-gallery .vmg-gallery-caption small{
+  flex:none;
+  color:#e1b58c;
+  font-size:10px;
+  font-weight:750;
+  letter-spacing:.045em;
+  text-transform:uppercase;
+}
+.vmg-home-gallery .vmg-gallery-nav{
+  position:absolute;
+  top:calc((100% - 46px)/2);
+  z-index:3;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:39px;
+  height:60px;
+  padding:0;
+  border:1px solid rgba(255,255,255,.38);
+  border-radius:2px;
+  color:#fff;
+  background:rgba(9,25,43,.45);
+  backdrop-filter:blur(3px);
+  cursor:pointer;
+  font-size:34px;
+  font-weight:300;
+  line-height:1;
+  transform:translateY(-50%);
+  transition:background-color .18s ease;
+}
+.vmg-home-gallery .vmg-gallery-nav:hover{
+  background:rgba(9,25,43,.78);
+}
+.vmg-home-gallery .vmg-gallery-nav--prev{left:5px}
+.vmg-home-gallery .vmg-gallery-nav--next{right:5px}
+.vmg-home-gallery .vmg-gallery-footnote{
+  margin:12px 0 0;
+  text-align:center;
+  color:#697889;
+  font-size:11px;
+  line-height:1.5;
+}
+@media(max-width:900px){
+ .vmg-home-gallery .vmg-gallery-image{height:clamp(230px,33vw,330px)}
+ .vmg-home-gallery .vmg-gallery-tab{font-size:11px}
+}
+@media(max-width:640px){
+ .home-main .vmg-home-gallery{padding:38px 0 32px}
+ .vmg-home-gallery .vmg-gallery-shell{width:calc(100% - 28px)}
+ .vmg-home-gallery .vmg-gallery-heading{margin-bottom:18px}
+ .vmg-home-gallery .vmg-gallery-heading h2{font-size:29px}
+ .vmg-home-gallery .vmg-gallery-tabs{margin-bottom:15px}
+ .vmg-home-gallery .vmg-gallery-tab{
+   min-height:53px;
+   padding:10px 4px;
+   font-size:10px;
+   letter-spacing:0;
+ }
+ .vmg-home-gallery .vmg-gallery-image{height:255px}
+ .vmg-home-gallery .vmg-gallery-caption{min-height:44px;padding:9px 12px}
+ .vmg-home-gallery .vmg-gallery-caption strong{font-size:12px}
+ .vmg-home-gallery .vmg-gallery-caption small{font-size:9px}
+ .vmg-home-gallery .vmg-gallery-nav{width:32px;height:52px;font-size:28px}
+}
+@media(prefers-reduced-motion:reduce){
+ .vmg-home-gallery .vmg-gallery-track{will-change:auto}
+ .vmg-home-gallery .vmg-gallery-image img{transition:none}
+ .vmg-home-gallery .vmg-gallery-card:hover .vmg-gallery-image img{transform:none}
+ .vmg-home-gallery .vmg-gallery-nav{transition:none}
+}
