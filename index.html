@@ -8,6 +8,7 @@
     <link rel="icon" href="/assets/img/LOGO.png">
     <script src="/assets/js/vmg-home-intro.js?v=20260916a" async></script>
     <link rel="stylesheet" href="/assets/css/styles.css?v=7">
+    <link rel="stylesheet" href="/assets/css/vmg-home-gallery.css?v=20261104-gallery-v1">
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-6CJ7X607D5"></script>
@@ -475,6 +476,29 @@
         </div>
       </section>
 
+      <section class="vmg-home-gallery" aria-labelledby="vmg-home-gallery-title" data-vmg-infinite-gallery>
+        <div class="vmg-gallery-shell">
+          <div class="vmg-gallery-heading">
+            <p class="section-eyebrow">VMG MATERIAL GALLERY</p>
+            <h2 id="vmg-home-gallery-title">Our Gallery</h2>
+            <p>Explore recyclable-metal materials across VMG’s international sourcing and supply network.</p>
+          </div>
+          <div class="vmg-gallery-tabs" role="tablist" aria-label="Gallery material groups">
+            <button type="button" class="vmg-gallery-tab" data-vmg-gallery-tab="nonferrous" role="tab" aria-selected="true" tabindex="0">Non-Ferrous</button>
+            <button type="button" class="vmg-gallery-tab" data-vmg-gallery-tab="ferrous" role="tab" aria-selected="false" tabindex="-1">Ferrous</button>
+            <button type="button" class="vmg-gallery-tab" data-vmg-gallery-tab="shredder" role="tab" aria-selected="false" tabindex="-1">Shredder &amp; Auto Scrap</button>
+          </div>
+          <div class="vmg-gallery-stage">
+            <div class="vmg-gallery-viewport" aria-label="Continuously scrolling recyclable metal material gallery">
+              <div class="vmg-gallery-track"></div>
+            </div>
+            <button class="vmg-gallery-nav vmg-gallery-nav--prev" type="button" aria-label="Previous gallery materials">‹</button>
+            <button class="vmg-gallery-nav vmg-gallery-nav--next" type="button" aria-label="Next gallery materials">›</button>
+          </div>
+          <p class="vmg-gallery-footnote">Material examples are illustrative; availability is confirmed against individual enquiries.</p>
+        </div>
+      </section>
+
       <section id="locations" class="locations">
         <div class="container">
           <h2>Locations</h2>
@@ -557,6 +581,7 @@
     <script src="/assets/js/config.js?v=20260822b"></script>
     <script src="/assets/js/main.js"></script>
     <script src="/assets/js/products.render.simple.js"></script>
+    <script src="/assets/js/vmg-home-gallery.js?v=20261104-gallery-v1" defer></script>
 
     <script>
       // ── Infinite Country Ticker ──
