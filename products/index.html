@@ -58,6 +58,7 @@
     <link rel="stylesheet" href="/assets/css/vmg-search-odometer.css?v=20261027-top21-search-icon">
     <link rel="stylesheet" href="/assets/css/vmg-products-search-refinement.css?v=20261030b">
     <link rel="stylesheet" href="/assets/css/vmg-material-atlas.css?v=20261030-searchsuggest-v3">
+    <link rel="stylesheet" href="/assets/css/vmg-products-tabs.css?v=20261104-v1">
 </head>
   <body class="vmg-products-page">
     <header class="site-header vmg-econship-header" data-vmg-static-header="true">
@@ -155,12 +156,27 @@
       </section>
 
       <section class="section vmg-products-directory">
-        <div id="vmg-matching-category-section" class="container vmg-matching-category-section" hidden>
-          <h2>Matching Categories</h2>
-          <div id="vmg-matching-category-list" class="vmg-matching-category-list"></div>
+        <div class="container vmg-results-controls" id="vmg-results-controls" hidden>
+          <div class="vmg-results-title-row">
+            <h2 id="vmg-results-title">Search Results</h2>
+            <span id="vmg-results-summary"></span>
+          </div>
+          <div class="vmg-results-tabs" role="tablist" aria-label="Search result type">
+            <button type="button" id="vmg-products-tab" class="vmg-results-tab" role="tab" aria-selected="true" aria-controls="main-products-grid" tabindex="0">Products <span id="vmg-products-tab-count"></span></button>
+            <button type="button" id="vmg-categories-tab" class="vmg-results-tab" role="tab" aria-selected="false" aria-controls="vmg-matching-category-section" tabindex="-1">Categories <span id="vmg-categories-tab-count"></span></button>
+          </div>
         </div>
-        <div id="vmg-matching-materials-heading" class="container vmg-matching-materials-heading" hidden><h2>Matching Materials</h2><span class="vmg-materials-hint">Select a card to view its material details</span></div>
-        <div class="container cards grid-3 products-grid equal-card-grid" id="main-products-grid">
+        <div id="vmg-no-results" class="container vmg-no-results" hidden>
+          <span class="vmg-empty-search-icon" aria-hidden="true">⌕</span>
+          <h2 id="vmg-empty-heading">No results found</h2>
+          <p>Try another material or trade grade, or browse the available categories.</p>
+          <button type="button" id="vmg-empty-browse">Browse Categories</button>
+        </div>
+        <div id="vmg-matching-category-section" class="container vmg-matching-category-section" role="tabpanel" aria-labelledby="vmg-categories-tab" tabindex="0" hidden>
+          <div id="vmg-matching-category-list" class="vmg-matching-category-list"></div>
+          <p id="vmg-empty-categories" class="vmg-tab-empty" hidden>No matching categories. Try the Products tab to explore material matches.</p>
+        </div>
+        <div class="container cards grid-3 products-grid equal-card-grid" id="main-products-grid" role="tabpanel" aria-labelledby="vmg-products-tab" tabindex="0">
           <article id="aluminum" class="card product vmg-atlas-parent">
             <a href="/products/aluminium/" aria-label="View Aluminium category">
               <figure class="product-figure">
@@ -279,7 +295,7 @@
 </footer>
 
     <script src="/assets/js/config.js?v=20260822b"></script>
-    <script src="/assets/js/main.js?v=20261030-manual-toggle-v4"></script>
+    <script src="/assets/js/main.js?v=20261104-segmented-v1"></script>
     <script src="/assets/js/products.render.js?v=20261030-white-v1"></script>
     <script src="/assets/js/vmg-search-odometer.js?v=20261030-fast-v2"></script>
   </body>
