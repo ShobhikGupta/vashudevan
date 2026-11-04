@@ -92,3 +92,119 @@ body.vmg-products-page #vmg-empty-browse:hover{
 @media(prefers-reduced-motion:reduce){
  body.vmg-products-page .vmg-results-tab{transition:none}
 }
+
+/* Final aligned results grid, consistent with slim VMG cards. */
+body.vmg-products-page .product-search{
+  width:min(100%,600px);
+  max-width:600px;
+  margin-inline:auto;
+}
+body.vmg-products-page .vmg-products-directory #main-products-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:12px;
+  width:min(100%,1160px);
+  max-width:1160px;
+  margin-inline:auto;
+  align-items:stretch;
+}
+body.vmg-products-page #main-products-grid>.subproduct-search-result{
+  display:flex;
+  width:100%;
+  min-width:0;
+  height:100%;
+  grid-column:span 1;
+  border-radius:7px;
+}
+body.vmg-products-page #main-products-grid>.subproduct-search-result>a.subproduct-deep-link{
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  width:100%;
+  height:100%;
+  min-height:0;
+}
+body.vmg-products-page #main-products-grid>.subproduct-search-result .vmg-atlas-result-visual{
+  display:block;
+  width:100%;
+  height:auto;
+  aspect-ratio:5/4;
+  flex:none;
+  position:relative;
+  overflow:hidden;
+}
+body.vmg-products-page #main-products-grid>.subproduct-search-result .vmg-atlas-result-image{
+  position:absolute;
+  inset:0;
+  display:block;
+  width:100%;
+  height:100%;
+  min-height:0;
+  object-fit:cover;
+}
+body.vmg-products-page #main-products-grid>.subproduct-search-result .vmg-atlas-result-copy{
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  justify-content:center;
+  align-items:stretch;
+  padding:9px 10px;
+  gap:0;
+  min-height:46px;
+}
+body.vmg-products-page #main-products-grid>.subproduct-search-result .vmg-atlas-result-name{
+  display:block;
+  width:100%;
+  min-width:0;
+  font-size:clamp(12px,1.04vw,14px);
+  line-height:1.34;
+  font-weight:750;
+  overflow-wrap:break-word;
+}
+body.vmg-products-page #main-products-grid>.subproduct-search-result .vmg-atlas-result-name::after{
+  float:right;
+  margin-left:8px;
+  font-size:16px;
+  color:#b87943;
+}
+body.vmg-products-page .vmg-search-more-wrap{
+  display:flex;
+  align-items:center;
+  flex-direction:column;
+  gap:7px;
+  justify-content:center;
+  margin:24px auto 0;
+}
+body.vmg-products-page .vmg-search-more-wrap[hidden],
+body.vmg-products-page .vmg-search-more[hidden]{display:none!important}
+body.vmg-products-page .vmg-search-more{
+  padding:10px 22px;
+  min-height:42px;
+  border:1px solid #c3ced7;
+  border-radius:6px;
+  background:white;
+  color:#0d243c;
+  font-weight:750;
+  font-size:13px;
+  cursor:pointer;
+}
+body.vmg-products-page .vmg-search-more:hover,
+body.vmg-products-page .vmg-search-more:focus-visible{
+  border-color:#b87943;
+  outline-offset:2px;
+}
+body.vmg-products-page #vmg-search-visible-count{color:#667789;font-size:12px}
+@media(max-width:1090px){
+ body.vmg-products-page .vmg-products-directory #main-products-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:850px){
+ body.vmg-products-page .vmg-products-directory #main-products-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ body.vmg-products-page .vmg-products-directory #main-products-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ body.vmg-products-page #main-products-grid>.subproduct-search-result .vmg-atlas-result-copy{padding:8px 9px;min-height:44px}
+ body.vmg-products-page #main-products-grid>.subproduct-search-result .vmg-atlas-result-name{font-size:12px}
+}
+@media(max-width:345px){
+ body.vmg-products-page .vmg-products-directory #main-products-grid{grid-template-columns:minmax(0,1fr)}
+}
