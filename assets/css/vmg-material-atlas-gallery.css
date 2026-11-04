@@ -177,3 +177,84 @@ body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-c
   font-size:11.5px!important;
  }
 }
+
+/* Shared gallery alignment for all ten material category pages.
+   Fixed column tracks, natural card heights and slim readable white captions.
+   Does not hide or modify any material entry. */
+body.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-grid,
+body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-grid{
+  display:grid;
+  gap:12px;
+  align-items:stretch;
+  justify-content:center;
+  grid-auto-rows:auto;
+  margin-inline:auto;
+  min-width:0;
+}
+body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-grid{
+  grid-template-columns:repeat(var(--vmg-category-columns,4),minmax(0,1fr));
+}
+body.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-grid{
+  grid-template-columns:repeat(5,minmax(0,1fr));
+}
+body.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-card,
+body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-card{
+  display:flex;
+  flex-direction:column;
+  width:100%;
+  min-width:0;
+  height:100%;
+  margin:0;
+}
+body.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-card img,
+body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-card img{
+  display:block;
+  flex:none;
+  width:100%;
+  height:auto;
+  aspect-ratio:5/4;
+  object-fit:cover;
+}
+body.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-card figcaption,
+body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-card figcaption{
+  display:flex;
+  flex:1 1 auto;
+  align-items:center;
+  justify-content:flex-start;
+  min-height:46px;
+  padding:9px 10px!important;
+  font-size:clamp(11.5px,1vw,13px)!important;
+  line-height:1.35;
+  overflow-wrap:break-word;
+}
+@media(max-width:1100px){
+ body.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+ body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-grid{grid-template-columns:repeat(var(--vmg-category-tablet-columns,3),minmax(0,1fr))}
+}
+@media(max-width:900px){
+ body.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ body.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-grid,
+ body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+ }
+ body.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-card figcaption,
+ body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-card figcaption{
+  min-height:47px;
+  padding:8px 9px!important;
+  font-size:11.5px!important;
+ }
+}
+@media(max-width:340px){
+ body.vmg-aluminium-page .vmg-material-catalogue .seo-catalogue-grid,
+ body.material-page.vmg-category-refined .vmg-material-catalogue .seo-catalogue-grid{
+  grid-template-columns:minmax(0,1fr);
+ }
+ body.material-page.vmg-category-refined[data-vmg-catalogue-count="3"] .seo-catalogue-grid>.seo-catalogue-card:last-child{
+  grid-column:auto;
+  justify-self:stretch;
+  width:100%;
+ }
+}
