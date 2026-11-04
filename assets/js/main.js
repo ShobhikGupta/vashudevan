@@ -813,8 +813,9 @@
     if(!input||!grid)return;
     const urls={aluminum:'/products/aluminium/','auto-scrap':'/products/auto-scrap/',brass:'/products/brass/',copper:'/products/copper/','copper-bearing':'/products/copper-bearing/',ferrous:'/products/ferrous/',lead:'/products/lead/','shredder-scrap':'/products/shredder-scrap/','stainless-steel':'/products/stainless-steel/',zinc:'/products/zinc/'};
     const materialPageUrl=slug=>urls[slug]||'/products/';
-    const normalize=value=>String(value||'').toLowerCase().replace(/aluminium/g,'aluminum').replace(/[^a-z0-9]+/g,' ').trim();
+    const normalize=value=>window.VMGSearchCore?window.VMGSearchCore.normalize(value):String(value||'').toLowerCase().replace(/aluminium/g,'aluminum').replace(/[^a-z0-9]+/g,' ').trim();
     const score=(name,slug,term)=>{
+      if(window.VMGSearchCore)return Math.min(window.VMGSearchCore.rank(name,term),window.VMGSearchCore.rank(slug,term));
       const candidates=[normalize(name),normalize(slug)];
       if(candidates.some(x=>x===term))return 0;
       if(candidates.some(x=>x.startsWith(term)))return 1;
@@ -958,9 +959,11 @@
       if(pending)return;
       pending=true;failed=false;showError(false);
       if(input.value.trim())setStatus('Loading material catalogue…');
-      fetch('/assets/data/products.json',{cache:'no-cache'})
-        .then(response=>{if(!response.ok)throw Error('Catalogue request '+response.status);return response.json();})
-        .then(value=>{if(!Array.isArray(value.products)||!value.products.length)throw Error('Invalid catalogue');data=value.products;failed=false;})
+      (window.VMGSearchCore?window.VMGSearchCore.loadProducts():
+        fetch('/assets/data/products.json',{cache:'no-cache'})
+          .then(response=>{if(!response.ok)throw Error('Catalogue request '+response.status);return response.json();})
+          .then(value=>value.products))
+        .then(products=>{if(!Array.isArray(products)||!products.length)throw Error('Invalid catalogue');data=products;failed=false;})
         .catch(error=>{failed=true;console.error('VMG catalogue search:',error);})
         .finally(()=>{pending=false;render();});
     };
@@ -1011,6 +1014,11 @@
     if(retry)retry.addEventListener('click',fetchCatalogue);
     if(browseEmpty)browseEmpty.addEventListener('click',()=>{closeMenu();if(toggle)toggle.click();});
     document.addEventListener('vmg:products-rendered',render);
+    // Support direct search links from the mobile header overlay.
+    try{
+      const q=new URLSearchParams(window.location.search).get('q');
+      if(q&&!input.value)input.value=q.slice(0,120);
+    }catch(_){}
     render();fetchCatalogue();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initProductSearch);
